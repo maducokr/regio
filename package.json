@@ -1,0 +1,21 @@
+{
+  "name": "regio-login",
+  "version": "1.0.0",
+  "description": "Regio login system with Neon database",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "keywords": ["regio", "login", "neon", "netlify"],
+  "author": "Regio Team",
+  "license": "MIT"
+} 
