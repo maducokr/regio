@@ -47,8 +47,8 @@ CREATE TRIGGER update_inputact_updated_at
 -- 샘플 데이터 (테스트용) - 실제 데이터와 일치하도록 수정
 INSERT INTO member (name, passno) 
 VALUES 
-    ('홍길동', 123412345),
-    ('갑순이', 123412345)
+    ('홍길동', 1234123456),
+    ('갑순이', 1234123456)
 ON CONFLICT (id) DO NOTHING;
 
 -- 샘플 활동 데이터

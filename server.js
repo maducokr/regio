@@ -65,12 +65,12 @@ const dummyUsers = [
     {
         id: 1,
         name: '홍길동',
-        passno: 123412345
+        passno: 1234123456
     },
     {
         id: 2,
         name: '갑순이',
-        passno: 123412345
+        passno: 1234123456
     }
 ];
 
