@@ -9,4 +9,8 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000 
+        value: 10000
+      - key: DB_NAME
+        value: regio
+      - key: DB_PASSWORD
+        value: 5854 

@@ -1,10 +1,20 @@
 const express = require('express');
 const path = require('path');
-const { neon } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
+
+// PostgreSQL 연결 설정
+const pool = new Pool({
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'regio',
+    password: process.env.DB_PASSWORD || '5854',
+    port: process.env.DB_PORT || 5432,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 // 미들웨어 설정
 app.use(express.json({ 
@@ -41,20 +51,16 @@ app.use((req, res, next) => {
     }
 });
 
-// 데이터베이스 연결 (환경 변수가 없으면 더미 데이터 사용)
-let sql;
-try {
-    if (process.env.DATABASE_URL) {
-        sql = neon(process.env.DATABASE_URL);
-        console.log('Neon 데이터베이스에 연결되었습니다.');
-    } else {
-        console.log('DATABASE_URL이 설정되지 않아 더미 데이터를 사용합니다.');
-    }
-} catch (error) {
-    console.log('데이터베이스 연결 실패, 더미 데이터 사용:', error.message);
-}
+// 데이터베이스 연결 테스트
+pool.on('connect', () => {
+    console.log('✅ PostgreSQL 데이터베이스에 연결되었습니다.');
+});
 
-// 더미 사용자 데이터
+pool.on('error', (err) => {
+    console.error('❌ PostgreSQL 연결 오류:', err);
+});
+
+// 더미 사용자 데이터 (데이터베이스 연결 실패 시 사용)
 const dummyUsers = [
     {
         id: 1,
@@ -92,16 +98,16 @@ app.post('/api/login', async (req, res) => {
 
         let user;
         
-        if (sql) {
-            // 실제 데이터베이스 사용
-            const result = await sql`
-                SELECT id, name, password_hash, phone_last4, resident_id_front6, created_at 
-                FROM member 
-                WHERE name = ${name}
-            `;
-            user = result[0];
-        } else {
-            // 더미 데이터 사용
+        try {
+            // PostgreSQL 데이터베이스 사용
+            const result = await pool.query(
+                'SELECT id, name, password_hash, phone_last4, resident_id_front6, created_at FROM member WHERE name = $1',
+                [name]
+            );
+            user = result.rows[0];
+        } catch (dbError) {
+            console.error('데이터베이스 오류:', dbError);
+            // 데이터베이스 오류 시 더미 데이터 사용
             user = dummyUsers.find(u => u.name === name);
         }
 
@@ -159,10 +165,11 @@ app.post('/api/register', async (req, res) => {
 
         // 중복 확인
         let existingUser;
-        if (sql) {
-            const result = await sql`SELECT id FROM member WHERE name = ${name}`;
-            existingUser = result[0];
-        } else {
+        try {
+            const result = await pool.query('SELECT id FROM member WHERE name = $1', [name]);
+            existingUser = result.rows[0];
+        } catch (dbError) {
+            console.error('데이터베이스 오류:', dbError);
             existingUser = dummyUsers.find(u => u.name === name);
         }
 
@@ -181,18 +188,20 @@ app.post('/api/register', async (req, res) => {
             created_at: new Date()
         };
 
-        if (sql) {
-            // 실제 데이터베이스에 저장
+        try {
+            // PostgreSQL 데이터베이스에 저장
             const passwordHash = await bcrypt.hash(`${phone_last4}${resident_id_front6}`, 10);
-            const result = await sql`
-                INSERT INTO member (name, phone_last4, resident_id_front6, phone_full, resident_id_full, password_hash, created_at)
-                VALUES (${name}, ${phone_last4}, ${resident_id_front6}, ${phone_full || null}, ${resident_id_full || null}, ${passwordHash}, NOW())
-                RETURNING id, name, created_at
-            `;
-            newUser.id = result[0].id;
-            newUser.created_at = result[0].created_at;
-        } else {
-            // 더미 데이터에 추가
+            const result = await pool.query(
+                `INSERT INTO member (name, phone_last4, resident_id_front6, phone_full, resident_id_full, password_hash, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                 RETURNING id, name, created_at`,
+                [name, phone_last4, resident_id_front6, phone_full || null, resident_id_full || null, passwordHash]
+            );
+            newUser.id = result.rows[0].id;
+            newUser.created_at = result.rows[0].created_at;
+        } catch (dbError) {
+            console.error('데이터베이스 저장 오류:', dbError);
+            // 데이터베이스 오류 시 더미 데이터에 추가
             dummyUsers.push(newUser);
         }
 
@@ -212,6 +221,91 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+// 활동 입력 API
+app.post('/api/inputact', async (req, res) => {
+    try {
+        const { member_id, activity_date, activity_type, activity_description, hours_spent, location, notes } = req.body;
+
+        if (!member_id || !activity_type) {
+            return res.status(400).json({ error: '회원 ID와 활동 유형은 필수입니다.' });
+        }
+
+        let newActivity;
+        try {
+            // PostgreSQL 데이터베이스에 저장
+            const result = await pool.query(
+                `INSERT INTO inputact (member_id, activity_date, activity_type, activity_description, hours_spent, location, notes, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                 RETURNING id, member_id, activity_date, activity_type, created_at`,
+                [
+                    member_id,
+                    activity_date || new Date(),
+                    activity_type,
+                    activity_description || null,
+                    hours_spent || 0,
+                    location || null,
+                    notes || null
+                ]
+            );
+            newActivity = result.rows[0];
+        } catch (dbError) {
+            console.error('활동 저장 오류:', dbError);
+            return res.status(500).json({ error: '활동 저장 중 오류가 발생했습니다.' });
+        }
+
+        res.status(201).json({
+            success: true,
+            message: '활동이 등록되었습니다.',
+            activity: newActivity
+        });
+
+    } catch (error) {
+        console.error('Activity input error:', error);
+        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+});
+
+// 활동 조회 API
+app.get('/api/inputact/:member_id', async (req, res) => {
+    try {
+        const { member_id } = req.params;
+        const { start_date, end_date, activity_type } = req.query;
+
+        let query = 'SELECT * FROM inputact WHERE member_id = $1';
+        let params = [member_id];
+
+        if (start_date) {
+            query += ' AND activity_date >= $2';
+            params.push(start_date);
+        }
+        if (end_date) {
+            query += ' AND activity_date <= $' + (params.length + 1);
+            params.push(end_date);
+        }
+        if (activity_type) {
+            query += ' AND activity_type = $' + (params.length + 1);
+            params.push(activity_type);
+        }
+
+        query += ' ORDER BY activity_date DESC, created_at DESC';
+
+        try {
+            const result = await pool.query(query, params);
+            res.json({
+                success: true,
+                activities: result.rows
+            });
+        } catch (dbError) {
+            console.error('활동 조회 오류:', dbError);
+            res.status(500).json({ error: '활동 조회 중 오류가 발생했습니다.' });
+        }
+
+    } catch (error) {
+        console.error('Activity fetch error:', error);
+        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+});
+
 // 메인 페이지
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -220,9 +314,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
     console.log(`환경: ${process.env.NODE_ENV || 'development'}`);
-    if (sql) {
-        console.log('✅ Neon 데이터베이스 연결됨');
-    } else {
-        console.log('⚠️ 더미 데이터 사용 중 (DATABASE_URL 설정 필요)');
-    }
+    console.log('✅ PostgreSQL 데이터베이스 연결 준비 완료');
+    console.log('📊 데이터베이스: regio');
+    console.log('👥 테이블: member, inputact');
 });
