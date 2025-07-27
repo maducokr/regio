@@ -56,14 +56,8 @@ npm run dev
 
 #### member 테이블
 - `id`: 기본키 (SERIAL)
-- `name`: 성명 (VARCHAR(100), UNIQUE)
-- `phone_last4`: 전화번호 끝 4자리 (VARCHAR(4))
-- `resident_id_front6`: 주민번호 앞 6자리 (VARCHAR(6))
-- `phone_full`: 전체 전화번호 (VARCHAR(20))
-- `resident_id_full`: 전체 주민번호 (VARCHAR(14))
-- `password_hash`: 비밀번호 해시 (VARCHAR(255))
-- `created_at`: 생성일시 (TIMESTAMP)
-- `updated_at`: 수정일시 (TIMESTAMP)
+- `name`: 성명 (VARCHAR(50))
+- `passno`: 비밀번호 (INTEGER)
 
 #### inputact 테이블
 - `id`: 기본키 (SERIAL)

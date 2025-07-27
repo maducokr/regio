@@ -65,16 +65,12 @@ const dummyUsers = [
     {
         id: 1,
         name: '홍길동',
-        phone_last4: '1234',
-        resident_id_front6: '123456',
-        password_hash: 'dummy_hash'
+        passno: 123412345
     },
     {
         id: 2,
-        name: '김철수',
-        phone_last4: '5678',
-        resident_id_front6: '234567',
-        password_hash: 'dummy_hash'
+        name: '갑순이',
+        passno: 123412345
     }
 ];
 
@@ -99,9 +95,9 @@ app.post('/api/login', async (req, res) => {
         let user;
         
         try {
-            // PostgreSQL 데이터베이스 사용
+            // PostgreSQL 데이터베이스 사용 - 실제 구조에 맞게 수정
             const result = await pool.query(
-                'SELECT id, name, password_hash, phone_last4, resident_id_front6, created_at FROM member WHERE name = $1',
+                'SELECT id, name, passno FROM member WHERE name = $1',
                 [name]
             );
             user = result.rows[0];
@@ -117,8 +113,8 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ error: '등록되지 않은 사용자입니다.' });
         }
 
-        // 비밀번호 검증 (폰번호끝4자+주민번호앞6자)
-        const expectedPassword = `${user.phone_last4}${user.resident_id_front6}`;
+        // 비밀번호 검증 (passno와 비교)
+        const expectedPassword = user.passno.toString();
         
         console.log('비밀번호 검증:', {
             입력된비밀번호: password,
@@ -135,8 +131,7 @@ app.post('/api/login', async (req, res) => {
             message: '로그인 성공',
             user: {
                 id: user.id,
-                name: user.name,
-                created_at: user.created_at || new Date()
+                name: user.name
             }
         });
 
@@ -149,18 +144,15 @@ app.post('/api/login', async (req, res) => {
 // 등록 API
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, phone_last4, resident_id_front6, phone_full, resident_id_full } = req.body;
+        const { name, password } = req.body;
 
-        if (!name || !phone_last4 || !resident_id_front6) {
-            return res.status(400).json({ error: '모든 필수 정보를 입력해주세요.' });
+        if (!name || !password) {
+            return res.status(400).json({ error: '성명과 비밀번호를 입력해주세요.' });
         }
 
-        if (phone_last4.length !== 4 || !/^\d{4}$/.test(phone_last4)) {
-            return res.status(400).json({ error: '전화번호 끝 4자리를 정확히 입력해주세요.' });
-        }
-
-        if (resident_id_front6.length !== 6 || !/^\d{6}$/.test(resident_id_front6)) {
-            return res.status(400).json({ error: '주민번호 앞 6자리를 정확히 입력해주세요.' });
+        // 비밀번호가 숫자인지 확인
+        if (!/^\d+$/.test(password)) {
+            return res.status(400).json({ error: '비밀번호는 숫자만 입력해주세요.' });
         }
 
         // 중복 확인
@@ -181,24 +173,16 @@ app.post('/api/register', async (req, res) => {
         const newUser = {
             id: dummyUsers.length + 1,
             name,
-            phone_last4,
-            resident_id_front6,
-            phone_full,
-            resident_id_full,
-            created_at: new Date()
+            passno: parseInt(password)
         };
 
         try {
             // PostgreSQL 데이터베이스에 저장
-            const passwordHash = await bcrypt.hash(`${phone_last4}${resident_id_front6}`, 10);
             const result = await pool.query(
-                `INSERT INTO member (name, phone_last4, resident_id_front6, phone_full, resident_id_full, password_hash, created_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, NOW())
-                 RETURNING id, name, created_at`,
-                [name, phone_last4, resident_id_front6, phone_full || null, resident_id_full || null, passwordHash]
+                'INSERT INTO member (name, passno) VALUES ($1, $2) RETURNING id, name',
+                [name, parseInt(password)]
             );
             newUser.id = result.rows[0].id;
-            newUser.created_at = result.rows[0].created_at;
         } catch (dbError) {
             console.error('데이터베이스 저장 오류:', dbError);
             // 데이터베이스 오류 시 더미 데이터에 추가
@@ -210,8 +194,7 @@ app.post('/api/register', async (req, res) => {
             message: '등록이 완료되었습니다.',
             user: {
                 id: newUser.id,
-                name: newUser.name,
-                created_at: newUser.created_at
+                name: newUser.name
             }
         });
 

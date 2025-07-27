@@ -335,7 +335,7 @@
         
         <div class="input-group">
             <input type="text" class="input-field" placeholder="성명" id="username">
-            <input type="password" class="input-field" placeholder="폰번끝4자+주민번호앞6자" id="password">
+            <input type="password" class="input-field" placeholder="비밀번호 (숫자)" id="password">
         </div>
 
         <button class="login-button" id="loginBtn">로그인</button>
@@ -478,10 +478,7 @@
                     <h2>등록신청</h2>
                     <form id="registrationForm">
                         <input type="text" placeholder="성명" id="regName" required>
-                        <input type="text" placeholder="전화번호 끝 4자리" id="regPhoneLast4" maxlength="4" required>
-                        <input type="text" placeholder="주민번호 앞 6자리" id="regResidentIdFront6" maxlength="6" required>
-                        <input type="text" placeholder="전체 전화번호 (선택)" id="regPhoneFull">
-                        <input type="text" placeholder="전체 주민번호 (선택)" id="regResidentIdFull">
+                        <input type="text" placeholder="비밀번호 (숫자)" id="regPassword" required>
                         <button type="submit">등록신청</button>
                     </form>
                 </div>
@@ -509,10 +506,7 @@
                 
                 const formData = {
                     name: document.getElementById('regName').value.trim(),
-                    phone_last4: document.getElementById('regPhoneLast4').value.trim(),
-                    resident_id_front6: document.getElementById('regResidentIdFront6').value.trim(),
-                    phone_full: document.getElementById('regPhoneFull').value.trim() || null,
-                    resident_id_full: document.getElementById('regResidentIdFull').value.trim() || null
+                    password: document.getElementById('regPassword').value.trim()
                 };
                 
                 try {

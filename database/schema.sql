@@ -2,17 +2,11 @@
 -- 데이터베이스명: regio
 -- 비밀번호: 5854
 
--- member 테이블 생성
+-- member 테이블 생성 (실제 구조에 맞게 수정)
 CREATE TABLE IF NOT EXISTS member (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    phone_last4 VARCHAR(4) NOT NULL,
-    resident_id_front6 VARCHAR(6) NOT NULL,
-    phone_full VARCHAR(20),
-    resident_id_full VARCHAR(14),
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(50) NOT NULL,
+    passno INTEGER NOT NULL
 );
 
 -- inputact 테이블 생성 (활동 입력용)
@@ -31,8 +25,6 @@ CREATE TABLE IF NOT EXISTS inputact (
 
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_member_name ON member(name);
-CREATE INDEX IF NOT EXISTS idx_member_phone_last4 ON member(phone_last4);
-CREATE INDEX IF NOT EXISTS idx_member_resident_id_front6 ON member(resident_id_front6);
 CREATE INDEX IF NOT EXISTS idx_inputact_member_id ON inputact(member_id);
 CREATE INDEX IF NOT EXISTS idx_inputact_activity_date ON inputact(activity_date);
 CREATE INDEX IF NOT EXISTS idx_inputact_activity_type ON inputact(activity_type);
@@ -47,23 +39,17 @@ END;
 $$ language 'plpgsql';
 
 -- 트리거 생성
-CREATE TRIGGER update_member_updated_at 
-    BEFORE UPDATE ON member 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TRIGGER update_inputact_updated_at 
     BEFORE UPDATE ON inputact 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
--- 샘플 데이터 (테스트용)
-INSERT INTO member (name, phone_last4, resident_id_front6, phone_full, resident_id_full, password_hash) 
+-- 샘플 데이터 (테스트용) - 실제 데이터와 일치하도록 수정
+INSERT INTO member (name, passno) 
 VALUES 
-    ('홍길동', '1234', '123456', '010-1234-5678', '123456-1234567', '$2a$10$example_hash_here'),
-    ('김철수', '5678', '234567', '010-9876-5432', '234567-2345678', '$2a$10$example_hash_here'),
-    ('이영희', '9012', '345678', '010-5555-1234', '345678-3456789', '$2a$10$example_hash_here')
-ON CONFLICT (name) DO NOTHING;
+    ('홍길동', 123412345),
+    ('갑순이', 123412345)
+ON CONFLICT (id) DO NOTHING;
 
 -- 샘플 활동 데이터
 INSERT INTO inputact (member_id, activity_date, activity_type, activity_description, hours_spent, location, notes)
@@ -85,4 +71,4 @@ SELECT
     4.0,
     '온라인',
     'React.js 기초 과정'
-FROM member m WHERE m.name = '김철수'; 
+FROM member m WHERE m.name = '갑순이'; 
