@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>?덉???留덈━???쒕룞 蹂닿퀬??/title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .form-section {
+            margin: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background-color: #34495e;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .form-table th {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .form-table td {
+            border: 1px solid #bdc3c7;
+            padding: 5px;
+            vertical-align: middle;
+        }
+
+        .form-table input[type="text"],
+        .form-table input[type="number"] {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .form-table input[type="text"]:focus,
+        .form-table input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .category-col {
+            width: 15%;
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .subitem-col {
+            width: 20%;
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .activity-col {
+            width: 25%;
+        }
+
+        .content-col {
+            width: 25%;
+        }
+
+        .remarks-col {
+            width: 15%;
+            background-color: #f8f9fa;
+            font-size: 10px;
+            text-align: center;
+            padding: 8px 5px;
+        }
+
+        .remarks-col input[type="number"] {
+            width: 60px;
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .remarks-col input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .sub-activity {
+            display: flex;
+            gap: 2px;
+        }
+
+        .sub-activity input {
+            flex: 1;
+        }
+
+        .prayer-section {
+            margin: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .prayer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .prayer-table th,
+        .prayer-table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .prayer-table th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .prayer-table input[type="number"] {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .prayer-table input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .prayer-table td:first-child {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .prayer-table td:nth-child(2),
+        .prayer-table td:nth-child(4) {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .submit-btn {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #229954;
+        }
+
+        .empty-row {
+            height: 30px;
+        }
+
+        .section-divider {
+            height: 10px;
+            background-color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>?덉???留덈━???쒕룞 蹂닿퀬??/h1>
+            <p>?쒕룞 ?댁슜 諛?寃곌낵 湲곕줉</p>
+        </div>
+
+        <form id="legionReportForm">
+            <!-- 蹂듭쓬?좉탳 ?뱀뀡 -->
+            <div class="form-section">
+                <div class="section-header">1. 蹂듭쓬?좉탳</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>醫낅ぉ</th>
+                            <th>?몃ぉ</th>
+                            <th colspan="2">?쒕룞</th>
+                           
+                            <th>鍮꾧퀬</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>???/th>
+                            <th>?잛닔</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="6">蹂듭쓬?좉탳</td>
+                            <td class="subitem-col">?몄씤 ?낃탳沅뚮㈃</td>
+                            <td>
+                                <select name="evangelism_outsider_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_outsider_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_outsider_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">援먮━諛섏씤??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">援먮━ 以묐떒??沅뚮㈃</td>
+                            <td>
+                                <select name="evangelism_dropout_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_dropout_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_dropout_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">援먮━諛섏씤??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">諛⑸Ц諛뤾??먯꽑援?/td>
+                            <td>
+                                <select name="evangelism_visit_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_visit_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_visit_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">援먮━諛섏씤??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?덈퉬??愿由?/td>
+                            <td>
+                                <select name="evangelism_catechumen_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_catechumen_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_catechumen_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?몃???/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?듭떊 援먮━??/td>
+                            <td>
+                                <select name="evangelism_correspondence_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_correspondence_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_correspondence_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?몃???/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">援먮━諛??묒“</td>
+                            <td>
+                                <select name="evangelism_cooperation_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_cooperation_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_cooperation_content" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="援먮━吏??>援먮━吏??/option>
+                                    <option value="蹂댁“吏??>蹂댁“吏??/option>
+                                    <option value="?됱젙?낅Т">?됱젙?낅Т</option>
+                                    <option value="?섍꼍?뺣━">?섍꼍?뺣━</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                           
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 援먯슦?뚮큵 ?뱀뀡 -->
+            <div class="form-section">
+                <div class="section-header">2. 援먯슦?뚮큵</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>醫낅ぉ</th>
+                            <th>?몃ぉ</th>
+                            <th colspan="2">?쒕룞</th>
+                           
+                            <th>鍮꾧퀬</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>???/th>
+                            <th>?잛닔</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="10">援먯슦?뚮큵</td>
+                            <td class="subitem-col">???곸꽭???뚮큵</td>
+                            <td>
+                                <select name="care_newconvert_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_newconvert_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_newconvert_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?⑥껜媛??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">援먯슦 媛?뺣갑臾?/td>
+                            <td>
+                                <select name="care_homevisit_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_homevisit_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_homevisit_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?⑥껜媛??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?됰떞 援먯슦 諛⑸Ц</td>
+                            <td>
+                                <select name="care_inactive_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_inactive_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_inactive_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?뚮몢</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?쇱씤 ?μ븷???뚮큵</td>
+                            <td>
+                                <select name="care_marriage_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_marriage_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_marriage_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?댁냼</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?먭났?깆궗 沅뚮㈃</td>
+                            <td>
+                                <select name="care_confession_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_confession_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_confession_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?깆궗</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?꾩엯 援먯슦 ?뚮큵</td>
+                            <td>
+                                <select name="care_transfer_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_transfer_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_transfer_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?⑥껜媛??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">寃ъ쭊?깆궗沅뚮㈃</td>
+                            <td>
+                                <select name="care_confirmation_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_confirmation_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_confirmation_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">寃ъ쭊</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?좎븘 ?몃? 沅뚮㈃</td>
+                            <td>
+                                <select name="care_infantbaptism_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_infantbaptism_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_infantbaptism_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?몃?</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">援곗씤?좎썝?뚮큵</td>
+                            <td>
+                                <select name="care_soldier_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_soldier_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_soldier_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">泥レ쁺?깆껜</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">泥?냼???뚮큵</td>
+                            <td>
+                                <select name="care_youth_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_youth_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ?대젮?댁옄?뚮큵 ?뱀뀡 -->
+            <div class="form-section">
+                <div class="section-header">3. ?대젮?댁옄?뚮큵</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>醫낅ぉ</th>
+                            <th>?몃ぉ</th>
+                            <th colspan="2">?쒕룞</th>
+                           
+                            <th>鍮꾧퀬</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>???/th>
+                            <th>?잛닔</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="9">?대젮?댁옄?뚮큵</td>
+                            <td class="subitem-col">援먯슦 ?곴? 諛⑸Ц 諛??뚮큵</td>
+                            <td>
+                                <select name="needy_business_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_business_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="needy_business_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?곕룄, 誘몄궗, ?μ?</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">援먯슦 ?섏옄 諛⑸Ц 諛??뚮큵</td>
+                            <td>
+                                <select name="needy_sick_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_sick_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="needy_sick_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?깆궗諛륁쁺?깆껜</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?몄씤?섏옄 諛⑸Ц 諛??뚮큵</td>
+                            <td>
+                                <select name="needy_outsider_sick_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_outsider_sick_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?몄씤 ?곴?諛⑸Ц 諛??뚮큵</td>
+                            <td>
+                                <select name="needy_outsider_business_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_outsider_business_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?ы빐 諛??ш퀬 ?쇳빐??/td>
+                            <td>
+                                <select name="needy_disaster_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_disaster_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?ㅻЦ?붽?議깅룎遊?/td>
+                            <td>
+                                <select name="needy_multicultural_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_multicultural_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">蹂묒썝遊됱궗</td>
+                            <td>
+                                <select name="needy_hospital_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_hospital_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">蹂듭??쒖꽕諛⑸Ц</td>
+                            <td>
+                                <select name="needy_welfare_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_welfare_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">??몄옄?뚮큵</td>
+                            <td>
+                                <select name="needy_emergency_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_emergency_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="needy_emergency_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">??몃컦蹂대?</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ?덉??ㅽ솢???뱀뀡 -->
+            <div class="form-section">
+                <div class="section-header">4. ?덉??ㅽ솢??/div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>醫낅ぉ</th>
+                            <th>?몃ぉ</th>
+                            <th colspan="2">?쒕룞</th>
+                           
+                            <th>鍮꾧퀬</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>???/th>
+                            <th>?잛닔</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="7">?덉??ㅽ솢??/td>
+                            <td class="subitem-col">?뚮뀈 ?덉???吏??/td>
+                            <td>
+                                <select name="legion_junior_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_junior_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                          
+                            <td class="remarks-col">
+                                <select name="legion_junior_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">援먮━諛섏씤??/div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?됰룞?⑥썝 紐⑥쭛</td>
+                            <td>
+                                <select name="legion_active_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_active_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="legion_active_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?낅떒</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?묒“?⑥썝 紐⑥쭛. ?뚮큵</td>
+                            <td>
+                                <select name="legion_auxiliary_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_auxiliary_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="legion_auxiliary_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">紐?/option>
+                                    <option value="1">1紐?/option>
+                                    <option value="2">2紐?/option>
+                                    <option value="3">3紐?/option>
+                                    <option value="4">4紐?/option>
+                                    <option value="5">5紐?/option>
+                                    <option value="6">6紐?/option>
+                                    <option value="7">7紐?/option>
+                                    <option value="8">8紐?/option>
+                                    <option value="9">9紐?/option>
+                                    <option value="10">10紐?/option>
+                                    <option value="10+">10紐?</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?낅떒</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">Pr?ㅻ┰沅뚮㈃</td>
+                            <td>
+                                <select name="legion_praesidium_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_praesidium_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="legion_praesidium_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">Pr</option>
+                                    <option value="1">1Pr</option>
+                                    <option value="2">2Pr</option>
+                                    <option value="3">3Pr</option>
+                                    <option value="4">4Pr</option>
+                                    <option value="5">5Pr</option>
+                                    <option value="6">6Pr</option>
+                                    <option value="7">7Pr</option>
+                                    <option value="8">8Pr</option>
+                                    <option value="9">9Pr</option>
+                                    <option value="10">10Pr</option>
+                                    <option value="10+">10Pr+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">?ㅻ┰</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">寃곗꽍?⑥썝?뚮큵</td>
+                            <td>
+                                <select name="legion_absent_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_absent_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">援먮낯怨듬?</td>
+                            <td>
+                                <select name="legion_handbook_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_handbook_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?됱쓽?뚯뾽臾댄삊議?/td>
+                            <td>
+                                <select name="legion_council_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_council_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 蹂몃떦援먰쉶?묒“ ?뱀뀡 -->
+            <div class="form-section">
+                <div class="section-header">5. 蹂몃떦援먰쉶?묒“</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>醫낅ぉ</th>
+                            <th>?몃ぉ</th>
+                            <th colspan="2">?쒕룞</th>
+                          
+                            <th>鍮꾧퀬</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>???/th>
+                            <th>?잛닔</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="8">蹂몃떦援먰쉶?묒“</td>
+                            <td class="subitem-col">蹂몃떦?щ룄吏곹솢??/td>
+                            <td>
+                                <select name="parish_apostolate_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                           
+                            <td>
+                                <select name="parish_apostolate_content" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="援먮━吏??>援먮━吏??/option>
+                                    <option value="蹂댁“吏??>蹂댁“吏??/option>
+                                    <option value="?됱젙?낅Т">?됱젙?낅Т</option>
+                                    <option value="?섍꼍?뺣━">?섍꼍?뺣━</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?됱궗 以鍮?諛??묒“</td>
+                            <td>
+                                <select name="parish_event_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_event_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">二쇱씪?숆탳 ?뚮큵</td>
+                            <td>
+                                <select name="parish_sundayschool_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_sundayschool_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?뚭났?숈껜?쒕룞</td>
+                            <td>
+                                <select name="parish_community_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_community_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?щТ?묒“</td>
+                            <td>
+                                <select name="parish_office_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_office_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?뚯썝紐⑥쭛</td>
+                            <td>
+                                <select name="parish_member_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_member_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?꾨??묒“</td>
+                            <td>
+                                <select name="parish_liturgy_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_liturgy_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?쇱젙李멸?沅뚯옣</td>
+                            <td>
+                                <select name="parish_retreat_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_retreat_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 湲고? ?뱀뀡 -->
+            <div class="form-section">
+                <div class="section-header">6. 湲고?</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>醫낅ぉ</th>
+                            <th>?몃ぉ</th>
+                            <th colspan="2">?쒕룞</th>
+                            <th>鍮꾧퀬</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>???/th>
+                            <th>?잛닔</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="7">湲고?</td>
+                            <td class="subitem-col">泥?냼 誘명솕</td>
+                            <td>
+                                <select name="other_cleaning_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                           
+                            <td>
+                                <select name="other_cleaning_content" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="援먰쉶泥?냼">援먰쉶泥?냼</option>
+                                    <option value="?섍꼍?뺣━">?섍꼍?뺣━</option>
+                                    <option value="誘명솕?묒뾽">誘명솕?묒뾽</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">異쒗뙋臾?蹂닿툒</td>
+                            <td>
+                                <select name="other_publication_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_publication_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                          
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?앺깭 ?섍꼍蹂댄샇 ?쒕룞</td>
+                            <td>
+                                <select name="other_environment_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_environment_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?밸퀎?쒕룞</td>
+                            <td>
+                                <select name="other_special_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_special_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">?묒큺?쒕룞</td>
+                            <td>
+                                <select name="other_contact_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_contact_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">李⑤웾遊됱궗諛뤾탳?듭젙由?/td>
+                            <td>
+                                <select name="other_vehicle_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_vehicle_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">湲고?</td>
+                            <td>
+                                <select name="other_etc_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="媛議?>媛議?/option>
+                                    <option value="移쒓뎄">移쒓뎄</option>
+                                    <option value="?댁썐">?댁썐</option>
+                                    <option value="吏곸옣?숇즺">吏곸옣?숇즺</option>
+                                    <option value="?숆탳移쒓뎄">?숆탳移쒓뎄</option>
+                                    <option value="湲고?">湲고?</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_etc_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">?좏깮?섏꽭??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10???댁긽</option>
+                                </select>
+                            </td>
+                            
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 湲곕룄?앺솢 ?뱀뀡 -->
+            <div class="prayer-section">
+                <div class="section-header">湲곕룄?앺솢 諛?吏援ъ??④퍡</div>
+                <table class="prayer-table">
+                    <thead>
+                        <tr>
+                                <th>援щ텇</th>
+                                <th>援щ텇</th>
+                                <th>援щ텇</th>
+                                
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>臾듭＜湲곕룄:
+                                <select name="prayer_rosary_decade" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>                        
+                            <td>?됱씪誘몄궗:
+                                <select name="prayer_weekday_mass" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                            <td>??옄媛?섍만:
+                                <select name="prayer_stations" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>?깃꼍?쎄린:
+                                <select name="prayer_bible_reading" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">?쒓컙</option>
+                                    <option value="0.5">0.5?쒓컙</option>
+                                    <option value="1">1?쒓컙</option>
+                                    <option value="1.5">1.5?쒓컙</option>
+                                    <option value="2">2?쒓컙</option>
+                                    <option value="2.5">2.5?쒓컙</option>
+                                    <option value="3">3?쒓컙</option>
+                                    <option value="3.5">3.5?쒓컙</option>
+                                    <option value="4">4?쒓컙</option>
+                                    <option value="4.5">4.5?쒓컙</option>
+                                    <option value="5">5?쒓컙</option>
+                                    <option value="5+">5?쒓컙+</option>
+                                </select>
+                            </td>                        
+                            <td>?깃꼍?곌린:
+                                <select name="prayer_bible_writing" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">?쒓컙</option>
+                                    <option value="0.5">0.5?쒓컙</option>
+                                    <option value="1">1?쒓컙</option>
+                                    <option value="1.5">1.5?쒓컙</option>
+                                    <option value="2">2?쒓컙</option>
+                                    <option value="2.5">2.5?쒓컙</option>
+                                    <option value="3">3?쒓컙</option>
+                                    <option value="3.5">3.5?쒓컙</option>
+                                    <option value="4">4?쒓컙</option>
+                                    <option value="4.5">4.5?쒓컙</option>
+                                    <option value="5">5?쒓컙</option>
+                                    <option value="5+">5?쒓컙+</option>
+                                </select>
+                            </td>
+                            <td>?뚯꽦臾댁씪??
+                                <select name="prayer_divine_office" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>?깆껜議곕같:
+                                <select name="prayer_eucharistic_adoration" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>                        
+                            <td>湲고?:
+                                <select name="prayer_other" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                           
+                        </tr>
+                        <tr>
+                            <td>嫄곗젅?섍린:
+                                <select name="prayer_refuse" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>                        
+                            <td>?꾧뺨?곌린:
+                                <select name="prayer_save" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                            <td>怨좎퀜?곌린:
+                                <select name="prayer_fix" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>?ш퀬?섍린:
+                                <select name="prayer_reconsider" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>                        
+                            <td>?ㅼ떆?곌린:
+                                <select name="prayer_rewrite" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                            <td>?ъ깮?섍린:
+                                <select name="prayer_recycle" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">??/option>
+                                    <option value="1">1??/option>
+                                    <option value="2">2??/option>
+                                    <option value="3">3??/option>
+                                    <option value="4">4??/option>
+                                    <option value="5">5??/option>
+                                    <option value="6">6??/option>
+                                    <option value="7">7??/option>
+                                    <option value="8">8??/option>
+                                    <option value="9">9??/option>
+                                    <option value="10">10??/option>
+                                    <option value="10+">10??</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 吏援ъ??④퍡 ?뱀뀡 -->
+           
+
+            <button type="submit" class="submit-btn">蹂닿퀬???쒖텧</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('legionReportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // ???곗씠???섏쭛
+            const formData = new FormData(this);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // ?곗씠??異쒕젰 (?ㅼ젣濡쒕뒗 ?쒕쾭濡??꾩넚)
+            console.log('?덉???留덈━???쒕룞 蹂닿퀬???곗씠??', data);
+            alert('蹂닿퀬?쒓? ?깃났?곸쑝濡??쒖텧?섏뿀?듬땲??');
+        });
+    </script>
+</body>
+</html>
