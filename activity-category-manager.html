@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>활동종목 관리 - Regio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            min-height: calc(100vh - 80px);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            color: #28a745;
+            background-color: #d4edda;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .activity-table th,
+        .activity-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-table th {
+            background-color: #4A90E2;
+            color: white;
+            font-weight: bold;
+        }
+
+        .activity-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .activity-table tr.editing {
+            background-color: #fff3cd;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+
+        .btn-primary {
+            background-color: #4A90E2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #357ABD;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .add-section {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .add-section h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        .form-input:disabled {
+            background-color: #f8f9fa;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .page-title {
+                font-size: 22px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 2px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="goBack()">←</div>
+        <div class="logo">
+            <h1>활동종목 관리</h1>
+            <p>Regio</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="page-title">활동종목 및 활동자료 관리</h2>
+        
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div id="loadingMessage" class="loading">
+            활동종목을 불러오는 중...
+        </div>
+
+        <div id="tableContainer" class="table-container" style="display: none;">
+            <table class="activity-table" id="activityTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>활동종목</th>
+                        <th>활동그룹</th>
+                        <th>설명</th>
+                        <th>작업</th>
+                    </tr>
+                </thead>
+                <tbody id="activityTableBody">
+                    <!-- 데이터가 여기에 동적으로 추가됩니다 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 추가 섹션 -->
+        <div class="add-section" id="addSection">
+            <h3>새 활동종목 추가</h3>
+            <form id="addForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">활동종목명 *</label>
+                        <input type="text" class="form-input" id="newCategoryName" placeholder="활동종목명을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">활동그룹 *</label>
+                        <input type="text" class="form-input" id="newCategoryGroup" placeholder="활동그룹을 입력하세요" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">설명</label>
+                        <input type="text" class="form-input" id="newDescription" placeholder="설명을 입력하세요">
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn btn-success">새 활동종목 추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let activities = [];
+        let editingId = null;
+
+        // 페이지 로드 시 데이터 가져오기
+        window.addEventListener('DOMContentLoaded', async function() {
+            await loadActivities();
+        });
+
+        // 활동종목 데이터 로드
+        async function loadActivities() {
+            try {
+                const response = await fetch('/api/categories', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('활동종목을 가져올 수 없습니다.');
+                }
+
+                activities = await response.json();
+                console.log('로드된 활동종목:', activities);
+                
+                displayActivities();
+                
+                // 로딩 메시지 숨기고 테이블 표시
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('tableContainer').style.display = 'block';
+                
+            } catch (error) {
+                console.error('활동종목 로드 오류:', error);
+                showMessage('활동종목을 불러오는 중 오류가 발생했습니다.', false);
+                document.getElementById('loadingMessage').textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+            }
+        }
+
+        // 활동종목 표시
+        function displayActivities() {
+            const tbody = document.getElementById('activityTableBody');
+            tbody.innerHTML = '';
+
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                row.id = `row-${activity.id}`;
+                
+                row.innerHTML = `
+                    <td>${activity.id}</td>
+                    <td>
+                        <span class="display-text" id="name-${activity.id}">${activity.category_name}</span>
+                        <input type="text" class="form-input hidden" id="edit-name-${activity.id}" value="${activity.category_name}">
+                    </td>
+                    <td>
+                        <span class="display-text" id="group-${activity.id}">${activity.category_group}</span>
+                        <input type="text" class="form-input hidden" id="edit-group-${activity.id}" value="${activity.category_group}">
+                    </td>
+                    <td>
+                        <span class="display-text" id="desc-${activity.id}">${activity.description || ''}</span>
+                        <input type="text" class="form-input hidden" id="edit-desc-${activity.id}" value="${activity.description || ''}">
+                    </td>
+                    <td class="action-buttons">
+                        <div class="display-buttons" id="display-buttons-${activity.id}">
+                            <button class="btn btn-warning" onclick="startEdit(${activity.id})">수정</button>
+                        </div>
+                        <div class="edit-buttons hidden" id="edit-buttons-${activity.id}">
+                            <button class="btn btn-success" onclick="saveEdit(${activity.id})">저장</button>
+                            <button class="btn btn-danger" onclick="cancelEdit(${activity.id})">취소</button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 수정 모드 시작
+        function startEdit(id) {
+            editingId = id;
+            const row = document.getElementById(`row-${id}`);
+            
+            // 행을 편집 모드로 변경
+            row.classList.add('editing');
+            
+            // 텍스트를 입력 필드로 변경
+            document.getElementById(`name-${id}`).classList.add('hidden');
+            document.getElementById(`edit-name-${id}`).classList.remove('hidden');
+            document.getElementById(`group-${id}`).classList.add('hidden');
+            document.getElementById(`edit-group-${id}`).classList.remove('hidden');
+            document.getElementById(`desc-${id}`).classList.add('hidden');
+            document.getElementById(`edit-desc-${id}`).classList.remove('hidden');
+            
+            // 버튼 변경
+            document.getElementById(`display-buttons-${id}`).classList.add('hidden');
+            document.getElementById(`edit-buttons-${id}`).classList.remove('hidden');
+        }
+
+        // 수정 저장
+        async function saveEdit(id) {
+            try {
+                const newName = document.getElementById(`edit-name-${id}`).value.trim();
+                const newGroup = document.getElementById(`edit-group-${id}`).value.trim();
+                const newDesc = document.getElementById(`edit-desc-${id}`).value.trim();
+                
+                if (!newName || !newGroup) {
+                    showMessage('활동종목명과 활동그룹은 필수입니다.', false);
+                    return;
+                }
+
+                const updateData = {
+                    category_name: newName,
+                    category_group: newGroup,
+                    description: newDesc
+                };
+
+                console.log('수정 요청 데이터:', updateData);
+
+                const response = await fetch(`/api/categories/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || '수정에 실패했습니다.');
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('활동종목이 성공적으로 수정되었습니다.');
+                    
+                    // 로컬 데이터 업데이트
+                    const activityIndex = activities.findIndex(a => a.id === id);
+                    if (activityIndex !== -1) {
+                        activities[activityIndex] = {
+                            ...activities[activityIndex],
+                            category_name: newName,
+                            category_group: newGroup,
+                            description: newDesc
+                        };
+                    }
+                    
+                    // 편집 모드 종료
+                    cancelEdit(id);
+                    
+                    // 테이블 다시 표시
+                    displayActivities();
+                } else {
+                    showMessage(result.error || '수정에 실패했습니다.', false);
+                }
+                
+            } catch (error) {
+                console.error('수정 오류:', error);
+                showMessage('수정 중 오류가 발생했습니다.', false);
+            }
+        }
+
+        // 수정 취소
+        function cancelEdit(id) {
+            editingId = null;
+            const row = document.getElementById(`row-${id}`);
+            
+            // 행을 일반 모드로 변경
+            row.classList.remove('editing');
+            
+            // 입력 필드를 텍스트로 변경
+            document.getElementById(`name-${id}`).classList.remove('hidden');
+            document.getElementById(`edit-name-${id}`).classList.add('hidden');
+            document.getElementById(`group-${id}`).classList.remove('hidden');
+            document.getElementById(`edit-group-${id}`).classList.add('hidden');
+            document.getElementById(`desc-${id}`).classList.remove('hidden');
+            document.getElementById(`edit-desc-${id}`).classList.add('hidden');
+            
+            // 버튼 변경
+            document.getElementById(`display-buttons-${id}`).classList.remove('hidden');
+            document.getElementById(`edit-buttons-${id}`).classList.add('hidden');
+        }
+
+        // 새 활동종목 추가
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const categoryName = document.getElementById('newCategoryName').value.trim();
+            const categoryGroup = document.getElementById('newCategoryGroup').value.trim();
+            const description = document.getElementById('newDescription').value.trim();
+            
+            if (!categoryName || !categoryGroup) {
+                showMessage('활동종목명과 활동그룹은 필수입니다.', false);
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '추가 중...';
+
+            try {
+                const addData = {
+                    category_name: categoryName,
+                    category_group: categoryGroup,
+                    description: description
+                };
+
+                console.log('추가 요청 데이터:', addData);
+
+                const response = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(addData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || '추가에 실패했습니다.');
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('새 활동종목이 성공적으로 추가되었습니다.');
+                    
+                    // 폼 초기화
+                    document.getElementById('addForm').reset();
+                    
+                    // 데이터 다시 로드
+                    await loadActivities();
+                } else {
+                    showMessage(result.error || '추가에 실패했습니다.', false);
+                }
+                
+            } catch (error) {
+                console.error('추가 오류:', error);
+                showMessage('추가 중 오류가 발생했습니다.', false);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        // 메시지 표시 함수
+        function showMessage(message, isSuccess = true) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (isSuccess) {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 5000);
+            } else {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // 뒤로가기
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
+

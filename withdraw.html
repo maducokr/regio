@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보수정 - Regio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            min-height: calc(100vh - 80px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .form-input:disabled {
+            background-color: #f8f9fa;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #4A90E2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #357ABD;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .page-title {
+                font-size: 22px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="goBack()">←</div>
+        <div class="logo">
+            <h1>Regio Note</h1>
+            <p>개인정보수정</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="page-title">개인정보수정</h2>
+        
+        <div id="loadingMessage" class="loading">
+            개인정보를 불러오는 중...
+        </div>
+
+        <form id="modifyForm" style="display: none;">
+            <!-- 숨겨진 필드들 - DB에 저장용 -->
+            <input type="hidden" id="name">
+            <input type="hidden" id="baptismName">
+            <input type="hidden" id="churchName">
+            <input type="hidden" id="prName">
+            <input type="hidden" id="phoneLast4">
+            <input type="hidden" id="residentIdFront6">
+            <input type="hidden" id="phoneFull">
+            <input type="hidden" id="residentIdFull">
+
+            <!-- 화면에 보여지는 직급 필드만 -->
+            <div class="form-group">
+                <label class="form-label">직급</label>
+                <input type="text" class="form-input" id="position" value="협조" readonly>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">취소</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">협조단원으로 변경</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentUserData = null;
+
+        // 페이지 로드 시 사용자 정보 가져오기
+        window.addEventListener('DOMContentLoaded', async function() {
+            await loadUserInfo();
+        });
+
+        // 사용자 정보 로드
+        async function loadUserInfo() {
+            try {
+                // 세션에서 사용자 정보 확인
+                const userInfo = sessionStorage.getItem('userInfo');
+                if (!userInfo) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const user = JSON.parse(userInfo);
+                console.log('현재 사용자 정보:', user);
+
+                // 사용자 ID 확인
+                if (!user.id) {
+                    console.error('사용자 ID가 없습니다:', user);
+                    alert('사용자 정보에 ID가 없습니다. 다시 로그인해주세요.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                console.log('사용자 ID로 개인정보 조회 시도:', user.id);
+
+                // 서버에서 최신 사용자 정보 가져오기
+                const response = await fetch(`/api/user/${user.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                console.log('서버 응답 상태:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('서버 에러 응답:', errorText);
+                    throw new Error(`사용자 정보를 가져올 수 없습니다. (${response.status})`);
+                }
+
+                const data = await response.json();
+                console.log('서버에서 가져온 사용자 정보:', data);
+
+                if (data.success) {
+                    currentUserData = data.user;
+                    populateForm(data.user);
+                } else {
+                    throw new Error(data.error || '사용자 정보를 가져올 수 없습니다.');
+                }
+
+            } catch (error) {
+                console.error('사용자 정보 로드 오류:', error);
+                alert(`사용자 정보를 불러오는 중 오류가 발생했습니다: ${error.message}`);
+                document.getElementById('loadingMessage').textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+            }
+        }
+
+        // 폼에 데이터 채우기
+        function populateForm(userData) {
+            // 모든 개인정보를 숨겨진 필드에 저장 (DB에서 불러온 그대로)
+            document.getElementById('name').value = userData.name || '';
+            document.getElementById('baptismName').value = userData.baptism_name || '';
+            document.getElementById('churchName').value = userData.church_name || '';
+            document.getElementById('prName').value = userData.pr_name || '';
+            document.getElementById('phoneLast4').value = userData.phone_last4 || '';
+            document.getElementById('residentIdFront6').value = userData.resident_id_front6 || '';
+            document.getElementById('phoneFull').value = userData.phone_full || '';
+            document.getElementById('residentIdFull').value = userData.resident_id_full || '';
+            
+            // 화면에 보여지는 직급 필드는 "협조"로 설정
+            document.getElementById('position').value = '협조';
+
+            // 로딩 메시지 숨기고 폼 표시
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('modifyForm').style.display = 'block';
+        }
+
+        // 폼 제출 처리
+        document.getElementById('modifyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // 폼 데이터 수집 (숨겨진 필드의 값들을 사용)
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                baptism_name: document.getElementById('baptismName').value.trim() || null,
+                church_name: document.getElementById('churchName').value.trim(),
+                pr_name: document.getElementById('prName').value.trim(),
+                position: '협조', // 직급은 항상 "협조"로 설정
+                phone_last4: document.getElementById('phoneLast4').value.trim(),
+                resident_id_front6: document.getElementById('residentIdFront6').value.trim(),
+                phone_full: document.getElementById('phoneFull').value.trim() || null,
+                resident_id_full: document.getElementById('residentIdFull').value.trim() || null
+            };
+
+            // 기본 유효성 검사 (숨겨진 필드이므로 간단한 검사만)
+            if (!formData.name || !formData.church_name || !formData.pr_name || !formData.phone_last4 || !formData.resident_id_front6) {
+                alert('필수 개인정보가 누락되었습니다. 다시 로그인해주세요.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 제출 버튼 비활성화
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '탈단 중...';
+
+            try {
+                console.log('탈단 요청 데이터:', formData);
+
+                const response = await fetch(`/api/user/${currentUserData.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('서버 응답 상태:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('서버 에러 응답:', errorText);
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        alert(errorData.error || '탈단에 실패했습니다.');
+                    } catch (e) {
+                        alert('탈단에 실패했습니다.');
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('서버 응답 데이터:', data);
+
+                if (data.success) {
+                    alert('협조단원으로 수정되었습니다!');
+                    
+                    // 세션 스토리지 업데이트
+                    const updatedUserInfo = { ...currentUserData, ...formData };
+                    sessionStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                    
+                    // 메인 페이지로 이동
+                    window.location.href = 'index.html';
+                } else {
+                    alert(data.error || '탈단에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('탈단 오류:', error);
+                alert('탈단 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+            } finally {
+                // 제출 버튼 다시 활성화
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        // 뒤로가기
+        function goBack() {
+            window.history.back();
+        }
+
+
+    </script>
+</body>
+</html>

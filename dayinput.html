@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일 활동 회수 입력</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-secondary {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #da190b;
+        }
+        
+        .required {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4 style="text-align: center;"> 활동  입력</h4>
+       
+        <form id="dayInputForm">
+            <div class="form-group">
+                <label for="category">종목 <span class="required">*</span></label>
+                <select id="category" name="category" required>
+                    <option value="">선택해주세요</option>
+                    <option value="기도생활-묵주기도:">기도생활-묵주기도</option>
+                    <option value="기도생활-평일미사">기도생활-평일미사</option>
+                    <option value="기도생활-십자가의길">기도생활-십자가의길</option>
+                    <option value="기도생활-성경읽기">기도생활-성경읽기</option>
+                    <option value="기도생활-성경쓰기">기도생활-성경쓰기</option>
+                    <option value="기도생활-소성무일도">기도생활-소성무일도</option>
+                    <option value="기도생활-성체조배">기도생활-성체조배</option>
+                    <option value="기도생활-기타">기도생활-기타</option>
+                    <option value="지구와함께-거절하기">지구와함께-거절하기</option>
+                    <option value="지구와함께-아껴쓰기">지구와함께-아껴쓰기</option>
+                    <option value="지구와함께-고쳐쓰기">지구와함께-고쳐쓰기</option>
+                    <option value="지구와함께-재고하기">지구와함께-재고하기</option>
+                    <option value="지구와함께-다시쓰기">지구와함께-다시쓰기</option>
+                    <option value="지구와함께-재생하기">지구와함께-재생하기</option>
+                    <option value="복음선교 -외인 입교권면">복음선교-외인 입교권면</option>
+                    <option value="복음선교-교리 중단자 권면">복음선교-교리 중단자 권면</option>
+                    <option value="복음선교-방문및가두선교">복음선교-방문및가두선교</option>
+                    <option value="복음선교-예비자 관리">복음선교-예비자 관리</option>
+                    <option value="복음선교-통신 교리자">복음선교-통신 교리자</option>
+                    <option value="복음선교-교리반  협조">복음선교-교리반협조</option>
+                    <option value="기도생활-신 영세자 돌봄">교우돌봄-신 영세자 돌봄</option>
+                    <option value="복음선교-외인 입교권면">복음선교-외인 입교권면</option>
+                    <option value="복음선교-교리 중단자 권면">복음선교-교리 중단자 권면</option>
+                    <option value="복음선교-방문및가두선교">복음선교-방문및가두선교</option>
+                    <option value="복음선교-예비자 관리">복음선교-예비자 관리</option>
+                    <option value="복음선교-통신 교리자">복음선교-통신 교리자</option>
+                    <option value="복음선교-교리반  협조">복음선교-교리반협조</option>
+                    <option value="교우돌봄-신 영세자 돌봄">교우돌봄-신 영세자 돌봄</option>
+                    <option value="교우돌봄-교우 가정방문">교우돌봄-교우 가정방문</option>
+                    <option value="교우돌봄-냉담 교우 방문">교우돌봄-냉담 교우 방문</option>
+                    <option value="교우돌봄-혼인 장애자 돌봄">교우돌봄-혼인 장애자 돌봄</option>
+                    <option value="교우돌봄-판공성사 권면">교우돌봄-판공성사 권면</option>
+                    <option value="교우돌봄-전입 교우 돌봄">교우돌봄-전입 교우 돌봄</option>
+                    <option value="교우돌봄-견진성사권면">교우돌봄-견진성사권면</option>
+                    <option value="교우돌봄-유아 세례 권면">교우돌봄-유아 세례 권면</option>
+                    <option value="교우돌봄-군인선원돌봄">교우돌봄-군인선원돌봄</option>
+                    <option value="교우돌봄-청소년 돌봄">교우돌봄-청소년 돌봄</option>
+                    <option value="어려운자돌봄-교우 상가 방문 및 돌봄">어려운자돌봄-교우 상가 방문 및 돌봄</option>
+                    <option value="어려운자돌봄-교우 환자 방문 및 돌봄">어려운자돌봄-교우 환자 방문 및 돌봄</option>
+                    <option value="어려운자돌봄-외인환자 방문 및 돌봄">어려운자돌봄-외인환자 방문 및 돌봄</option>
+                    <option value="어려운자돌봄-외인 상가방문 및 돌봄">어려운자돌봄-외인 상가방문 및 돌봄</option>
+                    <option value="어려운자돌봄-재해 및 사고 피해자">어려운자돌봄-재해 및 사고 피해자</option>
+                    <option value="어려운자돌봄-다문화가족돌봄">어려운자돌봄-다문화가족돌봄</option>
+                    <option value="어려운자돌봄-병원봉사">어려운자돌봄-병원봉사</option>
+                    <option value="어려운자돌봄-복지시설방문">어려운자돌봄-복지시설방문</option>
+                    <option value="어려운자돌봄-대세자돌봄">어려운자돌봄-대세자돌봄</option>
+                    <option value="레지오활동-소년 레지오 지도">레지오활동-소년 레지오 지도</option>
+                    <option value="레지오활동-행동단원 모집">레지오활동-행동단원 모집</option>
+                    <option value="레지오활동-협조단원 모집. 돌봄">레지오활동-협조단원 모집. 돌봄</option>
+                    <option value="레지오활동-Pr설립권면">레지오활동-Pr설립권면</option>
+                    <option value="레지오활동-결석단원돌봄">레지오활동-결석단원돌봄</option>
+                    <option value="레지오활동-교본공부">레지오활동-교본공부</option>
+                    <option value="레지오활동-평의회업무협조">레지오활동-평의회업무협조</option>
+                    <option value="본당교회협조-본당사도직활동">본당교회협조-본당사도직활동</option>
+                    <option value="본당교회협조-행사 준비 및 협조">본당교회협조-행사 준비 및 협조</option>
+                    <option value="본당교회협조-주일학교 돌봄">본당교회협조-행사 준비 및 협조</option>
+                    <option value="본당교회협조-소공동체활동">본당교회협조-소공동체활동</option>
+                    <option value="본당교회협조-사무협조">본당교회협조-사무협조</option>
+                    <option value="본당교회협조-회원모집">본당교회협조-회원모집</option>
+                    <option value="본당교회협조-전례협조">본당교회협조-전례협조</option>
+                    <option value="본당교회협조-피정참가권장">본당교회협조-피정참가권장</option>
+                    <option value="기타-청소 미화">기타-청소 미화</option>
+                    <option value="기타-출판물 보급">기타-출판물 보급</option>
+                    <option value="기타-생태 환경보호 활동">기타-생태 환경보호 활동</option>
+                    <option value="기타-특별활동">기타-특별활동</option>
+                    <option value="기타-접촉활동">기타-접촉활동</option>
+                    <option value="기타-차량봉사및교통정리">기타-차량봉사및교통정리</option>
+                    <option value="기타-기타">기타-기타</option>
+                </select>
+            </div>
+            
+            <div class="form-group">  
+               
+                <input type="text" id="target" name="target" placeholder="대상:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="횟수:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="교리반인도:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="단체가입:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="회두:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="해소:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="성사:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="견진:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="세례:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="첫영성체:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="연도:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="장례미사:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="장지참석:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="대세:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="보례:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="입단:[            ]" required>
+                <input type="number" id="count" name="count" min="1" placeholder="설립:[            ]" required>
+           
+            </div>          
+            
+           
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <button type="reset" class="btn btn-secondary">초기화</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('dayInputForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 폼 데이터 수집
+            const formData = {
+                category: document.getElementById('category').value,
+                target: document.getElementById('target').value,
+                count: document.getElementById('count').value,
+                note: document.getElementById('note').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            // 데이터 검증
+            if (!formData.category || !formData.target || !formData.count) {
+                alert('필수 항목을 모두 입력해주세요.');
+                return;
+            }
+            
+            // 데이터 저장 (로컬 스토리지 사용)
+            let savedData = JSON.parse(localStorage.getItem('dayInputData') || '[]');
+            savedData.push(formData);
+            localStorage.setItem('dayInputData', JSON.stringify(savedData));
+            
+            // 성공 메시지
+            alert('데이터가 성공적으로 저장되었습니다!');
+            
+            // 폼 초기화
+            document.getElementById('dayInputForm').reset();
+        });
+        
+        // 초기화 버튼 이벤트
+        document.querySelector('.btn-secondary').addEventListener('click', function() {
+            if (confirm('모든 입력 내용을 초기화하시겠습니까?')) {
+                document.getElementById('dayInputForm').reset();
+            }
+        });
+    </script>
+</body>
+</html>

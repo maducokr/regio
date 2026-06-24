@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지정활동 수정</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            min-height: calc(100vh - 80px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #28a745;
+        }
+
+        .auth-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .auth-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .auth-button:hover {
+            background-color: #218838;
+        }
+
+        .auth-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .activity-form {
+            display: none;
+        }
+
+        .activity-form.show {
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .info-box {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info-box p {
+            color: #0056b3;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .title {
+                font-size: 22px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="goBack()">←</div>
+        <div class="logo">
+            <h1>지정활동 수정</h1>
+            <p>Regio</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="title">📝 지정활동 수정</h2>
+        
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <div class="info-box">
+            <p>관리자 인증 후 지정활동을 수정할 수 있습니다.</p>
+        </div>
+        
+        <!-- 인증 섹션 -->
+        <div class="auth-section" id="authSection">
+            <h3 class="auth-title">관리자 인증</h3>
+            <form id="authForm">
+                <div class="input-group">
+                    <label for="authName">성명 <span class="required">*</span></label>
+                    <input type="text" class="input-field" placeholder="관리자 성명을 입력하세요" id="authName" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="authPassword">비밀번호 <span class="required">*</span></label>
+                    <input type="password" class="input-field" placeholder="관리자 비밀번호를 입력하세요" id="authPassword" required>
+                </div>
+
+                <button type="submit" class="auth-button" id="authBtn">인증하기</button>
+            </form>
+        </div>
+
+        <!-- 활동 수정 폼 -->
+        <div class="activity-form" id="activityForm">
+            <h3 class="auth-title">지정활동 수정</h3>
+            <form id="newCategoryForm">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="category">카테고리 <span class="required">*</span></label>
+                        <input type="text" class="input-field" placeholder="카테고리를 입력하세요" id="category" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="subItem">세목 <span class="required">*</span></label>
+                        <input type="text" class="input-field" placeholder="세목을 입력하세요" id="subItem" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="count">회수 <span class="required">*</span></label>
+                        <input type="number" class="input-field" placeholder="회수를 입력하세요" id="count" min="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="target">대상</label>
+                        <input type="text" class="input-field" placeholder="대상을 입력하세요" id="target">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="catechismGuide">교리반인도</label>
+                        <input type="number" class="input-field" placeholder="교리반인도 수" id="catechismGuide" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="groupJoin">단체가입</label>
+                        <input type="number" class="input-field" placeholder="단체가입 수" id="groupJoin" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="meetingHead">회두</label>
+                        <input type="number" class="input-field" placeholder="회두 수" id="meetingHead" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="resolution">해소</label>
+                        <input type="number" class="input-field" placeholder="해소 수" id="resolution" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="sacrament">성사</label>
+                        <input type="number" class="input-field" placeholder="성사 수" id="sacrament" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="confirmation">견진</label>
+                        <input type="number" class="input-field" placeholder="견진 수" id="confirmation" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="baptism">세례</label>
+                        <input type="number" class="input-field" placeholder="세례 수" id="baptism" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="firstCommunion">첫영성체</label>
+                        <input type="number" class="input-field" placeholder="첫영성체 수" id="firstCommunion" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="yearCount">연도</label>
+                        <input type="number" class="input-field" placeholder="연도" id="yearCount" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="funeralMass">장례미사</label>
+                        <input type="number" class="input-field" placeholder="장례미사 수" id="funeralMass" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="funeralAttendance">장지참석</label>
+                        <input type="number" class="input-field" placeholder="장지참석 수" id="funeralAttendance" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="conditionalBaptism">대세</label>
+                        <input type="number" class="input-field" placeholder="대세 수" id="conditionalBaptism" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="conditionalCommunion">보례</label>
+                        <input type="number" class="input-field" placeholder="보례 수" id="conditionalCommunion" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="membership">입단</label>
+                        <input type="number" class="input-field" placeholder="입단 수" id="membership" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="establishment">설립</label>
+                        <input type="number" class="input-field" placeholder="설립 수" id="establishment" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div class="input-group">
+                        <label for="memo">메모</label>
+                        <textarea class="input-field" placeholder="추가 메모를 입력하세요" id="memo" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-button">지정활동 저장</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 뒤로가기 함수
+        function goBack() {
+            window.history.back();
+        }
+
+        // 메시지 표시 함수
+        function showMessage(message, isSuccess = true) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (isSuccess) {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 5000);
+            } else {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // 인증 폼 제출 이벤트
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const authName = document.getElementById('authName').value.trim();
+            const authPassword = document.getElementById('authPassword').value.trim();
+            const authBtn = document.getElementById('authBtn');
+            
+            // 입력값 검증
+            if (!authName || !authPassword) {
+                showMessage('성명과 비밀번호를 모두 입력해주세요.', false);
+                return;
+            }
+
+            // 버튼 비활성화
+            authBtn.disabled = true;
+            authBtn.textContent = '인증 중...';
+
+            try {
+                // 관리자 인증 (khstube / 1240520301)
+                if (authName === 'khstube' && authPassword === '1240520301') {
+                    showMessage('관리자 인증이 완료되었습니다.');
+                    
+                    // 인증 섹션 숨기고 활동 폼 표시
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('activityForm').classList.add('show');
+                    
+                    // 페이지 제목 업데이트
+                    document.querySelector('.title').textContent = '📝 지정활동 수정';
+                } else {
+                    showMessage('잘못된 성명 또는 비밀번호입니다.', false);
+                }
+            } catch (error) {
+                console.error('인증 오류:', error);
+                showMessage('인증 중 오류가 발생했습니다.', false);
+            } finally {
+                // 버튼 다시 활성화
+                authBtn.disabled = false;
+                authBtn.textContent = '인증하기';
+            }
+        });
+
+        // 활동 수정 폼 제출 이벤트
+        document.getElementById('newCategoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                category: document.getElementById('category').value.trim(),
+                sub_item: document.getElementById('subItem').value.trim(),
+                count: parseInt(document.getElementById('count').value) || 0,
+                target: document.getElementById('target').value.trim(),
+                catechism_guide: parseInt(document.getElementById('catechismGuide').value) || 0,
+                group_join: parseInt(document.getElementById('groupJoin').value) || 0,
+                meeting_head: parseInt(document.getElementById('meetingHead').value) || 0,
+                resolution: parseInt(document.getElementById('resolution').value) || 0,
+                sacrament: parseInt(document.getElementById('sacrament').value) || 0,
+                confirmation: parseInt(document.getElementById('confirmation').value) || 0,
+                baptism: parseInt(document.getElementById('baptism').value) || 0,
+                first_communion: parseInt(document.getElementById('firstCommunion').value) || 0,
+                year_count: parseInt(document.getElementById('yearCount').value) || 0,
+                funeral_mass: parseInt(document.getElementById('funeralMass').value) || 0,
+                funeral_attendance: parseInt(document.getElementById('funeralAttendance').value) || 0,
+                conditional_baptism: parseInt(document.getElementById('conditionalBaptism').value) || 0,
+                conditional_communion: parseInt(document.getElementById('conditionalCommunion').value) || 0,
+                membership: parseInt(document.getElementById('membership').value) || 0,
+                establishment: parseInt(document.getElementById('establishment').value) || 0,
+                memo: document.getElementById('memo').value.trim(),
+                activity_date: new Date().toISOString().split('T')[0]
+            };
+            
+            // 필수 필드 검증
+            if (!formData.category || !formData.sub_item) {
+                showMessage('카테고리와 세목은 필수 입력 항목입니다.', false);
+                return;
+            }
+
+            const submitBtn = document.querySelector('.submit-button');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '저장 중...';
+
+            try {
+                const response = await fetch('/api/new-category', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        showMessage(errorData.error || '저장에 실패했습니다.', false);
+                    } catch (e) {
+                        showMessage('저장에 실패했습니다.', false);
+                    }
+                    return;
+                }
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('지정활동이 성공적으로 저장되었습니다.');
+                    // 폼 초기화
+                    document.getElementById('newCategoryForm').reset();
+                } else {
+                    showMessage(data.error || '저장에 실패했습니다.', false);
+                }
+            } catch (error) {
+                console.error('저장 오류:', error);
+                showMessage('저장 중 오류가 발생했습니다.', false);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '지정활동 저장';
+            }
+        });
+
+        // 입력 필드 실시간 검증
+        document.querySelectorAll('.input-field').forEach(field => {
+            field.addEventListener('input', function() {
+                const authName = document.getElementById('authName').value.trim();
+                const authPassword = document.getElementById('authPassword').value.trim();
+                const authBtn = document.getElementById('authBtn');
+                
+                if (authName && authPassword) {
+                    authBtn.disabled = false;
+                } else {
+                    authBtn.disabled = true;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

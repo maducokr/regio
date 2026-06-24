@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일 활동 회수 입력</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .shimmer-animation {
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+            }
+        }
+        
+        .btn-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-secondary {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #da190b;
+        }
+        
+        .required {
+            color: red;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+            border: 2px solid #28a745;
+            font-weight: bold;
+            text-align: center;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <a href="index.html" style="text-decoration: none; color: #333; margin-right: 15px; font-size: 24px; cursor: pointer;" title="홈으로 돌아가기">←</a>
+            <h4 style="margin: 0; flex-grow: 1; text-align: center;">활동 입력</h4>
+        </div>
+        
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+       
+        <form id="dayInputForm">
+            <div class="form-group">
+                <label for="memberSelect">회원 선택 <span class="required">*</span></label>
+                <select id="memberSelect" name="member_id" required>
+                    <option value="">선택해주세요</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">종목 <span class="required">*</span></label>
+                                 <select id="category" name="category" required>
+                     <option value="">선택해주세요</option>
+                 </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="target">대상</label>
+                <input type="text" id="target" name="target" placeholder="대상자를 입력하세요">
+            </div>
+            
+            <div class="form-group">
+                <h5>활동자료 입력</h5>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="count">횟수(회,단,시간)</label>
+                        <input type="number" id="count" name="count" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="catechism_guide">교리반인도</label>
+                        <input type="number" id="catechism_guide" name="catechism_guide" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="group_join">단체가입</label>
+                        <input type="number" id="group_join" name="group_join" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="meeting_head">회두</label>
+                        <input type="number" id="meeting_head" name="meeting_head" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="resolution">해소</label>
+                        <input type="number" id="resolution" name="resolution" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="sacrament">성사</label>
+                        <input type="number" id="sacrament" name="sacrament" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="confirmation">견진</label>
+                        <input type="number" id="confirmation" name="confirmation" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="baptism">세례</label>
+                        <input type="number" id="baptism" name="baptism" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="first_communion">첫영성체</label>
+                        <input type="number" id="first_communion" name="first_communion" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="year_count">연도</label>
+                        <input type="number" id="year_count" name="year_count" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="funeral_mass">장례미사</label>
+                        <input type="number" id="funeral_mass" name="funeral_mass" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="funeral_attendance">장지참석</label>
+                        <input type="number" id="funeral_attendance" name="funeral_attendance" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="conditional_baptism">대세</label>
+                        <input type="number" id="conditional_baptism" name="conditional_baptism" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="conditional_communion">보례</label>
+                        <input type="number" id="conditional_communion" name="conditional_communion" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="membership">입단</label>
+                        <input type="number" id="membership" name="membership" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="establishment">설립</label>
+                        <input type="number" id="establishment" name="establishment" min="0" placeholder="0">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="note">메모</label>
+                <textarea id="note" name="note" rows="3" placeholder="추가 메모를 입력하세요"></textarea>
+            </div>
+           
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <button type="reset" class="btn btn-secondary">초기화</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 메시지 표시 함수
+        function showMessage(message, isSuccess = true) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (isSuccess) {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                
+                // 성공 메시지는 5초 후에 사라지도록 설정
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 5000);
+                
+                // 성공 시 페이지 상단으로 스크롤
+                successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                
+                // 에러 메시지는 5초 후에 사라지도록 설정
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+                
+                // 에러 시 페이지 상단으로 스크롤
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // 폼 제출 이벤트
+        document.getElementById('dayInputForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 폼 데이터 수집
+            const formData = {
+                member_id: parseInt(document.getElementById('memberSelect').value),
+                category: document.getElementById('category').value,
+                target: document.getElementById('target').value,
+                count: parseInt(document.getElementById('count').value) || 0,
+                catechism_guide: parseInt(document.getElementById('catechism_guide').value) || 0,
+                group_join: parseInt(document.getElementById('group_join').value) || 0,
+                meeting_head: parseInt(document.getElementById('meeting_head').value) || 0,
+                resolution: parseInt(document.getElementById('resolution').value) || 0,
+                sacrament: parseInt(document.getElementById('sacrament').value) || 0,
+                confirmation: parseInt(document.getElementById('confirmation').value) || 0,
+                baptism: parseInt(document.getElementById('baptism').value) || 0,
+                first_communion: parseInt(document.getElementById('first_communion').value) || 0,
+                year_count: parseInt(document.getElementById('year_count').value) || 0,
+                funeral_mass: parseInt(document.getElementById('funeral_mass').value) || 0,
+                funeral_attendance: parseInt(document.getElementById('funeral_attendance').value) || 0,
+                conditional_baptism: parseInt(document.getElementById('conditional_baptism').value) || 0,
+                conditional_communion: parseInt(document.getElementById('conditional_communion').value) || 0,
+                membership: parseInt(document.getElementById('membership').value) || 0,
+                establishment: parseInt(document.getElementById('establishment').value) || 0,
+                note: document.getElementById('note').value,
+                activity_date: new Date().toISOString().split('T')[0]
+            };
+            
+            // 데이터 검증
+            if (!formData.member_id) {
+                showMessage('회원을 선택해주세요.', false);
+                return;
+            }
+            
+            if (!formData.category) {
+                showMessage('종목을 선택해주세요.', false);
+                return;
+            }
+            
+            // 데이터 저장 (서버 API로 전송)
+            try {
+                console.log('서버로 전송할 데이터:', formData);
+                
+                const response = await fetch('/api/activities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('서버 응답 상태:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('서버 에러 응답:', errorText);
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        showMessage(errorData.error || '데이터 저장에 실패했습니다.', false);
+                    } catch (e) {
+                        showMessage('데이터 저장에 실패했습니다.', false);
+                    }
+                    return;
+                }
+                
+                const result = await response.json();
+                console.log('서버 응답 데이터:', result);
+                
+                showMessage('저장되었습니다!');
+                
+                // 폼 초기화
+                document.getElementById('dayInputForm').reset();
+                
+                // 회원 목록 다시 로드
+                await loadMembers();
+                
+            } catch (error) {
+                console.error('데이터 저장 오류:', error);
+                showMessage('데이터 저장 중 오류가 발생했습니다: ' + error.message, false);
+            }
+        });
+        
+        // 초기화 버튼 이벤트
+        document.querySelector('.btn-secondary').addEventListener('click', function() {
+            if (confirm('모든 입력 내용을 초기화하시겠습니까?')) {
+                document.getElementById('dayInputForm').reset();
+            }
+        });
+        
+                 // 회원 목록 로드
+         async function loadMembers() {
+             try {
+                 const response = await fetch('/api/members');
+                 const members = await response.json();
+                 
+                 const memberSelect = document.getElementById('memberSelect');
+                 memberSelect.innerHTML = '<option value="">선택해주세요</option>';
+                 
+                 members.forEach(member => {
+                     const option = document.createElement('option');
+                     option.value = member.id;
+                     option.textContent = member.name;
+                     memberSelect.appendChild(option);
+                 });
+                 
+                 // 로그인된 사용자가 있으면 자동으로 선택
+                 await selectLoggedInUser();
+             } catch (error) {
+                 console.error('회원 목록 로드 실패:', error);
+                 showMessage('회원 목록을 불러오는데 실패했습니다.', false);
+             }
+         }
+         
+         // 로그인된 사용자 자동 선택
+         async function selectLoggedInUser() {
+             try {
+                 const response = await fetch('/api/current-user', {
+                     credentials: 'include'
+                 });
+                 const data = await response.json();
+                 
+                 if (data.loggedIn && data.user) {
+                     const memberSelect = document.getElementById('memberSelect');
+                     memberSelect.value = data.user.id;
+                     console.log('로그인된 사용자 자동 선택:', data.user.name);
+                     
+                     // 회원 선택 필드를 읽기 전용으로 설정
+                     memberSelect.disabled = true;
+                     
+                     // 로그인된 사용자임을 표시하는 메시지 추가
+                     const loginInfo = document.createElement('div');
+                     loginInfo.id = 'loginInfo';
+                     loginInfo.style.cssText = 'color: #4CAF50; font-size: 14px; margin-top: 5px; font-weight: bold;';
+                     loginInfo.textContent = `현재 로그인된 사용자: ${data.user.name}`;
+                     
+                     const memberGroup = memberSelect.parentElement;
+                     if (!document.getElementById('loginInfo')) {
+                         memberGroup.appendChild(loginInfo);
+                     }
+                 }
+             } catch (error) {
+                 console.error('로그인된 사용자 확인 실패:', error);
+             }
+         }
+         
+         // 카테고리 목록 로드
+         async function loadCategories() {
+             try {
+                 const response = await fetch('/api/categories');
+                 const categories = await response.json();
+                 
+                 const categorySelect = document.getElementById('category');
+                 categorySelect.innerHTML = '<option value="">선택해주세요</option>';
+                 
+                 categories.forEach(category => {
+                     const option = document.createElement('option');
+                     option.value = category.category_name;
+                     option.textContent = category.category_name;
+                     categorySelect.appendChild(option);
+                 });
+             } catch (error) {
+                 console.error('카테고리 목록 로드 실패:', error);
+                 showMessage('카테고리 목록을 불러오는데 실패했습니다.', false);
+             }
+         }
+
+                 // 페이지 로드 시 초기화
+         window.addEventListener('load', function() {
+             loadMembers();
+             loadCategories();
+             
+             // 카테고리 변경 이벤트 리스너 추가
+             document.getElementById('category').addEventListener('change', updateShimmerAnimation);
+         });
+        
+        // 카테고리별 반짝임 애니메이션 업데이트
+        function updateShimmerAnimation() {
+            const category = document.getElementById('category').value;
+            
+            // 모든 입력 그룹에서 반짝임 애니메이션 제거
+            const allInputGroups = document.querySelectorAll('.input-group');
+            allInputGroups.forEach(group => {
+                group.classList.remove('shimmer-animation');
+            });
+            
+            if (!category) return;
+            
+                         // 카테고리별로 해당하는 입력 항목에만 반짝임 애니메이션 적용
+             const categoryConfig = {
+                 '기도생활-묵주기도': ['count'],
+                 '기도생활-평일미사': ['count'],
+                 '기도생활-십자가의길': ['count'],
+                 '기도생활-성경읽기': ['count'],
+                 '기도생활-성경쓰기': ['count'],
+                 '기도생활-소성무일도': ['count'],
+                 '기도생활-성체조배': ['count'],
+                 '기도생활-기타': ['count'],
+                 '지구와함께-거절하기': ['count'],
+                 '지구와함께-아껴쓰기': ['count'],
+                 '지구와함께-고쳐쓰기': ['count'],
+                 '지구와함께-재고하기': ['count'],
+                 '지구와함께-다시쓰기': ['count'],
+                 '지구와함께-재생하기': ['count'],
+                 '복음선교-외인 입교권면': ['count', 'catechism_guide'],
+                 '복음선교-교리 중단자 권면': ['count', 'catechism_guide'],
+                 '복음선교-방문및가두선교': ['count', 'catechism_guide'],
+                 '복음선교-예비자 관리': ['count', 'baptism'],
+                 '복음선교-통신 교리자': ['count', 'baptism'],
+                 '복음선교-교리반협조': ['count'],
+                 '교우돌봄-신 영세자 돌봄': ['count', 'group_join'],
+                 '교우돌봄-교우 가정방문': ['count', 'group_join'],
+                 '교우돌봄-냉담 교우 방문': ['count', 'meeting_head'],
+                 '교우돌봄-혼인 장애자 돌봄': ['count', 'resolution'],
+                 '교우돌봄-판공성사 권면': ['count', 'sacrament'],
+                 '교우돌봄-전입 교우 돌봄': ['count', 'group_join'],
+                 '교우돌봄-견진성사권면': ['count', 'confirmation'],
+                 '교우돌봄-유아 세례 권면': ['count', 'baptism'],
+                 '교우돌봄-군인선원돌봄': ['count', 'first_communion'],
+                 '교우돌봄-청소년 돌봄': ['count'],
+                 '어려운자돌봄-교우 상가 방문 및 돌봄': ['count', 'year_count', 'funeral_attendance', 'funeral_mass'],
+                 '어려운자돌봄-교우 환자 방문 및 돌봄': ['sacrament', 'first_communion'],
+                 '어려운자돌봄-외인환자 방문 및 돌봄': ['count', 'conditional_baptism', 'conditional_communion'],
+                 '어려운자돌봄-외인 상가방문 및 돌봄': ['count'],
+                 '어려운자돌봄-재해 및 사고 피해자': ['count'],
+                 '어려운자돌봄-다문화가족돌봄': ['count'],
+                 '어려운자돌봄-병원봉사': ['count'],
+                 '어려운자돌봄-복지시설방문': ['count'],
+                 '어려운자돌봄-대세자돌봄': ['count', 'catechism_guide'],
+                 '레지오활동-소년 레지오 지도': ['count'],
+                 '레지오활동-행동단원 모집': ['membership'],
+                 '레지오활동-협조단원 모집. 돌봄': ['membership'],
+                 '레지오활동-Pr설립권면': ['establishment'],
+                 '레지오활동-결석단원돌봄': ['count'],
+                 '레지오활동-교본공부': ['count'],
+                 '레지오활동-평의회업무협조': ['count'],
+                 '본당교회협조-본당사도직활동': ['count'],
+                 '본당교회협조-행사 준비 및 협조': ['count'],
+                 '본당교회협조-주일학교 돌봄': ['count'],
+                 '본당교회협조-소공동체활동': ['count'],
+                 '본당교회협조-사무협조': ['count'],
+                 '본당교회협조-회원모집': ['count'],
+                 '본당교회협조-전례협조': ['count'],
+                 '본당교회협조-피정참가권장': ['count'],
+                 '기타-청소 미화': ['count'],
+                 '기타-출판물 보급': ['count'],
+                 '기타-생태 환경보호 활동': ['count'],
+                 '기타-특별활동': ['count'],
+                 '기타-접촉활동': ['count'],
+                 '기타-차량봉사및교통정리': ['count'],
+                 '기타-기타': ['count']
+             };
+            
+            const fieldsToAnimate = categoryConfig[category] || [];
+            
+            fieldsToAnimate.forEach(fieldName => {
+                const inputElement = document.getElementById(fieldName);
+                if (inputElement) {
+                    const inputGroup = inputElement.closest('.input-group');
+                    if (inputGroup) {
+                        inputGroup.classList.add('shimmer-animation');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

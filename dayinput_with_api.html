@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>레지오 활동 입력 시스템</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .btn-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-secondary {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #da190b;
+        }
+        
+        .btn-info {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #1976D2;
+        }
+        
+        .required {
+            color: red;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .stat-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>레지오 활동 입력 시스템</h1>
+        
+        <div id="successMessage" class="message success-message"></div>
+        <div id="errorMessage" class="message error-message"></div>
+        
+        <form id="activityForm">
+            <div class="form-group">
+                <label for="category">종목 <span class="required">*</span></label>
+                <select id="category" name="category" required>
+                    <option value="">선택해주세요</option>
+                    <option value="기도생활-묵주기도:">기도생활-묵주기도</option>
+                    <option value="기도생활-평일미사">기도생활-평일미사</option>
+                    <option value="기도생활-십자가의길">기도생활-십자가의길</option>
+                    <option value="기도생활-성경읽기">기도생활-성경읽기</option>
+                    <option value="기도생활-성경쓰기">기도생활-성경쓰기</option>
+                    <option value="기도생활-소성무일도">기도생활-소성무일도</option>
+                    <option value="기도생활-성체조배">기도생활-성체조배</option>
+                    <option value="기도생활-기타">기도생활-기타</option>
+                    <option value="지구와함께-거절하기">지구와함께-거절하기</option>
+                    <option value="지구와함께-아껴쓰기">지구와함께-아껴쓰기</option>
+                    <option value="지구와함께-고쳐쓰기">지구와함께-고쳐쓰기</option>
+                    <option value="지구와함께-재고하기">지구와함께-재고하기</option>
+                    <option value="지구와함께-다시쓰기">지구와함께-다시쓰기</option>
+                    <option value="지구와함께-재생하기">지구와함께-재생하기</option>
+                    <option value="복음선교 -외인 입교권면">복음선교-외인 입교권면</option>
+                    <option value="복음선교-교리 중단자 권면">복음선교-교리 중단자 권면</option>
+                    <option value="복음선교-방문및가두선교">복음선교-방문및가두선교</option>
+                    <option value="복음선교-예비자 관리">복음선교-예비자 관리</option>
+                    <option value="복음선교-통신 교리자">복음선교-통신 교리자</option>
+                    <option value="복음선교-교리반  협조">복음선교-교리반협조</option>
+                    <option value="기도생활-신 영세자 돌봄">교우돌봄-신 영세자 돌봄</option>
+                    <option value="복음선교-외인 입교권면">복음선교-외인 입교권면</option>
+                    <option value="복음선교-교리 중단자 권면">복음선교-교리 중단자 권면</option>
+                    <option value="복음선교-방문및가두선교">복음선교-방문및가두선교</option>
+                    <option value="복음선교-예비자 관리">복음선교-예비자 관리</option>
+                    <option value="복음선교-통신 교리자">복음선교-통신 교리자</option>
+                    <option value="복음선교-교리반  협조">복음선교-교리반협조</option>
+                    <option value="교우돌봄-신 영세자 돌봄">교우돌봄-신 영세자 돌봄</option>
+                    <option value="교우돌봄-교우 가정방문">교우돌봄-교우 가정방문</option>
+                    <option value="교우돌봄-냉담 교우 방문">교우돌봄-냉담 교우 방문</option>
+                    <option value="교우돌봄-혼인 장애자 돌봄">교우돌봄-혼인 장애자 돌봄</option>
+                    <option value="교우돌봄-판공성사 권면">교우돌봄-판공성사 권면</option>
+                    <option value="교우돌봄-전입 교우 돌봄">교우돌봄-전입 교우 돌봄</option>
+                    <option value="교우돌봄-견진성사권면">교우돌봄-견진성사권면</option>
+                    <option value="교우돌봄-유아 세례 권면">교우돌봄-유아 세례 권면</option>
+                    <option value="교우돌봄-군인선원돌봄">교우돌봄-군인선원돌봄</option>
+                    <option value="교우돌봄-청소년 돌봄">교우돌봄-청소년 돌봄</option>
+                    <option value="어려운자돌봄-교우 상가 방문 및 돌봄">어려운자돌봄-교우 상가 방문 및 돌봄</option>
+                    <option value="어려운자돌봄-교우 환자 방문 및 돌봄">어려운자돌봄-교우 환자 방문 및 돌봄</option>
+                    <option value="어려운자돌봄-외인환자 방문 및 돌봄">어려운자돌봄-외인환자 방문 및 돌봄</option>
+                    <option value="어려운자돌봄-외인 상가방문 및 돌봄">어려운자돌봄-외인 상가방문 및 돌봄</option>
+                    <option value="어려운자돌봄-재해 및 사고 피해자">어려운자돌봄-재해 및 사고 피해자</option>
+                    <option value="어려운자돌봄-다문화가족돌봄">어려운자돌봄-다문화가족돌봄</option>
+                    <option value="어려운자돌봄-병원봉사">어려운자돌봄-병원봉사</option>
+                    <option value="어려운자돌봄-복지시설방문">어려운자돌봄-복지시설방문</option>
+                    <option value="어려운자돌봄-대세자돌봄">어려운자돌봄-대세자돌봄</option>
+                    <option value="레지오활동-소년 레지오 지도">레지오활동-소년 레지오 지도</option>
+                    <option value="레지오활동-행동단원 모집">레지오활동-행동단원 모집</option>
+                    <option value="레지오활동-협조단원 모집. 돌봄">레지오활동-협조단원 모집. 돌봄</option>
+                    <option value="레지오활동-Pr설립권면">레지오활동-Pr설립권면</option>
+                    <option value="레지오활동-결석단원돌봄">레지오활동-결석단원돌봄</option>
+                    <option value="레지오활동-교본공부">레지오활동-교본공부</option>
+                    <option value="레지오활동-평의회업무협조">레지오활동-평의회업무협조</option>
+                    <option value="본당교회협조-본당사도직활동">본당교회협조-본당사도직활동</option>
+                    <option value="본당교회협조-행사 준비 및 협조">본당교회협조-행사 준비 및 협조</option>
+                    <option value="본당교회협조-주일학교 돌봄">본당교회협조-행사 준비 및 협조</option>
+                    <option value="본당교회협조-소공동체활동">본당교회협조-소공동체활동</option>
+                    <option value="본당교회협조-사무협조">본당교회협조-사무협조</option>
+                    <option value="본당교회협조-회원모집">본당교회협조-회원모집</option>
+                    <option value="본당교회협조-전례협조">본당교회협조-전례협조</option>
+                    <option value="본당교회협조-피정참가권장">본당교회협조-피정참가권장</option>
+                    <option value="기타-청소 미화">기타-청소 미화</option>
+                    <option value="기타-출판물 보급">기타-출판물 보급</option>
+                    <option value="기타-생태 환경보호 활동">기타-생태 환경보호 활동</option>
+                    <option value="기타-특별활동">기타-특별활동</option>
+                    <option value="기타-접촉활동">기타-접촉활동</option>
+                    <option value="기타-차량봉사및교통정리">기타-차량봉사및교통정리</option>
+                    <option value="기타-기타">기타-기타</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="target">대상</label>
+                <input type="text" id="target" name="target" placeholder="대상자를 입력하세요">
+            </div>
+            
+            <div class="form-group">
+                <h3>활동 통계</h3>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="count">횟수</label>
+                        <input type="number" id="count" name="count" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="catechism_guide">교리반인도</label>
+                        <input type="number" id="catechism_guide" name="catechism_guide" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="group_join">단체가입</label>
+                        <input type="number" id="group_join" name="group_join" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="meeting_head">회두</label>
+                        <input type="number" id="meeting_head" name="meeting_head" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="resolution">해소</label>
+                        <input type="number" id="resolution" name="resolution" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="sacrament">성사</label>
+                        <input type="number" id="sacrament" name="sacrament" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="confirmation">견진</label>
+                        <input type="number" id="confirmation" name="confirmation" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="baptism">세례</label>
+                        <input type="number" id="baptism" name="baptism" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="first_communion">첫영성체</label>
+                        <input type="number" id="first_communion" name="first_communion" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="year_count">연도</label>
+                        <input type="number" id="year_count" name="year_count" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="funeral_mass">장례미사</label>
+                        <input type="number" id="funeral_mass" name="funeral_mass" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="funeral_attendance">장지참석</label>
+                        <input type="number" id="funeral_attendance" name="funeral_attendance" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="conditional_baptism">대세</label>
+                        <input type="number" id="conditional_baptism" name="conditional_baptism" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="conditional_communion">보례</label>
+                        <input type="number" id="conditional_communion" name="conditional_communion" min="0" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="membership">입단</label>
+                        <input type="number" id="membership" name="membership" min="0" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="establishment">설립</label>
+                        <input type="number" id="establishment" name="establishment" min="0" placeholder="0">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="note">메모</label>
+                <textarea id="note" name="note" rows="3" placeholder="추가 메모를 입력하세요"></textarea>
+            </div>
+           
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <button type="reset" class="btn btn-secondary">초기화</button>
+                <button type="button" class="btn btn-info" onclick="loadActivities()">데이터 조회</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>활동 통계</h2>
+        <div id="statsContainer" class="stats-grid"></div>
+    </div>
+
+    <div class="container">
+        <h2>활동 데이터 목록</h2>
+        <div id="dataContainer">
+            <div class="loading">데이터를 불러오는 중...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // 메시지 표시 함수
+        function showMessage(message, isSuccess = true) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (isSuccess) {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            } else {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 카테고리 로드
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                if (!response.ok) {
+                    throw new Error('카테고리 로드 실패');
+                }
+                
+                const categories = await response.json();
+                const categorySelect = document.getElementById('category');
+                
+                // 기존 옵션 제거 (첫 번째 "선택해주세요" 제외)
+                categorySelect.innerHTML = '<option value="">선택해주세요</option>';
+                
+                // 카테고리 그룹별로 정렬
+                const groupedCategories = {};
+                categories.forEach(cat => {
+                    if (!groupedCategories[cat.category_group]) {
+                        groupedCategories[cat.category_group] = [];
+                    }
+                    groupedCategories[cat.category_group].push(cat);
+                });
+                
+                // 그룹별로 옵션 추가
+                Object.keys(groupedCategories).forEach(group => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = group;
+                    
+                    groupedCategories[group].forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.category_name;
+                        option.textContent = cat.category_name;
+                        optgroup.appendChild(option);
+                    });
+                    
+                    categorySelect.appendChild(optgroup);
+                });
+                
+            } catch (error) {
+                console.error('카테고리 로드 오류:', error);
+                showMessage('카테고리 로드 중 오류가 발생했습니다.', false);
+            }
+        }
+
+        // 활동 데이터 저장
+        async function saveActivity(formData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/activities`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '저장 실패');
+                }
+                
+                const result = await response.json();
+                showMessage(result.message);
+                return true;
+                
+            } catch (error) {
+                console.error('저장 오류:', error);
+                showMessage('데이터 저장 중 오류가 발생했습니다: ' + error.message, false);
+                return false;
+            }
+        }
+
+        // 활동 데이터 조회
+        async function loadActivities() {
+            const container = document.getElementById('dataContainer');
+            container.innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/activities`);
+                if (!response.ok) {
+                    throw new Error('데이터 로드 실패');
+                }
+                
+                const data = await response.json();
+                
+                if (data.data.length === 0) {
+                    container.innerHTML = '<p>저장된 활동 데이터가 없습니다.</p>';
+                    return;
+                }
+                
+                // 테이블 생성
+                let tableHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>종목</th>
+                                <th>대상</th>
+                                <th>횟수</th>
+                                <th>세례</th>
+                                <th>견진</th>
+                                <th>첫영성체</th>
+                                <th>메모</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.data.forEach(activity => {
+                    tableHTML += `
+                        <tr>
+                            <td>${activity.activity_date}</td>
+                            <td>${activity.category_name}</td>
+                            <td>${activity.target || '-'}</td>
+                            <td>${activity.count || 0}</td>
+                            <td>${activity.baptism || 0}</td>
+                            <td>${activity.confirmation || 0}</td>
+                            <td>${activity.first_communion || 0}</td>
+                            <td>${activity.note || '-'}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table>';
+                container.innerHTML = tableHTML;
+                
+            } catch (error) {
+                console.error('데이터 로드 오류:', error);
+                container.innerHTML = '<p>데이터 로드 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        // 통계 데이터 로드
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/statistics`);
+                if (!response.ok) {
+                    throw new Error('통계 로드 실패');
+                }
+                
+                const stats = await response.json();
+                const container = document.getElementById('statsContainer');
+                
+                if (stats.length === 0) {
+                    container.innerHTML = '<p>통계 데이터가 없습니다.</p>';
+                    return;
+                }
+                
+                // 전체 합계 계산
+                const totals = {
+                    total_records: 0,
+                    total_count: 0,
+                    total_baptism: 0,
+                    total_confirmation: 0,
+                    total_first_communion: 0,
+                    total_sacrament: 0
+                };
+                
+                stats.forEach(stat => {
+                    totals.total_records += parseInt(stat.total_records) || 0;
+                    totals.total_count += parseInt(stat.total_count) || 0;
+                    totals.total_baptism += parseInt(stat.total_baptism) || 0;
+                    totals.total_confirmation += parseInt(stat.total_confirmation) || 0;
+                    totals.total_first_communion += parseInt(stat.total_first_communion) || 0;
+                    totals.total_sacrament += parseInt(stat.total_sacrament) || 0;
+                });
+                
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <h4>총 활동 기록</h4>
+                        <div class="value">${totals.total_records}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>총 활동 횟수</h4>
+                        <div class="value">${totals.total_count}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>총 세례</h4>
+                        <div class="value">${totals.total_baptism}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>총 견진</h4>
+                        <div class="value">${totals.total_confirmation}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>총 첫영성체</h4>
+                        <div class="value">${totals.total_first_communion}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>총 성사</h4>
+                        <div class="value">${totals.total_sacrament}</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('통계 로드 오류:', error);
+                document.getElementById('statsContainer').innerHTML = '<p>통계 로드 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        // 폼 제출 이벤트
+        document.getElementById('activityForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 폼 데이터 수집
+            const formData = {
+                category: document.getElementById('category').value,
+                target: document.getElementById('target').value,
+                count: parseInt(document.getElementById('count').value) || 0,
+                catechism_guide: parseInt(document.getElementById('catechism_guide').value) || 0,
+                group_join: parseInt(document.getElementById('group_join').value) || 0,
+                meeting_head: parseInt(document.getElementById('meeting_head').value) || 0,
+                resolution: parseInt(document.getElementById('resolution').value) || 0,
+                sacrament: parseInt(document.getElementById('sacrament').value) || 0,
+                confirmation: parseInt(document.getElementById('confirmation').value) || 0,
+                baptism: parseInt(document.getElementById('baptism').value) || 0,
+                first_communion: parseInt(document.getElementById('first_communion').value) || 0,
+                year_count: parseInt(document.getElementById('year_count').value) || 0,
+                funeral_mass: parseInt(document.getElementById('funeral_mass').value) || 0,
+                funeral_attendance: parseInt(document.getElementById('funeral_attendance').value) || 0,
+                conditional_baptism: parseInt(document.getElementById('conditional_baptism').value) || 0,
+                conditional_communion: parseInt(document.getElementById('conditional_communion').value) || 0,
+                membership: parseInt(document.getElementById('membership').value) || 0,
+                establishment: parseInt(document.getElementById('establishment').value) || 0,
+                note: document.getElementById('note').value,
+                activity_date: new Date().toISOString().split('T')[0]
+            };
+            
+            // 데이터 검증
+            if (!formData.category) {
+                showMessage('종목을 선택해주세요.', false);
+                return;
+            }
+            
+            // 데이터 저장
+            const success = await saveActivity(formData);
+            if (success) {
+                // 폼 초기화
+                document.getElementById('activityForm').reset();
+                
+                // 데이터 및 통계 새로고침
+                loadActivities();
+                loadStatistics();
+            }
+        });
+        
+        // 초기화 버튼 이벤트
+        document.querySelector('.btn-secondary').addEventListener('click', function() {
+            if (confirm('모든 입력 내용을 초기화하시겠습니까?')) {
+                document.getElementById('activityForm').reset();
+            }
+        });
+        
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            loadCategories();
+            loadActivities();
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>

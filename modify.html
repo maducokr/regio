@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새 카테고리 활동 추가 - Regio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            min-height: calc(100vh - 80px);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #4A90E2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #357ABD;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #333;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .page-title {
+                font-size: 22px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="goBack()">←</div>
+        <div class="logo">
+            <h1>Regio Note</h1>
+            <p>새 카테고리 활동 추가</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="page-title">새 카테고리 활동 추가</h2>
+        
+        <div class="info-box">
+            <h3>📋 추가할 내용</h3>
+            <ul>
+                <li><strong>category_name:</strong> 카테고리 이름 (예: 기도생활-묵주기도)</li>
+                <li><strong>field_name:</strong> 필드 이름 (예: 횟수)</li>
+                <li><strong>field_display_name:</strong> 화면에 표시될 필드 이름 (예: 횟수(회,단,시간))</li>
+                <li><strong>field_type:</strong> 필드 타입 (integer, text, boolean 등)</li>
+                <li><strong>is_required:</strong> 필수 입력 여부</li>
+            </ul>
+        </div>
+
+        <form id="categoryForm">
+            <div class="form-section">
+                <h3 class="section-title">기본 정보</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">카테고리 이름 *</label>
+                    <input type="text" class="form-input" id="categoryName" placeholder="예: 기도생활-묵주기도" required>
+                    <div class="error-message" id="categoryNameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">필드 이름 *</label>
+                    <input type="text" class="form-input" id="fieldName" placeholder="예: 횟수" required>
+                    <div class="error-message" id="fieldNameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">화면 표시 이름 *</label>
+                    <input type="text" class="form-input" id="fieldDisplayName" placeholder="예: 횟수(회,단,시간)" required>
+                    <div class="error-message" id="fieldDisplayNameError"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">필드 설정</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">필드 타입 *</label>
+                    <select class="form-select" id="fieldType" required>
+                        <option value="">필드 타입을 선택하세요</option>
+                        <option value="integer">정수 (integer)</option>
+                        <option value="text">텍스트 (text)</option>
+                        <option value="boolean">참/거짓 (boolean)</option>
+                        <option value="date">날짜 (date)</option>
+                        <option value="decimal">소수점 (decimal)</option>
+                    </select>
+                    <div class="error-message" id="fieldTypeError"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox-input" id="isRequired">
+                        <label class="checkbox-label" for="isRequired">필수 입력 항목</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">취소</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">카테고리 추가</button>
+            </div>
+        </form>
+
+        <div id="loadingMessage" class="loading" style="display: none;">
+            카테고리를 추가하는 중...
+        </div>
+    </div>
+
+    <script>
+        // 폼 제출 처리
+        document.getElementById('categoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // 폼 데이터 수집
+            const formData = {
+                category_name: document.getElementById('categoryName').value.trim(),
+                field_name: document.getElementById('fieldName').value.trim(),
+                field_display_name: document.getElementById('fieldDisplayName').value.trim(),
+                field_type: document.getElementById('fieldType').value,
+                is_required: document.getElementById('isRequired').checked
+            };
+
+            // 유효성 검사
+            if (!formData.category_name) {
+                showError('categoryNameError', '카테고리 이름을 입력해주세요.');
+                return;
+            }
+            if (!formData.field_name) {
+                showError('fieldNameError', '필드 이름을 입력해주세요.');
+                return;
+            }
+            if (!formData.field_display_name) {
+                showError('fieldDisplayNameError', '화면 표시 이름을 입력해주세요.');
+                return;
+            }
+            if (!formData.field_type) {
+                showError('fieldTypeError', '필드 타입을 선택해주세요.');
+                return;
+            }
+
+            // 에러 메시지 초기화
+            clearErrors();
+
+            // 제출 버튼 비활성화
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '추가 중...';
+
+            // 로딩 메시지 표시
+            document.getElementById('loadingMessage').style.display = 'block';
+
+            try {
+                console.log('카테고리 추가 요청 데이터:', formData);
+
+                const response = await fetch('/api/activity-field-mapping', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('서버 응답 상태:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('서버 에러 응답:', errorText);
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        alert(errorData.error || '카테고리 추가에 실패했습니다.');
+                    } catch (e) {
+                        alert('카테고리 추가에 실패했습니다.');
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('서버 응답 데이터:', data);
+
+                if (data.success) {
+                    alert('새 카테고리 활동이 성공적으로 추가되었습니다!');
+                    
+                    // 폼 초기화
+                    document.getElementById('categoryForm').reset();
+                    
+                    // 성공 후 메인 페이지로 이동
+                    window.location.href = 'index.html';
+                } else {
+                    alert(data.error || '카테고리 추가에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('카테고리 추가 오류:', error);
+                alert('카테고리 추가 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+            } finally {
+                // 제출 버튼 다시 활성화
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                
+                // 로딩 메시지 숨기기
+                document.getElementById('loadingMessage').style.display = 'none';
+            }
+        });
+
+        // 에러 메시지 표시
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+
+        // 에러 메시지 초기화
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.textContent = '';
+            });
+        }
+
+        // 뒤로가기
+        function goBack() {
+            window.history.back();
+        }
+
+        // 입력 필드 실시간 유효성 검사
+        document.getElementById('categoryName').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('categoryNameError').textContent = '';
+            }
+        });
+
+        document.getElementById('fieldName').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('fieldNameError').textContent = '';
+            }
+        });
+
+        document.getElementById('fieldDisplayName').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('fieldDisplayNameError').textContent = '';
+            }
+        });
+
+        document.getElementById('fieldType').addEventListener('change', function() {
+            if (this.value) {
+                document.getElementById('fieldTypeError').textContent = '';
+            }
+        });
+    </script>
+</body>
+</html>
+

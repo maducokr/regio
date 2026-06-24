@@ -1,0 +1,12 @@
+# PostgreSQL 데이터베이스 설정
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=regio
+DB_PASSWORD=your_password_here
+DB_PORT=5432
+
+# 서버 설정
+PORT=3000
+
+# 환경 설정
+NODE_ENV=development

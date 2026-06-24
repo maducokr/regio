@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 삭제 - 레지오 활동 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .search-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        }
+
+        .member-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .member-info h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .member-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .detail-value {
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .related-data {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .related-data h3 {
+            color: #721c24;
+            margin-bottom: 15px;
+        }
+
+        .data-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>회원 삭제</h1>
+            <p>외래키 제약 조건을 고려한 안전한 회원 삭제</p>
+        </div>
+
+        <div class="content">
+            <div class="search-section">
+                <h2>회원 검색</h2>
+                <div class="form-group">
+                    <label for="searchType">검색 방법:</label>
+                    <select id="searchType">
+                        <option value="id">회원 ID</option>
+                        <option value="name">성명</option>
+                        <option value="phone">전화번호</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="searchValue">검색값:</label>
+                    <input type="text" id="searchValue" placeholder="검색할 값을 입력하세요">
+                </div>
+                <button class="btn" onclick="searchMember()">회원 검색</button>
+            </div>
+
+            <div id="memberInfo" class="hidden">
+                <div class="member-info">
+                    <h3>회원 정보</h3>
+                    <div id="memberDetails" class="member-details"></div>
+                </div>
+
+                <div id="relatedData" class="related-data">
+                    <h3>관련 데이터</h3>
+                    <div id="relatedDataList"></div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ 주의사항:</strong> 회원을 삭제하면 관련된 모든 활동 기록도 함께 삭제됩니다.
+                </div>
+
+                <button class="btn btn-danger" onclick="deleteMember()">회원 삭제</button>
+                <button class="btn btn-secondary" onclick="resetForm()">취소</button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>처리 중...</p>
+            </div>
+
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMemberId = null;
+
+        async function searchMember() {
+            const searchType = document.getElementById('searchType').value;
+            const searchValue = document.getElementById('searchValue').value.trim();
+
+            if (!searchValue) {
+                showMessage('검색값을 입력해주세요.', 'warning');
+                return;
+            }
+
+            showLoading(true);
+            clearMessage();
+
+            try {
+                let url = '/api/members';
+                if (searchType === 'id') {
+                    url += `/${searchValue}`;
+                } else {
+                    url += `?${searchType}=${encodeURIComponent(searchValue)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (Array.isArray(data)) {
+                        if (data.length === 0) {
+                            showMessage('검색 결과가 없습니다.', 'warning');
+                        } else if (data.length === 1) {
+                            displayMemberInfo(data[0]);
+                        } else {
+                            showMessage('여러 명의 회원이 검색되었습니다. 더 구체적인 검색 조건을 사용해주세요.', 'warning');
+                        }
+                    } else {
+                        displayMemberInfo(data);
+                    }
+                } else {
+                    showMessage(data.error || '회원 검색 중 오류가 발생했습니다.', 'danger');
+                }
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showMessage('회원 검색 중 오류가 발생했습니다.', 'danger');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function displayMemberInfo(member) {
+            currentMemberId = member.id;
+            
+            // 회원 정보 표시
+            const memberDetails = document.getElementById('memberDetails');
+            memberDetails.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">회원 ID</div>
+                    <div class="detail-value">${member.id}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">성명</div>
+                    <div class="detail-value">${member.name || '-'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">세례명</div>
+                    <div class="detail-value">${member.baptism_name || '-'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">본당명</div>
+                    <div class="detail-value">${member.church_name || '-'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Pr명</div>
+                    <div class="detail-value">${member.pr_name || '-'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">직분</div>
+                    <div class="detail-value">${member.position || '-'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">전화번호</div>
+                    <div class="detail-value">${member.phone_full || member.phone_last4 || '-'}</div>
+                </div>
+            `;
+
+            // 관련 데이터 조회
+            await loadRelatedData(member.id);
+
+            document.getElementById('memberInfo').classList.remove('hidden');
+        }
+
+        async function loadRelatedData(memberId) {
+            try {
+                const response = await fetch(`/api/members/${memberId}/related-data`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayRelatedData(data);
+                } else {
+                    console.error('관련 데이터 조회 오류:', data.error);
+                }
+            } catch (error) {
+                console.error('관련 데이터 조회 오류:', error);
+            }
+        }
+
+        function displayRelatedData(data) {
+            const relatedDataList = document.getElementById('relatedDataList');
+            let html = '';
+
+            if (data.activity_records > 0) {
+                html += `<div class="data-item">활동 기록: ${data.activity_records}개</div>`;
+            }
+            if (data.daily_activities > 0) {
+                html += `<div class="data-item">일일 활동: ${data.daily_activities}개</div>`;
+            }
+            if (data.prayer_activities > 0) {
+                html += `<div class="data-item">기도 활동: ${data.prayer_activities}개</div>`;
+            }
+            if (data.community_activities > 0) {
+                html += `<div class="data-item">지구 활동: ${data.community_activities}개</div>`;
+            }
+
+            if (html === '') {
+                html = '<div class="data-item">관련 데이터가 없습니다.</div>';
+            }
+
+            relatedDataList.innerHTML = html;
+        }
+
+        async function deleteMember() {
+            if (!currentMemberId) {
+                showMessage('삭제할 회원이 선택되지 않았습니다.', 'warning');
+                return;
+            }
+
+            if (!confirm('정말로 이 회원을 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없으며, 관련된 모든 활동 기록도 함께 삭제됩니다.')) {
+                return;
+            }
+
+            showLoading(true);
+            clearMessage();
+
+            try {
+                const response = await fetch(`/api/members/${currentMemberId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`회원 "${data.deletedMember.name}"이(가) 성공적으로 삭제되었습니다. (삭제된 활동 기록: ${data.deletedActivities}개)`, 'success');
+                    resetForm();
+                } else {
+                    showMessage(data.error || '회원 삭제 중 오류가 발생했습니다.', 'danger');
+                }
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                showMessage('회원 삭제 중 오류가 발생했습니다.', 'danger');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('searchValue').value = '';
+            document.getElementById('memberInfo').classList.add('hidden');
+            document.getElementById('loading').classList.add('hidden');
+            clearMessage();
+            currentMemberId = null;
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.remove('hidden');
+            } else {
+                loading.classList.add('hidden');
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        function clearMessage() {
+            document.getElementById('message').innerHTML = '';
+        }
+
+        // Enter 키로 검색
+        document.getElementById('searchValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMember();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regio 활동 기록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+            text-decoration: none;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="number"], input[type="date"], select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        input[type="number"]:focus, input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .activity-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4A90E2;
+        }
+
+        .activity-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .activity-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .member-select {
+            margin-bottom: 25px;
+        }
+
+        .member-select select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-button">←</a>
+        <div class="logo">
+            <h1>Regio</h1>
+            <p>활동 기록 시스템</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="member-select">
+            <label for="memberSelect">회원 선택:</label>
+            <select id="memberSelect" required>
+                <option value="">회원을 선택해주세요</option>
+            </select>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <!-- 세목별 활동 기록 (매일) -->
+        <div class="section">
+            <h2 class="section-title">📅 세목별 활동 기록 (매일)</h2>
+            <div class="form-group">
+                <label for="dailyDate">날짜:</label>
+                <input type="date" id="dailyDate" required>
+            </div>
+            
+            <div class="activity-grid">
+                <div class="activity-item">
+                    <label for="evangelismCount">전도 활동 횟수</label>
+                    <input type="number" id="evangelismCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="careCount">돌봄 활동 횟수</label>
+                    <input type="number" id="careCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="needyCount">구제 활동 횟수</label>
+                    <input type="number" id="needyCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="legionCount">군단 활동 횟수</label>
+                    <input type="number" id="legionCount" min="0" value="0">
+                </div>
+            </div>
+            
+            <button class="submit-button" onclick="submitDailyActivities()">세목별 활동 저장</button>
+        </div>
+
+        <!-- 기도생활 기록 (주 1-2회) -->
+        <div class="section">
+            <h2 class="section-title">🙏 기도생활 기록 (주 1-2회)</h2>
+            <div class="form-group">
+                <label for="prayerWeekStart">주 시작일 (월요일):</label>
+                <input type="date" id="prayerWeekStart" required>
+            </div>
+            
+            <div class="activity-grid">
+                <div class="activity-item">
+                    <label for="dailyPrayerCount">일일기도 횟수</label>
+                    <input type="number" id="dailyPrayerCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="rosaryCount">묵주기도 횟수</label>
+                    <input type="number" id="rosaryCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="massAttendanceCount">미사 참례 횟수</label>
+                    <input type="number" id="massAttendanceCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="confessionCount">고해성사 횟수</label>
+                    <input type="number" id="confessionCount" min="0" value="0">
+                </div>
+            </div>
+            
+            <button class="submit-button" onclick="submitPrayerActivities()">기도생활 저장</button>
+        </div>
+
+        <!-- 지구와 함께 활동 기록 (주 1-2회) -->
+        <div class="section">
+            <h2 class="section-title">🌍 지구와 함께 활동 기록 (주 1-2회)</h2>
+            <div class="form-group">
+                <label for="communityWeekStart">주 시작일 (월요일):</label>
+                <input type="date" id="communityWeekStart" required>
+            </div>
+            
+            <div class="activity-grid">
+                <div class="activity-item">
+                    <label for="communityServiceCount">지역봉사 횟수</label>
+                    <input type="number" id="communityServiceCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="environmentalActivityCount">환경보호 활동 횟수</label>
+                    <input type="number" id="environmentalActivityCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="socialJusticeCount">사회정의 활동 횟수</label>
+                    <input type="number" id="socialJusticeCount" min="0" value="0">
+                </div>
+                <div class="activity-item">
+                    <label for="charityWorkCount">자선활동 횟수</label>
+                    <input type="number" id="charityWorkCount" min="0" value="0">
+                </div>
+            </div>
+            
+            <button class="submit-button" onclick="submitCommunityActivities()">지구와 함께 활동 저장</button>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMembers();
+            setDefaultDates();
+        });
+
+        // 회원 목록 로드
+        async function loadMembers() {
+            try {
+                // 로그인한 사용자 정보 가져오기
+                const userInfo = sessionStorage.getItem('userInfo');
+                if (!userInfo) {
+                    showMessage('로그인이 필요합니다.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return;
+                }
+
+                const user = JSON.parse(userInfo);
+                
+                // 현재 사용자의 성당과 pr이름이 같은 회원들만 조회
+                const response = await fetch(`/api/members?current_user_name=${encodeURIComponent(user.name)}`);
+                const data = await response.json();
+                
+                if (!Array.isArray(data)) {
+                    showMessage(data.error || '회원 목록을 불러오는데 실패했습니다.', 'error');
+                    return;
+                }
+                
+                const select = document.getElementById('memberSelect');
+                select.innerHTML = '<option value="">회원을 선택해주세요</option>';
+                
+                data.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = member.name;
+                    
+                    // 로그인한 사용자와 이름이 같으면 기본 선택
+                    if (member.name === user.name) {
+                        option.selected = true;
+                    }
+                    
+                    select.appendChild(option);
+                });
+                
+                // 로그인한 사용자가 선택되었는지 확인하고 메시지 표시
+                if (select.value) {
+                    showMessage(`${user.name}님으로 로그인되었습니다.`, 'success');
+                }
+            } catch (error) {
+                console.error('회원 목록 로드 실패:', error);
+                showMessage('회원 목록을 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        // 기본 날짜 설정
+        function setDefaultDates() {
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            
+            document.getElementById('dailyDate').value = today.toISOString().split('T')[0];
+            document.getElementById('prayerWeekStart').value = monday.toISOString().split('T')[0];
+            document.getElementById('communityWeekStart').value = monday.toISOString().split('T')[0];
+        }
+
+        // 세목별 활동 저장
+        async function submitDailyActivities() {
+            const memberId = document.getElementById('memberSelect').value;
+            if (!memberId) {
+                showMessage('회원을 선택해주세요.', 'error');
+                return;
+            }
+
+            const data = {
+                member_id: parseInt(memberId),
+                activity_date: document.getElementById('dailyDate').value,
+                evangelism_count: parseInt(document.getElementById('evangelismCount').value) || 0,
+                care_count: parseInt(document.getElementById('careCount').value) || 0,
+                needy_count: parseInt(document.getElementById('needyCount').value) || 0,
+                legion_count: parseInt(document.getElementById('legionCount').value) || 0
+            };
+
+            try {
+                const response = await fetch('/api/daily-activities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showMessage('세목별 활동이 성공적으로 저장되었습니다.', 'success');
+                    clearDailyForm();
+                } else {
+                    showMessage(result.error || '저장에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('저장 실패:', error);
+                showMessage('저장 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 기도생활 저장
+        async function submitPrayerActivities() {
+            const memberId = document.getElementById('memberSelect').value;
+            if (!memberId) {
+                showMessage('회원을 선택해주세요.', 'error');
+                return;
+            }
+
+            const data = {
+                member_id: parseInt(memberId),
+                week_start_date: document.getElementById('prayerWeekStart').value,
+                daily_prayer_count: parseInt(document.getElementById('dailyPrayerCount').value) || 0,
+                rosary_count: parseInt(document.getElementById('rosaryCount').value) || 0,
+                mass_attendance_count: parseInt(document.getElementById('massAttendanceCount').value) || 0,
+                confession_count: parseInt(document.getElementById('confessionCount').value) || 0
+            };
+
+            try {
+                const response = await fetch('/api/prayer-activities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showMessage('기도생활이 성공적으로 저장되었습니다.', 'success');
+                    clearPrayerForm();
+                } else {
+                    showMessage(result.error || '저장에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('저장 실패:', error);
+                showMessage('저장 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 지구와 함께 활동 저장
+        async function submitCommunityActivities() {
+            const memberId = document.getElementById('memberSelect').value;
+            if (!memberId) {
+                showMessage('회원을 선택해주세요.', 'error');
+                return;
+            }
+
+            const data = {
+                member_id: parseInt(memberId),
+                week_start_date: document.getElementById('communityWeekStart').value,
+                community_service_count: parseInt(document.getElementById('communityServiceCount').value) || 0,
+                environmental_activity_count: parseInt(document.getElementById('environmentalActivityCount').value) || 0,
+                social_justice_count: parseInt(document.getElementById('socialJusticeCount').value) || 0,
+                charity_work_count: parseInt(document.getElementById('charityWorkCount').value) || 0
+            };
+
+            try {
+                const response = await fetch('/api/community-activities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showMessage('지구와 함께 활동이 성공적으로 저장되었습니다.', 'success');
+                    clearCommunityForm();
+                } else {
+                    showMessage(result.error || '저장에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('저장 실패:', error);
+                showMessage('저장 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 폼 초기화 함수들
+        function clearDailyForm() {
+            document.getElementById('evangelismCount').value = '0';
+            document.getElementById('careCount').value = '0';
+            document.getElementById('needyCount').value = '0';
+            document.getElementById('legionCount').value = '0';
+        }
+
+        function clearPrayerForm() {
+            document.getElementById('dailyPrayerCount').value = '0';
+            document.getElementById('rosaryCount').value = '0';
+            document.getElementById('massAttendanceCount').value = '0';
+            document.getElementById('confessionCount').value = '0';
+        }
+
+        function clearCommunityForm() {
+            document.getElementById('communityServiceCount').value = '0';
+            document.getElementById('environmentalActivityCount').value = '0';
+            document.getElementById('socialJusticeCount').value = '0';
+            document.getElementById('charityWorkCount').value = '0';
+        }
+
+        // 메시지 표시
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            container.innerHTML = '';
+            container.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

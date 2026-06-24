@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regio 동적 활동 기록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #4A90E2;
+            margin-bottom: 10px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .activity-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .field-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-item label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .field-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .activity-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Regio 동적 활동 기록</h1>
+            <p>새로 추가된 카테고리도 자동으로 표시됩니다</p>
+        </div>
+
+        <div class="form-section">
+            <h3>📋 기본 정보</h3>
+            <div class="field-group">
+                <div class="form-group">
+                    <label for="memberSelect">회원 선택:</label>
+                    <select id="memberSelect" required>
+                        <option value="">회원을 선택해주세요</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="categorySelect">활동 종목:</label>
+                    <select id="categorySelect" required>
+                        <option value="">활동 종목을 선택해주세요</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-group">
+                <div class="form-group">
+                    <label for="activityDate">활동 날짜:</label>
+                    <input type="date" id="activityDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="note">메모 (선택):</label>
+                    <textarea id="note" rows="3" placeholder="추가 메모를 입력하세요"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>📝 활동 입력</h3>
+            <div id="activityFields">
+                <p>활동 종목을 선택하면 해당 종목의 입력 필드가 표시됩니다.</p>
+            </div>
+        </div>
+
+        <button id="submitBtn" class="submit-btn" onclick="submitActivity()" disabled>
+            💾 활동 저장
+        </button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let members = [];
+        let categories = [];
+        let fieldMapping = {};
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('DOMContentLoaded', async function() {
+            await loadMembers();
+            await loadCategories();
+            await loadFieldMapping();
+            setDefaultDate();
+            setupEventListeners();
+        });
+
+        // 회원 목록 로드
+        async function loadMembers() {
+            try {
+                const response = await fetch('/api/members');
+                if (!response.ok) {
+                    throw new Error('회원 목록을 불러올 수 없습니다.');
+                }
+                
+                members = await response.json();
+                const select = document.getElementById('memberSelect');
+                select.innerHTML = '<option value="">회원을 선택해주세요</option>';
+                
+                members.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = `${member.name} (${member.church_name})`;
+                    select.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('회원 목록 로드 실패:', error);
+                showResult('회원 목록을 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        // 카테고리 목록 로드 (동적)
+        async function loadCategories() {
+            try {
+                const select = document.getElementById('categorySelect');
+                select.innerHTML = '<option value="">활동 종목을 선택해주세요</option>';
+                
+                // activity_categories 테이블에서 카테고리 목록 로드
+                const response = await fetch('/api/activity-categories');
+                if (!response.ok) {
+                    throw new Error('카테고리 목록을 불러올 수 없습니다.');
+                }
+                
+                const data = await response.json();
+                categories = data.categories || [];
+                
+                if (categories.length === 0) {
+                    // 카테고리가 없으면 기본 카테고리 표시
+                    const defaultCategories = [
+                        '기도생활-묵주기도', '기도생활-평일미사', '기도생활-십자가의길',
+                        '지구와함께-거절하기', '지구와함께-아껴쓰기',
+                        '복음선교-외인 입교권면', '복음선교-교리 중단자 권면',
+                        '교우돌봄-신 영세자 돌봄', '교우돌봄-교우 가정방문',
+                        '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
+                        '레지오활동-소년 레지오 지도', '레지오활동-행동단원 모집',
+                        '본당교회협조-본당사도직활동', '본당교회협조-행사 준비 및 협조',
+                        '사회봉사-노인복지시설 봉사', '사회봉사-아동복지시설 봉사'
+                    ];
+                    
+                    defaultCategories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        select.appendChild(option);
+                    });
+                } else {
+                    // DB에서 로드한 카테고리들을 옵션으로 추가
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.category_name;
+                        option.textContent = category.category_name;
+                        select.appendChild(option);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('카테고리 로드 실패:', error);
+                showResult('카테고리 목록을 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        // 필드 매핑 로드 (동적)
+        async function loadFieldMapping() {
+            try {
+                const response = await fetch('/api/activity-field-mapping');
+                if (response.ok) {
+                    const data = await response.json();
+                    const mappings = data.mappings || [];
+                    
+                    // 카테고리별로 필드 그룹화
+                    mappings.forEach(mapping => {
+                        if (!fieldMapping[mapping.category_name]) {
+                            fieldMapping[mapping.category_name] = [];
+                        }
+                        fieldMapping[mapping.category_name].push({
+                            field_name: mapping.field_name,
+                            field_display_name: mapping.field_display_name,
+                            is_required: mapping.is_required
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('필드 매핑 로드 실패:', error);
+            }
+        }
+
+        // 기본 날짜 설정
+        function setDefaultDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayString = `${year}-${month}-${day}`;
+            
+            const dateInput = document.getElementById('activityDate');
+            dateInput.value = todayString;
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 카테고리 선택 시 필드 로드
+            document.getElementById('categorySelect').addEventListener('change', function() {
+                const categoryName = this.value;
+                if (!categoryName) {
+                    document.getElementById('activityFields').innerHTML = '<p>활동 종목을 선택하면 해당 종목의 입력 필드가 표시됩니다.</p>';
+                    return;
+                }
+
+                const fields = fieldMapping[categoryName] || [];
+                displayActivityFields(fields);
+            });
+
+            // 폼 유효성 검사
+            document.getElementById('memberSelect').addEventListener('change', validateForm);
+            document.getElementById('categorySelect').addEventListener('change', validateForm);
+            document.getElementById('activityDate').addEventListener('change', validateForm);
+        }
+
+        // 활동 필드 표시 (실시간 저장 기능 포함)
+        function displayActivityFields(fields) {
+            const container = document.getElementById('activityFields');
+            
+            if (fields.length === 0) {
+                container.innerHTML = '<p>해당 활동 종목에 대한 입력 필드가 없습니다.</p>';
+                return;
+            }
+
+            let html = '<div class="activity-fields">';
+            fields.forEach(field => {
+                html += `
+                    <div class="field-item">
+                        <label for="field_${field.field_name}">
+                            ${field.field_display_name}
+                            ${field.is_required ? '<span class="required">*</span>' : ''}
+                            <span class="save-indicator" id="indicator_${field.field_name}" style="float: right; font-size: 0.8em; opacity: 0;">💾</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="field_${field.field_name}" 
+                            name="${field.field_name}"
+                            min="0" 
+                            value="0"
+                            ${field.is_required ? 'required' : ''}
+                            placeholder="0"
+                        >
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+            
+            // 실시간 저장 이벤트 리스너 추가
+            fields.forEach(field => {
+                const input = document.getElementById(`field_${field.field_name}`);
+                const indicator = document.getElementById(`indicator_${field.field_name}`);
+                
+                if (input) {
+                    // 디바운스된 실시간 저장 함수
+                    const debouncedSave = debounce(async () => {
+                        const memberId = document.getElementById('memberSelect').value;
+                        const activityDate = document.getElementById('activityDate').value;
+                        const categoryName = document.getElementById('categorySelect').value;
+                        const fieldValue = parseInt(input.value) || 0;
+                        
+                        if (!memberId || !activityDate || !categoryName) {
+                            return;
+                        }
+                        
+                        // 저장 중 표시
+                        indicator.style.opacity = '1';
+                        indicator.textContent = '⏳';
+                        indicator.style.color = '#ff9800';
+                        
+                        try {
+                            const response = await fetch('/api/activities/realtime', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    member_id: parseInt(memberId),
+                                    category_name: categoryName,
+                                    field_name: field.field_name,
+                                    field_value: fieldValue,
+                                    activity_date: activityDate
+                                })
+                            });
+                            
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // 저장 성공 표시
+                                indicator.textContent = '✅';
+                                indicator.style.color = '#4CAF50';
+                                
+                                // 2초 후 표시 제거
+                                setTimeout(() => {
+                                    indicator.style.opacity = '0';
+                                }, 2000);
+                            } else {
+                                throw new Error(result.error);
+                            }
+                        } catch (error) {
+                            console.error('실시간 저장 오류:', error);
+                            
+                            // 저장 실패 표시
+                            indicator.textContent = '❌';
+                            indicator.style.color = '#f44336';
+                            
+                            // 3초 후 표시 제거
+                            setTimeout(() => {
+                                indicator.style.opacity = '0';
+                            }, 3000);
+                        }
+                    }, 1000); // 1초 디바운스
+                    
+                    input.addEventListener('input', debouncedSave);
+                }
+            });
+        }
+
+        // 폼 유효성 검사
+        function validateForm() {
+            const memberId = document.getElementById('memberSelect').value;
+            const categoryName = document.getElementById('categorySelect').value;
+            const activityDate = document.getElementById('activityDate').value;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = !(memberId && categoryName && activityDate);
+        }
+
+        // 실시간 필드 저장 (개선된 버전)
+        async function saveFieldRealtime(input) {
+            const memberId = document.getElementById('memberSelect').value;
+            const activityDate = document.getElementById('activityDate').value;
+            const categoryName = document.getElementById('categorySelect').value;
+            const fieldName = input.name;
+            const fieldValue = parseInt(input.value) || 0;
+            
+            if (!memberId || !activityDate || !categoryName) {
+                return;
+            }
+            
+            // 저장 중 표시
+            input.style.borderColor = '#ff9800';
+            input.style.backgroundColor = '#fff3e0';
+            
+            try {
+                const response = await fetch('/api/activities/realtime', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        member_id: parseInt(memberId),
+                        category_name: categoryName,
+                        field_name: fieldName,
+                        field_value: fieldValue,
+                        activity_date: activityDate
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 저장 성공 표시
+                    input.style.borderColor = '#4CAF50';
+                    input.style.backgroundColor = '#e8f5e8';
+                    
+                    // 2초 후 원래 스타일로 복원
+                    setTimeout(() => {
+                        input.style.borderColor = '';
+                        input.style.backgroundColor = '';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('실시간 저장 오류:', error);
+                
+                // 저장 실패 표시
+                input.style.borderColor = '#f44336';
+                input.style.backgroundColor = '#ffebee';
+                
+                // 3초 후 원래 스타일로 복원
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                    input.style.backgroundColor = '';
+                }, 3000);
+            }
+        }
+        
+        // 디바운스 함수
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 활동 입력 제출 (개선된 버전)
+        async function submitActivity() {
+            const memberId = document.getElementById('memberSelect').value;
+            const categoryName = document.getElementById('categorySelect').value;
+            const activityDate = document.getElementById('activityDate').value;
+            const note = document.getElementById('note').value;
+
+            if (!memberId || !categoryName || !activityDate) {
+                showResult('필수 정보를 모두 입력해주세요.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '💾 저장 중...';
+
+            try {
+                // 각 필드의 값을 수집
+                const fieldInputs = document.querySelectorAll('#activityFields input[type="number"]');
+                const fieldData = {};
+
+                for (let input of fieldInputs) {
+                    const fieldName = input.name;
+                    const fieldValue = parseInt(input.value) || 0;
+                    fieldData[fieldName] = fieldValue;
+                }
+
+                // 활동 데이터 제출 (즉시 저장 API 사용)
+                const submitData = {
+                    member_id: parseInt(memberId),
+                    category_name: categoryName,
+                    activity_date: activityDate,
+                    field_data: fieldData,
+                    note: note
+                };
+
+                const response = await fetch('/api/activities/input', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(submitData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult('활동이 즉시 저장되었습니다!', 'success');
+                    resetForm();
+                } else {
+                    showResult(result.error || '활동 저장에 실패했습니다.', 'error');
+                }
+
+            } catch (error) {
+                console.error('활동 저장 오류:', error);
+                showResult('활동 저장 중 오류가 발생했습니다.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 활동 저장';
+            }
+        }
+
+        // 폼 초기화
+        function resetForm() {
+            document.getElementById('memberSelect').value = '';
+            document.getElementById('categorySelect').value = '';
+            document.getElementById('note').value = '';
+            document.getElementById('activityFields').innerHTML = '<p>활동 종목을 선택하면 해당 종목의 입력 필드가 표시됩니다.</p>';
+            validateForm();
+        }
+
+        // 결과 메시지 표시
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+            
+            setTimeout(() => {
+                resultDiv.textContent = '';
+                resultDiv.className = 'result';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

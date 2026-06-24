@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #357ABD;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <h1>🔍 API 테스트 도구</h1>
+    
+    <div class="section">
+        <h2>📡 서버 연결 테스트</h2>
+        <button class="button" onclick="testServerConnection()">서버 연결 테스트</button>
+        <div id="serverLog" class="log"></div>
+    </div>
+    
+    <div class="section">
+        <h2>🗄️ 데이터베이스 테이블 확인</h2>
+        <button class="button" onclick="testDatabaseTables()">테이블 구조 확인</button>
+        <div id="dbLog" class="log"></div>
+    </div>
+    
+    <div class="section">
+        <h2>💾 활동 저장 테스트</h2>
+        <button class="button" onclick="testActivitySave()">활동 저장 테스트</button>
+        <div id="saveLog" class="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info', target = 'serverLog') {
+            const logDiv = document.getElementById(target);
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testServerConnection() {
+            log('🔍 서버 연결 테스트 시작...', 'info', 'serverLog');
+            try {
+                const response = await fetch('/');
+                log(`📥 서버 응답: ${response.status} ${response.statusText}`, 'success', 'serverLog');
+                if (response.ok) {
+                    log('✅ 서버가 정상적으로 실행 중입니다.', 'success', 'serverLog');
+                } else {
+                    log(`❌ 서버 응답 오류: ${response.status}`, 'error', 'serverLog');
+                }
+            } catch (error) {
+                log(`❌ 서버 연결 실패: ${error.message}`, 'error', 'serverLog');
+            }
+        }
+
+        async function testDatabaseTables() {
+            log('🗄️ 데이터베이스 테이블 확인 시작...', 'info', 'dbLog');
+            try {
+                const response = await fetch('/api/debug/check-tables');
+                log(`📥 API 응답 상태: ${response.status} ${response.statusText}`, 'info', 'dbLog');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`❌ API 오류 응답: ${errorText}`, 'error', 'dbLog');
+                    return;
+                }
+                
+                const data = await response.json();
+                log(`📋 데이터베이스 테이블 상태: ${JSON.stringify(data, null, 2)}`, 'success', 'dbLog');
+                
+                if (data.success) {
+                    log('✅ 데이터베이스 테이블 구조가 올바르게 설정되어 있습니다.', 'success', 'dbLog');
+                } else {
+                    log(`❌ 데이터베이스 테이블 구조에 문제가 있을 수 있습니다: ${data.error}`, 'error', 'dbLog');
+                }
+            } catch (error) {
+                log(`❌ API 호출 실패: ${error.message}`, 'error', 'dbLog');
+            }
+        }
+
+        async function testActivitySave() {
+            log('🚀 활동 저장 테스트 시작...', 'info', 'saveLog');
+            try {
+                const testData = {
+                    member_id: 1,
+                    category_name: '기도생활-묵주기도',
+                    field_name: 'count',
+                    field_value: 1,
+                    activity_date: new Date().toISOString().split('T')[0],
+                    note: 'API 테스트'
+                };
+                
+                log(`📤 전송할 데이터: ${JSON.stringify(testData, null, 2)}`, 'info', 'saveLog');
+                
+                const response = await fetch('/api/activities/input', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                log(`📥 API 응답 상태: ${response.status} ${response.statusText}`, 'info', 'saveLog');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`❌ API 오류 응답: ${errorText}`, 'error', 'saveLog');
+                    return;
+                }
+                
+                const result = await response.json();
+                log(`📋 API 응답 결과: ${JSON.stringify(result, null, 2)}`, 'success', 'saveLog');
+                
+                if (result.success) {
+                    log('✅ 활동 저장 테스트 성공!', 'success', 'saveLog');
+                } else {
+                    log(`❌ 활동 저장 테스트 실패: ${result.error || '알 수 없는 오류'}`, 'error', 'saveLog');
+                }
+            } catch (error) {
+                log(`❌ API 호출 실패: ${error.message}`, 'error', 'saveLog');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+-- member 테이블에 누락된 필드들 추가
+ALTER TABLE member ADD COLUMN IF NOT EXISTS baptism_name VARCHAR(100);
+ALTER TABLE member ADD COLUMN IF NOT EXISTS church_name VARCHAR(200);
+ALTER TABLE member ADD COLUMN IF NOT EXISTS pr_name VARCHAR(100);
+ALTER TABLE member ADD COLUMN IF NOT EXISTS position VARCHAR(100);
+
+-- 기존 데이터 확인
+SELECT * FROM member LIMIT 5;

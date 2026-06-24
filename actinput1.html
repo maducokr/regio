@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>레지오 마리아 활동 보고서</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .form-section {
+            margin: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background-color: #34495e;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .form-table th {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .form-table td {
+            border: 1px solid #bdc3c7;
+            padding: 5px;
+            vertical-align: middle;
+        }
+
+        .form-table input[type="text"],
+        .form-table input[type="number"] {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .form-table input[type="text"]:focus,
+        .form-table input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .category-col {
+            width: 15%;
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .subitem-col {
+            width: 20%;
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .activity-col {
+            width: 25%;
+        }
+
+        .content-col {
+            width: 25%;
+        }
+
+        .remarks-col {
+            width: 15%;
+            background-color: #f8f9fa;
+            font-size: 10px;
+            text-align: center;
+            padding: 8px 5px;
+        }
+
+        .remarks-col input[type="number"] {
+            width: 60px;
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .remarks-col input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .sub-activity {
+            display: flex;
+            gap: 2px;
+        }
+
+        .sub-activity input {
+            flex: 1;
+        }
+
+        .prayer-section {
+            margin: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .prayer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .prayer-table th,
+        .prayer-table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .prayer-table th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .prayer-table input[type="number"] {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .prayer-table input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .prayer-table td:first-child {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .prayer-table td:nth-child(2),
+        .prayer-table td:nth-child(4) {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .submit-btn {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #229954;
+        }
+
+        .empty-row {
+            height: 30px;
+        }
+
+        .section-divider {
+            height: 10px;
+            background-color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>레지오 마리아 활동 보고서</h1>
+            <p>활동 내용 및 결과 기록</p>
+        </div>
+
+        <form id="legionReportForm">
+            <!-- 복음선교 섹션 -->
+            <div class="form-section">
+                <div class="section-header">1. 복음선교</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>종목</th>
+                            <th>세목</th>
+                            <th colspan="2">활동</th>
+                           
+                            <th>비고</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>대상</th>
+                            <th>횟수</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="6">복음선교</td>
+                            <td class="subitem-col">외인 입교권면</td>
+                            <td>
+                                <select name="evangelism_outsider_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_outsider_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_outsider_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">교리반인도</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">교리 중단자 권면</td>
+                            <td>
+                                <select name="evangelism_dropout_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_dropout_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_dropout_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">교리반인도</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">방문및가두선교</td>
+                            <td>
+                                <select name="evangelism_visit_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_visit_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_visit_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">교리반인도</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">예비자 관리</td>
+                            <td>
+                                <select name="evangelism_catechumen_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_catechumen_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_catechumen_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">세례자</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">통신 교리자</td>
+                            <td>
+                                <select name="evangelism_correspondence_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_correspondence_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="evangelism_correspondence_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">세례자</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">교리반 협조</td>
+                            <td>
+                                <select name="evangelism_cooperation_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_cooperation_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="evangelism_cooperation_content" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="교리지도">교리지도</option>
+                                    <option value="보조지도">보조지도</option>
+                                    <option value="행정업무">행정업무</option>
+                                    <option value="환경정리">환경정리</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                           
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 교우돌봄 섹션 -->
+            <div class="form-section">
+                <div class="section-header">2. 교우돌봄</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>종목</th>
+                            <th>세목</th>
+                            <th colspan="2">활동</th>
+                           
+                            <th>비고</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>대상</th>
+                            <th>횟수</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="10">교우돌봄</td>
+                            <td class="subitem-col">신 영세자 돌봄</td>
+                            <td>
+                                <select name="care_newconvert_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_newconvert_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_newconvert_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">단체가입</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">교우 가정방문</td>
+                            <td>
+                                <select name="care_homevisit_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_homevisit_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_homevisit_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">단체가입</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">냉담 교우 방문</td>
+                            <td>
+                                <select name="care_inactive_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_inactive_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_inactive_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">회두</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">혼인 장애자 돌봄</td>
+                            <td>
+                                <select name="care_marriage_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_marriage_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_marriage_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">해소</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">판공성사 권면</td>
+                            <td>
+                                <select name="care_confession_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_confession_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_confession_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">성사</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">전입 교우 돌봄</td>
+                            <td>
+                                <select name="care_transfer_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_transfer_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_transfer_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">단체가입</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">견진성사권면</td>
+                            <td>
+                                <select name="care_confirmation_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_confirmation_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_confirmation_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">견진</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">유아 세례 권면</td>
+                            <td>
+                                <select name="care_infantbaptism_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_infantbaptism_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_infantbaptism_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">세례</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">군인선원돌봄</td>
+                            <td>
+                                <select name="care_soldier_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_soldier_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="care_soldier_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">첫영성체</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">청소년 돌봄</td>
+                            <td>
+                                <select name="care_youth_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="care_youth_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 어려운자돌봄 섹션 -->
+            <div class="form-section">
+                <div class="section-header">3. 어려운자돌봄</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>종목</th>
+                            <th>세목</th>
+                            <th colspan="2">활동</th>
+                           
+                            <th>비고</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>대상</th>
+                            <th>횟수</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="9">어려운자돌봄</td>
+                            <td class="subitem-col">교우 상가 방문 및 돌봄</td>
+                            <td>
+                                <select name="needy_business_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_business_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="needy_business_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">연도, 미사, 장지</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">교우 환자 방문 및 돌봄</td>
+                            <td>
+                                <select name="needy_sick_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_sick_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="needy_sick_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">성사및영성체</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">외인환자 방문 및 돌봄</td>
+                            <td>
+                                <select name="needy_outsider_sick_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_outsider_sick_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">외인 상가방문 및 돌봄</td>
+                            <td>
+                                <select name="needy_outsider_business_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_outsider_business_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">재해 및 사고 피해자</td>
+                            <td>
+                                <select name="needy_disaster_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_disaster_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">다문화가족돌봄</td>
+                            <td>
+                                <select name="needy_multicultural_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_multicultural_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">병원봉사</td>
+                            <td>
+                                <select name="needy_hospital_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_hospital_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">복지시설방문</td>
+                            <td>
+                                <select name="needy_welfare_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_welfare_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">대세자돌봄</td>
+                            <td>
+                                <select name="needy_emergency_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="needy_emergency_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="needy_emergency_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">대세및보례</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 레지오활동 섹션 -->
+            <div class="form-section">
+                <div class="section-header">4. 레지오활동</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>종목</th>
+                            <th>세목</th>
+                            <th colspan="2">활동</th>
+                           
+                            <th>비고</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>대상</th>
+                            <th>횟수</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="7">레지오활동</td>
+                            <td class="subitem-col">소년 레지오 지도</td>
+                            <td>
+                                <select name="legion_junior_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_junior_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                          
+                            <td class="remarks-col">
+                                <select name="legion_junior_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">교리반인도</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">행동단원 모집</td>
+                            <td>
+                                <select name="legion_active_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_active_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="legion_active_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">입단</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">협조단원 모집. 돌봄</td>
+                            <td>
+                                <select name="legion_auxiliary_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_auxiliary_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="legion_auxiliary_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">명</option>
+                                    <option value="1">1명</option>
+                                    <option value="2">2명</option>
+                                    <option value="3">3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="6">6명</option>
+                                    <option value="7">7명</option>
+                                    <option value="8">8명</option>
+                                    <option value="9">9명</option>
+                                    <option value="10">10명</option>
+                                    <option value="10+">10명+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">입단</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">Pr설립권면</td>
+                            <td>
+                                <select name="legion_praesidium_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_praesidium_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col">
+                                <select name="legion_praesidium_remarks" style="width: 60px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">Pr</option>
+                                    <option value="1">1Pr</option>
+                                    <option value="2">2Pr</option>
+                                    <option value="3">3Pr</option>
+                                    <option value="4">4Pr</option>
+                                    <option value="5">5Pr</option>
+                                    <option value="6">6Pr</option>
+                                    <option value="7">7Pr</option>
+                                    <option value="8">8Pr</option>
+                                    <option value="9">9Pr</option>
+                                    <option value="10">10Pr</option>
+                                    <option value="10+">10Pr+</option>
+                                </select>
+                                <div style="font-size: 10px; margin-top: 2px;">설립</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">결석단원돌봄</td>
+                            <td>
+                                <select name="legion_absent_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_absent_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">교본공부</td>
+                            <td>
+                                <select name="legion_handbook_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_handbook_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">평의회업무협조</td>
+                            <td>
+                                <select name="legion_council_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="legion_council_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 본당교회협조 섹션 -->
+            <div class="form-section">
+                <div class="section-header">5. 본당교회협조</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>종목</th>
+                            <th>세목</th>
+                            <th colspan="2">활동</th>
+                          
+                            <th>비고</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>대상</th>
+                            <th>횟수</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="8">본당교회협조</td>
+                            <td class="subitem-col">본당사도직활동</td>
+                            <td>
+                                <select name="parish_apostolate_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                           
+                            <td>
+                                <select name="parish_apostolate_content" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="교리지도">교리지도</option>
+                                    <option value="보조지도">보조지도</option>
+                                    <option value="행정업무">행정업무</option>
+                                    <option value="환경정리">환경정리</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">행사 준비 및 협조</td>
+                            <td>
+                                <select name="parish_event_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_event_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">주일학교 돌봄</td>
+                            <td>
+                                <select name="parish_sundayschool_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_sundayschool_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">소공동체활동</td>
+                            <td>
+                                <select name="parish_community_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_community_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">사무협조</td>
+                            <td>
+                                <select name="parish_office_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_office_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">회원모집</td>
+                            <td>
+                                <select name="parish_member_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_member_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">전례협조</td>
+                            <td>
+                                <select name="parish_liturgy_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_liturgy_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">피정참가권장</td>
+                            <td>
+                                <select name="parish_retreat_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="parish_retreat_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 기타 섹션 -->
+            <div class="form-section">
+                <div class="section-header">6. 기타</div>
+                <table class="form-table">
+                    <thead>
+                        <tr>
+                            <th>종목</th>
+                            <th>세목</th>
+                            <th colspan="2">활동</th>
+                            <th>비고</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>대상</th>
+                            <th>횟수</th>
+                            <th></th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="category-col" rowspan="7">기타</td>
+                            <td class="subitem-col">청소 미화</td>
+                            <td>
+                                <select name="other_cleaning_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                           
+                            <td>
+                                <select name="other_cleaning_content" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="교회청소">교회청소</option>
+                                    <option value="환경정리">환경정리</option>
+                                    <option value="미화작업">미화작업</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">출판물 보급</td>
+                            <td>
+                                <select name="other_publication_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_publication_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                          
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">생태 환경보호 활동</td>
+                            <td>
+                                <select name="other_environment_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_environment_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">특별활동</td>
+                            <td>
+                                <select name="other_special_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_special_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">접촉활동</td>
+                            <td>
+                                <select name="other_contact_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_contact_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">차량봉사및교통정리</td>
+                            <td>
+                                <select name="other_vehicle_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_vehicle_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                           
+                            <td class="remarks-col"></td>
+                        </tr>
+                        <tr>
+                            <td class="subitem-col">기타</td>
+                            <td>
+                                <select name="other_etc_target" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="가족">가족</option>
+                                    <option value="친구">친구</option>
+                                    <option value="이웃">이웃</option>
+                                    <option value="직장동료">직장동료</option>
+                                    <option value="학교친구">학교친구</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="other_etc_count" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px;">
+                                    <option value="">선택하세요</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회 이상</option>
+                                </select>
+                            </td>
+                            
+                            <td class="remarks-col"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 기도생활 섹션 -->
+            <div class="prayer-section">
+                <div class="section-header">기도생활 및 지구와함께</div>
+                <table class="prayer-table">
+                    <thead>
+                        <tr>
+                                <th>구분</th>
+                                <th>구분</th>
+                                <th>구분</th>
+                                
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>묵주기도:
+                                <select name="prayer_rosary_decade" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">단</option>
+                                    <option value="1">1단</option>
+                                    <option value="2">2단</option>
+                                    <option value="3">3단</option>
+                                    <option value="4">4단</option>
+                                    <option value="5">5단</option>
+                                    <option value="6">6단</option>
+                                    <option value="7">7단</option>
+                                    <option value="8">8단</option>
+                                    <option value="9">9단</option>
+                                    <option value="10">10단</option>
+                                    <option value="10+">10단+</option>
+                                </select>
+                            </td>                        
+                            <td>평일미사:
+                                <select name="prayer_weekday_mass" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                            <td>십자가의길:
+                                <select name="prayer_stations" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>성경읽기:
+                                <select name="prayer_bible_reading" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">시간</option>
+                                    <option value="0.5">0.5시간</option>
+                                    <option value="1">1시간</option>
+                                    <option value="1.5">1.5시간</option>
+                                    <option value="2">2시간</option>
+                                    <option value="2.5">2.5시간</option>
+                                    <option value="3">3시간</option>
+                                    <option value="3.5">3.5시간</option>
+                                    <option value="4">4시간</option>
+                                    <option value="4.5">4.5시간</option>
+                                    <option value="5">5시간</option>
+                                    <option value="5+">5시간+</option>
+                                </select>
+                            </td>                        
+                            <td>성경쓰기:
+                                <select name="prayer_bible_writing" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">시간</option>
+                                    <option value="0.5">0.5시간</option>
+                                    <option value="1">1시간</option>
+                                    <option value="1.5">1.5시간</option>
+                                    <option value="2">2시간</option>
+                                    <option value="2.5">2.5시간</option>
+                                    <option value="3">3시간</option>
+                                    <option value="3.5">3.5시간</option>
+                                    <option value="4">4시간</option>
+                                    <option value="4.5">4.5시간</option>
+                                    <option value="5">5시간</option>
+                                    <option value="5+">5시간+</option>
+                                </select>
+                            </td>
+                            <td>소성무일도:
+                                <select name="prayer_divine_office" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>성체조배:
+                                <select name="prayer_eucharistic_adoration" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>                        
+                            <td>기타:
+                                <select name="prayer_other" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                           
+                        </tr>
+                        <tr>
+                            <td>거절하기:
+                                <select name="prayer_refuse" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>                        
+                            <td>아껴쓰기:
+                                <select name="prayer_save" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                            <td>고쳐쓰기:
+                                <select name="prayer_fix" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>재고하기:
+                                <select name="prayer_reconsider" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>                        
+                            <td>다시쓰기:
+                                <select name="prayer_rewrite" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                            <td>재생하기:
+                                <select name="prayer_recycle" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; text-align: center;">
+                                    <option value="">회</option>
+                                    <option value="1">1회</option>
+                                    <option value="2">2회</option>
+                                    <option value="3">3회</option>
+                                    <option value="4">4회</option>
+                                    <option value="5">5회</option>
+                                    <option value="6">6회</option>
+                                    <option value="7">7회</option>
+                                    <option value="8">8회</option>
+                                    <option value="9">9회</option>
+                                    <option value="10">10회</option>
+                                    <option value="10+">10회+</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 지구와함께 섹션 -->
+           
+
+            <button type="submit" class="submit-btn">보고서 제출</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('legionReportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 폼 데이터 수집
+            const formData = new FormData(this);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // 데이터 출력 (실제로는 서버로 전송)
+            console.log('레지오 마리아 활동 보고서 데이터:', data);
+            alert('보고서가 성공적으로 제출되었습니다!');
+        });
+    </script>
+</body>
+</html>

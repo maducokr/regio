@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regio 로그인</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+        }
+
+        .hamburger-menu {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hamburger-line {
+            width: 20px;
+            height: 2px;
+            background-color: white;
+            border-radius: 1px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 150px;
+            z-index: 1000;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-item.danger {
+            color: #dc3545;
+        }
+
+        .dropdown-item.danger:hover {
+            background-color: #f8d7da;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            margin-bottom: 15px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #ccc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: not-allowed;
+            margin-bottom: 20px;
+        }
+
+        .login-button.active {
+            background-color: #4A90E2;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background-color: #4A90E2;
+            border-color: #4A90E2;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+
+        .biometric-login {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .fingerprint-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #4A90E2;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .recovery-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .recovery-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        .recovery-links a:hover {
+            color: #4A90E2;
+        }
+
+        .divider {
+            display: inline-block;
+            width: 1px;
+            height: 12px;
+            background-color: #ddd;
+            margin: 0 5px;
+        }
+
+        .membership-prompt {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .membership-prompt::before,
+        .membership-prompt::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: #ddd;
+        }
+
+        .membership-prompt::before {
+            left: 0;
+        }
+
+        .membership-prompt::after {
+            right: 0;
+        }
+
+        .membership-text {
+            background: white;
+            padding: 0 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .join-button {
+            width: 100%;
+            padding: 15px;
+            background-color: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .join-button:hover {
+            background-color: #f8f9fa;
+            border-color: #4A90E2;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .login-title {
+                font-size: 22px;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: block;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #357ABD;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button">←</div>
+        <div class="logo">
+            <h1>Regio Note</h1>
+            <p>Regio</p>
+        </div>
+        <div class="hamburger-menu" id="hamburgerMenu">
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" data-action="activity-record">활동기록</div>
+                <div class="dropdown-item" data-action="dynamic-activity">동적 활동기록</div>
+                <div class="dropdown-item" data-action="activity-report">활동집계</div>
+                <div class="dropdown-item" data-action="test-activity-input">TEST 자료입력</div>
+                <div class="dropdown-item" data-action="test-activity-pdf">TEST 자료 PDF 출력</div>
+               <div class="dropdown-item" data-action="">지정활동 수정</div>
+                <div class="dropdown-item" data-action="add-category">새 카테고리 추가</div>
+                <div class="dropdown-item" data-action="profile">개인정보수정</div>
+               
+                <div class="dropdown-item" data-action="help">도움말</div>
+                <div class="dropdown-item danger" data-action="withdraw">탈단</div>
+                <div class="dropdown-item danger" data-action="delete-member">삭제</div>
+                <div class="dropdown-item" data-action="logout">로그아웃</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="login-title">로그인</h2>
+        
+        <form autocomplete="off" onsubmit="return false;">
+            <div class="input-group">
+                <input type="text" class="input-field" placeholder="성명" id="username" autocomplete="new-password">
+                <input type="password" class="input-field" placeholder="폰번끝4자+주민번호앞6자" id="password" autocomplete="new-password">
+            </div>
+
+            <button type="button" class="login-button" id="loginBtn">로그인</button>
+        </form>
+
+        <div class="checkbox-group">
+            <div class="checkbox-item">
+                <div class="checkbox" id="saveId"></div>
+                <span>성명 저장</span>
+            </div>
+            <div class="checkbox-item">
+                <div class="checkbox" id="autoLogin"></div>
+                <span>자동 로그인</span>
+            </div>
+        </div>
+
+        <div class="biometric-login">
+            <div class="fingerprint-icon">👆</div>
+        </div>
+
+        <div class="recovery-links">
+            <a href="activity-input-test.html">활동 기록</a>
+            <span class="divider"></span>
+            <a href="activity-report.html">활동 집계</a>
+        </div>
+
+        <div class="membership-prompt">
+           
+        </div>
+
+        <button class="join-button">회원가입</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        // 페이지 로드 시 입력 필드 클리어 및 자동 로그인 확인
+        window.addEventListener('load', function() {
+            // 자동 로그인 확인
+            checkAutoLogin();
+            
+            // 입력 필드 초기화
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            
+            // 로그인 버튼 상태 초기화
+            document.getElementById('loginBtn').classList.remove('active');
+            document.getElementById('loginBtn').style.cursor = 'not-allowed';
+        });
+
+        // 자동 로그인 확인
+        function checkAutoLogin() {
+            const userInfo = localStorage.getItem('userInfo');
+            const autoLogin = localStorage.getItem('autoLogin');
+            
+            if (userInfo && autoLogin === 'true') {
+                try {
+                    const user = JSON.parse(userInfo);
+                    if (user && user.name) {
+                        console.log('자동 로그인 시도:', user.name);
+                        // 자동으로 활동 입력 페이지로 이동
+                        window.location.href = 'activity-input-test.html';
+                        return;
+                    }
+                } catch (error) {
+                    console.error('자동 로그인 정보 파싱 실패:', error);
+                }
+            }
+        }
+
+        // 체크박스 토글 기능
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+                
+                // 자동 로그인 체크박스 처리
+                if (this.id === 'autoLogin') {
+                    localStorage.setItem('autoLogin', this.classList.contains('checked') ? 'true' : 'false');
+                }
+                
+                // 성명 저장 체크박스 처리
+                if (this.id === 'saveId') {
+                    localStorage.setItem('saveId', this.classList.contains('checked') ? 'true' : 'false');
+                }
+            });
+        });
+
+        // 로그인 버튼 활성화/비활성화
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+
+        function checkInputs() {
+            if (usernameInput.value.trim() && passwordInput.value.trim()) {
+                loginBtn.classList.add('active');
+                loginBtn.style.cursor = 'pointer';
+            } else {
+                loginBtn.classList.remove('active');
+                loginBtn.style.cursor = 'not-allowed';
+            }
+        }
+
+        usernameInput.addEventListener('input', checkInputs);
+        passwordInput.addEventListener('input', checkInputs);
+
+        // 로그인 버튼 클릭 이벤트
+        loginBtn.addEventListener('click', async function() {
+            if (this.classList.contains('active')) {
+                try {
+                    const requestData = {
+                        name: usernameInput.value.trim(),
+                        password: passwordInput.value.trim()
+                    };
+                    
+                    console.log('로그인 요청 데이터:', requestData);
+                    
+                    // JSON 문자열 검증
+                    const jsonString = JSON.stringify(requestData);
+                    console.log('전송할 JSON:', jsonString);
+                    
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8',
+                        },
+                        body: jsonString
+                    });
+
+                    console.log('서버 응답 상태:', response.status);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('서버 에러 응답:', errorText);
+                        try {
+                            const errorData = JSON.parse(errorText);
+                            alert(errorData.error || '로그인에 실패했습니다.');
+                        } catch (e) {
+                            alert('로그인에 실패했습니다.');
+                        }
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    console.log('서버 응답 데이터:', data);
+
+                    if (data.success) {
+                        // 사용자 정보를 세션과 로컬 스토리지에 모두 저장
+                        const userInfoString = JSON.stringify(data.user);
+                        sessionStorage.setItem('userInfo', userInfoString);
+                        localStorage.setItem('userInfo', userInfoString);
+                        
+                        // 자동 로그인 설정 확인
+                        const autoLoginCheckbox = document.getElementById('autoLogin');
+                        if (autoLoginCheckbox.classList.contains('checked')) {
+                            localStorage.setItem('autoLogin', 'true');
+                        }
+                        
+                        console.log('로그인 성공, 사용자 정보 저장됨:', data.user);
+                        alert('로그인 성공!');
+                        // 활동 입력 페이지로 이동
+                        window.location.href = 'activity-input-test.html';
+                    } else {
+                        alert(data.error || '로그인에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('로그인 오류:', error);
+                    alert('로그인 중 오류가 발생했습니다.');
+                }
+            }
+        });
+
+        // 뒤로가기 버튼
+        document.querySelector('.back-button').addEventListener('click', function() {
+            alert('뒤로가기');
+        });
+
+        // 햄버거 메뉴 버튼
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        
+        hamburgerMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // 드롭다운 메뉴 아이템 클릭 이벤트
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.getAttribute('data-action');
+                
+                switch(action) {
+                    case 'activity-record':
+                        window.location.href = 'activity-input-dynamic-fixed.html';
+                        break;
+                    case 'dynamic-activity':
+                        window.location.href = 'activity-input-dynamic.html';
+                        break;
+                    case 'activity-report':
+                        window.location.href = 'activity-report.html';
+                        break;
+                    case 'test-activity-input':
+                        window.location.href = 'activity-input-test.html';
+                        break;
+                    case 'test-activity-pdf':
+                        exportTestDataToPDF();
+                        break;
+                    case 'new-category':
+                        window.location.href = '';
+                        break;
+                    case 'add-category':
+                        window.location.href = 'modify.html';
+                        break;
+                    case 'profile':
+                        window.location.href = '';
+                        break;
+                    
+                    case 'help':
+                        alert('도움말');
+                        break;
+                    case 'withdraw':
+                        if (confirm('정말로 탈단하시겠습니까?')) {
+                            window.location.href = 'withdraw.html';
+                            alert('탈단 처리되었습니다.');
+                        }
+                        break;
+                    case 'delete':
+                        if (confirm('정말로 회원 정보를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                            window.location.href = 'delete-member.html';
+                        }
+                        break;
+                    case 'logout':
+                        if (confirm('로그아웃하시겠습니까?')) {
+                            // 세션 스토리지 클리어
+                            sessionStorage.clear();
+                            // 로컬 스토리지에서 로그인 정보 제거
+                            localStorage.removeItem('userInfo');
+                            localStorage.removeItem('autoLogin');
+                            alert('로그아웃되었습니다.');
+                            // 페이지 새로고침
+                            window.location.reload();
+                        }
+                        break;
+                }
+                
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+        // 페이지 클릭 시 드롭다운 메뉴 닫기
+        document.addEventListener('click', function() {
+            dropdownMenu.classList.remove('show');
+        });
+
+        // 지문 로그인
+        document.querySelector('.fingerprint-icon').addEventListener('click', function() {
+            alert('지문 인식 로그인');
+        });
+
+        // 회원가입 버튼
+        document.querySelector('.join-button').addEventListener('click', function() {
+            // 등록 모달 표시
+            showRegistrationModal();
+        });
+
+        // 등록 모달 표시 함수
+        function showRegistrationModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>등록신청</h2>
+                    <form id="registrationForm">
+                        <input type="text" placeholder="성명" id="regName" required>
+                        <input type="text" placeholder="세례명" id="regBaptismName">
+                        <input type="text" placeholder="[  ]성당" id="regChurchName" required>
+                        <input type="text" placeholder="[  ]Pr" id="regPrName" required>
+                        <input type="text" placeholder="[  ] 단장,부단장,서기,회계,행동,협조" id="regPosition">
+                        <input type="text" placeholder="전화번호 끝 4자리" id="regPhoneLast4" maxlength="4" required>
+                        <input type="text" placeholder="주민번호 앞 6자리" id="regResidentIdFront6" maxlength="6" required>
+                        <input type="text" placeholder="전체 전화번호 (선택)" id="regPhoneFull">
+                        <input type="text" placeholder="전체 주민번호 (선택)" id="regResidentIdFull">
+                        <button type="submit">등록신청</button>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 모달 닫기
+            const closeBtn = modal.querySelector('.close');
+            closeBtn.onclick = function() {
+                document.body.removeChild(modal);
+            }
+            
+            // 모달 외부 클릭 시 닫기
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            }
+            
+            // 등록 폼 제출
+            const form = modal.querySelector('#registrationForm');
+            form.onsubmit = async function(e) {
+                e.preventDefault();
+                
+                // 폼 데이터 수집
+                const formData = {
+                    name: document.getElementById('regName').value.trim(),
+                    baptism_name: document.getElementById('regBaptismName').value.trim() || null,
+                    church_name: document.getElementById('regChurchName').value.trim(),
+                    pr_name: document.getElementById('regPrName').value.trim(),
+                    position: document.getElementById('regPosition').value.trim() || null,
+                    phone_last4: document.getElementById('regPhoneLast4').value.trim(),
+                    resident_id_front6: document.getElementById('regResidentIdFront6').value.trim(),
+                    phone_full: document.getElementById('regPhoneFull').value.trim() || null,
+                    resident_id_full: document.getElementById('regResidentIdFull').value.trim() || null
+                };
+                
+                // 클라이언트 측 유효성 검사
+                if (!formData.name) {
+                    alert('성명을 입력해주세요.');
+                    return;
+                }
+                if (!formData.church_name) {
+                    alert('성당명을 입력해주세요.');
+                    return;
+                }
+                if (!formData.pr_name) {
+                    alert('Pr 호도를 입력해주세요.');
+                    return;
+                }
+                if (!formData.phone_last4 || formData.phone_last4.length !== 4) {
+                    alert('전화번호 끝 4자리를 정확히 입력해주세요.');
+                    return;
+                }
+                if (!formData.resident_id_front6 || formData.resident_id_front6.length !== 6) {
+                    alert('주민번호 앞 6자리를 정확히 입력해주세요.');
+                    return;
+                }
+                
+                // 제출 버튼 비활성화
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = '등록 중...';
+                
+                try {
+                    console.log('등록 요청 데이터:', formData);
+                    
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    console.log('서버 응답 상태:', response.status);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('서버 에러 응답:', errorText);
+                        try {
+                            const errorData = JSON.parse(errorText);
+                            alert(errorData.error || '등록에 실패했습니다.');
+                        } catch (e) {
+                            alert('등록에 실패했습니다.');
+                        }
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    console.log('서버 응답 데이터:', data);
+
+                    if (data.success) {
+                        alert('등록이 완료되었습니다!');
+                        document.body.removeChild(modal);
+                    } else {
+                        alert(data.error || '등록에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('등록 오류:', error);
+                    alert('등록 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+                } finally {
+                    // 제출 버튼 다시 활성화
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            };
+        }
+
+        const ACTIVITY_FIELD_LABELS = {
+            count: '횟수',
+            catechism_guide: '교리반인도',
+            group_join: '단체가입',
+            meeting_head: '회두',
+            resolution: '해소',
+            sacrament: '성사',
+            confirmation: '견진',
+            baptism: '세례',
+            first_communion: '첫영성체',
+            year_count: '연도',
+            funeral_mass: '장례미사',
+            funeral_attendance: '장지참석',
+            inout_count: '입출관',
+            conditional_baptism: '대세',
+            conditional_communion: '보례',
+            membership: '입단',
+            establishment: '설립',
+            target: '대상'
+        };
+
+        const ACTIVITY_NUMERIC_FIELDS = Object.keys(ACTIVITY_FIELD_LABELS);
+
+        function getFieldLabel(categoryName, fieldName, fieldMappingByCategory) {
+            const mappings = fieldMappingByCategory[categoryName];
+            if (mappings) {
+                const found = mappings.find(m => m.field_name === fieldName);
+                if (found) return found.field_display_name;
+            }
+            return ACTIVITY_FIELD_LABELS[fieldName] || fieldName;
+        }
+
+        function formatActivityDate(dateStr) {
+            if (!dateStr) return '-';
+            const match = String(dateStr).match(/(\d{4})-(\d{2})-(\d{2})/);
+            return match ? `${match[1]}-${match[2]}-${match[3]}` : String(dateStr);
+        }
+
+        function buildActivityText(record, fieldMappingByCategory) {
+            const category = record.category_name || '';
+            const parts = category.split('-');
+            const subCategory = parts.length > 1 ? parts.slice(1).join('-') : category;
+            const fieldValues = [];
+
+            ACTIVITY_NUMERIC_FIELDS.forEach(fieldName => {
+                const value = record[fieldName];
+                if (fieldName === 'inout_count' && subCategory === '교우 상가 방문 및 돌봄') {
+                    if (value !== undefined && value !== null && value !== '') {
+                        fieldValues.push(`${getFieldLabel(category, fieldName, fieldMappingByCategory)}${value}`);
+                    }
+                } else if (value && Number(value) > 0) {
+                    fieldValues.push(`${getFieldLabel(category, fieldName, fieldMappingByCategory)}${value}`);
+                }
+            });
+
+            return fieldValues.length > 0 ? fieldValues.join(', ') : '기록 없음';
+        }
+
+        async function loadFieldMappingByCategory() {
+            const fieldMappingByCategory = {};
+            try {
+                const response = await fetch('/api/activity-field-mapping');
+                if (response.ok) {
+                    const data = await response.json();
+                    (data.mappings || []).forEach(mapping => {
+                        if (!fieldMappingByCategory[mapping.category_name]) {
+                            fieldMappingByCategory[mapping.category_name] = [];
+                        }
+                        fieldMappingByCategory[mapping.category_name].push(mapping);
+                    });
+                }
+            } catch (error) {
+                console.warn('필드 매핑 로드 실패, 기본 라벨 사용:', error);
+            }
+            return fieldMappingByCategory;
+        }
+
+        async function exportTestDataToPDF() {
+            const today = new Date().toISOString().split('T')[0];
+            const yearStart = `${new Date().getFullYear()}-01-01`;
+            const startDate = prompt('조회 시작일 (YYYY-MM-DD):', yearStart);
+            if (startDate === null) return;
+
+            const endDate = prompt('조회 종료일 (YYYY-MM-DD):', today);
+            if (endDate === null) return;
+
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+                alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력해주세요.');
+                return;
+            }
+
+            try {
+                const fieldMappingByCategory = await loadFieldMappingByCategory();
+                const response = await fetch(`/api/activities/summary?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'DB 조회에 실패했습니다.');
+                }
+
+                const records = await response.json();
+                if (!Array.isArray(records) || records.length === 0) {
+                    alert(`${startDate} ~ ${endDate} 기간에 저장된 TEST 자료가 없습니다.`);
+                    return;
+                }
+
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                tempContainer.style.top = '0';
+                tempContainer.style.width = '1100px';
+                tempContainer.style.backgroundColor = 'white';
+                tempContainer.style.padding = '24px';
+                tempContainer.style.fontFamily = 'Malgun Gothic, Arial, sans-serif';
+                document.body.appendChild(tempContainer);
+
+                let tableRows = '';
+                records.forEach(record => {
+                    const category = record.category_name || '-';
+                    const activityText = buildActivityText(record, fieldMappingByCategory);
+                    tableRows += `
+                        <tr>
+                            <td style="padding:8px;border:1px solid #ddd;">${record.member_name || '-'}</td>
+                            <td style="padding:8px;border:1px solid #ddd;">${category}</td>
+                            <td style="padding:8px;border:1px solid #ddd;">${activityText}</td>
+                            <td style="padding:8px;border:1px solid #ddd;">${formatActivityDate(record.activity_date)}</td>
+                            <td style="padding:8px;border:1px solid #ddd;">${record.note || ''}</td>
+                        </tr>
+                    `;
+                });
+
+                tempContainer.innerHTML = `
+                    <div style="text-align:center;margin-bottom:24px;">
+                        <h1 style="font-size:24px;color:#333;margin-bottom:8px;">Regio TEST 자료 출력</h1>
+                        <p style="font-size:14px;color:#666;">조회기간: ${startDate} ~ ${endDate}</p>
+                        <p style="font-size:14px;color:#666;">총 ${records.length}건</p>
+                    </div>
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                        <thead>
+                            <tr style="background:#4A90E2;color:white;">
+                                <th style="padding:10px;border:1px solid #357ABD;">회원명</th>
+                                <th style="padding:10px;border:1px solid #357ABD;">활동종목</th>
+                                <th style="padding:10px;border:1px solid #357ABD;">활동내역</th>
+                                <th style="padding:10px;border:1px solid #357ABD;">활동일</th>
+                                <th style="padding:10px;border:1px solid #357ABD;">비고</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                `;
+
+                const canvas = await html2canvas(tempContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+                document.body.removeChild(tempContainer);
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('landscape', 'mm', 'a4');
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 297;
+                const pageHeight = 210;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                const timestamp = new Date().toISOString().slice(0, 10);
+                pdf.save(`Regio_TEST자료_${startDate}_${endDate}_${timestamp}.pdf`);
+                alert(`PDF 파일이 생성되었습니다. (${records.length}건)`);
+            } catch (error) {
+                console.error('TEST 자료 PDF 출력 오류:', error);
+                alert('PDF 생성 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

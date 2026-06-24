@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regio 활동 보고서</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-button {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+            text-decoration: none;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        select, input[type="date"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .period-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .period-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 100px;
+        }
+
+        .period-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .report-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .report-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4A90E2;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .export-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .export-button:hover {
+            background: #218838;
+        }
+
+        .pdf-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .detailed-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .category-summary {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .category-items {
+            padding: 0;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .item-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-size: 14px;
+            color: #333;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .item-count {
+            font-weight: bold;
+            color: #4A90E2;
+            font-size: 16px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .category-total {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            font-weight: bold;
+            color: #333;
+            border-top: 2px solid #4A90E2;
+        }
+
+        .item-detail {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4A90E2;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .detail-table th,
+        .detail-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .detail-table th {
+            background: #4A90E2;
+            color: white;
+            font-weight: 600;
+        }
+
+        .detail-table tr.has-value {
+            background-color: #e8f4fd;
+        }
+
+        .detail-table tr.no-value {
+            background-color: #f9f9f9;
+            color: #999;
+        }
+
+        .detail-table .config-field {
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+
+        .detail-table .other-field {
+            color: #666;
+        }
+
+        .detail-table tr.has-value .config-field {
+            color: #1a5f9e;
+            font-weight: bold;
+        }
+
+        .pdf-button {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .pdf-button:hover {
+            background-color: #c82333;
+        }
+
+        .pdf-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .filter-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .period-buttons {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .period-btn {
+                min-width: 80px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .detailed-summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-table {
+                font-size: 14px;
+            }
+            
+            .report-table th,
+            .report-table td {
+                padding: 8px;
+            }
+            
+            .item-row {
+                padding: 10px 15px;
+            }
+            
+            .item-name {
+                font-size: 13px;
+            }
+            
+            .item-count {
+                font-size: 14px;
+            }
+            
+            .item-detail {
+                margin: 10px 0;
+                padding: 10px;
+            }
+            
+            .item-title {
+                font-size: 14px;
+            }
+            
+            .detail-table th,
+            .detail-table td {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-button">←</a>
+        <div class="logo">
+            <h1>Regio</h1>
+            <p>활동 집계</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 필터 컨트롤 -->
+        <div class="section">
+            <h2 class="section-title">📊 활동 집계</h2>
+            
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="memberSelect">회원 선택:</label>
+                    <select id="memberSelect">
+                        <option value="">로그인된 사용자</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="startDate">시작일:</label>
+                    <input type="date" id="startDate">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="endDate">종료일:</label>
+                    <input type="date" id="endDate">
+                </div>
+                
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button class="search-button" onclick="loadReport()">조회</button>
+                </div>
+            </div>
+            
+            <!-- 기간별 집계 버튼 -->
+            <div class="period-buttons">
+                <button class="period-btn active" onclick="setToday()">오늘</button>
+                <button class="period-btn" onclick="setPeriod('1day')">1일 집계</button>
+                <button class="period-btn" onclick="setPeriod('1week')">1주 집계</button>
+                <button class="period-btn" onclick="setPeriod('1month')">한달 집계</button>
+                <button class="period-btn" onclick="setPeriod('1year')">일년 집계</button>
+            </div>
+        </div>
+
+        <!-- 요약 카드 -->
+        <div class="section">
+            <h2 class="section-title">📈 활동 요약</h2>
+            <div id="detailedSummary">
+                <div class="no-data">조회 조건을 선택하고 조회 버튼을 클릭하세요.</div>
+            </div>
+        </div>
+
+        <!-- 세목별 활동 테이블 -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 class="section-title">📅 세목별 활동 기록</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button id="pdfExportBtn" class="pdf-button" onclick="exportToPDF()" style="display: none;">
+                        📄 PDF 출력
+                    </button>
+                </div>
+            </div>
+            <div id="dailyActivitiesTable">
+                <div class="no-data">조회 조건을 선택하고 조회 버튼을 클릭하세요.</div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- jsPDF 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+
+    
+
+
+    <script>
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 로그인 상태 확인
+            if (!checkLoginStatus()) {
+                return;
+            }
+            loadMembers();
+            
+            // PDF 출력 버튼 초기 숨김
+            document.getElementById('pdfExportBtn').style.display = 'none';
+            setDefaultDates();
+            
+            // 회원 목록 로드 완료 후 자동으로 오늘 날짜 데이터 조회
+            setTimeout(() => {
+                loadReport();
+            }, 1000);
+        });
+
+        // 로그인 상태 확인 함수
+        function checkLoginStatus() {
+            const userInfo = sessionStorage.getItem('userInfo');
+            if (!userInfo) {
+                alert('로그인이 필요합니다.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(userInfo);
+                if (!user || !user.name) {
+                    alert('로그인 정보가 올바르지 않습니다.');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('로그인 정보 파싱 실패:', error);
+                alert('로그인 정보를 확인할 수 없습니다.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+                return false;
+            }
+        }
+
+        // 회원 목록 로드
+        async function loadMembers() {
+            try {
+                // 로그인한 사용자 정보 가져오기 (이미 checkLoginStatus에서 확인됨)
+                const userInfo = sessionStorage.getItem('userInfo');
+                const user = JSON.parse(userInfo);
+                console.log('로그인된 사용자 정보:', user); // 디버깅용
+                
+                const select = document.getElementById('memberSelect');
+                select.innerHTML = '<option value="">회원을 선택해주세요</option>';
+                
+                try {
+                    // 현재 사용자의 성당과 pr이름이 같은 회원들만 조회
+                    const response = await fetch(`/api/members?current_user_name=${encodeURIComponent(user.name)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('API 응답 데이터:', data); // 디버깅용
+                    
+                    if (!Array.isArray(data)) {
+                        throw new Error(data.error || '회원 목록을 불러오는데 실패했습니다.');
+                    }
+                    
+                    // 로그인된 사용자를 찾아서 첫 번째로 추가하고 선택
+                    let loggedInUserFound = false;
+                    
+                    data.forEach(member => {
+                        const option = document.createElement('option');
+                        option.value = member.id;
+                        option.textContent = member.name;
+                        
+                        // 로그인된 사용자가 현재 회원과 같으면 선택
+                        if (member.name === user.name) {
+                            option.selected = true;
+                            loggedInUserFound = true;
+                            // 로그인된 사용자 텍스트에 표시
+                            option.textContent = `${member.name} (로그인됨)`;
+                        }
+                        
+                        select.appendChild(option);
+                    });
+                    
+                    // 로그인된 사용자가 목록에 없으면 별도로 추가
+                    if (!loggedInUserFound) {
+                        const option = document.createElement('option');
+                        option.value = user.id || 'current_user';
+                        option.textContent = `${user.name} (로그인됨)`;
+                        option.selected = true;
+                        select.insertBefore(option, select.firstChild.nextSibling);
+                    }
+                    
+                } catch (apiError) {
+                    console.error('API 호출 실패:', apiError);
+                    
+                    // API 호출이 실패해도 로그인된 사용자는 표시
+                    const option = document.createElement('option');
+                    option.value = user.id || 'current_user';
+                    option.textContent = `${user.name} (로그인됨)`;
+                    option.selected = true;
+                    select.insertBefore(option, select.firstChild.nextSibling);
+                    
+                    console.log('회원 목록을 불러오는데 실패했지만, 로그인된 사용자 정보는 표시됩니다.');
+                    
+                    // 사용자에게 오류 메시지 표시
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'color: #dc3545; background: #f8d7da; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #f5c6cb;';
+                    errorDiv.innerHTML = `
+                        <strong>⚠️ 주의:</strong> 회원 목록을 불러오는데 실패했습니다.<br>
+                        오류: ${apiError.message}<br>
+                        로그인된 사용자(${user.name})만 표시됩니다.
+                    `;
+                    select.parentNode.insertBefore(errorDiv, select.nextSibling);
+                }
+                
+                // 로그인한 사용자가 선택되었는지 확인하고 메시지 표시
+                if (select.value) {
+                    console.log(`${user.name}님으로 로그인되었습니다.`);
+                }
+                
+            } catch (error) {
+                console.error('회원 목록 로드 실패:', error);
+                console.log('로그인 정보를 불러오는데 실패했습니다.');
+                
+                // 사용자에게 오류 메시지 표시
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'color: #dc3545; background: #f8d7da; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #f5c6cb;';
+                errorDiv.innerHTML = `
+                    <strong>❌ 오류:</strong> 회원 목록을 불러오는데 실패했습니다.<br>
+                    오류: ${error.message}<br>
+                    <a href="debug-members.html" target="_blank" style="color: #721c24;">디버깅 페이지 열기</a>
+                `;
+                document.querySelector('.content').insertBefore(errorDiv, document.querySelector('.content').firstChild);
+            }
+        }
+
+        // 기본 날짜 설정
+        function setDefaultDates() {
+            // 한국 시간대 기준으로 날짜 설정
+            const today = new Date();
+            
+            // 한국 시간대로 변환 (UTC+9)
+            const koreaTime = new Date(today.getTime() + (9 * 60 * 60 * 1000));
+            
+            const todayString = koreaTime.getUTCFullYear() + '-' + 
+                String(koreaTime.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                String(koreaTime.getUTCDate()).padStart(2, '0');
+            
+            console.log('한국 시간 기준 오늘 날짜:', todayString);
+            
+            // 오늘 날짜를 시작일과 종료일 모두로 설정 (오늘 하루 데이터만 조회)
+            // 오늘은 오늘 밤 자정 이전의 모든 내용을 출력하도록 설정
+            document.getElementById('startDate').value = todayString;
+            document.getElementById('endDate').value = todayString;
+        }
+
+        // 오늘 날짜 설정
+        function setToday() {
+            const today = new Date();
+            
+            // 버튼 활성화 상태 변경
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 한국 시간대로 변환 (UTC+9)
+            const koreaTime = new Date(today.getTime() + (9 * 60 * 60 * 1000));
+            
+            const todayString = koreaTime.getUTCFullYear() + '-' + 
+                String(koreaTime.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                String(koreaTime.getUTCDate()).padStart(2, '0');
+            
+            // 오늘은 오늘 밤 자정 이전의 모든 내용을 출력하도록 설정
+            document.getElementById('startDate').value = todayString;
+            document.getElementById('endDate').value = todayString;
+            
+            // 자동으로 보고서 로드
+            loadReport();
+        }
+
+        // 기간별 집계 설정
+        function setPeriod(period) {
+            const today = new Date();
+            let startDate = new Date();
+            
+            // 버튼 활성화 상태 변경
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            switch(period) {
+                case '1day':
+                    // 24시간 전부터 현재까지
+                    startDate.setDate(today.getDate() - 1);
+                    break;
+                case '1week':
+                    // 1주일 전부터 현재까지
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case '1month':
+                    // 1개월 전부터 현재까지
+                    startDate.setMonth(today.getMonth() - 1);
+                    break;
+                case '1year':
+                    // 1년 전부터 현재까지
+                    startDate.setFullYear(today.getFullYear() - 1);
+                    break;
+                default:
+                    return;
+            }
+            
+            // 한국 시간대 기준으로 날짜 설정
+            const koreaStartTime = new Date(startDate.getTime() + (9 * 60 * 60 * 1000));
+            const koreaTodayTime = new Date(today.getTime() + (9 * 60 * 60 * 1000));
+            
+            const startDateString = koreaStartTime.getUTCFullYear() + '-' + 
+                String(koreaStartTime.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                String(koreaStartTime.getUTCDate()).padStart(2, '0');
+            
+            const todayString = koreaTodayTime.getUTCFullYear() + '-' + 
+                String(koreaTodayTime.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                String(koreaTodayTime.getUTCDate()).padStart(2, '0');
+            
+            document.getElementById('startDate').value = startDateString;
+            document.getElementById('endDate').value = todayString;
+            
+            // 자동으로 보고서 로드
+            loadReport();
+        }
+
+        // 보고서 로드
+        async function loadReport() {
+            const memberId = document.getElementById('memberSelect').value;
+            let startDate = document.getElementById('startDate').value;
+            let endDate = document.getElementById('endDate').value;
+
+            // 오늘 날짜로 조회할 때는 시간 범위를 정확하게 설정
+            const today = new Date();
+            const todayString = today.getFullYear() + '-' + 
+                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(today.getDate()).padStart(2, '0');
+            
+            // 오늘 날짜인 경우 시작일은 00:00:00, 종료일은 23:59:59로 설정
+            if (startDate === todayString && endDate === todayString) {
+                startDate = startDate + ' 00:00:00';
+                endDate = endDate + ' 23:59:59';
+                console.log('📅 오늘 날짜 조회 - 시간 범위 설정:', startDate, '~', endDate);
+            }
+
+            console.log('📊 보고서 로드 시작:', {
+                memberId,
+                startDate,
+                endDate
+            });
+
+            if (!startDate || !endDate) {
+                alert('시작일과 종료일을 선택해주세요.');
+                return;
+            }
+
+            try {
+                // 활동 데이터 로드
+                let url = `/api/activities/summary?start_date=${startDate}&end_date=${endDate}`;
+                if (memberId) {
+                    url += `&member_id=${memberId}`;
+                }
+                
+                console.log('🔗 API URL:', url);
+                
+                const response = await fetch(url);
+                console.log('📥 API 응답:', response.status, response.statusText);
+                
+                const data = await response.json();
+                console.log('📋 API 데이터:', data);
+                
+                // 교우상가돌봄 관련 데이터만 필터링하여 확인
+                const 교우상가돌봄데이터 = data.filter(record => {
+                    const category = record.category_name || '';
+                    const parts = category.split('-');
+                    const subCategory = parts.length > 1 ? parts.slice(1).join('-') : category;
+                    return subCategory === '교우 상가 방문 및 돌봄';
+                });
+                console.log('🔍 교우상가돌봄 데이터만 필터링:', 교우상가돌봄데이터);
+
+                // 데이터 표시
+                displayDailyActivities(data);
+                displayDetailedSummary(data);
+
+            } catch (error) {
+                console.error('❌ 활동집계 로드 실패:', error);
+                alert('활동집계를 불러오는데 실패했습니다.');
+            }
+        }
+
+        // 날짜 포맷팅 헬퍼 함수 (activity_date 필드 사용 - 실제 활동 발생일)
+        function formatActivityDate(dateString) {
+            if (!dateString) return '날짜없음';
+            
+            // 문자열로 변환
+            const dateStr = String(dateString).trim();
+            
+            // YYYY-MM-DD 형식을 추출하는 정규식 (시간대 정보 무시)
+            const dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (dateMatch) {
+                const [, year, month, day] = dateMatch;
+                return `${year}-${month}-${day}`;
+            }
+            
+            // PostgreSQL에서 반환되는 날짜 형식 처리 (예: "2025-09-09T00:00:00.000Z")
+            const isoMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})T/);
+            if (isoMatch) {
+                const [, year, month, day] = isoMatch;
+                return `${year}-${month}-${day}`;
+            }
+            
+            // Date 객체로 파싱 시도 (시간대 변환 방지)
+            try {
+                const date = new Date(dateStr);
+                if (!isNaN(date.getTime())) {
+                    // UTC 기준으로 날짜 추출하여 시간대 변환 방지
+                    const year = date.getUTCFullYear();
+                    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(date.getUTCDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+            } catch (e) {
+                console.warn('날짜 파싱 실패:', dateStr, e);
+            }
+            
+            // 모든 시도 실패
+            return '날짜없음';
+        }
+
+
+
+
+                // 세목별 활동 표시 (개별 기록 표시)
+        function displayDailyActivities(data) {
+            const container = document.getElementById('dailyActivitiesTable');
+            
+            console.log('📊 displayDailyActivities 호출:', {
+                dataLength: data ? data.length : 0,
+                data: data
+            });
+            
+            if (!data || data.length === 0) {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                console.log('📭 데이터 없음:', `${startDate} ~ ${endDate}`);
+                container.innerHTML = `<div class="no-data">
+                    📅 ${startDate} ~ ${endDate} 기간에 활동 기록이 없습니다.<br>
+                    💡 활동을 입력하려면 <a href="activity-input-test.html" style="color: #4A90E2; text-decoration: underline;">활동 입력 페이지</a>로 이동하세요.
+                </div>`;
+                return;
+            }
+
+            // 날짜별로 데이터 정렬 (activity_date 기준 - 실제 활동 발생일)
+            const sortedData = data.sort((a, b) => {
+                const dateA = formatActivityDate(a.activity_date);
+                const dateB = formatActivityDate(b.activity_date);
+                return dateA.localeCompare(dateB);
+            });
+
+            let html = '<table class="report-table">';
+            html += `
+                <thead>
+                    <tr>
+                        <th>세목</th>
+                        <th>활동내역</th>
+                        <th>일자</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            // 각 기록을 개별적으로 표시
+            sortedData.forEach(record => {
+                // 새로운 데이터 구조에 맞게 처리
+                let category = record.category_name || '';
+                let subCategory = '';
+                
+                // 카테고리에서 세목 추출
+                if (category) {
+                    const parts = category.split('-');
+                    if (parts.length > 1) {
+                        subCategory = parts.slice(1).join('-'); // 하이픈이 여러 개 있을 수 있으므로
+                    } else {
+                        subCategory = category;
+                    }
+                } else {
+                    subCategory = '기타';
+                }
+                
+                // 활동내역 구성 (fieldMapping 사용)
+                // 모든 필드를 확인하여 0이 아닌 값들을 찾아서 표시
+                const fieldValues = [];
+                
+                // 디버깅을 위한 로그 추가
+                if (subCategory === '교우 상가 방문 및 돌봄') {
+                    console.log('🔍 교우상가돌봄 데이터 상세:', {
+                        category: category,
+                        subCategory: subCategory,
+                        record: record,
+                        count: record.count,
+                        inout_count: record.inout_count,
+                        inout_count_type: typeof record.inout_count,
+                        inout_count_condition: record.inout_count && record.inout_count > 0,
+                        funeral_attendance: record.funeral_attendance,
+                        funeral_mass: record.funeral_mass,
+                        year_count: record.year_count,
+                        allFields: Object.keys(record).map(key => `${key}: ${record[key]} (${typeof record[key]})`).join(', ')
+                    });
+                }
+                
+                // 각 필드값을 확인하여 0이 아닌 값을 찾음
+                if (record.count && record.count > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'count');
+                    fieldValues.push(`${fieldDisplayName}${record.count}`);
+                }
+                if (record.catechism_guide && record.catechism_guide > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'catechism_guide');
+                    fieldValues.push(`${fieldDisplayName}${record.catechism_guide}`);
+                }
+                if (record.group_join && record.group_join > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'group_join');
+                    fieldValues.push(`${fieldDisplayName}${record.group_join}`);
+                }
+                if (record.meeting_head && record.meeting_head > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'meeting_head');
+                    fieldValues.push(`${fieldDisplayName}${record.meeting_head}`);
+                }
+                if (record.resolution && record.resolution > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'resolution');
+                    fieldValues.push(`${fieldDisplayName}${record.resolution}`);
+                }
+                if (record.sacrament && record.sacrament > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'sacrament');
+                    fieldValues.push(`${fieldDisplayName}${record.sacrament}`);
+                }
+                if (record.confirmation && record.confirmation > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'confirmation');
+                    fieldValues.push(`${fieldDisplayName}${record.confirmation}`);
+                }
+                if (record.baptism && record.baptism > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'baptism');
+                    fieldValues.push(`${fieldDisplayName}${record.baptism}`);
+                }
+                if (record.first_communion && record.first_communion > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'first_communion');
+                    fieldValues.push(`${fieldDisplayName}${record.first_communion}`);
+                }
+                if (record.year_count && record.year_count > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'year_count');
+                    fieldValues.push(`${fieldDisplayName}${record.year_count}`);
+                }
+                if (record.funeral_attendance && record.funeral_attendance > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'funeral_attendance');
+                    fieldValues.push(`${fieldDisplayName}${record.funeral_attendance}`);
+                }
+                if (record.funeral_mass && record.funeral_mass > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'funeral_mass');
+                    fieldValues.push(`${fieldDisplayName}${record.funeral_mass}`);
+                }
+                // 교우상가돌봄의 경우 입출관 필드 특별 처리
+                if (subCategory === '교우 상가 방문 및 돌봄') {
+                    // 교우상가돌봄의 경우 inout_count 필드가 있으면 무조건 표시
+                    if (record.inout_count !== undefined && record.inout_count !== null) {
+                        const fieldDisplayName = getFieldDisplayName(category, 'inout_count');
+                        fieldValues.push(`${fieldDisplayName}${record.inout_count}`);
+                        
+                        console.log('교우상가돌봄 입출관 필드 강제 처리:', {
+                            inout_count: record.inout_count,
+                            fieldDisplayName: fieldDisplayName,
+                            category: category
+                        });
+                    } else {
+                        console.log('교우상가돌봄 입출관 필드 없음:', {
+                            inout_count: record.inout_count,
+                            inout_count_type: typeof record.inout_count
+                        });
+                    }
+                } else if (record.inout_count && record.inout_count > 0) {
+                    // 다른 활동의 경우 기존 로직 유지
+                    const fieldDisplayName = getFieldDisplayName(category, 'inout_count');
+                    fieldValues.push(`${fieldDisplayName}${record.inout_count}`);
+                }
+                if (record.conditional_baptism && record.conditional_baptism > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'conditional_baptism');
+                    fieldValues.push(`${fieldDisplayName}${record.conditional_baptism}`);
+                }
+                if (record.conditional_communion && record.conditional_communion > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'conditional_communion');
+                    fieldValues.push(`${fieldDisplayName}${record.conditional_communion}`);
+                }
+                if (record.membership && record.membership > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'membership');
+                    fieldValues.push(`${fieldDisplayName}${record.membership}`);
+                }
+                if (record.establishment && record.establishment > 0) {
+                    const fieldDisplayName = getFieldDisplayName(category, 'establishment');
+                    fieldValues.push(`${fieldDisplayName}${record.establishment}`);
+                }
+                
+                // 활동내역 텍스트 구성
+                let activityText = '';
+                if (fieldValues.length > 0) {
+                    activityText = fieldValues.join(', ');
+                } else {
+                    // 모든 필드가 0인 경우 기본 횟수 필드 표시
+                    const fieldDisplayName = getFieldDisplayName(category, 'count');
+                    activityText = `${fieldDisplayName}0`;
+                }
+                
+                // 디버깅을 위한 로그 추가
+                if (subCategory === '교우 상가 방문 및 돌봄') {
+                    console.log('교우상가돌봄 처리 결과:', {
+                        fieldValues: fieldValues,
+                        activityText: activityText
+                    });
+                }
+                
+                // 날짜 포맷팅 (activity_date 사용 - 실제 활동 발생일)
+                const date = formatActivityDate(record.activity_date);
+                
+                // 디버깅을 위한 로그 (모든 데이터)
+                console.log('날짜 처리:', {
+                    category: subCategory,
+                    original: record.activity_date,
+                    formatted: date,
+                    type: typeof record.activity_date
+                });
+                
+                html += `
+                    <tr>
+                        <td>${subCategory}</td>
+                        <td>${activityText}</td>
+                        <td>${date}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            
+            // PDF 출력 버튼 표시
+            document.getElementById('pdfExportBtn').style.display = 'block';
+        }
+
+
+
+        // 세목을 카테고리로 분류하는 함수
+        function getCategoryFromSubItem(subItem) {
+            const evangelismItems = ['외인 입교권면', '교리 중단자 권면', '방문및가두선교', '예비자 관리', '통신 교리자', '교리반 협조'];
+            const careItems = ['신 영세자 돌봄', '교우 가정방문', '냉담 교우 방문', '혼인 장애자 돌봄', '판공성사 권면', '전입 교우 돌봄', '견진성사권면', '유아 세례 권면', '군인선원돌봄', '청소년 돌봄'];
+            const needyItems = ['교우 상가 방문 및 돌봄', '교우 환자 방문 및 돌봄', '외인환자 방문 및 돌봄', '외인 상가방문 및 돌봄', '재해 및 사고 피해자', '다문화가족돌봄', '병원봉사', '복지시설방문', '대세자돌봄'];
+            const legionItems = ['소년 레지오 지도', '행동단원 모집', '협조단원 모집. 돌봄', 'Pr설립권면', '결석단원돌봄', '교본공부', '평의회업무협조', '본당사도직활동', '행사 준비 및 협조', '주일학교 돌봄', '소공동체활동', '사무협조', '회원모집', '전례협조', '피정참가권장'];
+            
+            if (evangelismItems.includes(subItem)) return '복음선교';
+            if (careItems.includes(subItem)) return '교우돌봄';
+            if (needyItems.includes(subItem)) return '어려운자돌봄';
+            if (legionItems.includes(subItem)) return '레지오활동';
+            
+            return '기타';
+        }
+
+
+
+
+
+        // PDF 출력 함수
+        async function exportToPDF() {
+            const pdfBtn = document.getElementById('pdfExportBtn');
+            pdfBtn.disabled = true;
+            pdfBtn.textContent = 'PDF 생성 중...';
+
+            try {
+                // 임시 컨테이너 생성
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                tempContainer.style.top = '0';
+                tempContainer.style.width = '1200px';
+                tempContainer.style.backgroundColor = 'white';
+                tempContainer.style.padding = '20px';
+                tempContainer.style.fontFamily = 'Arial, sans-serif';
+                document.body.appendChild(tempContainer);
+
+                // 제목과 정보 추가
+                const title = 'Regio 활동 집계';
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const memberSelect = document.getElementById('memberSelect');
+                const selectedMember = memberSelect.options[memberSelect.selectedIndex].text;
+
+                let html = `
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="font-size: 24px; color: #333; margin-bottom: 10px;">${title}</h1>
+                        <div style="font-size: 14px; color: #666;">
+                `;
+
+                if (selectedMember && selectedMember !== '전체 회원') {
+                    html += `<p>회원: ${selectedMember}</p>`;
+                }
+                if (startDate && endDate) {
+                    html += `<p>조회기간: ${startDate} ~ ${endDate}</p>`;
+                }
+
+                html += `</div></div>`;
+
+                // 요약 정보 추가
+                const detailedSummary = document.getElementById('detailedSummary');
+                if (detailedSummary && detailedSummary.innerHTML !== '<div class="no-data">조회 조건을 선택하고 조회 버튼을 클릭하세요.</div>') {
+                    html += `
+                        <div style="margin-bottom: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h3 style="font-size: 16px; color: #333; margin-bottom: 10px;">활동 요약</h3>
+                            ${detailedSummary.outerHTML}
+                        </div>
+                    `;
+                }
+
+                // 테이블 데이터 추가
+                const tables = document.querySelectorAll('.report-table');
+                tables.forEach((table, index) => {
+                    const categoryTitle = table.previousElementSibling?.textContent?.trim() || `카테고리 ${index + 1}`;
+                    
+                    html += `
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="font-size: 16px; color: #4A90E2; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                                ${categoryTitle}
+                            </h3>
+                            ${table.outerHTML}
+                        </div>
+                    `;
+                });
+
+                tempContainer.innerHTML = html;
+
+                // html2canvas로 이미지 생성
+                const canvas = await html2canvas(tempContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                // 임시 컨테이너 제거
+                document.body.removeChild(tempContainer);
+
+                // jsPDF로 PDF 생성
+                const { jsPDF } = window.jspdf;
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('landscape', 'mm', 'a4');
+                
+                const imgWidth = 297; // A4 가로 크기 (mm)
+                const pageHeight = 210; // A4 세로 크기 (mm)
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                // 파일명 생성
+                const now = new Date();
+                const timestamp = now.getFullYear() + 
+                    String(now.getMonth() + 1).padStart(2, '0') + 
+                    String(now.getDate()).padStart(2, '0') + '_' +
+                    String(now.getHours()).padStart(2, '0') + 
+                    String(now.getMinutes()).padStart(2, '0');
+                
+                const filename = `Regio_활동보고서_${timestamp}.pdf`;
+
+                // PDF 다운로드
+                pdf.save(filename);
+
+                // 성공 메시지
+                alert('PDF 파일이 성공적으로 생성되었습니다.');
+
+            } catch (error) {
+                console.error('PDF 생성 오류:', error);
+                alert('PDF 생성 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                // 버튼 상태 복원
+                pdfBtn.disabled = false;
+                pdfBtn.textContent = '📄 PDF 출력';
+            }
+        }
+
+        // 카테고리 설정 (dayinput_improved.html의 categoryConfig와 동일)
+        const categoryConfig = {
+            '기도생활-묵주기도': ['횟수'],
+            '기도생활-평일미사': ['횟수'],
+            '기도생활-십자가의길': ['횟수'],
+            '기도생활-성경읽기': ['횟수'],
+            '기도생활-성경쓰기': ['횟수'],
+            '기도생활-소성무일도': ['횟수'],
+            '기도생활-성체조배': ['횟수'],
+            '기도생활-기타': ['횟수'],
+            '지구와함께-거절하기': ['횟수'],
+            '지구와함께-아껴쓰기': ['횟수'],
+            '지구와함께-고쳐쓰기': ['횟수'],
+            '지구와함께-재고하기': ['횟수'],
+            '지구와함께-다시쓰기': ['횟수'],
+            '지구와함께-재생하기': ['횟수'],
+            '복음선교-외인 입교권면': ['횟수', '교리반인도'],
+            '복음선교-교리 중단자 권면': ['횟수', '교리반인도'],
+            '복음선교-방문및가두선교': ['횟수', '교리반인도'],
+            '복음선교-예비자 관리': ['횟수', '세례'],
+            '복음선교-통신 교리자': ['횟수', '세례'],
+            '복음선교-교리반협조': ['횟수'],
+            '교우돌봄-신 영세자 돌봄': ['횟수', '단체가입'],
+            '교우돌봄-교우 가정방문': ['횟수', '단체가입'],
+            '교우돌봄-냉담 교우 방문': ['횟수', '회두'],
+            '교우돌봄-혼인 장애자 돌봄': ['횟수', '해소'],
+            '교우돌봄-판공성사 권면': ['횟수', '성사'],
+            '교우돌봄-전입 교우 돌봄': ['횟수', '단체가입'],
+            '교우돌봄-견진성사권면': ['횟수', '견진'],
+            '교우돌봄-유아 세례 권면': ['횟수', '세례'],
+            '교우돌봄-군인선원돌봄': ['횟수', '첫영성체'],
+            '교우돌봄-청소년 돌봄': ['횟수'],
+            '어려운자돌봄-교우 상가 방문 및 돌봄': ['횟수', '연도', '장지참석', '장례미사', '입출관'],
+            '어려운자돌봄-교우 환자 방문 및 돌봄': ['성사', '첫영성체'],
+            '어려운자돌봄-외인환자 방문 및 돌봄': ['횟수', '대세', '보례'],
+            '어려운자돌봄-외인 상가방문 및 돌봄': ['횟수'],
+            '어려운자돌봄-재해 및 사고 피해자': ['횟수'],
+            '어려운자돌봄-다문화가족돌봄': ['횟수'],
+            '어려운자돌봄-병원봉사': ['횟수'],
+            '어려운자돌봄-복지시설방문': ['횟수'],
+            '어려운자돌봄-대세자돌봄': ['횟수', '교리반인도'],
+            '레지오활동-소년 레지오 지도': ['횟수'],
+            '레지오활동-행동단원 모집': ['입단'],
+            '레지오활동-협조단원 모집. 돌봄': ['입단'],
+            '레지오활동-Pr설립권면': ['설립'],
+            '레지오활동-결석단원돌봄': ['횟수'],
+            '레지오활동-교본공부': ['횟수'],
+            '레지오활동-평의회업무협조': ['횟수'],
+            '본당교회협조-본당사도직활동': ['횟수'],
+            '본당교회협조-행사 준비 및 협조': ['횟수'],
+            '본당교회협조-주일학교 돌봄': ['횟수'],
+            '본당교회협조-소공동체활동': ['횟수'],
+            '본당교회협조-사무협조': ['횟수'],
+            '본당교회협조-회원모집': ['횟수'],
+            '본당교회협조-전례협조': ['횟수'],
+            '본당교회협조-피정참가권장': ['횟수'],
+            '기타-출판물 보급': ['횟수'],
+            '기타-자연보호': ['횟수'],
+            '기타-특별활동': ['횟수'],
+            '기타-접촉활동': ['횟수'],
+            '기타-청소 미화': ['횟수'],
+            '기타-차량봉사및교통정리': ['횟수'],
+            '기타-기타': ['횟수']
+        };
+
+        // fieldMapping 정의 (activity-input-test.html과 동일)
+        const fieldMapping = {
+            // 기도생활
+            '기도생활-묵주기도': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-평일미사': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-십자가의길': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-성경읽기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-성경쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-성체조배': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기도생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 지구와함께
+            '지구와함께-거절하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '지구와함께-아껴쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '지구와함께-고쳐쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '지구와함께-재고하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '지구와함께-다시쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '지구와함께-재생하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 복음선교
+            '복음선교-외인 입교권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+            ],
+            '복음선교-교리 중단자 권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+            ],
+            '복음선교-방문및가두선교': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+            ],
+            '복음선교-예비자 관리': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'baptism', field_display_name: '세례', is_required: false }
+            ],
+            '복음선교-통신 교리자': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'baptism', field_display_name: '세례', is_required: false }
+            ],
+            '복음선교-교리반협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 교우돌봄
+            '교우돌봄-신 영세자 돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+            ],
+            '교우돌봄-교우 가정방문': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+            ],
+            '교우돌봄-냉담 교우 방문': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'meeting_head', field_display_name: '회두', is_required: false }
+            ],
+            '교우돌봄-혼인 장애자 돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'resolution', field_display_name: '해소', is_required: false }
+            ],
+            '교우돌봄-판공성사 권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'sacrament', field_display_name: '성사', is_required: false }
+            ],
+            '교우돌봄-전입 교우 돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+            ],
+            '교우돌봄-견진성사권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'confirmation', field_display_name: '견진', is_required: false }
+            ],
+            '교우돌봄-유아 세례 권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'baptism', field_display_name: '세례', is_required: false }
+            ],
+            '교우돌봄-군인선원돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
+            ],
+            '교우돌봄-청소년 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 어려운자돌봄
+            '어려운자돌봄-교우 상가 방문 및 돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'year_count', field_display_name: '연도', is_required: false },
+                { field_name: 'funeral_attendance', field_display_name: '장지참석', is_required: false },
+                { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                { field_name: 'inout_count', field_display_name: '입출관', is_required: false }
+            ],
+            '어려운자돌봄-교우 환자 방문 및 돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'sacrament', field_display_name: '성사', is_required: false },
+                { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
+            ],
+            '어려운자돌봄-외인환자 방문 및 돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'conditional_baptism', field_display_name: '대세', is_required: false },
+                { field_name: 'conditional_communion', field_display_name: '보례', is_required: false }
+            ],
+            '어려운자돌봄-외인 상가방문 및 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '어려운자돌봄-재해 및 사고 피해자': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '어려운자돌봄-다문화가족돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '어려운자돌봄-병원봉사': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '어려운자돌봄-복지시설방문': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '어려운자돌봄-대세자돌봄': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true },
+                { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+            ],
+            
+            // 레지오활동
+            '레지오활동-소년 레지오 지도': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '레지오활동-행동단원 모집': [{ field_name: 'membership', field_display_name: '입단', is_required: true }],
+            '레지오활동-협조단원 모집및  돌봄': [{ field_name: 'membership', field_display_name: '입단', is_required: true }],
+            '레지오활동-Pr설립권면': [{ field_name: 'establishment', field_display_name: '설립', is_required: true }],
+            '레지오활동-결석단원돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '레지오활동-교본공부': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '레지오활동-평의회업무협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 본당교회협조
+            '본당교회협조-본당사도직활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-행사 준비 및 협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-주일학교 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-소공동체활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-사무협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-회원모집': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-전례협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '본당교회협조-피정참가권장': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 접촉활동
+            '접촉활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            
+            // 기타
+            '기타-출판물 보급': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기타-자연보호': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기타-특별활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기타-접촉활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기타-청소 미화': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기타-차량봉사및교통정리': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }],
+            '기타-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,시간)', is_required: true }]
+        };
+
+        // 필드명을 한글로 변환하는 함수
+        function getFieldDisplayName(categoryName, fieldName) {
+            if (fieldMapping[categoryName]) {
+                const field = fieldMapping[categoryName].find(f => f.field_name === fieldName);
+                return field ? field.field_display_name : fieldName;
+            }
+            return fieldName;
+        }
+
+        // 세부 요약 표시 (세목별 누계 표시)
+        function displayDetailedSummary(dailyData) {
+            const container = document.getElementById('detailedSummary');
+            
+            if (!dailyData || dailyData.length === 0) {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                container.innerHTML = `<div class="no-data">
+                    📅 ${startDate} ~ ${endDate} 기간에 활동 기록이 없습니다.<br>
+                    💡 활동을 입력하려면 <a href="activity-input-test.html" style="color: #4A90E2; text-decoration: underline;">활동 입력 페이지</a>로 이동하세요.
+                </div>`;
+                return;
+            }
+
+            // 세목별로 데이터 그룹화 (필드별로 분리)
+            const groupedData = {};
+            
+            dailyData.forEach(record => {
+                let category = record.category_name || '';
+                let subCategory = '';
+                
+                // 카테고리에서 세목 추출
+                if (category) {
+                    const parts = category.split('-');
+                    if (parts.length > 1) {
+                        subCategory = parts.slice(1).join('-');
+                    } else {
+                        subCategory = category;
+                    }
+                } else {
+                    subCategory = '기타';
+                }
+                
+                // 실제 데이터베이스 컬럼에서 값 찾기
+                // 모든 필드를 확인하여 0이 아닌 값들을 찾아서 처리
+                const fieldMappings = [
+                    { field: 'count', name: 'count' },
+                    { field: 'catechism_guide', name: 'catechism_guide' },
+                    { field: 'group_join', name: 'group_join' },
+                    { field: 'meeting_head', name: 'meeting_head' },
+                    { field: 'resolution', name: 'resolution' },
+                    { field: 'sacrament', name: 'sacrament' },
+                    { field: 'confirmation', name: 'confirmation' },
+                    { field: 'baptism', name: 'baptism' },
+                    { field: 'first_communion', name: 'first_communion' },
+                    { field: 'year_count', name: 'year_count' },
+                    { field: 'funeral_attendance', name: 'funeral_attendance' },
+                    { field: 'funeral_mass', name: 'funeral_mass' },
+                    { field: 'inout_count', name: 'inout_count' },
+                    { field: 'conditional_baptism', name: 'conditional_baptism' },
+                    { field: 'conditional_communion', name: 'conditional_communion' },
+                    { field: 'membership', name: 'membership' },
+                    { field: 'establishment', name: 'establishment' }
+                ];
+                
+                // 먼저 기본 count 필드가 있는지 확인 (활동 요약에 포함시키기 위해)
+                const hasCountField = record.count !== undefined && record.count !== null;
+                
+                fieldMappings.forEach(fieldMapping => {
+                    // 0이 아닌 값이 있거나, count 필드가 있는 경우 처리
+                    if ((record[fieldMapping.field] && record[fieldMapping.field] > 0) || 
+                        (fieldMapping.field === 'count' && hasCountField)) {
+                        const fieldDisplayName = getFieldDisplayName(category, fieldMapping.name);
+                        const key = `${subCategory}-${fieldDisplayName}`;
+                        
+                        if (!groupedData[key]) {
+                            groupedData[key] = {
+                                subCategory: subCategory,
+                                fieldName: fieldDisplayName,
+                                totalValue: 0,
+                                dates: new Set()
+                            };
+                        }
+                        
+                        // 값 합계 계산
+                        groupedData[key].totalValue += record[fieldMapping.field] || 0;
+                        
+                        // 날짜 추가 (중복 제거, activity_date 사용 - 실제 활동 발생일)
+                        if (record.activity_date) {
+                            // 시간대 변환 없이 날짜 부분만 추출
+                            const date = formatActivityDate(record.activity_date);
+                            if (date !== '날짜없음') {
+                                groupedData[key].dates.add(date);
+                            }
+                        }
+                    }
+                });
+            });
+
+            let html = '<table class="report-table">';
+            html += `
+                <thead>
+                    <tr>
+                        <th>세목</th>
+                        <th>활동내역 (합계)</th>
+                        <th>일자 수</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            // 세목별로 정렬하여 표시
+            const sortedKeys = Object.keys(groupedData).sort();
+            
+            sortedKeys.forEach(key => {
+                const data = groupedData[key];
+                const activityText = `${data.fieldName}${data.totalValue}`;
+                const dateCount = data.dates.size;
+                
+                html += `
+                    <tr>
+                        <td>${data.subCategory}</td>
+                        <td>${activityText}</td>
+                        <td>${dateCount}일</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
