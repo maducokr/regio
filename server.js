@@ -18,13 +18,24 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
-// PostgreSQL 연결 설정
+// PostgreSQL 연결 설정 (Render / 로컬 모두 지원)
+const isProduction = process.env.NODE_ENV === 'production';
+const dbPoolConfig = process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: isProduction ? { rejectUnauthorized: false } : false,
+    }
+    : {
+        user: process.env.DB_USER || 'postgres',
+        host: process.env.DB_HOST || 'localhost',
+        database: process.env.DB_NAME || 'regio',
+        password: process.env.DB_PASSWORD || '5854',
+        port: parseInt(process.env.DB_PORT || '5432', 10),
+        ssl: isProduction ? { rejectUnauthorized: false } : false,
+    };
+
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'regio',
-    password: process.env.DB_PASSWORD || '5854', // 환경변수 또는 기본값 사용
-    port: 5432,
+    ...dbPoolConfig,
     // 연결 풀 설정 최적화 (연결 누수 방지)
     max: 2, // 최대 연결 수를 더 줄임 (연결 한계 문제 해결)
     min: 0, // 최소 연결 수
@@ -33,8 +44,6 @@ const pool = new Pool({
     acquireTimeoutMillis: 5000, // 연결 획득 타임아웃 (5초로 단축)
     // 연결 해제 강제 설정
     allowExitOnIdle: true, // 유휴 시 종료 허용
-    // SSL 설정 (로컬 개발용)
-    ssl: false,
     // 연결 유지 설정
     keepAlive: false, // keepAlive 비활성화
     keepAliveInitialDelayMillis: 0,
