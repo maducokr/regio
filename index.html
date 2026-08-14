@@ -177,22 +177,23 @@
         .id-input-box {
             display: flex;
             align-items: stretch;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border: 1px solid #c5daf5;
+            border-radius: 10px;
             overflow: hidden;
-            background: #fff;
+            background: #f0f6ff;
         }
 
         .id-input-box:focus-within {
             border-color: #4A90E2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.15);
         }
 
         .id-prefix-label {
             display: flex;
             align-items: center;
             padding: 0 14px;
-            background: #f8f9fa;
-            border-right: 1px solid #ddd;
+            background: transparent;
+            border-right: 1px solid #c5daf5;
             font-size: 15px;
             font-weight: 600;
             color: #333;
@@ -205,8 +206,8 @@
             justify-content: center;
             min-width: 3.2em;
             padding: 0 10px;
-            background: #fff7e6;
-            border-right: 1px solid #ddd;
+            background: transparent;
+            border-right: 1px solid #c5daf5;
             font-size: 14px;
             font-weight: 700;
             color: #d97706;
@@ -221,7 +222,7 @@
 
         .login-rank-blink:not(.empty) {
             color: #4A90E2;
-            background: #eef5fc;
+            background: rgba(74, 144, 226, 0.12);
             animation: none;
         }
 
@@ -235,6 +236,7 @@
             border-radius: 0;
             margin-bottom: 0;
             flex: 1;
+            background: transparent;
         }
 
         .id-input-box .input-field:focus {
@@ -254,8 +256,8 @@
             padding: 0 14px;
             margin: 0;
             border: none;
-            border-left: 1px solid #ddd;
-            background: #f8f9fa;
+            border-left: 1px solid #c5daf5;
+            background: transparent;
             color: #4A90E2;
             font-size: 14px;
             font-weight: 600;
@@ -265,7 +267,7 @@
         }
 
         .id-reset-btn:hover {
-            background: #eef5fc;
+            background: rgba(74, 144, 226, 0.12);
         }
 
         .id-reset-btn:active {
@@ -502,10 +504,10 @@
             flex-shrink: 0;
             padding: 0 12px;
             min-width: 72px;
-            border: 1px solid #4A90E2;
-            background: #fff;
+            border: 1px solid #c5daf5;
+            background: #f0f6ff;
             color: #4A90E2;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -513,15 +515,16 @@
         }
 
         .find-password-inline-btn:hover {
-            background: #eef5fc;
+            background: #e4effc;
+            border-color: #4A90E2;
         }
 
         .login-button {
             width: 100%;
             padding: 13px;
-            background-color: #cbd5e1;
-            color: white;
-            border: none;
+            background-color: #f0f6ff;
+            color: #64748b;
+            border: 1px solid #c5daf5;
             border-radius: 10px;
             font-size: 16px;
             font-weight: 700;
@@ -532,6 +535,8 @@
 
         .login-button.active {
             background-color: #4A90E2;
+            border-color: #4A90E2;
+            color: #fff;
             cursor: pointer;
         }
 
@@ -540,6 +545,10 @@
             justify-content: space-between;
             margin-bottom: 14px;
             gap: 8px;
+            padding: 12px;
+            background: #f0f6ff;
+            border: 1px solid #c5daf5;
+            border-radius: 10px;
         }
 
         .checkbox-item {
@@ -617,9 +626,9 @@
         .login-tab {
             flex: 1;
             padding: 10px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
-            border-radius: 8px;
+            border: 1px solid #c5daf5;
+            background: #f0f6ff;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -654,9 +663,9 @@
             width: 100%;
             padding: 12px 14px;
             margin-bottom: 8px;
-            border: 1px solid #4A90E2;
-            border-radius: 8px;
-            background: #eef5fc;
+            border: 1px solid #c5daf5;
+            border-radius: 10px;
+            background: #f0f6ff;
             cursor: pointer;
             text-align: left;
             font-size: 14px;
@@ -664,7 +673,8 @@
         }
 
         .found-password-item:hover {
-            background: #dceaf8;
+            background: #e4effc;
+            border-color: #4A90E2;
         }
 
         .found-password-item strong {
@@ -674,12 +684,46 @@
 
         .find-password-hint {
             margin: 0 0 12px;
-            padding: 10px 12px;
-            background: #fff8e6;
-            border-radius: 8px;
+            padding: 12px;
+            background: #f0f6ff;
+            border: 1px solid #c5daf5;
+            border-radius: 10px;
             font-size: 12px;
             line-height: 1.5;
-            color: #856404;
+            color: #444;
+        }
+
+        .find-code-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+            margin-bottom: 10px;
+        }
+
+        .find-code-row .input-field {
+            flex: 1;
+            margin-bottom: 0;
+            background: #f0f6ff;
+            border: 1px solid #c5daf5;
+            border-radius: 10px;
+        }
+
+        #findPasswordPanel .email-verify-btn {
+            flex-shrink: 0;
+            padding: 0 14px;
+            border: 1px solid #c5daf5;
+            background: #f0f6ff;
+            color: #4A90E2;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        #findPasswordPanel .email-verify-btn:hover {
+            background: #e4effc;
+            border-color: #4A90E2;
         }
 
         .divider {
@@ -726,9 +770,9 @@
             flex: 1;
             min-width: 0;
             padding: 10px 8px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            background-color: #f0f6ff;
+            border: 1px solid #c5daf5;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
@@ -740,7 +784,7 @@
         }
 
         .join-button:hover {
-            background-color: #f8f9fa;
+            background-color: #e4effc;
             border-color: #4A90E2;
         }
 
@@ -754,10 +798,12 @@
 
         .logout-button {
             color: #dc3545;
+            background-color: #fff5f7;
+            border-color: #f5c2c7;
         }
 
         .logout-button:hover {
-            background-color: #fff5f5;
+            background-color: #ffe8ec;
             border-color: #dc3545;
         }
 
@@ -1265,7 +1311,6 @@
             <div class="input-group">
                 <div class="id-field-wrap">
                     <div class="id-input-box has-id-reset">
-                        <span class="id-prefix-label">성명</span>
                         <span class="login-rank-blink empty" id="selectedPositionText" title="직급 선택">직급</span>
                         <span class="id-prefix-label">ID</span>
                         <input type="text" class="input-field" placeholder="성명+숫자4자리" id="username" autocomplete="new-password">
