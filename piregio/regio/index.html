@@ -83,6 +83,10 @@
             color: #666;
         }
 
+        #loginPanel .id-hint {
+            display: none;
+        }
+
         .id-hint strong {
             color: #333;
         }
@@ -115,6 +119,37 @@
             font-weight: 600;
             color: #333;
             white-space: nowrap;
+        }
+
+        .login-rank-blink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 3.2em;
+            padding: 0 10px;
+            background: #fff7e6;
+            border-right: 1px solid #ddd;
+            font-size: 14px;
+            font-weight: 700;
+            color: #d97706;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .login-rank-blink.empty {
+            animation: regioRankBlink 1.1s ease-in-out infinite;
+        }
+
+        .login-rank-blink:not(.empty) {
+            color: #4A90E2;
+            background: #eef5fc;
+            animation: none;
+        }
+
+        @keyframes regioRankBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.15; }
         }
 
         .id-input-box .input-field {
@@ -755,8 +790,9 @@
         <div id="loginPanel">
         <div class="input-group">
             <div class="id-field-wrap">
-                <span class="selected-position-text empty" id="selectedPositionText">직책을 선택하세요</span>
                 <div class="id-input-box">
+                    <span class="id-prefix-label">성명</span>
+                    <span class="login-rank-blink empty" id="selectedPositionText" title="직급 선택">직급</span>
                     <span class="id-prefix-label">ID</span>
                     <input type="text" class="input-field" placeholder="성명+숫자4자리" id="username">
                 </div>
@@ -769,11 +805,6 @@
                     <li data-code="6" data-label="협조단원" data-tprefix="G6"><span class="pos-code">G6</span>협조단원</li>
                 </ul>
             </div>
-            <p class="id-hint">
-                <strong>로그인 ID:</strong> <strong>성명+숫자4자리</strong> (예: <strong>김민수7327</strong>)<br>
-                직책 선택 후 성명만 입력해도 됩니다.<br>
-                단장 G1 · 부단장 G2 · 서기 G3 · 회계 G4 · 행동단원 G5 · 협조단원 G6
-            </p>
             <div class="password-field-row">
                 <div class="password-field-wrap">
                     <div class="id-input-box">
@@ -902,7 +933,7 @@
                 selectedPositionText.textContent = `${label} ${tPrefix}`;
                 selectedPositionText.classList.remove('empty');
             } else {
-                selectedPositionText.textContent = '직책을 선택하세요';
+                selectedPositionText.textContent = '직급';
                 selectedPositionText.classList.add('empty');
             }
         }
