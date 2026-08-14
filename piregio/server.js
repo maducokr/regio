@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 3000;
 
 // 미들웨어 설정
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '8mb' }));
 app.use(express.static('.'));
 
 // PostgreSQL 연결 설정 (Render / 로컬 모두 지원)
@@ -7519,6 +7519,195 @@ async function ensureMemberExtraColumns(appPool) {
         await adminPool.end();
     }
 }
+
+// 빈 Render DB 등에 로컬 모의자료 적재 (관리자 인증 필요)
+// - member 가 비어 있으면 허용
+// - 이미 회원이 있으면 ALLOW_SAMPLE_SEED=1 일 때만 허용
+app.post('/api/admin/bootstrap-sample', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const adminName = String(req.body.admin_name || '').trim();
+        const adminPassword = String(req.body.admin_password || '').trim();
+        // 빈 DB 부트스트랩: member 행이 없어도 내장 관리자 계정으로 허용
+        const adminOk = (adminName === ADMIN_NAME && adminPassword === ADMIN_PASSWORD)
+            || await verifyAdminAccess(adminName, adminPassword);
+        if (!adminOk) {
+            return res.status(403).json({ success: false, error: '관리자 인증이 필요합니다.' });
+        }
+
+        const countResult = await client.query('SELECT COUNT(*)::int AS n FROM member');
+        const memberCount = countResult.rows[0].n;
+        const allowSeed = String(process.env.ALLOW_SAMPLE_SEED || '').trim() === '1';
+        const continueBootstrap = req.body.continue_bootstrap === true;
+        if (memberCount > 0 && !allowSeed && !continueBootstrap) {
+            return res.status(409).json({
+                success: false,
+                error: `이미 회원 ${memberCount}명이 있습니다. 덮어쓰려면 continue_bootstrap=true 또는 ALLOW_SAMPLE_SEED=1 이 필요합니다.`,
+                memberCount
+            });
+        }
+
+        const categories = Array.isArray(req.body.categories) ? req.body.categories : [];
+        const members = Array.isArray(req.body.members) ? req.body.members : [];
+        const activityRecords = Array.isArray(req.body.activity_records) ? req.body.activity_records : [];
+        const assignments = Array.isArray(req.body.activity_assignments) ? req.body.activity_assignments : [];
+        const stage = String(req.body.stage || 'data').trim();
+        const reset = req.body.reset === true;
+
+        if (reset || stage === 'reset') {
+            await client.query('BEGIN');
+            await client.query('TRUNCATE TABLE activity_assignments, activity_records, play_purchases, member, activity_categories RESTART IDENTITY CASCADE');
+            await client.query('COMMIT');
+            return res.json({ success: true, stage: 'reset', message: '모의 적재용 테이블을 비웠습니다.' });
+        }
+
+        await client.query('BEGIN');
+
+        if (categories.length) {
+            for (const row of categories) {
+                await client.query(
+                    `INSERT INTO activity_categories (id, category_name, category_group, description, created_at)
+                     VALUES ($1, $2, $3, $4, COALESCE($5::timestamp, CURRENT_TIMESTAMP))
+                     ON CONFLICT (id) DO UPDATE SET
+                       category_name = EXCLUDED.category_name,
+                       category_group = EXCLUDED.category_group,
+                       description = EXCLUDED.description`,
+                    [
+                        row.id,
+                        row.category_name,
+                        row.category_group || '기타',
+                        row.description || null,
+                        row.created_at || null
+                    ]
+                );
+            }
+            await client.query(
+                `SELECT setval(pg_get_serial_sequence('activity_categories', 'id'),
+                        COALESCE((SELECT MAX(id) FROM activity_categories), 1), true)`
+            );
+        }
+
+        const memberCols = [
+            'id', 'name', 'baptism_name', 'church_name', 'curia_name', 'curia_officer', 'pr_name', 'position',
+            'phone_last4', 'resident_id_front6', 'phone_full', 'resident_id_full', 'passno',
+            'email', 'email_verified', 'google_id', 'comitia_name', 'regia_name', 'senatus_name',
+            'gender', 'pr_type', 'officer_appointed_on', 'pr_meeting_weekday', 'pr_meeting_hour',
+            'pr_meeting_minute', 'pr_meeting_place', 'pr_founded_on', 'pr_approved_on',
+            'curia_officer_elected_on', 'pr_returned_on', 'curia_approved_on', 'curia_meeting_on',
+            'curia_meeting_place', 'activity_count', 'created_at', 'updated_at'
+        ];
+
+        if (members.length) {
+            for (const row of members) {
+                const values = memberCols.map((c) => (row[c] === undefined ? null : row[c]));
+                const placeholders = memberCols.map((_, i) => `$${i + 1}`).join(', ');
+                const updates = memberCols
+                    .filter((c) => c !== 'id')
+                    .map((c) => `${c} = EXCLUDED.${c}`)
+                    .join(', ');
+                await client.query(
+                    `INSERT INTO member (${memberCols.join(', ')})
+                     VALUES (${placeholders})
+                     ON CONFLICT (id) DO UPDATE SET ${updates}`,
+                    values
+                );
+            }
+            await client.query(
+                `SELECT setval(pg_get_serial_sequence('member', 'id'),
+                        COALESCE((SELECT MAX(id) FROM member), 1), true)`
+            );
+        }
+
+        if (activityRecords.length) {
+            for (const row of activityRecords) {
+                await client.query(
+                    `INSERT INTO activity_records (
+                        id, member_id, category_id, target, count,
+                        catechism_guide, group_join, meeting_head, resolution, sacrament,
+                        confirmation, baptism, first_communion, year_count, funeral_mass,
+                        memorial_mass, funeral_attendance, conditional_baptism, conditional_communion,
+                        membership, establishment, inout_count, note, activity_date, created_at, updated_at
+                     ) VALUES (
+                        $1,$2,$3,$4,$5,
+                        $6,$7,$8,$9,$10,
+                        $11,$12,$13,$14,$15,
+                        $16,$17,$18,$19,
+                        $20,$21,$22,$23,$24::date,$25,$26
+                     )
+                     ON CONFLICT (id) DO UPDATE SET
+                        member_id = EXCLUDED.member_id,
+                        category_id = EXCLUDED.category_id,
+                        target = EXCLUDED.target,
+                        count = EXCLUDED.count,
+                        note = EXCLUDED.note,
+                        activity_date = EXCLUDED.activity_date`,
+                    [
+                        row.id, row.member_id, row.category_id, row.target || null, row.count || 0,
+                        row.catechism_guide || 0, row.group_join || 0, row.meeting_head || 0,
+                        row.resolution || 0, row.sacrament || 0, row.confirmation || 0,
+                        row.baptism || 0, row.first_communion || 0, row.year_count || 0,
+                        row.funeral_mass || 0, row.memorial_mass || 0, row.funeral_attendance || 0,
+                        row.conditional_baptism || 0, row.conditional_communion || 0,
+                        row.membership || 0, row.establishment || 0, row.inout_count || 0,
+                        row.note || null, row.activity_date || null,
+                        row.created_at || null, row.updated_at || null
+                    ]
+                );
+            }
+            await client.query(
+                `SELECT setval(pg_get_serial_sequence('activity_records', 'id'),
+                        COALESCE((SELECT MAX(id) FROM activity_records), 1), true)`
+            );
+        }
+
+        if (assignments.length) {
+            for (const row of assignments) {
+                await client.query(
+                    `INSERT INTO activity_assignments (
+                        id, member_id, assigner_id, "활동배당", "활동대상자",
+                        church_name, pr_name, created_at, updated_at
+                     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+                     ON CONFLICT (id) DO UPDATE SET
+                        member_id = EXCLUDED.member_id,
+                        assigner_id = EXCLUDED.assigner_id,
+                        "활동배당" = EXCLUDED."활동배당",
+                        "활동대상자" = EXCLUDED."활동대상자"`,
+                    [
+                        row.id, row.member_id, row.assigner_id,
+                        row['활동배당'] || row.activity_assignment || '',
+                        row['활동대상자'] || row.activity_target || null,
+                        row.church_name || null, row.pr_name || null,
+                        row.created_at || null, row.updated_at || null
+                    ]
+                );
+            }
+            await client.query(
+                `SELECT setval(pg_get_serial_sequence('activity_assignments', 'id'),
+                        COALESCE((SELECT MAX(id) FROM activity_assignments), 1), true)`
+            );
+        }
+
+        await client.query('COMMIT');
+        const after = await pool.query('SELECT COUNT(*)::int AS n FROM member');
+        res.json({
+            success: true,
+            stage: 'data',
+            inserted: {
+                categories: categories.length,
+                members: members.length,
+                activity_records: activityRecords.length,
+                activity_assignments: assignments.length
+            },
+            memberCount: after.rows[0].n
+        });
+    } catch (err) {
+        try { await client.query('ROLLBACK'); } catch (_) { /* ignore */ }
+        console.error('bootstrap-sample 오류:', err);
+        res.status(500).json({ success: false, error: err.message || '모의자료 적재 실패' });
+    } finally {
+        client.release();
+    }
+});
 
 httpServer = app.listen(PORT, async () => {
     console.log(`🚀 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
