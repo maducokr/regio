@@ -94,7 +94,11 @@ function logDbEnvDiagnostics() {
             };
         }
     }
+    const similarKeys = Object.keys(process.env)
+        .filter((k) => /database|postgres|^db_/i.test(k))
+        .sort();
     console.log('🔎 DB 관련 환경변수 진단:', JSON.stringify(report, null, 2));
+    console.log('🔎 DB/Postgres 유사 키 목록:', similarKeys.length ? similarKeys.join(', ') : '(없음)');
 }
 
 function buildDbPoolConfig() {
