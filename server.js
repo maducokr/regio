@@ -23,6 +23,7 @@ const {
     verifyPurchaseWithGoogle,
     saveVerifiedPurchase
 } = require('./lib/google-play-billing');
+const { ensureCoreSchema } = require('./lib/ensure-core-schema');
 
 // 환경변수 로드 — Render에서는 Dashboard Environment만 사용 (.env 무시)
 try {
@@ -7527,6 +7528,13 @@ httpServer = app.listen(PORT, async () => {
     
     // 데이터베이스 연결 테스트 실행 (연결 풀은 종료하지 않고 그대로 사용)
     await testDatabaseConnection();
+    try {
+        await ensureCoreSchema(pool);
+        console.log('✅ 핵심 스키마(member 등) 준비 완료');
+    } catch (schemaBootError) {
+        console.error('❌ 핵심 스키마 준비 실패:', schemaBootError.message);
+        console.error('   Render DB가 비어 있으면 테이블 생성 권한이 있는 DB 사용자인지 확인하세요.');
+    }
     try {
         await ensureMemberExtraColumns(pool);
     } catch (columnError) {
