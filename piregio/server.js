@@ -24,9 +24,11 @@ const {
     saveVerifiedPurchase
 } = require('./lib/google-play-billing');
 
-// 환경변수 로드 (dotenv가 설치되어 있다면)
+// 환경변수 로드 — Render에서는 Dashboard Environment만 사용 (.env 무시)
 try {
-    require('dotenv').config();
+    if (!process.env.RENDER) {
+        require('dotenv').config({ override: false });
+    }
 } catch (error) {
     console.log('dotenv 패키지가 설치되지 않았습니다. 환경변수를 직접 설정하세요.');
 }
@@ -47,13 +49,52 @@ function resolveDatabaseUrl() {
     const candidates = [
         process.env.DATABASE_URL,
         process.env.POSTGRES_URL,
-        process.env.POSTGRES_CONNECTION_STRING
+        process.env.POSTGRES_CONNECTION_STRING,
+        // 일부 사용자가 Internal URL을 다른 키로 넣은 경우
+        process.env.DATABASE_INTERNAL_URL,
+        process.env.INTERNAL_DATABASE_URL
     ];
     for (const raw of candidates) {
-        const value = String(raw || '').trim();
+        const value = String(raw || '').trim().replace(/^['"]|['"]$/g, '');
         if (value) return value;
     }
     return '';
+}
+
+function logDbEnvDiagnostics() {
+    const keys = [
+        'DATABASE_URL',
+        'POSTGRES_URL',
+        'POSTGRES_CONNECTION_STRING',
+        'DATABASE_INTERNAL_URL',
+        'INTERNAL_DATABASE_URL',
+        'DB_HOST',
+        'DB_USER',
+        'DB_NAME',
+        'DB_PORT',
+        'DB_PASSWORD',
+        'NODE_ENV',
+        'RENDER',
+        'RENDER_SERVICE_NAME',
+        'RENDER_SERVICE_ID'
+    ];
+    const report = {};
+    for (const key of keys) {
+        const raw = process.env[key];
+        if (raw == null || raw === '') {
+            report[key] = { set: false };
+        } else {
+            report[key] = {
+                set: true,
+                length: String(raw).length,
+                // 비밀번호 노출 없이 앞부분만
+                preview: key.includes('PASSWORD') || key.includes('URL') || key.includes('CONNECTION')
+                    ? `${String(raw).slice(0, 12)}…`
+                    : String(raw).slice(0, 40)
+            };
+        }
+    }
+    console.log('🔎 DB 관련 환경변수 진단:', JSON.stringify(report, null, 2));
 }
 
 function buildDbPoolConfig() {
@@ -72,7 +113,8 @@ function buildDbPoolConfig() {
     const host = String(process.env.DB_HOST || '').trim() || 'localhost';
     if (isProduction && (host === 'localhost' || host === '127.0.0.1' || host === '::1')) {
         console.error('❌ Render/프로덕션에서 DATABASE_URL(또는 원격 DB_HOST)이 없습니다.');
-        console.error('   Render Dashboard → Environment → DATABASE_URL 을 PostgreSQL Internal URL로 연결하세요.');
+        console.error('   반드시 Web Service(regio)의 Environment에 키가 정확히 DATABASE_URL 이어야 합니다.');
+        console.error('   Postgres 화면 Connect → Internal URL 복사 → Web Service Environment에 붙여넣기 → Save → Manual Deploy');
     }
 
     return {
@@ -85,6 +127,8 @@ function buildDbPoolConfig() {
         ssl: isProduction ? { rejectUnauthorized: false } : false
     };
 }
+
+logDbEnvDiagnostics();
 
 const resolvedDb = buildDbPoolConfig();
 const { mode: dbConfigMode, ...dbPoolConfig } = resolvedDb;
@@ -116,6 +160,23 @@ function describeDbTarget() {
 }
 
 console.log('🗄️ DB 연결 대상:', describeDbTarget());
+
+// Render에서 DATABASE_URL 없이 기동하면 "live"처럼 보이지만 DB는 전부 실패 → 즉시 종료
+if (isProduction && !resolveDatabaseUrl()) {
+    const host = String(process.env.DB_HOST || '').trim();
+    const hasRemoteHost = host && host !== 'localhost' && host !== '127.0.0.1' && host !== '::1';
+    if (!hasRemoteHost) {
+        console.error('');
+        console.error('🛑 배포 중단: Render Web Service 환경에 DATABASE_URL 이 없습니다.');
+        console.error('   1) Dashboard → PostgreSQL → Connect → Internal Database URL 복사');
+        console.error('   2) Dashboard → Web Service(regio.onrender.com 쪽) → Environment');
+        console.error('   3) KEY 이름: DATABASE_URL  (다른 이름·공백 불가)');
+        console.error('   4) VALUE: 복사한 postgresql://... 전체 붙여넣기');
+        console.error('   5) Save Changes → Manual Deploy');
+        console.error('   ※ Postgres 서비스 화면에만 두면 Web 앱에는 전달되지 않습니다.');
+        process.exit(1);
+    }
+}
 
 // 연결 풀: 작게 유지 + 유휴 연결 빨리 반환 (강제 종료 시 고아 연결 누적 방지)
 const pool = new Pool({
@@ -301,7 +362,29 @@ function rejectSampleToolsInDeploy(req, res) {
 }
 
 /** 프론트: 로컬 모의 vs Deploy 모드 확인 */
-app.get('/api/runtime-mode', (req, res) => {
+app.get('/api/health', async (req, res) => {
+    const target = describeDbTarget();
+    let dbOk = false;
+    let dbError = null;
+    try {
+        await pool.query('SELECT 1');
+        dbOk = true;
+    } catch (err) {
+        dbError = err.code || err.message;
+    }
+    res.status(dbOk ? 200 : 503).json({
+        ok: dbOk,
+        service: process.env.RENDER_SERVICE_NAME || 'regio',
+        database: {
+            configured: !!resolveDatabaseUrl() || (target.host && target.host !== 'localhost'),
+            mode: target.mode,
+            host: target.host,
+            error: dbError
+        }
+    });
+});
+
+app.get('/api/runtime-mode', async (req, res) => {
     const sampleTools = allowSampleTools(req);
     const production = process.env.NODE_ENV === 'production';
     res.json({
