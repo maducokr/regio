@@ -40,20 +40,82 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // PostgreSQL 연결 설정 (Render / 로컬 모두 지원)
-const isProduction = process.env.NODE_ENV === 'production';
-const dbPoolConfig = process.env.DATABASE_URL
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: isProduction ? { rejectUnauthorized: false } : false,
+const isProduction = process.env.NODE_ENV === 'production'
+    || String(process.env.RENDER || '').trim() !== '';
+
+function resolveDatabaseUrl() {
+    const candidates = [
+        process.env.DATABASE_URL,
+        process.env.POSTGRES_URL,
+        process.env.POSTGRES_CONNECTION_STRING
+    ];
+    for (const raw of candidates) {
+        const value = String(raw || '').trim();
+        if (value) return value;
     }
-    : {
+    return '';
+}
+
+function buildDbPoolConfig() {
+    const databaseUrl = resolveDatabaseUrl();
+    if (databaseUrl) {
+        return {
+            mode: 'url',
+            connectionString: databaseUrl,
+            // Render managed Postgres는 SSL 필요
+            ssl: isProduction || /render\.com|amazonaws\.com/i.test(databaseUrl)
+                ? { rejectUnauthorized: false }
+                : false
+        };
+    }
+
+    const host = String(process.env.DB_HOST || '').trim() || 'localhost';
+    if (isProduction && (host === 'localhost' || host === '127.0.0.1' || host === '::1')) {
+        console.error('❌ Render/프로덕션에서 DATABASE_URL(또는 원격 DB_HOST)이 없습니다.');
+        console.error('   Render Dashboard → Environment → DATABASE_URL 을 PostgreSQL Internal URL로 연결하세요.');
+    }
+
+    return {
+        mode: 'fields',
         user: process.env.DB_USER || 'postgres',
-        host: process.env.DB_HOST || 'localhost',
+        host,
         database: process.env.DB_NAME || 'regio',
         password: process.env.DB_PASSWORD || '5854',
         port: parseInt(process.env.DB_PORT || '5432', 10),
-        ssl: isProduction ? { rejectUnauthorized: false } : false,
+        ssl: isProduction ? { rejectUnauthorized: false } : false
     };
+}
+
+const resolvedDb = buildDbPoolConfig();
+const { mode: dbConfigMode, ...dbPoolConfig } = resolvedDb;
+
+function describeDbTarget() {
+    try {
+        if (dbConfigMode === 'url') {
+            const u = new URL(dbPoolConfig.connectionString.replace(/^postgres(ql)?:/i, 'http:'));
+            return {
+                mode: 'DATABASE_URL',
+                host: u.hostname,
+                port: u.port || '5432',
+                database: (u.pathname || '').replace(/^\//, '') || '(default)',
+                user: u.username || '(from url)',
+                ssl: !!dbPoolConfig.ssl
+            };
+        }
+        return {
+            mode: 'DB_HOST',
+            host: dbPoolConfig.host,
+            port: String(dbPoolConfig.port),
+            database: dbPoolConfig.database,
+            user: dbPoolConfig.user,
+            ssl: !!dbPoolConfig.ssl
+        };
+    } catch (_) {
+        return { mode: dbConfigMode, host: '(parse-failed)' };
+    }
+}
+
+console.log('🗄️ DB 연결 대상:', describeDbTarget());
 
 // 연결 풀: 작게 유지 + 유휴 연결 빨리 반환 (강제 종료 시 고아 연결 누적 방지)
 const pool = new Pool({
@@ -201,9 +263,18 @@ async function testDatabaseConnection(retryCount = 0) {
         }
 
         console.log('💡 해결 방법:');
-        console.log('1. node cleanup-db-connections.js 실행');
-        console.log('2. PostgreSQL이 실행 중인지 확인하세요');
-        console.log('3. 그래도 안 되면 DB연결초기화.bat 을 관리자 권한으로 실행하세요');
+        const target = describeDbTarget();
+        if (isProduction || target.host === 'localhost' || target.host === '127.0.0.1') {
+            console.log('1. Render Dashboard → Web Service → Environment 에서 DATABASE_URL 확인');
+            console.log('2. PostgreSQL 인스턴스를 만들고 Web Service에 Internal Database URL 연결');
+            console.log('3. DB_HOST=localhost 가 남아 있으면 삭제 (Render에서는 사용 금지)');
+            console.log('4. 현재 연결 대상:', JSON.stringify(target));
+        } else {
+            console.log('1. node cleanup-db-connections.js 실행');
+            console.log('2. PostgreSQL이 실행 중인지 확인하세요');
+            console.log('3. 그래도 안 되면 DB연결초기화.bat 을 관리자 권한으로 실행하세요');
+            console.log('4. 현재 연결 대상:', JSON.stringify(target));
+        }
     }
 }
 
@@ -240,9 +311,11 @@ app.get('/api/runtime-mode', (req, res) => {
         nodeEnv: process.env.NODE_ENV || 'development',
         production,
         dbHostIsLocal: (() => {
-            const h = String(process.env.DB_HOST || 'localhost').toLowerCase();
+            const target = describeDbTarget();
+            const h = String(target.host || '').toLowerCase();
             return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '';
-        })()
+        })(),
+        dbMode: describeDbTarget().mode
     });
 });
 
@@ -7334,15 +7407,23 @@ async function ensureMemberExtraColumns(appPool) {
 
     const adminUser = process.env.DB_ADMIN_USER || 'postgres';
     const adminPassword = process.env.DB_ADMIN_PASSWORD || process.env.DB_PASSWORD || '5854';
-    const adminPool = new Pool({
-        user: adminUser,
-        host: process.env.DB_HOST || 'localhost',
-        database: process.env.DB_NAME || 'regio',
-        password: adminPassword,
-        port: parseInt(process.env.DB_PORT || '5432', 10),
-        max: 1,
-        application_name: 'regio-schema-admin'
-    });
+    const databaseUrl = resolveDatabaseUrl();
+    const adminPool = databaseUrl
+        ? new Pool({
+            connectionString: databaseUrl,
+            ssl: dbPoolConfig.ssl || false,
+            max: 1,
+            application_name: 'regio-schema-admin'
+        })
+        : new Pool({
+            user: adminUser,
+            host: process.env.DB_HOST || 'localhost',
+            database: process.env.DB_NAME || 'regio',
+            password: adminPassword,
+            port: parseInt(process.env.DB_PORT || '5432', 10),
+            max: 1,
+            application_name: 'regio-schema-admin'
+        });
     try {
         await runAlters(adminPool);
         console.log(`✅ member 추가 컬럼을 ${adminUser} 권한으로 준비했습니다.`);

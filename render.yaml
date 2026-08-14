@@ -1,3 +1,7 @@
+# Render: Web Service만 정의. PostgreSQL은 Dashboard에서 생성 후
+# Environment → DATABASE_URL = Internal Database URL 로 연결하세요.
+# (DB_HOST=localhost 는 Render에서 ECONNREFUSED 원인이므로 두지 마세요.)
+
 services:
   - type: web
     name: regio-app
@@ -9,17 +13,6 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
-      - key: DB_HOST
-        sync: false
-      - key: DB_USER
-        sync: false
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_NAME
-        value: regio
-      - key: DB_PORT
-        value: 5432
-      # 모의 시드는 로컬에서 ALLOW_SAMPLE_SEED=1 로만 실행 (서버 env에 상시 두지 말 것)
       - key: GMAIL_USER
         sync: false
       - key: GMAIL_APP_PASSWORD
