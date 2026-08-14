@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#4A90E2">
+    <meta name="color-scheme" content="light">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>활동배당지시 - Regio</title>
+    <link rel="stylesheet" href="mobile.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .top-bar .back-button {
+            color: white; font-size: 20px; cursor: pointer;
+            position: absolute; left: 20px; background: none; border: none;
+        }
+        .top-bar .logo { text-align: center; flex: 1; color: white; }
+        .top-bar .logo h1 { font-size: 24px; font-weight: bold; margin-bottom: 2px; }
+        .top-bar .logo p { font-size: 14px; opacity: 0.9; }
+        .hamburger-menu {
+            color: white; cursor: pointer; position: absolute; right: 20px;
+            display: none !important; flex-direction: column; gap: 2px;
+        }
+        .hamburger-menu.is-visible { display: flex !important; }
+        .hamburger-menu[hidden] { display: none !important; }
+        .hamburger-line { width: 20px; height: 2px; background-color: white; border-radius: 1px; }
+        .dropdown-menu {
+            position: absolute; top: 100%; right: 0; background: white;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 180px; max-height: min(70vh, 520px); overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            z-index: 1000; display: none; margin-top: 5px;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 12px 16px; color: #333; font-size: 14px;
+            border-bottom: 1px solid #f0f0f0; cursor: pointer;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background-color: #f8f9fa; }
+        .dropdown-item.danger { color: #dc3545; }
+        .page-wrap { padding: 20px; }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            box-sizing: border-box;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 767.98px) {
+            .page-wrap { padding: 8px !important; }
+            .container {
+                max-width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 14px 12px;
+            }
+        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #4A90E2; margin-bottom: 10px; }
+        .form-section {
+            margin-bottom: 30px; padding: 20px;
+            border: 1px solid #eee; border-radius: 8px;
+        }
+        .form-section h3 {
+            color: #333; margin-bottom: 15px;
+            border-bottom: 2px solid #4A90E2; padding-bottom: 10px;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
+        select, textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 16px; background: white;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white; border: none; padding: 15px 30px; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; width: 100%;
+        }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 8px; font-weight: 600; }
+        .result.success { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+        .result.error { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+        .access-denied {
+            text-align: center; padding: 40px 20px; color: #721c24;
+            background: #f8d7da; border-radius: 8px; border: 1px solid #f5c6cb;
+        }
+        #assignmentForm.hidden { display: none; }
+        .member-select-list {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+        .member-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 6px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .member-checkbox-item:last-child { border-bottom: none; }
+        .member-checkbox-item:hover { background: #f0f7ff; }
+        .member-checkbox-item.all-item {
+            font-weight: 700;
+            border-bottom: 2px solid #4A90E2;
+            margin-bottom: 4px;
+            padding-bottom: 10px;
+        }
+        .member-checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .member-select-empty {
+            color: #888;
+            padding: 8px 0;
+        }
+    </style>
+</head>
+<body class="assignment-page">
+    <div class="top-bar">
+        <button type="button" class="back-button" onclick="goHome()" title="홈으로">←</button>
+        <div class="logo">
+            <h1>Regio Note</h1>
+            <p>활동배당지시</p>
+        </div>
+        <div class="hamburger-menu" id="hamburgerMenu" hidden>
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="hamburger-line"></div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" data-action="dynamic-activity">개인 활동기록</div>
+                <div class="dropdown-item" data-action="activity-report-personal">개인활동집계</div>
+                <div class="dropdown-item" data-action="profile">프로필 수정</div>
+                <div class="dropdown-item" data-action="activity-report-secretary">서기회의록집계</div>
+                <div class="dropdown-item" data-action="activity-report-pr">Pr 보고</div>
+                <div class="dropdown-item" data-action="council-report">평의회보고</div>
+                <div class="dropdown-item" data-action="curia-officer-register">꾸리아직급등록</div>
+                <div class="dropdown-item" data-action="activity-assignment">활동배당지시</div>
+                <div class="dropdown-item" data-action="test-activity-input">TEST 자료입력</div>
+                <div class="dropdown-item" data-action="test-activity-pdf">TEST 자료 PDF 출력</div>
+                <div class="dropdown-item" data-action="sample-member-roster">샘플명단출력</div>
+                <div class="dropdown-item" data-action="sample-annual-activity">1연간샘플활동출력</div>
+                <div class="dropdown-item" data-action="new-category">지정활동 수정</div>
+                <div class="dropdown-item" data-action="add-category">새 카테고리 추가</div>
+                <div class="dropdown-item" data-action="help">도움말</div>
+                <div class="dropdown-item danger" data-action="withdraw">탈단</div>
+                <div class="dropdown-item danger" data-action="delete-member">삭제</div>
+                <div class="dropdown-item" data-action="logout">로그아웃</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrap">
+        <div class="container">
+            <div class="header">
+                <h1>📋 활동배당지시</h1>
+                <p>Pr 소속 단원에게 활동을 배당합니다 (G1~G4 회원 전용)</p>
+            </div>
+
+            <div id="accessDenied" class="access-denied" style="display:none;">
+                <h3>접근 제한</h3>
+                <p>활동배당지시는 <strong>G1~G4(단장·부단장·서기·회계)</strong> 로그인 회원만 사용할 수 있습니다.</p>
+                <p style="margin-top:12px;"><button onclick="goHome()" style="padding:10px 20px;cursor:pointer;">홈으로</button></p>
+            </div>
+
+            <div id="assignmentForm">
+                <div class="form-section">
+                    <h3>📋 기본 정보</h3>
+                    <div class="form-group">
+                        <label>회원 선택:</label>
+                        <div id="memberSelectList" class="member-select-list">
+                            <p class="member-select-empty">회원 목록을 불러오는 중...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🎯 활동 종목 선택</h3>
+                    <div class="form-group">
+                        <label for="categorySelect">활동 종목 (활동배당):</label>
+                        <select id="categorySelect">
+                            <option value="">활동 종목을 선택해주세요</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryCustom">활동종목 직접 서술:</label>
+                        <textarea id="categoryCustom" rows="3" placeholder="위에서 활동 종목을 선택하지 않은 경우, 여기에 활동배당 내용을 직접 입력하세요..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>👤 활동대상자</h3>
+                    <div class="form-group">
+                        <label for="activityTarget">활동대상자:</label>
+                        <textarea id="activityTarget" rows="3" placeholder="활동 대상자를 입력하세요..."></textarea>
+                    </div>
+                </div>
+
+                <button class="submit-btn" onclick="submitAssignment()" id="submitBtn" disabled>
+                    📋 활동배당저장하기
+                </button>
+
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth-ui.js"></script>
+    <script src="app-mode.js"></script>
+    <script src="webview-android.js"></script>
+    <script src="admin-menu.js"></script>
+    <script src="user-help.js"></script>
+    <script src="sample-member-roster.js"></script>
+    <script src="curia-hub.js"></script>
+    <script src="curia-officer-register.js"></script>
+    <script src="sample-annual-activity.js"></script>
+    <script src="sensitive-action-auth.js"></script>
+    <script>
+        let currentUser = null;
+        let memberList = [];
+
+        const DEFAULT_CATEGORIES = [
+            '기도생활-묵주기도', '기도생활-평일미사', '기도생활-십자가의길',
+            '기도생활-성경읽기', '기도생활-성경쓰기', '기도생활-소성무일도',
+            '기도생활-성체조배', '기도생활-기타',
+            '가정성화활동-가족이함께기도하기', '가정성화활동-성경봉독 및 묵상',
+            '가정성화활동-미사참례', '가정성화활동-가족단위 복지시설봉사',
+            '지구와함께-거절하기', '지구와함께-아껴쓰기', '지구와함께-고쳐쓰기',
+            '지구와함께-재고하기', '지구와함께-다시쓰기', '지구와함께-재생하기',
+            '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면',
+            '복음선교-방문선교', '복음선교-가두선교',
+            '복음선교-예비신자관리돌봄', '복음선교-통신교리자 돌봄', '복음선교-교리반협조',
+            '복음선교-교리반 인도', '복음선교-교리반인도예비자',
+            '교우돌봄-신영세자돌봄(방문)', '교우돌봄-교우 가정방문', '교우돌봄-냉담 교우 방문',
+            '교우돌봄-혼인 장애자 돌봄', '교우돌봄-판공성사 권면', '교우돌봄-전입교우돌봄(방문)',
+            '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-군인선원돌봄', '교우돌봄-청소년 돌봄',
+            '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
+            '어려운자돌봄-외인환자 방문 및 돌봄', '어려운자돌봄-외인 상가방문 및 돌봄',
+            '어려운자돌봄-재해 및 사고 피해자', '어려운자돌봄-다문화가족돌봄',
+            '어려운자돌봄-병원봉사', '어려운자돌봄-복지시설방문', '어려운자돌봄-대세자돌봄',
+            '레지오활동-소년 레지오 지도', '레지오활동-행동단원 모집', '레지오활동-협조단원 모집. 돌봄',
+            '레지오활동-Pr설립권면', '레지오활동-결석단원돌봄', '레지오활동-교본공부', '레지오활동-평의회업무협조',
+            '본당교회협조-호구방문', '본당교회협조-제구돌보기', '본당교회협조-보미사', '본당교회협조-본당사도직활동', '본당교회협조-행사 준비 및 협조', '본당교회협조-주일학교 돌봄',
+            '본당교회협조-사무협조', '본당교회협조-회원모집', '본당교회협조-전례협조', '본당교회협조-피정참가권장',
+            '특별활동-재해피해자돌봄', '특별활동-사고피해자돌봄', '특별활동-복지시설노력봉사', '특별활동-병원방문',
+            '자연보호-자연보호활동', '자연보호-생태 환경보호 활동', '자연보호-환경정화',
+            '기타활동-선교회협조', '기타활동-청소 미화', '기타활동-출판물 보급', '기타활동-기타'
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!initAccess()) return;
+            loadMembers();
+            loadCategories();
+        });
+
+        function getUserInfo() {
+            const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+            if (!raw) return null;
+            try { return JSON.parse(raw); } catch { return null; }
+        }
+
+        function canAssignActivity(name) {
+            return /^[TG][1234]/i.test(name || '');
+        }
+
+        function updateHamburgerMenuVisibility(visible) {
+            if (window.RegioAuth && typeof RegioAuth.updateHamburgerMenuVisibility === 'function') {
+                return RegioAuth.updateHamburgerMenuVisibility({ visible: !!visible });
+            }
+            const menu = document.getElementById('hamburgerMenu');
+            if (!menu) return;
+            menu.classList.toggle('is-visible', !!visible);
+            if (visible) menu.removeAttribute('hidden');
+            else {
+                menu.setAttribute('hidden', '');
+                const dropdownMenu = document.getElementById('dropdownMenu');
+                if (dropdownMenu) dropdownMenu.classList.remove('show');
+            }
+        }
+
+        function initAccess() {
+            currentUser = getUserInfo();
+            if (!currentUser || !currentUser.name) {
+                updateHamburgerMenuVisibility(false);
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+                return false;
+            }
+            updateHamburgerMenuVisibility(true);
+            if (window.RegioAdminMenu) {
+                RegioAdminMenu.applyCategoryAdminMenuVisibility();
+            }
+            if (!canAssignActivity(currentUser.name)) {
+                document.getElementById('accessDenied').style.display = 'block';
+                document.getElementById('assignmentForm').classList.add('hidden');
+                return false;
+            }
+            return true;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderMemberCheckboxes() {
+            const container = document.getElementById('memberSelectList');
+            container.innerHTML = '';
+
+            if (memberList.length === 0) {
+                container.innerHTML = '<p class="member-select-empty">선택할 회원이 없습니다.</p>';
+                validateForm();
+                return;
+            }
+
+            const allItem = document.createElement('label');
+            allItem.className = 'member-checkbox-item all-item';
+            allItem.innerHTML = '<input type="checkbox" id="memberSelectAll"> <span>전체</span>';
+            container.appendChild(allItem);
+
+            memberList.forEach(member => {
+                const label = document.createElement('label');
+                label.className = 'member-checkbox-item';
+                label.innerHTML = `<input type="checkbox" class="member-checkbox" value="${member.id}" data-name="${escapeHtml(member.name)}"> <span>${escapeHtml(member.name)}</span>`;
+                container.appendChild(label);
+            });
+
+            document.getElementById('memberSelectAll').addEventListener('change', onSelectAllChange);
+            container.querySelectorAll('.member-checkbox').forEach(cb => {
+                cb.addEventListener('change', onMemberCheckboxChange);
+            });
+            validateForm();
+        }
+
+        function onSelectAllChange(e) {
+            const checked = e.target.checked;
+            document.querySelectorAll('.member-checkbox').forEach(cb => {
+                cb.checked = checked;
+            });
+            validateForm();
+        }
+
+        function onMemberCheckboxChange() {
+            updateSelectAllState();
+            validateForm();
+        }
+
+        function updateSelectAllState() {
+            const allCb = document.getElementById('memberSelectAll');
+            const boxes = document.querySelectorAll('.member-checkbox');
+            if (!allCb || boxes.length === 0) return;
+            const checkedCount = [...boxes].filter(cb => cb.checked).length;
+            allCb.checked = checkedCount === boxes.length;
+            allCb.indeterminate = checkedCount > 0 && checkedCount < boxes.length;
+        }
+
+        function getSelectedMemberIds() {
+            return [...document.querySelectorAll('.member-checkbox:checked')]
+                .map(cb => parseInt(cb.value, 10))
+                .filter(id => !Number.isNaN(id));
+        }
+
+        async function loadMembers() {
+            const container = document.getElementById('memberSelectList');
+            container.innerHTML = '<p class="member-select-empty">회원 목록을 불러오는 중...</p>';
+            try {
+                const response = await fetch(`/api/members?current_user_name=${encodeURIComponent(currentUser.name)}`);
+                if (!response.ok) throw new Error('회원 목록 조회 실패');
+                const data = await response.json();
+                memberList = Array.isArray(data) ? data : [];
+                renderMemberCheckboxes();
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<p class="member-select-empty">회원 목록을 불러오지 못했습니다.</p>';
+                showResult('회원 목록을 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        function appendCategoryOptions(select, categories) {
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                if (typeof category === 'object' && category.category_name) {
+                    option.value = category.category_name;
+                    option.textContent = category.category_name;
+                } else {
+                    option.value = category;
+                    option.textContent = category;
+                }
+                select.appendChild(option);
+            });
+        }
+
+        async function loadCategories() {
+            const select = document.getElementById('categorySelect');
+            select.innerHTML = '<option value="">활동 종목을 선택해주세요</option>';
+            try {
+                const response = await fetch('/api/activity-categories');
+                if (!response.ok) throw new Error('카테고리 조회 실패');
+                const data = await response.json();
+                const categories = data.categories || data || [];
+                if (categories.length === 0) {
+                    appendCategoryOptions(select, DEFAULT_CATEGORIES);
+                } else {
+                    appendCategoryOptions(select, categories);
+                }
+            } catch (error) {
+                console.error(error);
+                appendCategoryOptions(select, DEFAULT_CATEGORIES);
+            }
+        }
+
+        function getActivityAssignmentContent() {
+            const categoryName = document.getElementById('categorySelect').value.trim();
+            if (categoryName) return categoryName;
+            return document.getElementById('categoryCustom').value.trim();
+        }
+
+        async function submitAssignment() {
+            const memberIds = getSelectedMemberIds();
+            const activityAssignment = getActivityAssignmentContent();
+            const activityTarget = document.getElementById('activityTarget').value.trim();
+
+            if (memberIds.length === 0 || !activityAssignment) {
+                showResult('회원과 활동 종목(또는 직접 서술)을 입력해주세요.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '💾 저장 중...';
+
+            let successCount = 0;
+            let failCount = 0;
+            const errors = [];
+
+            try {
+                for (const memberId of memberIds) {
+                    const checkbox = document.querySelector(`.member-checkbox[value="${memberId}"]`);
+                    const memberName = checkbox ? checkbox.dataset.name : String(memberId);
+                    try {
+                        const response = await fetch('/api/activity-assignment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                member_id: memberId,
+                                assigner_name: currentUser.name,
+                                활동배당: activityAssignment,
+                                활동대상자: activityTarget || null
+                            })
+                        });
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                            successCount += 1;
+                        } else {
+                            failCount += 1;
+                            errors.push(`${memberName}: ${result.error || '저장 실패'}`);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        failCount += 1;
+                        errors.push(`${memberName}: 저장 중 오류`);
+                    }
+                }
+
+                if (successCount > 0 && failCount === 0) {
+                    showResult(`✅ ${successCount}명에게 활동배당이 저장되었습니다.<br>활동배당: ${activityAssignment}`, 'success');
+                    document.getElementById('categorySelect').value = '';
+                    document.getElementById('categoryCustom').value = '';
+                    document.getElementById('activityTarget').value = '';
+                    document.querySelectorAll('.member-checkbox, #memberSelectAll').forEach(cb => {
+                        cb.checked = false;
+                        cb.indeterminate = false;
+                    });
+                } else if (successCount > 0) {
+                    showResult(`⚠️ ${successCount}명 저장, ${failCount}명 실패<br>${errors.join('<br>')}`, 'error');
+                } else {
+                    showResult(`❌ 저장 실패<br>${errors.join('<br>')}`, 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showResult('활동배당 저장 중 오류가 발생했습니다.', 'error');
+            } finally {
+                submitBtn.textContent = '📋 활동배당저장하기';
+                validateForm();
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = message;
+            setTimeout(() => {
+                resultDiv.innerHTML = '';
+                resultDiv.className = '';
+            }, type === 'success' ? 10000 : 7000);
+        }
+
+        function validateForm() {
+            const memberIds = getSelectedMemberIds();
+            const activityAssignment = getActivityAssignmentContent();
+            document.getElementById('submitBtn').disabled = !(memberIds.length > 0 && activityAssignment);
+        }
+
+        document.getElementById('categorySelect').addEventListener('change', validateForm);
+        document.getElementById('categoryCustom').addEventListener('input', validateForm);
+
+        function goHome() {
+            sessionStorage.setItem('skipAutoLogin', 'true');
+            window.location.href = 'index.html';
+        }
+
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        hamburgerMenu.addEventListener('click', e => {
+            e.stopPropagation();
+            if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) return;
+            dropdownMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.getAttribute('data-action');
+                switch (action) {
+                    case 'dynamic-activity': window.location.href = 'activity-input-test.html'; break;
+                    case 'activity-report-personal': window.location.href = 'activity-report.html?scope=personal'; break;
+                    case 'activity-report-secretary': window.location.href = 'activity-report.html?scope=secretary'; break;
+                    case 'activity-report-pr': if (typeof showPrReportHubModal === 'function') { showPrReportHubModal(); } else { window.location.href = 'activity-report.html?scope=pr'; } break;
+                    case 'council-report':
+                    case 'activity-report-curia':
+                    case 'activity-report-comitia':
+                    case 'activity-report-regia':
+                        if (typeof showCouncilReportHubModal === 'function') {
+                            showCouncilReportHubModal();
+                        } else if (typeof showCuriaHubModal === 'function') {
+                            showCuriaHubModal();
+                        } else {
+                            window.location.href = 'activity-report.html?scope=curia';
+                        }
+                        break;
+                    case 'curia-officer-register':
+                        if (RegioAdminMenu.guardActivityAssignmentAction('꾸리아직급등록')) {
+                            if (typeof showCuriaOfficerRegisterModal === 'function') {
+                                showCuriaOfficerRegisterModal();
+                            }
+                        }
+                        break;
+                    case 'activity-report-senatus':
+                        window.location.href = 'activity-report.html?scope=senatus';
+                        break;
+                    case 'activity-assignment':
+                        if (RegioAdminMenu.guardActivityAssignmentAction('활동배당지시')) {
+                            window.location.href = 'activity-assignment.html';
+                        }
+                        break;
+                    case 'test-activity-input':
+                        if (!RegioAdminMenu.guardAdminOnlyAction('TEST 자료입력')) break;
+                        sessionStorage.setItem('pendingMenuAction', 'test-activity-input');
+                        window.location.href = 'index.html'; break;
+                    case 'test-activity-pdf':
+                        if (!RegioAdminMenu.guardLoggedInAction('TEST 자료 PDF 출력')) break;
+                        sessionStorage.setItem('pendingMenuAction', 'test-activity-pdf');
+                        window.location.href = 'index.html'; break;
+                    case 'new-category':
+                        if (!RegioAdminMenu.canShowCategoryAdminMenu()) {
+                            alert('지정활동 수정은 관리자 계정으로 로그인한 경우에만 이용할 수 있습니다.');
+                            break;
+                        }
+                        window.location.href = 'newcategory.html';
+                        break;
+                    case 'add-category':
+                        if (!RegioAdminMenu.canShowCategoryAdminMenu()) {
+                            alert('새 카테고리 추가는 관리자 계정으로 로그인한 경우에만 이용할 수 있습니다.');
+                            break;
+                        }
+                        window.location.href = 'modify.html';
+                        break;
+                    case 'help': alert('도움말'); break;
+                    case 'withdraw':
+                        if (!RegioAdminMenu.guardSampleMemberRestrictedAction('탈단')) break;
+                        RegioSensitiveAuth.promptSensitiveAction({
+                            purpose: 'withdraw',
+                            onVerified: (auth) => {
+                                RegioSensitiveAuth.executeWithdraw(auth);
+                            }
+                        });
+                        break;
+                    case 'delete-member':
+                        if (!RegioAdminMenu.guardDeleteMemberAccess('회원 삭제')) break;
+                        window.location.href = 'delete-member.html';
+                        break;
+                    case 'logout':
+                        if (confirm('로그아웃하시겠습니까?')) {
+                            sessionStorage.clear();
+                            localStorage.removeItem('userInfo');
+                            localStorage.removeItem('autoLogin');
+                            window.location.href = 'index.html';
+                        }
+                        break;
+                }
+                dropdownMenu.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

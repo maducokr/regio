@@ -43,6 +43,7 @@ jspm_packages/
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 
@@ -58,3 +59,10 @@ Thumbs.db
 # 임시 파일
 *.tmp
 *.temp
+.regioback-debounce
+
+# 생성 PDF 등
+output/
+
+# 백업 사본 (regioback)
+regioback/

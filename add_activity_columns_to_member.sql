@@ -59,28 +59,49 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-외인 입교권면') THEN
         ALTER TABLE member ADD COLUMN "복음선교-외인 입교권면" INTEGER DEFAULT 0;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-개종권면') THEN
+        ALTER TABLE member ADD COLUMN "복음선교-개종권면" INTEGER DEFAULT 0;
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-교리 중단자 권면') THEN
         ALTER TABLE member ADD COLUMN "복음선교-교리 중단자 권면" INTEGER DEFAULT 0;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-방문및가두선교') THEN
-        ALTER TABLE member ADD COLUMN "복음선교-방문및가두선교" INTEGER DEFAULT 0;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-방문선교') THEN
+        ALTER TABLE member ADD COLUMN "복음선교-방문선교" INTEGER DEFAULT 0;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-예비자 관리') THEN
-        ALTER TABLE member ADD COLUMN "복음선교-예비자 관리" INTEGER DEFAULT 0;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-가두선교') THEN
+        ALTER TABLE member ADD COLUMN "복음선교-가두선교" INTEGER DEFAULT 0;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-통신 교리자') THEN
-        ALTER TABLE member ADD COLUMN "복음선교-통신 교리자" INTEGER DEFAULT 0;
+    -- 기존 '복음선교-방문및가두선교' 컬럼은 '방문'/'가두선교'로 분리되어 제거됨
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-방문및가두선교') THEN
+        ALTER TABLE member DROP COLUMN "복음선교-방문및가두선교";
+    END IF;
+    -- 기존 '복음선교-예비자 관리' → '복음선교-예비신자관리돌봄' 으로 이름 변경
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-예비자 관리') THEN
+        ALTER TABLE member RENAME COLUMN "복음선교-예비자 관리" TO "복음선교-예비신자관리돌봄";
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-예비신자관리돌봄') THEN
+        ALTER TABLE member ADD COLUMN "복음선교-예비신자관리돌봄" INTEGER DEFAULT 0;
+    END IF;
+    -- 기존 '복음선교-통신 교리자' → '복음선교-통신교리자 돌봄' 으로 이름 변경
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-통신 교리자') THEN
+        ALTER TABLE member RENAME COLUMN "복음선교-통신 교리자" TO "복음선교-통신교리자 돌봄";
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-통신교리자 돌봄') THEN
+        ALTER TABLE member ADD COLUMN "복음선교-통신교리자 돌봄" INTEGER DEFAULT 0;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-교리반협조') THEN
         ALTER TABLE member ADD COLUMN "복음선교-교리반협조" INTEGER DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '복음선교-교리반 인도') THEN
+        ALTER TABLE member ADD COLUMN "복음선교-교리반 인도" INTEGER DEFAULT 0;
     END IF;
 END $$;
 
 -- 4. 교우돌봄 관련 컬럼들
 DO $$ 
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-신 영세자 돌봄') THEN
-        ALTER TABLE member ADD COLUMN "교우돌봄-신 영세자 돌봄" INTEGER DEFAULT 0;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-신영세자돌봄(방문)') THEN
+        ALTER TABLE member ADD COLUMN "교우돌봄-신영세자돌봄(방문)" INTEGER DEFAULT 0;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-교우 가정방문') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-교우 가정방문" INTEGER DEFAULT 0;
@@ -88,14 +109,17 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-냉담 교우 방문') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-냉담 교우 방문" INTEGER DEFAULT 0;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-냉담교우회두 권면') THEN
+        ALTER TABLE member ADD COLUMN "교우돌봄-냉담교우회두 권면" INTEGER DEFAULT 0;
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-혼인 장애자 돌봄') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-혼인 장애자 돌봄" INTEGER DEFAULT 0;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-판공성사 권면') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-판공성사 권면" INTEGER DEFAULT 0;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-전입 교우 돌봄') THEN
-        ALTER TABLE member ADD COLUMN "교우돌봄-전입 교우 돌봄" INTEGER DEFAULT 0;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-전입교우돌봄(방문)') THEN
+        ALTER TABLE member ADD COLUMN "교우돌봄-전입교우돌봄(방문)" INTEGER DEFAULT 0;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-견진성사권면') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-견진성사권면" INTEGER DEFAULT 0;

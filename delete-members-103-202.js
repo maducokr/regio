@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+require('./lib/local-sample-guard').assertLocalSampleDb();
 // PostgreSQL 연결 설정
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',

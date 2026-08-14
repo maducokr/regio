@@ -3,6 +3,7 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 require('dotenv').config();
 
+require('./lib/local-sample-guard').assertLocalSampleDb();
 // PostgreSQL 연결 설정
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',

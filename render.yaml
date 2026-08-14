@@ -19,3 +19,10 @@ services:
         value: regio
       - key: DB_PORT
         value: 5432
+      # 모의 시드는 로컬에서 ALLOW_SAMPLE_SEED=1 로만 실행 (서버 env에 상시 두지 말 것)
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false

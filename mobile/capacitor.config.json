@@ -1,0 +1,17 @@
+{
+  "appId": "com.regio.note",
+  "appName": "Regio Note",
+  "webDir": "www",
+  "server": {
+    "url": "https://YOUR-RENDER-APP.onrender.com",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#4A90E2",
+    "webContentsDebuggingEnabled": true,
+    "appendUserAgent": " RegioNoteApp/1.0 AndroidWebView"
+  },
+  "plugins": {}
+}

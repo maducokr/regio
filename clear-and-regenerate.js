@@ -1,3 +1,4 @@
+require('./lib/local-sample-guard').assertLocalSampleDb();
 const { Client } = require('pg');
 
 // Database configuration

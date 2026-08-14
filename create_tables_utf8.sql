@@ -25,6 +25,7 @@ CREATE TABLE activity_records (
     first_communion INTEGER DEFAULT 0, -- First Communion
     year_count INTEGER DEFAULT 0, -- Year Count
     funeral_mass INTEGER DEFAULT 0, -- Funeral Mass
+    memorial_mass INTEGER DEFAULT 0, -- Memorial Mass
     funeral_attendance INTEGER DEFAULT 0, -- Funeral Attendance
     conditional_baptism INTEGER DEFAULT 0, -- Conditional Baptism
     conditional_communion INTEGER DEFAULT 0, -- Conditional Communion
@@ -152,6 +153,7 @@ SELECT
     SUM(ar.first_communion) as total_first_communion,
     SUM(ar.year_count) as total_year_count,
     SUM(ar.funeral_mass) as total_funeral_mass,
+    SUM(ar.memorial_mass) as total_memorial_mass,
     SUM(ar.funeral_attendance) as total_funeral_attendance,
     SUM(ar.conditional_baptism) as total_conditional_baptism,
     SUM(ar.conditional_communion) as total_conditional_communion,

@@ -160,3 +160,30 @@ regio/
 ## 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+## 배포 폴더
+
+- **LOCALHOST (개발)**: `d:\\public\\regio` (현재 폴더)
+- **HOST 배포**: `d:\\public\\HOSTregio`
+- **Render 배포**: `d:\\public\\RENDERregio`
+
+동기화: `node sync-deploy-folders.js` (HOST/RENDER 전체) · `node sync-frontend-to-deploy.js` (프론트만, server 설정 제외)
+
+### 백업 (로컬 + E:)
+
+- 수동: `백업저장.bat` 또는 `node backup-to-regioback.js`
+- 자동: Cursor 파일 수정 시·작업 종료 시 훅 (`regioback`)
+- 저장 위치:
+  1. `d:\public\regio\regioback` (소스 + `db\regio-latest.dump`)
+  2. `E:\regioback` (동일 미러, 기본값)
+- 경로 변경/해제: `.env` 의 `REGIOBACK_EXTRA` (예: `off` 또는 `E:\regioback,D:\backup\regio`)
+
+### 모의(로컬) vs Deploy
+
+| | 로컬 모의 (`regio`) | Deploy (`piregio` / HOST / Render / 앱) |
+|--|--|--|
+| 모드 | `app-mode.js` → hostname localhost | `deploy-mode.js` → `REGIO_APP_MODE=deploy` |
+| 샘플·TEST 메뉴 | 표시 + 상단 배너 | 숨김 |
+| 시드 스크립트 (`assign-*`, `generate-*` 등) | `DB_HOST=localhost` 일 때만 | `lib/local-sample-guard` 로 차단 |
+| 샘플 API | 로컬 요청만 | `NODE_ENV=production` 이면 403 |
+
+강제 예외: `ALLOW_SAMPLE_SEED=1`, `ALLOW_SAMPLE_TOOLS=1` (임시용). 모드 확인: `GET /api/runtime-mode`

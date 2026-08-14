@@ -10,6 +10,8 @@ CREATE TABLE member (
     name VARCHAR(100) NOT NULL UNIQUE,
     baptism_name VARCHAR(100),
     church_name VARCHAR(200),
+    curia_name VARCHAR(200),
+    curia_officer VARCHAR(50),
     pr_name VARCHAR(100),
     position VARCHAR(100),
     phone_last4 VARCHAR(4) NOT NULL,

@@ -1,0 +1,742 @@
+/* Regio — mobile-first styles (default: phone, tablet+ in media query) */
+
+:root {
+    --touch-min: 44px;
+    --space: 12px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --density-row: 52px;
+    --density-gap: 10px;
+}
+
+html.regio-native-android,
+html.regio-webview {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+}
+
+html.regio-native-android body {
+    /* WebView에서 당겨서 새로고침/오버스크롤 완화 */
+    overscroll-behavior: none;
+}
+
+body {
+    overflow-x: hidden;
+    padding-bottom: var(--safe-bottom);
+}
+
+.header,
+.top-bar {
+    padding-top: calc(12px + var(--safe-top));
+    padding-left: calc(var(--space) + var(--safe-left));
+    padding-right: calc(var(--space) + var(--safe-right));
+    padding-bottom: 12px;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px calc(var(--space) + var(--safe-left)) calc(24px + var(--safe-bottom)) calc(var(--space) + var(--safe-right));
+    min-height: calc(100vh - 64px);
+    min-height: calc(100dvh - 64px);
+}
+
+.page-wrap {
+    padding: 12px calc(var(--space) + var(--safe-left)) calc(var(--space) + var(--safe-bottom)) calc(var(--space) + var(--safe-right));
+}
+
+.page-wrap .container,
+.container.card-style {
+    max-width: 100%;
+    margin: 0;
+    padding: 12px;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Density list patterns (activity input etc.) */
+.panel {
+    background: #fff;
+    border: 1px solid #e5eaf1;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #64748b;
+    padding: 10px 14px 6px;
+}
+
+.list-row,
+.field-item.density-row {
+    display: flex;
+    align-items: center;
+    gap: var(--density-gap);
+    min-height: var(--density-row);
+    padding: 8px 14px;
+    border-top: 1px solid #eef2f7;
+}
+
+.list-row:first-of-type,
+.activity-fields .field-item:first-child {
+    border-top: none;
+}
+
+.activity-fields {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin: 0 !important;
+}
+
+.activity-fields .field-item {
+    display: flex !important;
+    align-items: center;
+    gap: var(--density-gap);
+    min-height: var(--density-row);
+    padding: 8px 14px !important;
+    border: none !important;
+    border-top: 1px solid #eef2f7 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+}
+
+.activity-fields .field-item label {
+    flex: 1;
+    margin: 0 !important;
+    font-size: 14px;
+}
+
+.activity-fields .field-item input[type="number"] {
+    width: 96px !important;
+    min-height: 40px !important;
+    height: 40px;
+    padding: 8px 10px !important;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.login-title {
+    font-size: 22px;
+    margin-bottom: 24px;
+}
+
+.input-field,
+.input-group input,
+.id-input-box input,
+.id-input-box .input-field,
+select,
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"] {
+    font-size: 16px !important;
+    min-height: var(--touch-min);
+}
+
+.id-prefix-label {
+    font-size: 15px;
+    padding: 0 12px;
+}
+
+.login-button,
+.join-button,
+.logout-button,
+.submit-btn,
+button.login-button,
+#loginBtn,
+#findPasswordBtn,
+.modal-content button[type="submit"],
+.modal-content .submit-btn {
+    min-height: var(--touch-min);
+    width: 100%;
+    font-size: 17px;
+    border-radius: 10px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    padding-bottom: var(--safe-bottom);
+}
+
+.bottom-actions .join-button,
+.bottom-actions .logout-button {
+    margin: 0;
+}
+
+.hamburger-menu {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.back-button,
+.top-bar .back-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: calc(12px + var(--safe-left));
+}
+
+.dropdown-menu {
+    min-width: 220px;
+    max-width: min(280px, calc(100vw - 32px));
+}
+
+.dropdown-item {
+    min-height: 44px;
+    padding: 14px 18px;
+    font-size: 15px;
+}
+
+.position-picker li {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+}
+
+.password-field-row {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.password-field-row .find-password-inline-btn {
+    width: 100%;
+    min-height: var(--touch-min);
+}
+
+.find-password-inline-btn,
+.email-verify-btn,
+.field-confirm-btn,
+.modal-content .email-verify-btn {
+    min-height: 44px;
+    min-width: 72px;
+    font-size: 14px;
+}
+
+.email-verify-row,
+.find-code-row.show {
+    flex-wrap: nowrap;
+}
+
+.field-group {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+}
+
+.activity-fields {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+}
+
+.form-section {
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.google-signin-wrap {
+    width: 100%;
+    margin-top: 14px;
+}
+
+.checkbox-group {
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Bottom sheet modals on phone */
+.modal {
+    display: flex !important;
+    align-items: flex-end !important;
+    padding: 0;
+}
+
+.modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 24px 20px calc(24px + var(--safe-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-content .close {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 8px;
+    right: 8px;
+}
+
+.login-tabs {
+    margin-bottom: 16px;
+}
+
+.login-tab {
+    min-height: 44px;
+    font-size: 15px;
+}
+
+.id-hint,
+.email-verify-status,
+.modal-content .id-hint {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.found-password-list button {
+    min-height: var(--touch-min);
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+/* Forms & admin pages */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.form-group select,
+.form-group textarea {
+    width: 100%;
+}
+
+.form-group textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.period-controls,
+.filter-row,
+.toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.period-btn,
+.filter-btn,
+.action-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 14px;
+    font-size: 14px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.summary-cards,
+.detailed-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.table-scroll-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 16px;
+}
+
+.report-table,
+.detail-table,
+.secretary-report-table,
+.data-table {
+    min-width: 520px;
+    font-size: 14px;
+}
+
+.report-table th,
+.report-table td,
+.detail-table th,
+.detail-table td {
+    padding: 10px 8px;
+}
+
+.item-row {
+    padding: 12px 16px;
+}
+
+.modal-content .profile-field-row {
+    flex-wrap: wrap;
+}
+
+.modal-content .profile-field-row .field-confirm-btn,
+.modal-content .id-input-box .field-confirm-btn {
+    min-width: 56px;
+    min-height: var(--touch-min);
+}
+
+.modal-content .form-actions {
+    flex-direction: column;
+}
+
+.modal-content .form-actions .submit-btn {
+    min-height: var(--touch-min);
+}
+
+.modal-content .email-verify-row {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.modal-content .email-verify-row input {
+    width: 100%;
+}
+
+.modal-content .email-verify-btn {
+    width: 100%;
+    min-height: var(--touch-min);
+}
+
+.filter-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.filter-group select,
+.filter-group input[type="text"],
+.filter-group input[type="date"] {
+    width: 100%;
+}
+
+.search-button,
+.export-btn,
+.btn,
+.btn-danger,
+.btn-secondary {
+    min-height: var(--touch-min);
+    width: 100%;
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.period-buttons {
+    flex-wrap: wrap;
+    justify-content: stretch;
+    gap: 8px;
+}
+
+.period-btn {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+}
+
+.export-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+}
+
+.section-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+#detailedSummary,
+#dailyActivitiesTable {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.delete-member .btn-row,
+.button-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Tablet and desktop: centered card layout */
+@media (min-width: 768px) {
+    /* 로그인 등 단일 카드만 좁게 — 활동/집계/배당은 page-wrap 또는 report-page */
+    body:not(.report-page):not(.assignment-page):not(.activity-input-page) > .container:not(.wide-container) {
+        max-width: 440px;
+        margin: 0 auto;
+        min-height: auto;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .page-wrap .container,
+    body.report-page .container,
+    body.assignment-page .container,
+    body.activity-input-page .container,
+    .container.wide-container {
+        max-width: min(960px, 100%);
+        margin: 0 auto;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        padding: 24px;
+    }
+
+    .password-field-row {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .password-field-row .find-password-inline-btn {
+        width: auto;
+        flex-shrink: 0;
+    }
+
+    .field-group {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .activity-fields {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+    }
+
+    .activity-fields .field-item input[type="number"] {
+        width: 120px !important;
+    }
+
+    .modal {
+        align-items: center !important;
+    }
+
+    .modal-content {
+        width: 92% !important;
+        max-width: 420px !important;
+        margin: 5vh auto !important;
+        border-radius: 12px !important;
+        max-height: 88vh;
+    }
+
+    .bottom-actions {
+        flex-direction: row;
+    }
+
+    .bottom-actions .join-button,
+    .bottom-actions .logout-button {
+        flex: 1;
+    }
+
+    .modal-content .form-actions {
+        flex-direction: row;
+    }
+
+    .modal-content .email-verify-row {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .modal-content .email-verify-btn {
+        width: auto;
+    }
+
+    .summary-cards,
+    .detailed-summary-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+
+    .report-table,
+    .detail-table,
+    .secretary-report-table,
+    .data-table {
+        min-width: 0;
+    }
+
+    .filter-controls {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .search-button,
+    .export-btn,
+    .btn,
+    .btn-danger,
+    .btn-secondary {
+        width: auto;
+    }
+
+    .export-buttons {
+        flex-direction: row;
+        width: auto;
+    }
+
+    .section-header-row {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .period-btn {
+        flex: 0 1 auto;
+        min-width: 100px;
+    }
+}
+
+/* ========== 햄버거 메뉴 화면: 모바일 폭 유동 레이아웃 ========== */
+@media (max-width: 767.98px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+
+    .header,
+    .top-bar {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .container,
+    .page-wrap .container,
+    .container.card-style {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding-left: calc(12px + var(--safe-left)) !important;
+        padding-right: calc(12px + var(--safe-right)) !important;
+        box-sizing: border-box;
+    }
+
+    .page-wrap {
+        width: 100%;
+        max-width: 100%;
+        padding-left: calc(8px + var(--safe-left)) !important;
+        padding-right: calc(8px + var(--safe-right)) !important;
+        box-sizing: border-box;
+    }
+
+    .section,
+    .panel,
+    .card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 모달·오버레이: 화면 폭에 맞춤 */
+    .modal,
+    .council-hub-modal.modal,
+    .profile-edit-modal,
+    .sensitive-auth-modal {
+        padding: calc(8px + var(--safe-top)) 8px calc(8px + var(--safe-bottom)) !important;
+        align-items: flex-start !important;
+        box-sizing: border-box;
+    }
+
+    .modal-content,
+    .council-hub-modal .modal-content,
+    .council-hub-modal .modal-content.wide,
+    .profile-edit-modal .modal-content {
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        margin: 8px auto 20px !important;
+        padding: 16px 14px !important;
+        border-radius: 12px !important;
+        max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    /* 표는 가로 스크롤만 허용, 페이지 전체를 밀어내지 않음 */
+    .table-scroll-wrap,
+    .event-report-scroll,
+    .event-table-scroll,
+    .org-table-wrap,
+    #detailedSummary,
+    #dailyActivitiesTable,
+    .report-table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .report-table,
+    .detail-table,
+    .secretary-report-table,
+    .data-table,
+    .event-report-table,
+    .event-entry-table,
+    .personal-report-table {
+        font-size: 12px;
+    }
+
+    .filter-controls,
+    .period-controls,
+    .toolbar-row,
+    .section-header-row,
+    .export-buttons {
+        width: 100%;
+    }
+
+    .filter-group {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .filter-group select,
+    .filter-group input[type="text"],
+    .filter-group input[type="date"],
+    .filter-group input[type="number"] {
+        flex: 1 1 100%;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .dropdown-menu {
+        max-width: calc(100vw - 24px);
+        right: 8px;
+        left: auto;
+    }
+}
+
+/* 햄버거에서 띄우는 JS 모달 공통 */
+@media (max-width: 767.98px) {
+    #sampleMemberRosterModal > div,
+    #sampleAnnualActivityModal > div,
+    #testExportViewModal > div,
+    #regioHelpModal .regio-help-dialog,
+    [id$="Modal"] > div[style*="border-radius"] {
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100dvh - 16px - var(--safe-top) - var(--safe-bottom)) !important;
+        margin: 0 auto !important;
+        box-sizing: border-box;
+    }
+
+    #regioHelpModal {
+        padding: 8px !important;
+        align-items: stretch !important;
+    }
+}

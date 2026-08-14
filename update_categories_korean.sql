@@ -16,9 +16,9 @@ UPDATE activity_categories SET category_name = '지구와함께-재생하기' WH
 
 UPDATE activity_categories SET category_name = '복음선교-외인 입교권면' WHERE category_name = 'Gospel Mission-Outreach to Non-Catholics';
 UPDATE activity_categories SET category_name = '복음선교-교리 중단자 권면' WHERE category_name = 'Gospel Mission-Catechism Dropout Support';
-UPDATE activity_categories SET category_name = '복음선교-방문및가두선교' WHERE category_name = 'Gospel Mission-Home and Street Evangelization';
-UPDATE activity_categories SET category_name = '복음선교-예비자 관리' WHERE category_name = 'Gospel Mission-Catechumen Management';
-UPDATE activity_categories SET category_name = '복음선교-통신 교리자' WHERE category_name = 'Gospel Mission-Correspondence Catechist';
+UPDATE activity_categories SET category_name = '복음선교-방문선교' WHERE category_name = 'Gospel Mission-Home and Street Evangelization';
+UPDATE activity_categories SET category_name = '복음선교-예비신자관리돌봄' WHERE category_name = 'Gospel Mission-Catechumen Management';
+UPDATE activity_categories SET category_name = '복음선교-통신교리자 돌봄' WHERE category_name = 'Gospel Mission-Correspondence Catechist';
 UPDATE activity_categories SET category_name = '복음선교-교리반협조' WHERE category_name = 'Gospel Mission-Catechism Class Support';
 
 UPDATE activity_categories SET category_name = '교우돌봄-신 영세자 돌봄' WHERE category_name = 'Member Care-New Communicant Care';
@@ -53,7 +53,7 @@ UPDATE activity_categories SET category_name = '레지오활동-평의회업무�
 UPDATE activity_categories SET category_name = '본당교회협조-본당사도직활동' WHERE category_name = 'Parish Cooperation-Parish Apostolate';
 UPDATE activity_categories SET category_name = '본당교회협조-행사 준비 및 협조' WHERE category_name = 'Parish Cooperation-Event Support';
 UPDATE activity_categories SET category_name = '본당교회협조-주일학교 돌봄' WHERE category_name = 'Parish Cooperation-Sunday School Care';
-UPDATE activity_categories SET category_name = '본당교회협조-소공동체활동' WHERE category_name = 'Parish Cooperation-Small Community Activities';
+UPDATE activity_categories SET category_name = '본당교회협조-소공동체모임참석' WHERE category_name = 'Parish Cooperation-Small Community Activities';
 UPDATE activity_categories SET category_name = '본당교회협조-사무협조' WHERE category_name = 'Parish Cooperation-Administrative Support';
 UPDATE activity_categories SET category_name = '본당교회협조-회원모집' WHERE category_name = 'Parish Cooperation-Member Recruitment';
 UPDATE activity_categories SET category_name = '본당교회협조-전례협조' WHERE category_name = 'Parish Cooperation-Liturgical Support';
