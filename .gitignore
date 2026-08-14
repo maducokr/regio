@@ -47,6 +47,9 @@ jspm_packages/
 *.swp
 *.swo
 
+# Render 업로드용 (External DB URL — 비밀)
+.env.render
+
 # OS
 .DS_Store
 .DS_Store?
