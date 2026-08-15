@@ -24,6 +24,11 @@ const {
     saveVerifiedPurchase
 } = require('./lib/google-play-billing');
 const { ensureCoreSchema } = require('./lib/ensure-core-schema');
+const {
+    purgeOldActivityRecords,
+    startActivityRetentionScheduler,
+    retentionMonths
+} = require('./lib/purge-old-activities');
 
 // 환경변수 로드 — Render에서는 Dashboard Environment만 사용 (.env 무시)
 try {
@@ -5092,6 +5097,19 @@ app.post('/api/auth/google', async (req, res) => {
         }
 
         const user = result.rows[0];
+        setImmediate(() => {
+            purgeOldActivityRecords(pool, { memberId: user.id })
+                .then((purgeResult) => {
+                    if (!purgeResult.skipped && purgeResult.deleted > 0) {
+                        console.log(
+                            `🧹 Google 로그인 시 활동자료 자동삭제: member=${user.id} ${purgeResult.deleted}건 (${purgeResult.months}개월)`
+                        );
+                    }
+                })
+                .catch((purgeError) => {
+                    console.warn('Google 로그인 시 활동자료 자동삭제 실패:', purgeError.message || purgeError);
+                });
+        });
         res.json({
             success: true,
             message: 'Google 로그인 성공',
@@ -5246,6 +5264,21 @@ app.post('/api/login', async (req, res) => {
 
         const user = result.rows[0];
         console.log('✅ 로그인 성공:', user.name);
+
+        // 로그인 ID가 입력한 활동자료 중 보관기간(기본 30개월) 경과분 즉시 정리
+        setImmediate(() => {
+            purgeOldActivityRecords(pool, { memberId: user.id })
+                .then((purgeResult) => {
+                    if (!purgeResult.skipped && purgeResult.deleted > 0) {
+                        console.log(
+                            `🧹 로그인 시 활동자료 자동삭제: member=${user.id} ${purgeResult.deleted}건 (${purgeResult.months}개월)`
+                        );
+                    }
+                })
+                .catch((purgeError) => {
+                    console.warn('로그인 시 활동자료 자동삭제 실패:', purgeError.message || purgeError);
+                });
+        });
 
         res.json({
             success: true,
@@ -7740,6 +7773,12 @@ httpServer = app.listen(PORT, async () => {
         }
     } catch (schemaError) {
         console.error('❌ 인증 스키마 준비 실패:', schemaError.message);
+    }
+    try {
+        startActivityRetentionScheduler(pool);
+        console.log(`ℹ️ 개인활동 보관기간: ${retentionMonths()}개월 (기록일 기준 자동삭제)`);
+    } catch (purgeBootError) {
+        console.error('❌ 활동자료 자동삭제 스케줄러 시작 실패:', purgeBootError.message);
     }
 });
 
