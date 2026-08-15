@@ -295,7 +295,10 @@
                 font-size: 12px;
                 line-height: 1.4;
                 margin-bottom: 8px;
+                max-width: 100%;
+                box-sizing: border-box;
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
             .pr-biz-form .biz-head {
                 display: grid;
@@ -339,22 +342,40 @@
                 width: 100%;
                 border-collapse: collapse;
                 margin: 0 0 10px;
-                font-size: 11px;
+                font-size: 12px;
+                table-layout: fixed;
+                box-sizing: border-box;
             }
             .pr-biz-form table.biz-table th,
             .pr-biz-form table.biz-table td {
                 border: 1px solid #333;
-                padding: 3px 4px;
+                padding: 4px 5px;
                 text-align: center;
                 vertical-align: middle;
+                word-break: keep-all;
+                overflow-wrap: anywhere;
             }
             .pr-biz-form table.biz-table th { background: #f3f4f6; font-weight: 600; }
             .pr-biz-form table.biz-table td.left,
-            .pr-biz-form table.biz-table .row-label { text-align: left; white-space: nowrap; }
+            .pr-biz-form table.biz-table .row-label {
+                text-align: left;
+                white-space: normal;
+            }
             .pr-biz-form .biz-sec-title {
                 font-weight: 700;
                 font-size: 12px;
                 margin: 8px 0 4px;
+            }
+            .pr-biz-form .biz-scroll {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 10px;
+            }
+            .pr-biz-form .biz-scroll table.biz-table {
+                table-layout: auto;
+                min-width: 560px;
             }
             .pr-biz-form .biz-two-col {
                 display: grid;
@@ -362,19 +383,34 @@
                 gap: 0;
                 border: 1px solid #333;
                 margin-bottom: 10px;
+                max-width: 100%;
+                box-sizing: border-box;
             }
-            .pr-biz-form .biz-two-col > div { min-width: 0; }
+            .pr-biz-form .biz-two-col > div { min-width: 0; overflow: hidden; }
             .pr-biz-form .biz-two-col > div:first-child { border-right: 1px solid #333; }
-            .pr-biz-form .biz-two-col table { margin: 0; border: none; }
+            .pr-biz-form .biz-two-col table {
+                margin: 0;
+                border: none;
+                width: 100%;
+                table-layout: fixed;
+            }
             .pr-biz-form .biz-two-col table th,
             .pr-biz-form .biz-two-col table td { border-color: #333; }
+            /* 행사 / 일자 / 참석 3열 비율 고정 — 참석열 잘림 방지 */
+            .pr-biz-form .biz-two-col table th:nth-child(1),
+            .pr-biz-form .biz-two-col table td:nth-child(1) { width: 46%; }
+            .pr-biz-form .biz-two-col table th:nth-child(2),
+            .pr-biz-form .biz-two-col table td:nth-child(2) { width: 36%; }
+            .pr-biz-form .biz-two-col table th:nth-child(3),
+            .pr-biz-form .biz-two-col table td:nth-child(3) { width: 18%; min-width: 2.5em; }
             .pr-biz-form .finance-grid {
                 display: grid;
                 grid-template-columns: 1fr 1.2fr auto;
                 border: 1px solid #333;
                 margin-bottom: 10px;
+                max-width: 100%;
             }
-            .pr-biz-form .finance-grid > div { border-right: 1px solid #333; }
+            .pr-biz-form .finance-grid > div { border-right: 1px solid #333; min-width: 0; }
             .pr-biz-form .finance-grid > div:last-child { border-right: none; }
             .pr-biz-form .finance-grid h4 {
                 margin: 0;
@@ -382,10 +418,10 @@
                 text-align: center;
                 border-bottom: 1px solid #333;
                 background: #f3f4f6;
-                font-size: 11px;
+                font-size: 12px;
             }
-            .pr-biz-form .finance-grid table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 0; }
-            .pr-biz-form .finance-grid td { border-bottom: 1px solid #ddd; padding: 4px 6px; }
+            .pr-biz-form .finance-grid table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0; table-layout: fixed; }
+            .pr-biz-form .finance-grid td { border-bottom: 1px solid #ddd; padding: 4px 6px; word-break: keep-all; overflow-wrap: anywhere; }
             .pr-biz-form .finance-grid tr:last-child td { border-bottom: none; }
             .pr-biz-form .finance-balance {
                 display: flex;
@@ -396,15 +432,31 @@
                 min-width: 72px;
                 font-weight: 700;
             }
-            .pr-biz-form .biz-note { font-size: 11px; color: #666; margin-top: 4px; }
+            .pr-biz-form .biz-note { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.45; }
             .pr-biz-form.pr-biz-pdf-export .biz-note { display: none !important; }
             @media (max-width: 720px) {
+                .pr-biz-form {
+                    padding: 10px 8px 14px;
+                    overflow-x: visible;
+                }
                 .pr-biz-form .biz-two-col,
                 .pr-biz-form .finance-grid { grid-template-columns: 1fr; }
                 .pr-biz-form .biz-two-col > div:first-child,
                 .pr-biz-form .finance-grid > div { border-right: none; border-bottom: 1px solid #333; }
+                .pr-biz-form .biz-two-col > div:last-child,
+                .pr-biz-form .finance-grid > div:last-child { border-bottom: none; }
                 .pr-biz-form .biz-head { grid-template-columns: 48px 1fr; }
-                .pr-biz-form .biz-submit { grid-column: 1 / -1; text-align: left; }
+                .pr-biz-form .biz-submit { grid-column: 1 / -1; text-align: left; white-space: normal; }
+                .pr-biz-form .biz-two-col table th:nth-child(1),
+                .pr-biz-form .biz-two-col table td:nth-child(1) { width: 42%; }
+                .pr-biz-form .biz-two-col table th:nth-child(2),
+                .pr-biz-form .biz-two-col table td:nth-child(2) { width: 40%; }
+                .pr-biz-form .biz-two-col table th:nth-child(3),
+                .pr-biz-form .biz-two-col table td:nth-child(3) { width: 18%; min-width: 2.8em; }
+                .pr-biz-form table.biz-table th,
+                .pr-biz-form table.biz-table td { padding: 5px 4px; }
+                .pr-biz-form .blank.w8,
+                .pr-biz-form .blank.w12 { min-width: 4em; max-width: 100%; }
             }
         `;
         document.head.appendChild(style);
@@ -553,6 +605,7 @@
                 </table>
 
                 <div class="biz-sec-title">간부</div>
+                <div class="biz-scroll">
                 <table class="biz-table">
                     <thead>
                         <tr>
@@ -592,8 +645,10 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
 
                 <div class="biz-sec-title">단원 수</div>
+                <div class="biz-scroll">
                 <table class="biz-table">
                     <thead>
                         <tr>
@@ -615,6 +670,7 @@
                         ${membershipTotalOnlyRow('아쥬또리움 단원', prev, curr, inc, dec, 'adjutorian')}
                     </tbody>
                 </table>
+                </div>
 
                 <div class="biz-sec-title">회계보고</div>
                 <div class="finance-grid">

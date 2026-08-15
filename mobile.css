@@ -434,8 +434,17 @@ button.login-button,
 .detail-table,
 .secretary-report-table,
 .data-table {
-    min-width: 520px;
+    min-width: 0;
+    width: 100%;
     font-size: var(--app-font-size) !important;
+}
+
+.table-scroll-wrap .report-table,
+.table-scroll-wrap .detail-table,
+.table-scroll-wrap .secretary-report-table,
+.table-scroll-wrap .data-table,
+.event-report-scroll .event-report-table {
+    min-width: 520px;
 }
 
 .report-table th,

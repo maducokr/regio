@@ -776,14 +776,14 @@
             overflow-wrap: anywhere;
         }
 
-        .personal-report-table .cell-content {
+            .personal-report-table .cell-content {
             text-align: left;
             line-height: 1.45;
             white-space: pre-wrap;
             word-break: break-word;
             color: #334155;
             font-size: 12px;
-            max-width: 280px;
+            max-width: none;
         }
 
         .personal-report-table .cell-date,
@@ -1072,7 +1072,7 @@
             }
 
             /* 개인활동집계: 테이블 → 카드 목록 */
-            body.report-scope-personal .personal-report-table {
+            body.report-page:not(.report-scope-secretary) .personal-report-table {
                 min-width: 0 !important;
                 margin-top: 8px;
                 background: transparent;
@@ -1080,11 +1080,11 @@
                 border-radius: 0;
             }
 
-            body.report-scope-personal .personal-report-table thead {
+            body.report-page:not(.report-scope-secretary) .personal-report-table thead {
                 display: none;
             }
 
-            body.report-scope-personal .personal-report-table tbody tr {
+            body.report-page:not(.report-scope-secretary) .personal-report-table tbody tr {
                 display: block;
                 background: #fff;
                 border: 1px solid #e3eaf2;
@@ -1094,11 +1094,11 @@
                 box-shadow: 0 1px 4px rgba(74, 144, 226, 0.08);
             }
 
-            body.report-scope-personal .personal-report-table tbody tr:hover {
+            body.report-page:not(.report-scope-secretary) .personal-report-table tbody tr:hover {
                 background: #fff;
             }
 
-            body.report-scope-personal .personal-report-table td {
+            body.report-page:not(.report-scope-secretary) .personal-report-table td {
                 display: block;
                 padding: 10px 14px;
                 border: none;
@@ -1106,11 +1106,11 @@
                 font-size: 12px;
             }
 
-            body.report-scope-personal .personal-report-table td:last-child {
+            body.report-page:not(.report-scope-secretary) .personal-report-table td:last-child {
                 border-bottom: none;
             }
 
-            body.report-scope-personal .personal-report-table td::before {
+            body.report-page:not(.report-scope-secretary) .personal-report-table td::before {
                 content: attr(data-label);
                 display: block;
                 font-size: 11px;
@@ -1120,7 +1120,7 @@
                 letter-spacing: 0.02em;
             }
 
-            body.report-scope-personal .personal-report-table .cell-subcategory {
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-subcategory {
                 background: linear-gradient(135deg, #eef5fc, #f8fbff);
                 font-size: 12px;
                 font-weight: 700;
@@ -1128,28 +1128,28 @@
                 border-radius: 12px 12px 0 0;
             }
 
-            body.report-scope-personal .personal-report-table .cell-subcategory::before {
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-subcategory::before {
                 color: #357ABD;
             }
 
-            body.report-scope-personal .personal-report-table .cell-activity {
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-activity {
                 font-size: 12px;
                 line-height: 1.55;
             }
 
-            body.report-scope-personal .personal-report-table .cell-date,
-            body.report-scope-personal .personal-report-table .cell-days {
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-date,
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-days {
                 font-size: 12px;
                 color: #555;
                 padding-bottom: 12px;
             }
 
-            body.report-scope-personal .personal-report-table tr.subcategory-memo-row {
+            body.report-page:not(.report-scope-secretary) .personal-report-table tr.subcategory-memo-row {
                 margin-top: -4px;
                 margin-bottom: 14px;
             }
 
-            body.report-scope-personal .personal-report-table .subcategory-memo-row .cell-memo {
+            body.report-page:not(.report-scope-secretary) .personal-report-table .subcategory-memo-row .cell-memo {
                 background: #fffbea;
                 border-radius: 0 0 12px 12px;
                 padding-bottom: 14px;
@@ -1158,6 +1158,13 @@
             #detailedSummary,
             #dailyActivitiesTable {
                 overflow-x: visible;
+                max-width: 100%;
+            }
+
+            #prBusinessReportContainer,
+            #prBusinessReportSection .section {
+                max-width: 100%;
+                overflow-x: hidden;
             }
 
             .detail-table {
