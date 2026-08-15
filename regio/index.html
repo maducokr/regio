@@ -375,31 +375,6 @@
             font-size: 12px;
         }
 
-        .biometric-login {
-            text-align: center;
-            margin: 0 0 12px;
-            padding: 0;
-            line-height: 0;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fingerprint-icon {
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0;
-            background-color: #4A90E2;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
         .login-tabs {
             display: flex;
             gap: 8px;
@@ -879,9 +854,6 @@
                 <span>자동 로그인</span>
             </div>
         </div>
-
-        <div class="biometric-login">
-            <div class="fingerprint-icon">👆</div>
         </div>
 
         <div class="membership-prompt">
@@ -1388,11 +1360,6 @@
         // 뒤로가기 버튼
         document.querySelector('.back-button').addEventListener('click', function() {
             alert('뒤로가기');
-        });
-
-        // 지문 로그인
-        document.querySelector('.fingerprint-icon').addEventListener('click', function() {
-            alert('지문 인식 로그인');
         });
 
         // 회원가입 버튼
