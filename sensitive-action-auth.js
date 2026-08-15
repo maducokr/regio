@@ -115,20 +115,20 @@
             @media (min-width: 768px) {
                 .sensitive-auth-card { border-radius: 12px; }
             }
-            .sensitive-auth-card h3 { margin: 0 0 8px; font-size: 18px; color: #333; text-align: center; }
-            .sensitive-auth-card p { margin: 0 0 16px; font-size: 14px; color: #555; line-height: 1.5; }
+            .sensitive-auth-card h3 { margin: 0 0 8px; font-size: 12px; color: #333; text-align: center; }
+            .sensitive-auth-card p { margin: 0 0 16px; font-size: 12px; color: #555; line-height: 1.5; }
             .sensitive-auth-email {
                 margin-bottom: 12px; padding: 10px 12px; background: #f8f9fa;
-                border-radius: 8px; font-size: 14px; color: #333;
+                border-radius: 8px; font-size: 12px; color: #333;
             }
             .sensitive-auth-row { display: flex; gap: 8px; margin-bottom: 12px; }
             .sensitive-auth-row input {
                 flex: 1; min-height: 48px; padding: 12px; border: 1px solid #ddd;
-                border-radius: 8px; font-size: 16px;
+                border-radius: 8px; font-size: 12px;
             }
             .sensitive-auth-btn {
                 min-height: 48px; padding: 0 14px; border: none; border-radius: 8px;
-                background: #6c757d; color: #fff; font-size: 14px; font-weight: 600;
+                background: #6c757d; color: #fff; font-size: 12px; font-weight: 600;
                 cursor: pointer; white-space: nowrap;
             }
             .sensitive-auth-btn.sent,
@@ -136,7 +136,7 @@
             .sensitive-auth-btn.primary { background: #4A90E2; width: 100%; margin-top: 8px; }
             .sensitive-auth-btn.primary:disabled { background: #adb5bd; cursor: not-allowed; }
             .sensitive-auth-btn.ghost { background: #e9ecef; color: #333; width: 100%; margin-top: 8px; }
-            .sensitive-auth-status { min-height: 18px; margin-bottom: 8px; font-size: 13px; color: #666; }
+            .sensitive-auth-status { min-height: 18px; margin-bottom: 8px; font-size: 12px; color: #666; }
             .sensitive-auth-status.ok { color: #28a745; }
         `;
         document.head.appendChild(style);

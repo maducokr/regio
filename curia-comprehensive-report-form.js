@@ -63,7 +63,7 @@
             }
             .curia-comp-form .form-title {
                 text-align: center;
-                font-size: 20px;
+                font-size: 12px;
                 font-weight: 700;
                 margin: 0 0 16px;
                 text-decoration: underline;
@@ -212,7 +212,7 @@
             }
             @media (max-width: 700px) {
                 .curia-comp-form { font-size: 11px; padding: 12px 10px; }
-                .curia-comp-form .form-title { font-size: 17px; }
+                .curia-comp-form .form-title { font-size: 12px; }
                 .curia-comp-form table.form-table { font-size: 10px; }
             }
         `;
@@ -1791,8 +1791,8 @@
     <title>꾸리아 종합보고서</title>
     <style>
         body { font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; padding: 20px; color: #111; }
-        h1 { font-size: 20px; margin-bottom: 8px; }
-        p { margin: 4px 0; font-size: 13px; }
+        h1 { font-size: 12px; margin-bottom: 8px; }
+        p { margin: 4px 0; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
         th, td { border: 1px solid #333; padding: 4px; text-align: center; vertical-align: middle; }
         .left { text-align: left; }

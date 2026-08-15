@@ -160,7 +160,7 @@
             .google-signin-wrap:empty { display: none; margin: 0; }
             .email-verify-row { display: flex; gap: 8px; margin-bottom: 12px; }
             .email-verify-row input { flex: 1; margin-bottom: 0; }
-            .email-verify-btn { flex-shrink: 0; padding: 0 12px; border: none; border-radius: 6px; background: #6c757d; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+            .email-verify-btn { flex-shrink: 0; padding: 0 12px; border: none; border-radius: 6px; background: #6c757d; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
             .email-verify-btn:hover { background: #5a6268; }
             .email-verify-btn.sent,
             .email-verify-btn.verified { background: #28a745; cursor: default; }

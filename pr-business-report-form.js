@@ -318,8 +318,8 @@
                 line-height: 1.15;
             }
             .pr-biz-form .biz-titles { text-align: center; padding-top: 2px; }
-            .pr-biz-form .biz-titles .org { font-size: 15px; font-weight: 700; }
-            .pr-biz-form .biz-titles .doc-title { font-size: 16px; font-weight: 700; margin-top: 4px; }
+            .pr-biz-form .biz-titles .org { font-size: 12px; font-weight: 700; }
+            .pr-biz-form .biz-titles .doc-title { font-size: 12px; font-weight: 700; margin-top: 4px; }
             .pr-biz-form .biz-submit { font-size: 11px; text-align: right; white-space: nowrap; }
             .pr-biz-form .biz-affil { text-align: center; margin: 4px 0 10px; font-size: 12px; }
             .pr-biz-form .blank {

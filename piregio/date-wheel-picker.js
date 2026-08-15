@@ -77,8 +77,8 @@
                 display: flex; align-items: center; justify-content: space-between;
                 gap: 8px; padding: 4px 4px 10px;
             }
-            .regio-dw-title { font-size: 15px; font-weight: 700; color: #1f2937; }
-            .regio-dw-value { font-size: 13px; font-weight: 600; color: #4A90E2; }
+            .regio-dw-title { font-size: 12px; font-weight: 700; color: #1f2937; }
+            .regio-dw-value { font-size: 12px; font-weight: 600; color: #4A90E2; }
             .regio-dw-wheels {
                 position: relative;
                 display: grid;
@@ -112,11 +112,11 @@
                 height: ${ITEM_H}px;
                 display: flex; align-items: center; justify-content: center;
                 scroll-snap-align: center;
-                font-size: 18px; font-weight: 500; color: #94a3b8;
+                font-size: 12px; font-weight: 500; color: #94a3b8;
                 user-select: none;
             }
             .regio-dw-item.is-selected {
-                font-size: 22px; font-weight: 800; color: #0f172a;
+                font-size: 12px; font-weight: 800; color: #0f172a;
             }
             .regio-dw-labels {
                 display: grid;
@@ -128,17 +128,17 @@
                 letter-spacing: 0.04em;
             }
             .regio-dw-col[data-unit="day"] .regio-dw-item {
-                font-size: 16px;
+                font-size: 12px;
             }
             .regio-dw-col[data-unit="day"] .regio-dw-item.is-selected {
-                font-size: 18px;
+                font-size: 12px;
             }
             .regio-dw-actions {
                 display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
             }
             .regio-dw-btn {
                 border: none; border-radius: 10px;
-                min-height: 46px; font-size: 15px; font-weight: 700;
+                min-height: 46px; font-size: 12px; font-weight: 700;
                 cursor: pointer;
             }
             .regio-dw-btn.cancel { background: #e2e8f0; color: #334155; }
@@ -158,7 +158,7 @@
                 display: flex; align-items: center;
                 padding: 0 10px;
                 pointer-events: none;
-                font-size: 15px; font-weight: 600; color: #0f172a;
+                font-size: 12px; font-weight: 600; color: #0f172a;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             }
             .regio-dw-input-wrap {

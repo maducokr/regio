@@ -64,7 +64,7 @@
             'color:#9a3412',
             'border-bottom:1px solid #fdba74',
             'padding:8px 12px',
-            'font-size:13px',
+            'font-size: 12px',
             'font-weight:600',
             'text-align:center',
             'line-height:1.35'

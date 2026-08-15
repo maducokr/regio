@@ -87,7 +87,7 @@
         `).join('');
 
         return `
-            <table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">
+            <table style="width:100%;border-collapse:collapse;font-size: 12px;table-layout:fixed;">
                 <thead>
                     <tr style="background:#4A90E2;color:#fff;">
                         <th style="padding:8px 10px;border:1px solid #ccc;">번호</th>
@@ -186,8 +186,8 @@
         return `
             <div data-annual-pdf-page style="font-family:Malgun Gothic, Arial, sans-serif;padding:12px 16px;background:#fff;width:1000px;box-sizing:border-box;color:#000;">
                 <div style="text-align:center;margin-bottom:10px;">
-                    <h1 style="font-size:17px;color:#333;margin:0 0 4px;">Regio 모의 회원 성명·비번·활동내역</h1>
-                    <p style="font-size:13px;color:#4A90E2;margin:0;font-weight:bold;">${reportMeta.year}년 (${escapeHtml(reportMeta.start)} ~ ${escapeHtml(reportMeta.end)})</p>
+                    <h1 style="font-size: 12px;color:#333;margin:0 0 4px;">Regio 모의 회원 성명·비번·활동내역</h1>
+                    <p style="font-size: 12px;color:#4A90E2;margin:0;font-weight:bold;">${reportMeta.year}년 (${escapeHtml(reportMeta.start)} ~ ${escapeHtml(reportMeta.end)})</p>
                     <p style="font-size:11px;color:#888;margin:4px 0 0;">회원 ${MEMBER_ID_MIN}~${MEMBER_ID_MAX}번 · ${pageNum} / ${totalPages} 페이지 · ${startNo}~${startNo + pageRows.length - 1}번</p>
                 </div>
                 <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
@@ -236,7 +236,7 @@
         overlay.id = 'sampleAnnualPdfCaptureOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:100001;display:flex;flex-direction:column;align-items:center;padding:20px;overflow:auto;';
         overlay.innerHTML = `
-            <p id="sampleAnnualPdfCaptureStatus" style="font-size:15px;color:#333;margin:0 0 14px;font-family:Malgun Gothic,Arial,sans-serif;">PDF 생성 중...</p>
+            <p id="sampleAnnualPdfCaptureStatus" style="font-size: 12px;color:#333;margin:0 0 14px;font-family:Malgun Gothic,Arial,sans-serif;">PDF 생성 중...</p>
             <div id="sampleAnnualPdfCaptureArea"></div>
         `;
         document.body.appendChild(overlay);
@@ -287,15 +287,15 @@
         overlay.innerHTML = `
             <div style="background:#fff;border-radius:12px;width:min(1200px,calc(100vw - 16px));max-width:100%;max-height:min(92vh,calc(100dvh - 16px));display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,0.25);box-sizing:border-box;margin:0 auto;">
                 <div style="padding:18px 22px 12px;border-bottom:1px solid #eee;">
-                    <h3 style="margin:0 0 6px;font-size:20px;color:#333;">모의 회원 성명·비번·활동내역</h3>
-                    <p style="margin:0;color:#666;font-size:14px;">${reportData.year}년 (${reportData.start} ~ ${reportData.end}) · 회원 ${MEMBER_ID_MIN}~${MEMBER_ID_MAX}번 · 총 ${rows.length}명</p>
+                    <h3 style="margin:0 0 6px;font-size: 12px;color:#333;">모의 회원 성명·비번·활동내역</h3>
+                    <p style="margin:0;color:#666;font-size: 12px;">${reportData.year}년 (${reportData.start} ~ ${reportData.end}) · 회원 ${MEMBER_ID_MIN}~${MEMBER_ID_MAX}번 · 총 ${rows.length}명</p>
                 </div>
                 <div style="padding:16px 22px;overflow:auto;flex:1;">
                     ${buildScreenTableHtml(rows)}
                 </div>
                 <div style="padding:14px 22px 18px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
-                    <button type="button" id="sampleAnnualPdfBtn" style="background:#28a745;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">PDF 출력</button>
-                    <button type="button" id="sampleAnnualCloseBtn" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">닫기</button>
+                    <button type="button" id="sampleAnnualPdfBtn" style="background:#28a745;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size: 12px;cursor:pointer;">PDF 출력</button>
+                    <button type="button" id="sampleAnnualCloseBtn" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size: 12px;cursor:pointer;">닫기</button>
                 </div>
             </div>
         `;
@@ -336,7 +336,7 @@
         if (!loadingModal) {
             loadingModal = document.createElement('div');
             loadingModal.id = 'sampleAnnualActivityLoading';
-            loadingModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size:16px;';
+            loadingModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size: 12px;';
             loadingModal.textContent = `${REPORT_YEAR}년 샘플 활동을 불러오는 중...`;
             document.body.appendChild(loadingModal);
         }

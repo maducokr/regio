@@ -58,24 +58,24 @@
             }
             .council-hub-modal .close { color:#aaa; float:right; font-size:28px; font-weight:bold; position:absolute; right:18px; top:12px; cursor:pointer; }
             .council-hub-modal .close:hover { color:#000; }
-            .council-hub-modal h2 { text-align:center; margin:0 0 8px; color:#1f2937; font-size:22px; }
-            .council-hub-modal .hub-sub { text-align:center; margin:0 0 20px; color:#64748b; font-size:13px; }
+            .council-hub-modal h2 { text-align:center; margin:0 0 8px; color:#1f2937; font-size: 12px; }
+            .council-hub-modal .hub-sub { text-align:center; margin:0 0 20px; color:#64748b; font-size: 12px; }
             .council-hub-modal .hub-actions { display:flex; flex-direction:column; gap:10px; }
-            .council-hub-modal .hub-btn { width:100%; padding:14px 16px; border:1px solid #dbe3ee; border-radius:10px; background:#f8fafc; color:#334155; font-size:16px; font-weight:700; cursor:pointer; }
+            .council-hub-modal .hub-btn { width:100%; padding:14px 16px; border:1px solid #dbe3ee; border-radius:10px; background:#f8fafc; color:#334155; font-size: 12px; font-weight:700; cursor:pointer; }
             .council-hub-modal .hub-btn:hover { border-color:#4A90E2; color:#4A90E2; background:#eef5fc; }
             .council-hub-modal .hub-btn.primary { background:#4A90E2; border-color:#4A90E2; color:#fff; }
             .council-hub-modal .hub-btn.primary:hover { background:#357ABD; }
             .council-hub-modal .org-toolbar { display:flex; gap:8px; align-items:stretch; margin-bottom:14px; flex-wrap:wrap; }
-            .council-hub-modal .org-toolbar input, .council-hub-modal .org-toolbar select { flex:1; min-width:100px; padding:11px 12px; border:1px solid #dbe3ee; border-radius:8px; font-size:14px; }
+            .council-hub-modal .org-toolbar input, .council-hub-modal .org-toolbar select { flex:1; min-width:100px; padding:11px 12px; border:1px solid #dbe3ee; border-radius:8px; font-size: 12px; }
             .council-hub-modal .org-toolbar button { flex-shrink:0; padding:0 14px; border:none; border-radius:8px; background:#4A90E2; color:#fff; font-weight:600; cursor:pointer; min-height:42px; }
             .council-hub-modal .org-toolbar button.pdf-btn { background:#16a34a; }
             .council-hub-modal .org-toolbar button.pdf-btn:hover { background:#15803d; }
             .council-hub-modal .org-toolbar button.pdf-btn:disabled { background:#94a3b8; cursor:not-allowed; }
-            .council-hub-modal .org-meta { margin:0 0 12px; color:#555; font-size:13px; line-height:1.5; }
+            .council-hub-modal .org-meta { margin:0 0 12px; color:#555; font-size: 12px; line-height:1.5; }
             .council-hub-modal .org-pr-block { margin-bottom:18px; }
-            .council-hub-modal .org-pr-title { margin:0 0 8px; padding:8px 10px; background:#eef5fc; border-radius:8px; color:#357ABD; font-size:14px; font-weight:700; }
+            .council-hub-modal .org-pr-title { margin:0 0 8px; padding:8px 10px; background:#eef5fc; border-radius:8px; color:#357ABD; font-size: 12px; font-weight:700; }
             .council-hub-modal .org-table-wrap { overflow-x:auto; }
-            .council-hub-modal table { width:100%; border-collapse:collapse; font-size:13px; }
+            .council-hub-modal table { width:100%; border-collapse:collapse; font-size: 12px; }
             .council-hub-modal th, .council-hub-modal td { border:1px solid #e2e8f0; padding:8px 10px; text-align:left; }
             .council-hub-modal th { background:#f8fafc; color:#475569; font-weight:600; white-space:nowrap; }
             .council-hub-modal td { color:#334155; }
@@ -86,9 +86,9 @@
             .curia-monthly-form { border:1px solid #333; padding:16px 14px 20px; background:#fff; color:#111; font-size:12px; line-height:1.45; }
             .curia-monthly-form .form-head { text-align:center; margin-bottom:12px; }
             .curia-monthly-form .form-head .org-en { font-size:11px; letter-spacing:0.5px; }
-            .curia-monthly-form .form-head .org-ko { font-size:13px; margin-top:2px; }
-            .curia-monthly-form .form-title { font-size:18px; font-weight:700; margin:8px 0 4px; }
-            .curia-monthly-form .form-asof { font-size:13px; margin-bottom:10px; }
+            .curia-monthly-form .form-head .org-ko { font-size: 12px; margin-top:2px; }
+            .curia-monthly-form .form-title { font-size: 12px; font-weight:700; margin:8px 0 4px; }
+            .curia-monthly-form .form-asof { font-size: 12px; margin-bottom:10px; }
             .curia-monthly-form .form-curia-name { text-align:right; font-size:12px; margin-bottom:8px; }
             .curia-monthly-form .sec { margin:10px 0; }
             .curia-monthly-form .sec-title { font-weight:700; margin-bottom:4px; }

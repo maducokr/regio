@@ -1012,14 +1012,14 @@
             .modal-content .reg-choice-tabs { display: flex; flex-shrink: 0; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
             .modal-content .reg-choice-tab { display: flex; margin: 0; cursor: pointer; }
             .modal-content .reg-choice-tab input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
-            .modal-content .reg-choice-tab span { display: flex; align-items: center; justify-content: center; padding: 0 10px; min-width: 36px; height: 100%; min-height: 42px; font-size: 13px; color: #666; background: #fff; border-right: 1px solid #ddd; }
+            .modal-content .reg-choice-tab span { display: flex; align-items: center; justify-content: center; padding: 0 10px; min-width: 36px; height: 100%; min-height: 42px; font-size: 12px; color: #666; background: #fff; border-right: 1px solid #ddd; }
             .modal-content .reg-choice-tab:last-child span { border-right: none; }
             .modal-content .reg-choice-tab input:checked + span { background: #4A90E2; color: #fff; font-weight: 600; }
             .modal-content .profile-email-note { margin: 0; font-size: 11px; color: #888; line-height: 1.4; }
             .modal-content .id-input-box.has-g-prefix { align-items: stretch; }
             .modal-content .id-g-prefix-btn {
                 flex-shrink: 0; width: auto !important; min-width: 42px; padding: 0 10px !important; border: none; border-right: 1px solid #ddd;
-                border-radius: 0 !important; background: #f8f9fa !important; color: #222 !important; font-size: 14px !important; font-weight: 700; cursor: pointer;
+                border-radius: 0 !important; background: #f8f9fa !important; color: #222 !important; font-size: 12px !important; font-weight: 700; cursor: pointer;
             }
             .modal-content .id-g-prefix-btn.is-empty { color: #999 !important; font-weight: 600; }
             .modal-content .id-g-prefix-btn:hover { background: #eef2f6 !important; }
@@ -1034,7 +1034,7 @@
                 background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;
             }
             .modal-content .reg-officer-appointed-label {
-                display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #334155;
+                display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #334155;
             }
             .modal-content .reg-officer-appointed-wrap input[type="date"] {
                 width: 100%; margin: 0;
@@ -1043,7 +1043,7 @@
                 margin: 0;
             }
             .modal-content .reg-pr-meeting-label {
-                display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #334155;
+                display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #334155;
             }
             .modal-content .reg-pr-meeting-row {
                 display: flex; gap: 8px; align-items: stretch;
@@ -1056,7 +1056,7 @@
             }
             .modal-content .reg-pr-dates-wrap { margin: 0; }
             .modal-content .reg-pr-dates-label {
-                display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #334155;
+                display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #334155;
             }
             .modal-content .reg-pr-dates-row {
                 display: flex; gap: 8px; align-items: stretch;

@@ -109,9 +109,9 @@
         if (!members.length) {
             return `
                 <section style="margin-bottom:24px;">
-                    <h4 style="margin:0 0 6px;color:#4A90E2;font-size:15px;">${escHtml(title)}</h4>
-                    <p style="margin:0 0 8px;color:#666;font-size:13px;">${escHtml(section.start)} ~ ${escHtml(section.end)} · 0명</p>
-                    <p style="color:#888;font-size:13px;padding:12px;background:#f8f9fa;border-radius:6px;">해당 기간 자료 없음</p>
+                    <h4 style="margin:0 0 6px;color:#4A90E2;font-size: 12px;">${escHtml(title)}</h4>
+                    <p style="margin:0 0 8px;color:#666;font-size: 12px;">${escHtml(section.start)} ~ ${escHtml(section.end)} · 0명</p>
+                    <p style="color:#888;font-size: 12px;padding:12px;background:#f8f9fa;border-radius:6px;">해당 기간 자료 없음</p>
                 </section>
             `;
         }
@@ -133,9 +133,9 @@
 
         return `
             <section style="margin-bottom:28px;">
-                <h4 style="margin:0 0 6px;color:#4A90E2;font-size:15px;">${escHtml(title)}</h4>
-                <p style="margin:0 0 10px;color:#666;font-size:13px;">${escHtml(section.start)} ~ ${escHtml(section.end)} · ${members.length}명</p>
-                <table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">
+                <h4 style="margin:0 0 6px;color:#4A90E2;font-size: 12px;">${escHtml(title)}</h4>
+                <p style="margin:0 0 10px;color:#666;font-size: 12px;">${escHtml(section.start)} ~ ${escHtml(section.end)} · ${members.length}명</p>
+                <table style="width:100%;border-collapse:collapse;font-size: 12px;table-layout:fixed;">
                     <thead>
                         <tr style="background:#4A90E2;color:#fff;">
                             <th style="padding:8px 10px;border:1px solid #ccc;">No</th>
@@ -215,7 +215,7 @@
         overlay.id = 'pdfCaptureOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:100001;display:flex;flex-direction:column;align-items:center;padding:20px;overflow:auto;';
         overlay.innerHTML = `
-            <p id="pdfCaptureStatus" style="font-size:15px;color:#333;margin:0 0 14px;font-family:Malgun Gothic,Arial,sans-serif;">${escHtml(message)}</p>
+            <p id="pdfCaptureStatus" style="font-size: 12px;color:#333;margin:0 0 14px;font-family:Malgun Gothic,Arial,sans-serif;">${escHtml(message)}</p>
             <div id="pdfCaptureArea"></div>
         `;
         document.body.appendChild(overlay);
@@ -271,8 +271,8 @@
         return `
             <div data-test-pdf-page style="font-family:Malgun Gothic, Arial, sans-serif;padding:12px 16px;background:#fff;width:1000px;box-sizing:border-box;color:#000;">
                 <div style="text-align:center;margin-bottom:10px;">
-                    <h1 style="font-size:17px;color:#333;margin:0 0 4px;">Regio TEST 자료 출력</h1>
-                    <p style="font-size:13px;color:#4A90E2;margin:0;font-weight:bold;">${escHtml(sectionTitle)}</p>
+                    <h1 style="font-size: 12px;color:#333;margin:0 0 4px;">Regio TEST 자료 출력</h1>
+                    <p style="font-size: 12px;color:#4A90E2;margin:0;font-weight:bold;">${escHtml(sectionTitle)}</p>
                     <p style="font-size:12px;color:#666;margin:4px 0 0;">조회기간: ${escHtml(startDate)} ~ ${escHtml(endDate)}</p>
                     <p style="font-size:11px;color:#888;margin:2px 0 0;">${pageNum} / ${totalPages} 페이지 · ${startNo}~${startNo + pageMembers.length - 1}번 (${pageMembers.length}명)</p>
                 </div>
@@ -300,8 +300,8 @@
         return `
             <div data-test-pdf-page style="font-family:Malgun Gothic, Arial, sans-serif;padding:12px 16px;background:#fff;width:1000px;box-sizing:border-box;color:#000;">
                 <div style="text-align:center;margin-bottom:10px;">
-                    <h1 style="font-size:17px;color:#333;margin:0 0 4px;">Regio TEST 자료 출력</h1>
-                    <p style="font-size:13px;color:#4A90E2;margin:0;font-weight:bold;">${escHtml(sectionTitle)}</p>
+                    <h1 style="font-size: 12px;color:#333;margin:0 0 4px;">Regio TEST 자료 출력</h1>
+                    <p style="font-size: 12px;color:#4A90E2;margin:0;font-weight:bold;">${escHtml(sectionTitle)}</p>
                     <p style="font-size:12px;color:#666;margin:4px 0 0;">조회기간: ${escHtml(startDate)} ~ ${escHtml(endDate)}</p>
                 </div>
                 <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px;">
@@ -314,7 +314,7 @@
                         </tr>
                     </thead>
                 </table>
-                <p style="text-align:center;color:#888;font-size:13px;padding:24px 0;">해당 기간에 출력할 ${includeAssignments ? '활동·활동배당' : '활동'} 자료가 없습니다.</p>
+                <p style="text-align:center;color:#888;font-size: 12px;padding:24px 0;">해당 기간에 출력할 ${includeAssignments ? '활동·활동배당' : '활동'} 자료가 없습니다.</p>
             </div>
         `;
     }
@@ -386,16 +386,16 @@
         overlay.innerHTML = `
             <div style="background:#fff;border-radius:12px;width:min(1200px,calc(100vw - 16px));max-width:100%;max-height:min(92vh,calc(100dvh - 16px));display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,0.25);box-sizing:border-box;margin:0 auto;">
                 <div style="padding:18px 22px 12px;border-bottom:1px solid #eee;">
-                    <h3 style="margin:0 0 6px;font-size:20px;color:#333;">TEST 자료 출력</h3>
-                    <p style="margin:0;color:#666;font-size:14px;">
+                    <h3 style="margin:0 0 6px;font-size: 12px;color:#333;">TEST 자료 출력</h3>
+                    <p style="margin:0;color:#666;font-size: 12px;">
                         ${escHtml(user.name)} · 개인 1주 ${escHtml(week.start)}~${escHtml(week.end)} ·
                         Pr 1개월 · 꾸리아 1개월
                     </p>
                 </div>
                 <div id="testExportScreenWrap" style="padding:16px 22px;overflow:auto;flex:1;"></div>
                 <div style="padding:14px 22px 18px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
-                    <button type="button" id="testExportPdfBtn" style="background:#28a745;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">PDF 출력</button>
-                    <button type="button" id="testExportCloseBtn" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">닫기</button>
+                    <button type="button" id="testExportPdfBtn" style="background:#28a745;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size: 12px;cursor:pointer;">PDF 출력</button>
+                    <button type="button" id="testExportCloseBtn" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size: 12px;cursor:pointer;">닫기</button>
                 </div>
             </div>
         `;
@@ -443,7 +443,7 @@
         if (!loading) {
             loading = document.createElement('div');
             loading.id = 'testExportLoading';
-            loading.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size:16px;';
+            loading.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size: 12px;';
             loading.textContent = 'TEST 자료를 불러오는 중...';
             document.body.appendChild(loading);
         }

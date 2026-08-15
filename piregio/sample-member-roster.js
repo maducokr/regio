@@ -111,8 +111,8 @@
         tempContainer.style.padding = '20px';
         tempContainer.style.fontFamily = "'Malgun Gothic', '맑은 고딕', sans-serif";
         tempContainer.innerHTML = `
-            <h1 style="font-size:20px;margin:0 0 6px;">Regio 모의 회원 명단</h1>
-            <p style="margin:0 0 14px;color:#555;font-size:13px;">회원 ${ROSTER_ID_MIN}번 ~ ${ROSTER_ID_MAX}번 / 총 ${members.length}명 / ${timestamp} · ID·소속성당·Pr명·비번</p>
+            <h1 style="font-size: 12px;margin:0 0 6px;">Regio 모의 회원 명단</h1>
+            <p style="margin:0 0 14px;color:#555;font-size: 12px;">회원 ${ROSTER_ID_MIN}번 ~ ${ROSTER_ID_MAX}번 / 총 ${members.length}명 / ${timestamp} · ID·소속성당·Pr명·비번</p>
             ${buildRosterTableHtml(members)}
         `;
         document.body.appendChild(tempContainer);
@@ -162,16 +162,16 @@
         overlay.innerHTML = `
             <div style="background:#fff;border-radius:12px;width:min(900px,calc(100vw - 16px));max-width:100%;max-height:min(92vh,calc(100dvh - 16px));display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,0.25);box-sizing:border-box;margin:0 auto;">
                 <div style="padding:18px 22px 12px;border-bottom:1px solid #eee;">
-                    <h3 style="margin:0 0 6px;font-size:20px;color:#333;">모의 회원 명단 출력</h3>
-                    <p style="margin:0 0 4px;color:#666;font-size:14px;">회원 ${ROSTER_ID_MIN}번 ~ ${ROSTER_ID_MAX}번 · 총 ${members.length}명</p>
-                    <p style="margin:0;color:#555;font-size:13px;line-height:1.5;">ID(성명+숫자)·소속성당·Pr명·비번을 PDF로 저장해 로그인 테스트에 사용할 수 있습니다.</p>
+                    <h3 style="margin:0 0 6px;font-size: 12px;color:#333;">모의 회원 명단 출력</h3>
+                    <p style="margin:0 0 4px;color:#666;font-size: 12px;">회원 ${ROSTER_ID_MIN}번 ~ ${ROSTER_ID_MAX}번 · 총 ${members.length}명</p>
+                    <p style="margin:0;color:#555;font-size: 12px;line-height:1.5;">ID(성명+숫자)·소속성당·Pr명·비번을 PDF로 저장해 로그인 테스트에 사용할 수 있습니다.</p>
                 </div>
                 <div id="sampleRosterTableWrap" style="padding:16px 22px;overflow:auto;flex:1;">
                     ${buildRosterTableHtml(members)}
                 </div>
                 <div style="padding:14px 22px 18px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
-                    <button type="button" id="sampleRosterPdfBtn" style="background:#28a745;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">PDF 출력</button>
-                    <button type="button" id="sampleRosterCloseBtn" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;cursor:pointer;">닫기</button>
+                    <button type="button" id="sampleRosterPdfBtn" style="background:#28a745;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size: 12px;cursor:pointer;">PDF 출력</button>
+                    <button type="button" id="sampleRosterCloseBtn" style="background:#6c757d;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size: 12px;cursor:pointer;">닫기</button>
                 </div>
             </div>
         `;
@@ -212,7 +212,7 @@
         if (!loadingModal) {
             loadingModal = document.createElement('div');
             loadingModal.id = 'sampleMemberRosterLoading';
-            loadingModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size:16px;';
+            loadingModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size: 12px;';
             loadingModal.textContent = '샘플 명단을 불러오는 중...';
             document.body.appendChild(loadingModal);
         }

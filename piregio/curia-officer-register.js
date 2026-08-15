@@ -59,20 +59,20 @@
             .curia-officer-modal .close:hover { color: #000; }
             .curia-officer-modal h2 { text-align: center; margin-bottom: 12px; color: #333; }
             .curia-officer-modal .hint { margin: 0 0 16px; padding: 8px 10px; background: #f8f9fa; border-radius: 6px; font-size: 11px; line-height: 1.45; color: #666; }
-            .curia-officer-modal .member-summary { margin: 0 0 14px; font-size: 13px; color: #555; line-height: 1.5; }
+            .curia-officer-modal .member-summary { margin: 0 0 14px; font-size: 12px; color: #555; line-height: 1.5; }
             .curia-officer-modal .member-summary strong { color: #333; }
-            .curia-officer-modal .section-label { display: block; margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #333; }
+            .curia-officer-modal .section-label { display: block; margin: 0 0 8px; font-size: 12px; font-weight: 600; color: #333; }
             .curia-officer-modal .meta-fields { margin: 0 0 14px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
             .curia-officer-modal .meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
             .curia-officer-modal .meta-item { display: flex; flex-direction: column; gap: 4px; }
             .curia-officer-modal .meta-item.full { grid-column: 1 / -1; }
             .curia-officer-modal .meta-item span { font-size: 12px; color: #475569; font-weight: 600; }
-            .curia-officer-modal .meta-item input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+            .curia-officer-modal .meta-item input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; box-sizing: border-box; }
             .curia-officer-modal .meta-item input:focus { outline: none; border-color: #4A90E2; }
             .curia-officer-modal .choice-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
             .curia-officer-modal .choice-tab { flex: 1 1 calc(50% - 6px); min-width: 0; }
             .curia-officer-modal .choice-tab input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-            .curia-officer-modal .choice-tab span { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; min-height: 40px; padding: 8px 6px; border: 1px solid #dbe3ee; border-radius: 8px; background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; box-sizing: border-box; }
+            .curia-officer-modal .choice-tab span { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; min-height: 40px; padding: 8px 6px; border: 1px solid #dbe3ee; border-radius: 8px; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; box-sizing: border-box; }
             .curia-officer-modal .choice-tab .tab-code { color: #4A90E2; font-weight: 700; }
             .curia-officer-modal .choice-tab input:checked + span { background: #4A90E2; border-color: #4A90E2; color: #fff; }
             .curia-officer-modal .choice-tab input:checked + span .tab-code { color: #fff; }
@@ -81,12 +81,12 @@
             .curia-officer-modal .name-field { margin-bottom: 14px; }
             .curia-officer-modal .id-input-box { display: flex; align-items: stretch; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; background: #fff; }
             .curia-officer-modal .id-input-box:focus-within { border-color: #4A90E2; }
-            .curia-officer-modal .id-prefix-label { display: flex; align-items: center; padding: 0 12px; background: #f8f9fa; border-right: 1px solid #ddd; font-size: 13px; font-weight: 600; color: #333; white-space: nowrap; min-width: 64px; justify-content: center; }
-            .curia-officer-modal .id-input-box input { border: none; border-radius: 0; margin: 0; flex: 1; padding: 12px; min-width: 0; font-size: 14px; width: 100%; }
+            .curia-officer-modal .id-prefix-label { display: flex; align-items: center; padding: 0 12px; background: #f8f9fa; border-right: 1px solid #ddd; font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; min-width: 64px; justify-content: center; }
+            .curia-officer-modal .id-input-box input { border: none; border-radius: 0; margin: 0; flex: 1; padding: 12px; min-width: 0; font-size: 12px; width: 100%; }
             .curia-officer-modal .id-input-box input:focus { outline: none; }
-            .curia-officer-modal .code-preview { margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; background: #eef5fc; color: #357ABD; font-size: 14px; font-weight: 600; text-align: center; }
+            .curia-officer-modal .code-preview { margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; background: #eef5fc; color: #357ABD; font-size: 12px; font-weight: 600; text-align: center; }
             .curia-officer-modal .code-preview.empty { background: #f8f9fa; color: #999; font-weight: 500; }
-            .curia-officer-modal .submit-btn { width: 100%; padding: 12px; background-color: #4A90E2; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 4px; }
+            .curia-officer-modal .submit-btn { width: 100%; padding: 12px; background-color: #4A90E2; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 4px; }
             .curia-officer-modal .submit-btn:hover { background-color: #357ABD; }
             .curia-officer-modal .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; background-color: #adb5bd; }
         `;

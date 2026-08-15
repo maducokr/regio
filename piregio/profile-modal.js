@@ -40,7 +40,7 @@
             .profile-edit-modal .modal-content .close:hover { color: #000; }
             .profile-edit-modal .modal-content h2 { text-align: center; margin-bottom: 20px; color: #333; }
             .profile-edit-modal .modal-content input,
-            .profile-edit-modal .modal-content select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+            .profile-edit-modal .modal-content select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; box-sizing: border-box; }
             .profile-edit-modal .modal-content input:focus,
             .profile-edit-modal .modal-content select:focus { outline: none; border-color: #4A90E2; }
             .profile-edit-modal .modal-content input[readonly] { background: #f8f9fa; color: #555; }
@@ -48,12 +48,12 @@
             .profile-edit-modal .id-hint { margin: 6px 0 0; padding: 8px 10px; background: #f8f9fa; border-radius: 6px; font-size: 11px; line-height: 1.45; color: #666; }
             .profile-edit-modal .id-input-box { display: flex; align-items: stretch; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; background: #fff; }
             .profile-edit-modal .id-input-box:focus-within { border-color: #4A90E2; }
-            .profile-edit-modal .id-prefix-label { display: flex; align-items: center; padding: 0 12px; background: #f8f9fa; border-right: 1px solid #ddd; font-size: 14px; font-weight: 600; color: #333; white-space: nowrap; }
+            .profile-edit-modal .id-prefix-label { display: flex; align-items: center; padding: 0 12px; background: #f8f9fa; border-right: 1px solid #ddd; font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; }
             .profile-edit-modal .id-input-box .input-field,
             .profile-edit-modal .id-input-box input[type="text"] { border: none; border-radius: 0; margin-bottom: 0; flex: 1; padding: 12px; min-width: 0; width: auto; }
             .profile-edit-modal .position-picker { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); list-style: none; margin: 0; padding: 6px 0; z-index: 1100; max-height: 200px; overflow-y: auto; }
             .profile-edit-modal .position-picker.open { display: block; }
-            .profile-edit-modal .position-picker li { padding: 8px 12px; font-size: 13px; color: #333; cursor: pointer; }
+            .profile-edit-modal .position-picker li { padding: 8px 12px; font-size: 12px; color: #333; cursor: pointer; }
             .profile-edit-modal .position-picker li:hover,
             .profile-edit-modal .position-picker li.selected { background: #eef5fc; color: #4A90E2; }
             .profile-edit-modal .position-picker .pos-code { display: inline-block; width: 28px; font-weight: bold; color: #4A90E2; }
@@ -67,7 +67,7 @@
             .profile-edit-modal .field-confirm-btn,
             .profile-edit-modal .field-save-btn {
                 width: 64px !important; min-height: 36px; padding: 0 8px !important; border: none; border-radius: 6px;
-                font-size: 13px !important; font-weight: 600; cursor: pointer; color: #fff;
+                font-size: 12px !important; font-weight: 600; cursor: pointer; color: #fff;
             }
             .profile-edit-modal .field-confirm-btn { background: #6c757d !important; }
             .profile-edit-modal .field-confirm-btn:hover { background: #5a6268 !important; }
@@ -84,13 +84,13 @@
             .profile-edit-modal .profile-cancel-wrap { margin-top: 8px; padding-top: 12px; border-top: 1px solid #eee; }
             .profile-edit-modal .profile-cancel-btn {
                 width: 100% !important; padding: 12px !important; background: #6c757d !important; color: #fff !important;
-                border: none; border-radius: 6px; font-size: 15px !important; font-weight: 600; cursor: pointer;
+                border: none; border-radius: 6px; font-size: 12px !important; font-weight: 600; cursor: pointer;
             }
             .profile-edit-modal .profile-cancel-btn:hover { background: #5a6268 !important; }
             .profile-edit-modal .id-g-prefix-btn {
                 flex-shrink: 0; width: auto !important; min-width: 42px; padding: 0 10px !important; border: none;
                 border-right: 1px solid #ddd; border-radius: 0 !important;
-                background: #f8f9fa !important; color: #222 !important; font-size: 14px !important; font-weight: 700; cursor: pointer;
+                background: #f8f9fa !important; color: #222 !important; font-size: 12px !important; font-weight: 700; cursor: pointer;
             }
             .profile-edit-modal .id-g-prefix-btn.is-empty { color: #999 !important; }
             .profile-edit-modal .id-g-prefix-btn:hover { background: #eef2f6 !important; }
