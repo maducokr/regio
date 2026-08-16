@@ -33,6 +33,83 @@
         return escapeHtml(value);
     }
 
+    function blank(value, cls) {
+        const text = value === null || value === undefined || value === '' ? '' : String(value);
+        const c = cls ? ` blank ${cls}` : ' blank';
+        if (text) {
+            return `<span class="${c.trim()}">${escapeHtml(text)}</span>`;
+        }
+        return `<input type="text" class="${c.trim()} blank-editable" value="" placeholder=" " inputmode="text" autocomplete="off" aria-label="직접 입력">`;
+    }
+
+    function lineBoxHtml(text, minHeight) {
+        const t = String(text || '').trim();
+        const styleParts = [];
+        if (minHeight) styleParts.push(`min-height:${minHeight}`);
+        styleParts.push('white-space:pre-wrap');
+        const styleAttr = ` style="${styleParts.join(';')}"`;
+        if (t) {
+            return `<div class="line-box"${styleAttr}>${escapeHtml(t)}</div>`;
+        }
+        return `<div class="line-box blank-editable"${styleAttr} contenteditable="true" data-placeholder="입력"></div>`;
+    }
+
+    function wireBlankEditables(root) {
+        if (!root) return;
+        root.querySelectorAll('input.blank-editable').forEach((inp) => {
+            const sync = () => inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+            sync();
+            inp.addEventListener('input', sync);
+        });
+        root.querySelectorAll('.line-box.blank-editable').forEach((box) => {
+            const sync = () => box.classList.toggle('has-value', !!String(box.textContent || '').trim());
+            sync();
+            box.addEventListener('input', sync);
+        });
+    }
+
+    function freezeBlankInputsForExport(formEl) {
+        const restorers = [];
+        formEl.querySelectorAll('input.blank-editable').forEach((input) => {
+            const span = document.createElement('span');
+            const base = String(input.className || '')
+                .replace(/\bblank-editable\b/g, '')
+                .replace(/\bhas-value\b/g, '')
+                .trim();
+            span.className = `${base} blank-print`.trim();
+            span.textContent = input.value || '';
+            input.style.display = 'none';
+            input.parentNode.insertBefore(span, input);
+            restorers.push(() => {
+                span.remove();
+                input.style.display = '';
+            });
+        });
+        formEl.querySelectorAll('.line-box.blank-editable').forEach((box) => {
+            const prevEditable = box.getAttribute('contenteditable');
+            const prevClass = box.className;
+            box.setAttribute('contenteditable', 'false');
+            box.classList.remove('blank-editable');
+            box.classList.add('blank-print');
+            restorers.push(() => {
+                if (prevEditable == null) box.removeAttribute('contenteditable');
+                else box.setAttribute('contenteditable', prevEditable);
+                box.className = prevClass;
+            });
+        });
+        return () => restorers.forEach((fn) => fn());
+    }
+
+    async function withFrozenBlanks(formEl, work) {
+        const restore = freezeBlankInputsForExport(formEl);
+        try {
+            await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+            return await work();
+        } finally {
+            restore();
+        }
+    }
+
     function ensureStyles() {
         let style = document.getElementById('council-report-hub-styles');
         if (!style) {
@@ -92,12 +169,81 @@
             .curia-monthly-form .form-curia-name { text-align:right; font-size:12px; margin-bottom:8px; }
             .curia-monthly-form .sec { margin:10px 0; }
             .curia-monthly-form .sec-title { font-weight:700; margin-bottom:4px; }
-            .curia-monthly-form .blank { display:inline-block; min-width:2.2em; border-bottom:1px solid #333; text-align:center; padding:0 4px; min-height:1.1em; }
+            .curia-monthly-form .blank { display:inline-block; min-width:2.2em; border-bottom:1px solid #333; text-align:center; padding:0 4px; min-height:1.1em; vertical-align:baseline; }
             .curia-monthly-form .blank.w4 { min-width:3.5em; }
             .curia-monthly-form .blank.w6 { min-width:5em; }
             .curia-monthly-form .blank.w10 { min-width:8em; }
             .curia-monthly-form .blank.w20 { min-width:14em; }
+            @keyframes monthly-blank-blink {
+                0%, 100% { border-bottom-color:#2563eb; box-shadow:0 2px 0 rgba(37,99,235,0.55); }
+                50% { border-bottom-color:#93c5fd; box-shadow:0 2px 0 rgba(147,197,253,0.35); }
+            }
+            /* 모달 전역 input 스타일(.modal-content input)보다 우선 — 빈칸 직접입력 */
+            .council-hub-modal .curia-monthly-form input.blank.blank-editable,
+            .curia-monthly-form input.blank.blank-editable {
+                display:inline-block !important;
+                width:auto !important;
+                min-width:2.2em !important;
+                max-width:100% !important;
+                margin:0 1px !important;
+                padding:1px 4px !important;
+                border:none !important;
+                border-bottom:2px solid #2563eb !important;
+                border-radius:0 !important;
+                background:rgba(37,99,235,0.08) !important;
+                color:#1e3a8a !important;
+                font:inherit !important;
+                font-size:inherit !important;
+                line-height:1.3 !important;
+                min-height:1.25em !important;
+                height:auto !important;
+                box-sizing:border-box !important;
+                vertical-align:baseline !important;
+                box-shadow:0 2px 0 rgba(37,99,235,0.45);
+                animation:monthly-blank-blink 1.1s ease-in-out infinite !important;
+            }
+            .curia-monthly-form .blank.w4.blank-editable,
+            .council-hub-modal .curia-monthly-form input.blank.w4.blank-editable { min-width:3.5em !important; }
+            .curia-monthly-form .blank.w6.blank-editable,
+            .council-hub-modal .curia-monthly-form input.blank.w6.blank-editable { min-width:5em !important; }
+            .curia-monthly-form .blank.w10.blank-editable,
+            .council-hub-modal .curia-monthly-form input.blank.w10.blank-editable { min-width:8em !important; }
+            .curia-monthly-form .blank.w20.blank-editable,
+            .council-hub-modal .curia-monthly-form input.blank.w20.blank-editable { min-width:14em !important; }
+            .council-hub-modal .curia-monthly-form input.blank.blank-editable:not(:placeholder-shown),
+            .council-hub-modal .curia-monthly-form input.blank.blank-editable.has-value,
+            .curia-monthly-form input.blank.blank-editable:not(:placeholder-shown),
+            .curia-monthly-form input.blank.blank-editable.has-value {
+                animation:none !important;
+                border-bottom-color:#1d4ed8 !important;
+                background:rgba(37,99,235,0.04) !important;
+                color:#111 !important;
+                box-shadow:none;
+            }
+            .council-hub-modal .curia-monthly-form input.blank.blank-editable:focus,
+            .curia-monthly-form input.blank.blank-editable:focus {
+                outline:none !important;
+                animation:none !important;
+                border-bottom-color:#1d4ed8 !important;
+                background:#eff6ff !important;
+            }
+            .curia-monthly-form .blank-print {
+                display:inline-block; min-width:2.2em; border-bottom:1px solid #333; color:#111;
+                animation:none !important; background:transparent !important; box-shadow:none !important;
+                padding:0 4px; text-align:center;
+            }
             .curia-monthly-form .line-box { border:1px solid #333; min-height:42px; padding:6px 8px; margin-top:4px; }
+            .curia-monthly-form .line-box.blank-editable {
+                border-color:#2563eb !important; background:rgba(37,99,235,0.04) !important; color:#1e3a8a;
+                outline:none; animation:monthly-blank-blink 1.1s ease-in-out infinite; cursor:text;
+            }
+            .curia-monthly-form .line-box.blank-editable.has-value,
+            .curia-monthly-form .line-box.blank-editable:focus {
+                animation:none; border-color:#1d4ed8; color:#111; background:#f8fbff;
+            }
+            .curia-monthly-form .line-box.blank-editable:empty::before {
+                content:attr(data-placeholder); color:#60a5fa; pointer-events:none;
+            }
             .curia-monthly-form table.form-table { width:100%; border-collapse:collapse; margin-top:4px; font-size:11px; }
             .curia-monthly-form table.form-table th,
             .curia-monthly-form table.form-table td { border:1px solid #333; padding:4px 5px; text-align:center; vertical-align:middle; }
@@ -175,39 +321,41 @@
         if (noteEl) noteEl.style.display = 'none';
 
         try {
-            const canvas = await global.html2canvas(formEl, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false
-            });
+            await withFrozenBlanks(formEl, async () => {
+                const canvas = await global.html2canvas(formEl, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
 
-            const { jsPDF } = global.jspdf;
-            const pdf = new jsPDF('portrait', 'mm', 'a4');
-            const pageWidth = 210;
-            const pageHeight = 297;
-            const margin = 8;
-            const usableWidth = pageWidth - margin * 2;
-            const usableHeight = pageHeight - margin * 2;
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const imgWidth = usableWidth;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = margin;
+                const { jsPDF } = global.jspdf;
+                const pdf = new jsPDF('portrait', 'mm', 'a4');
+                const pageWidth = 210;
+                const pageHeight = 297;
+                const margin = 8;
+                const usableWidth = pageWidth - margin * 2;
+                const usableHeight = pageHeight - margin * 2;
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgWidth = usableWidth;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = margin;
 
-            pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-            heightLeft -= usableHeight;
-
-            while (heightLeft > 0) {
-                position = margin - (imgHeight - heightLeft);
-                pdf.addPage();
                 pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
                 heightLeft -= usableHeight;
-            }
 
-            const stamp = new Date().toISOString().slice(0, 10);
-            const fileName = `Regio_${safeFilePart(label)}월례보고_${safeFilePart(name)}_${year}-${String(month).padStart(2, '0')}_${stamp}.pdf`;
-            pdf.save(fileName);
+                while (heightLeft > 0) {
+                    position = margin - (imgHeight - heightLeft);
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+                    heightLeft -= usableHeight;
+                }
+
+                const stamp = new Date().toISOString().slice(0, 10);
+                const fileName = `Regio_${safeFilePart(label)}월례보고_${safeFilePart(name)}_${year}-${String(month).padStart(2, '0')}_${stamp}.pdf`;
+                pdf.save(fileName);
+            });
         } finally {
             if (noteEl) noteEl.style.display = noteDisplay;
         }
@@ -222,7 +370,7 @@
             r.praetorian,
             r.aux_m, r.aux_f, r.aux_t,
             r.adjutorian
-        ].map((v) => `<td>${cell(v)}</td>`).join('');
+        ].map((v) => `<td>${blank(v, 'w4')}</td>`).join('');
     }
 
     function orgCellsComitia(row) {
@@ -236,7 +384,7 @@
             r.praetorian,
             r.aux_t,
             r.adjutorian
-        ].map((v) => `<td>${cell(v)}</td>`).join('');
+        ].map((v) => `<td>${blank(v, 'w4')}</td>`).join('');
     }
 
     function orgCellsRegia(row) {
@@ -251,7 +399,7 @@
             r.praetorian,
             r.aux_t,
             r.adjutorian
-        ].map((v) => `<td>${cell(v)}</td>`).join('');
+        ].map((v) => `<td>${blank(v, 'w4')}</td>`).join('');
     }
 
     function buildOrgStatusTableHtml(data) {
@@ -399,13 +547,13 @@
                 : 'K1~K4';
 
         const officerSectionTitle = isRegia
-            ? `4. 간부 명단 (영적지도자: <span class="blank w10">${cell(data.spiritual_director)}</span> 대리자: <span class="blank w10">${cell(data.spiritual_proxy)}</span>)`
+            ? `4. 간부 명단 (영적지도자: ${blank(data.spiritual_director, 'w10')} 대리자: ${blank(data.spiritual_proxy, 'w10')})`
             : `4. 간부 명단 (${escapeHtml(label)} 직책)`;
 
         const officerExtra = isRegia ? '' : `
                     <div style="margin:4px 0 6px;">
-                        영적지도자 <span class="blank w10">${cell(data.spiritual_director)}</span>
-                        &nbsp;&nbsp;대리자 <span class="blank w10">${cell(data.spiritual_proxy)}</span>
+                        영적지도자 ${blank(data.spiritual_director, 'w10')}
+                        &nbsp;&nbsp;대리자 ${blank(data.spiritual_proxy, 'w10')}
                     </div>`;
 
         return `
@@ -413,38 +561,38 @@
                 <div class="form-head">
                     <div class="org-en">LEGIO MARIAE</div>
                     <div class="org-ko">레지오 마리애</div>
-                    <div class="form-title">${escapeHtml(label)} 월례 보고서(<span class="blank w4">${cell(data.report_no)}</span>)차</div>
+                    <div class="form-title">${escapeHtml(label)} 월례 보고서(${blank(data.report_no, 'w4')})차</div>
                     <div class="form-asof">
-                        <span class="blank w6">${cell(data.year)}</span>년
-                        <span class="blank w4">${cell(data.month)}</span>월말 현재
+                        ${blank(data.year, 'w6')}년
+                        ${blank(data.month, 'w4')}월말 현재
                     </div>
                 </div>
-                <div class="form-curia-name">${escapeHtml(label)}명: <span class="blank w20">${cell(councilName)}</span></div>
+                <div class="form-curia-name">${escapeHtml(label)}명: ${blank(councilName, 'w20')}</div>
 
                 <div class="sec">
                     <div class="sec-title">1. 회합 일시 :</div>
                     <div>
-                        <span class="blank w6">${cell(meeting.year)}</span>년
-                        <span class="blank w4">${cell(meeting.month)}</span>월
-                        <span class="blank w4">${cell(meeting.day)}</span>일
-                        (<span class="blank w4">${cell(meeting.weekday)}</span>)요일
-                        <span class="blank w4">${cell(meeting.hour)}</span>시
-                        <span class="blank w4">${cell(meeting.minute)}</span>분
+                        ${blank(meeting.year, 'w6')}년
+                        ${blank(meeting.month, 'w4')}월
+                        ${blank(meeting.day, 'w4')}일
+                        (${blank(meeting.weekday, 'w4')})요일
+                        ${blank(meeting.hour, 'w4')}시
+                        ${blank(meeting.minute, 'w4')}분
                     </div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">2. 장소 :</div>
-                    <div><span class="blank w20">${cell(meeting.place)}</span></div>
+                    <div>${blank(meeting.place, 'w20')}</div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">3. 출석상황 :</div>
                     <div>
-                        간부 <span class="blank w4">${cell(att.officers_present)}</span> /
-                        <span class="blank w4">${cell(att.officers_total)}</span>
-                        &nbsp;&nbsp;의원 <span class="blank w4">${cell(att.members_present)}</span> /
-                        <span class="blank w4">${cell(att.members_total)}</span>
+                        간부 ${blank(att.officers_present, 'w4')} /
+                        ${blank(att.officers_total, 'w4')}
+                        &nbsp;&nbsp;의원 ${blank(att.members_present, 'w4')} /
+                        ${blank(att.members_total, 'w4')}
                     </div>
                 </div>
 
@@ -461,11 +609,11 @@
                             <tbody>
                                 ${officers.map((o) => `
                                     <tr>
-                                        <td>${cell(o.role)}</td>
-                                        <td>${cell(o.name)}</td>
-                                        <td>${cell(o.baptism_name)}</td>
-                                        <td>${cell(o.elected_on)}</td>
-                                        <td>${cell(o.remark)}</td>
+                                        <td>${blank(o.role, 'w6')}</td>
+                                        <td>${blank(o.name, 'w6')}</td>
+                                        <td>${blank(o.baptism_name, 'w6')}</td>
+                                        <td>${blank(o.elected_on, 'w6')}</td>
+                                        <td>${blank(o.remark, 'w6')}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -480,7 +628,7 @@
 
                 <div class="sec">
                     <div class="sec-title">6. 신설(해체)된 Pr. 또는 평의회 명칭 및 사유</div>
-                    <div class="line-box">${cell(data.new_or_dissolved)}</div>
+                    ${lineBoxHtml(data.new_or_dissolved)}
                 </div>
 
                 <div class="sec">
@@ -495,12 +643,12 @@
                             <tbody>
                                 ${eventRows.map((e) => `
                                     <tr>
-                                        <td>${cell(e.kind)}</td>
-                                        <td class="left">${cell(e.title)}${e.member_name ? ` (${cell(e.member_name)})` : ''}</td>
-                                        <td>${cell(e.organizer)}</td>
-                                        <td>${cell(e.datetime)}</td>
-                                        <td>${cell(e.place)}</td>
-                                        <td>${cell(e.attendance)}</td>
+                                        <td>${blank(e.kind, 'w4')}</td>
+                                        <td class="left">${blank(e.title, 'w10')}${e.member_name ? ` (${escapeHtml(e.member_name)})` : ''}</td>
+                                        <td>${blank(e.organizer, 'w6')}</td>
+                                        <td>${blank(e.datetime, 'w6')}</td>
+                                        <td>${blank(e.place, 'w6')}</td>
+                                        <td>${blank(e.attendance, 'w4')}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -514,40 +662,40 @@
                         <div class="finance-col">
                             <h4>수입</h4>
                             <table>
-                                <tr><td>전월이월금</td><td style="text-align:right;">${cell(fin.income.brought_forward)}</td></tr>
-                                <tr><td>의연금</td><td style="text-align:right;">${cell(fin.income.contribution)}</td></tr>
-                                <tr><td>이자 수입</td><td style="text-align:right;">${cell(fin.income.interest)}</td></tr>
-                                <tr><td>상품비</td><td style="text-align:right;">${cell(fin.income.merchandise)}</td></tr>
-                                <tr><td><strong>수입 합계</strong></td><td style="text-align:right;">${cell(fin.income.total)}</td></tr>
+                                <tr><td>전월이월금</td><td style="text-align:right;">${blank(fin.income.brought_forward, 'w6')}</td></tr>
+                                <tr><td>의연금</td><td style="text-align:right;">${blank(fin.income.contribution, 'w6')}</td></tr>
+                                <tr><td>이자 수입</td><td style="text-align:right;">${blank(fin.income.interest, 'w6')}</td></tr>
+                                <tr><td>상품비</td><td style="text-align:right;">${blank(fin.income.merchandise, 'w6')}</td></tr>
+                                <tr><td><strong>수입 합계</strong></td><td style="text-align:right;">${blank(fin.income.total, 'w6')}</td></tr>
                             </table>
                         </div>
                         <div class="finance-col">
                             <h4>지출</h4>
                             <table>
-                                <tr><td>의연금</td><td style="text-align:right;">${cell(fin.expense.contribution)}</td></tr>
-                                <tr><td>${isRegia ? '꽃 값' : '꽃값'}</td><td style="text-align:right;">${cell(fin.expense.flowers)}</td></tr>
-                                <tr><td>${isRegia ? '초 값' : '초값'}</td><td style="text-align:right;">${cell(fin.expense.candles)}</td></tr>
+                                <tr><td>의연금</td><td style="text-align:right;">${blank(fin.expense.contribution, 'w6')}</td></tr>
+                                <tr><td>${isRegia ? '꽃 값' : '꽃값'}</td><td style="text-align:right;">${blank(fin.expense.flowers, 'w6')}</td></tr>
+                                <tr><td>${isRegia ? '초 값' : '초값'}</td><td style="text-align:right;">${blank(fin.expense.candles, 'w6')}</td></tr>
                                 ${expenseOthers.map((v) => `
-                                    <tr><td>&nbsp;</td><td style="text-align:right;">${cell(v)}</td></tr>
+                                    <tr><td>${blank('', 'w6')}</td><td style="text-align:right;">${blank(v, 'w6')}</td></tr>
                                 `).join('')}
-                                <tr><td><strong>지출 합계</strong></td><td style="text-align:right;">${cell(fin.expense.total)}</td></tr>
+                                <tr><td><strong>지출 합계</strong></td><td style="text-align:right;">${blank(fin.expense.total, 'w6')}</td></tr>
                             </table>
                         </div>
                     </div>
-                    <div class="finance-balance">잔액: <span class="blank w10">${cell(fin.balance)}</span></div>
+                    <div class="finance-balance">잔액: ${blank(fin.balance, 'w10')}</div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">9. 주요 활동 내역</div>
-                    <div class="line-box" style="min-height:72px; white-space:pre-wrap;">${cell(data.major_activities)}</div>
+                    ${lineBoxHtml(data.major_activities, '72px')}
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">10. 기타(질의 및 건의)</div>
-                    <div class="line-box" style="min-height:48px; white-space:pre-wrap;">${cell(data.inquiries)}</div>
+                    ${lineBoxHtml(data.inquiries, '48px')}
                 </div>
 
-                <p class="note">※ DB 항목만 자동 기입: ${escapeHtml(label)}명, ${escapeHtml(label)} 직책(${officerNote}), 조직현황(현재), 행사, 주요활동내역·질의·건의(메모장). 나머지는 빈칸입니다.</p>
+                <p class="note">※ DB 항목만 자동 기입: ${escapeHtml(label)}명, ${escapeHtml(label)} 직책(${officerNote}), 조직현황(현재), 행사, 주요활동내역·질의·건의(메모장). 파란색으로 깜박이는 빈칸은 직접 입력 가능하며(저장 없음), PDF 출력 시 함께 포함됩니다.</p>
             </div>
         `;
     }
@@ -638,6 +786,7 @@
                 );
                 metaEl.textContent = `${data.label}: ${data.council_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명`;
                 resultEl.innerHTML = buildMonthlyFormHtml(data);
+                wireBlankEditables(resultEl);
                 lastReportMeta = {
                     label: data.label || level.label,
                     name: data.council_name || name,
@@ -729,7 +878,7 @@
 
     function membershipCells(row) {
         const r = row || {};
-        const v = (key) => cell(r[key] === null || r[key] === undefined ? '' : r[key]);
+        const v = (key) => blank(r[key] === null || r[key] === undefined ? '' : r[key], 'w4');
         return `
             <td>${v('active_m')}</td><td>${v('active_f')}</td><td>${v('active_t')}</td>
             <td>${v('praetorian')}</td>
@@ -761,44 +910,44 @@
                     <div class="org-ko">레지오 마리애</div>
                     <div class="form-title">쁘레시디움 월례 보고서</div>
                     <div class="form-asof">
-                        <span class="blank w6">${cell(data.year)}</span>년
-                        <span class="blank w4">${cell(data.month)}</span>월말 현재
-                        &nbsp;&nbsp;제 <span class="blank w4">${cell(data.meeting_from)}</span>차
-                        ~ 제 <span class="blank w4">${cell(data.meeting_to)}</span>차
+                        ${blank(data.year, 'w6')}년
+                        ${blank(data.month, 'w4')}월말 현재
+                        &nbsp;&nbsp;제 ${blank(data.meeting_from, 'w4')}차
+                        ~ 제 ${blank(data.meeting_to, 'w4')}차
                     </div>
                 </div>
                 <div class="form-curia-name">
-                    성당: <span class="blank w10">${cell(data.church_name)}</span>
-                    &nbsp;&nbsp;Pr: <span class="blank w20">${cell(data.pr_name)}</span>
+                    성당: ${blank(data.church_name, 'w10')}
+                    &nbsp;&nbsp;Pr: ${blank(data.pr_name, 'w20')}
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">1. 주회합 일시 :</div>
                     <div>
-                        매주 <span class="blank w4">${cell(meeting.weekday)}</span>요일
-                        <span class="blank w4">${cell(meeting.hour)}</span>시
-                        <span class="blank w4">${cell(meeting.minute)}</span>분
+                        매주 ${blank(meeting.weekday, 'w4')}요일
+                        ${blank(meeting.hour, 'w4')}시
+                        ${blank(meeting.minute, 'w4')}분
                     </div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">2. 장소 :</div>
-                    <div><span class="blank w20">${cell(meeting.place)}</span></div>
+                    <div>${blank(meeting.place, 'w20')}</div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">3. 출석 상황 :</div>
                     <div>
-                        간부 <span class="blank w4">${cell(att.officers_present)}</span> /
-                        <span class="blank w4">${cell(att.officers_total)}</span>
-                        &nbsp;&nbsp;단원 <span class="blank w4">${cell(att.members_present)}</span> /
-                        <span class="blank w4">${cell(att.members_total)}</span>
+                        간부 ${blank(att.officers_present, 'w4')} /
+                        ${blank(att.officers_total, 'w4')}
+                        &nbsp;&nbsp;단원 ${blank(att.members_present, 'w4')} /
+                        ${blank(att.members_total, 'w4')}
                     </div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">
-                        4. 간부 명단 (영적지도자: <span class="blank w10">${cell(data.spiritual_director)}</span>)
+                        4. 간부 명단 (영적지도자: ${blank(data.spiritual_director, 'w10')})
                     </div>
                     <div class="org-table-wrap">
                         <table class="form-table">
@@ -810,11 +959,11 @@
                             <tbody>
                                 ${officers.map((o) => `
                                     <tr>
-                                        <td>${cell(o.role)}</td>
-                                        <td>${cell(o.name)}</td>
-                                        <td>${cell(o.baptism_name)}</td>
-                                        <td>${cell(o.appointed_on)}</td>
-                                        <td>${cell(o.remark)}</td>
+                                        <td>${blank(o.role, 'w6')}</td>
+                                        <td>${blank(o.name, 'w6')}</td>
+                                        <td>${blank(o.baptism_name, 'w6')}</td>
+                                        <td>${blank(o.appointed_on, 'w6')}</td>
+                                        <td>${blank(o.remark, 'w6')}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -861,12 +1010,12 @@
                             <tbody>
                                 ${eventRows.map((e) => `
                                     <tr>
-                                        <td>${cell(e.kind)}</td>
-                                        <td class="left">${cell(e.title)}</td>
-                                        <td>${cell(e.organizer)}</td>
-                                        <td>${cell(e.datetime)}</td>
-                                        <td>${cell(e.place)}</td>
-                                        <td>${cell(e.attendance)}</td>
+                                        <td>${blank(e.kind, 'w4')}</td>
+                                        <td class="left">${blank(e.title, 'w10')}</td>
+                                        <td>${blank(e.organizer, 'w6')}</td>
+                                        <td>${blank(e.datetime, 'w6')}</td>
+                                        <td>${blank(e.place, 'w6')}</td>
+                                        <td>${blank(e.attendance, 'w4')}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -877,39 +1026,39 @@
                 <div class="sec">
                     <div class="sec-title">7. 회계 보고</div>
                     <div>
-                        이월금 <span class="blank w6">${cell(fin.brought_forward)}</span>
-                        &nbsp; 수입 <span class="blank w6">${cell(fin.income)}</span>
-                        &nbsp; 지출 <span class="blank w6">${cell(fin.expense)}</span>
-                        &nbsp; 잔액 <span class="blank w6">${cell(fin.balance)}</span>
+                        이월금 ${blank(fin.brought_forward, 'w6')}
+                        &nbsp; 수입 ${blank(fin.income, 'w6')}
+                        &nbsp; 지출 ${blank(fin.expense, 'w6')}
+                        &nbsp; 잔액 ${blank(fin.balance, 'w6')}
                     </div>
                     <div style="margin-top:6px;">
                         중요 지출 내역
-                        (의연금 <span class="blank w6">${cell(expenseDetail.contribution)}</span>
-                        &nbsp; 꽃값 <span class="blank w6">${cell(expenseDetail.flowers)}</span>
-                        &nbsp; 기타 <span class="blank w10">${cell(expenseDetail.others)}</span>)
+                        (의연금 ${blank(expenseDetail.contribution, 'w6')}
+                        &nbsp; 꽃값 ${blank(expenseDetail.flowers, 'w6')}
+                        &nbsp; 기타 ${blank(expenseDetail.others, 'w10')})
                     </div>
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">8. 주요 활동 내역</div>
-                    <div class="line-box" style="min-height:90px; white-space:pre-wrap;">${cell(majorText)}</div>
+                    ${lineBoxHtml(majorText, '90px')}
                 </div>
 
                 <div class="sec">
                     <div class="sec-title">9. 기타(질의 및 건의)</div>
-                    <div class="line-box" style="min-height:48px; white-space:pre-wrap;">${cell(inquiryText)}</div>
+                    ${lineBoxHtml(inquiryText, '48px')}
                 </div>
 
                 <div class="sec" style="display:flex; justify-content:space-between; gap:12px; margin-top:16px; flex-wrap:wrap;">
                     <div>
-                        <span class="blank w20">${cell(data.council_name)}</span> 평의회
+                        ${blank(data.council_name, 'w20')} 평의회
                     </div>
                     <div style="text-align:right;">
-                        쁘레시디움 단장 <span class="blank w10">${cell(data.president_name)}</span> (서명)
-                        <div style="margin-top:6px;">${cell(data.affiliation)}</div>
+                        쁘레시디움 단장 ${blank(data.president_name, 'w10')} (서명)
+                        <div style="margin-top:6px;">${blank(data.affiliation, 'w10')}</div>
                     </div>
                 </div>
-                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황(금월·전월자료 있으면 전월/증감), 행사(주관=Pr), 주요활동내역·질의·건의(메모장). 나머지는 빈칸입니다.</p>
+                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황(금월·전월자료 있으면 전월/증감), 행사(주관=Pr), 주요활동내역·질의·건의(메모장). 파란색으로 깜박이는 빈칸은 직접 입력 가능하며(저장 없음), PDF 출력 시 함께 포함됩니다.</p>
             </div>
         `;
     }
@@ -930,6 +1079,7 @@
     }
 
     function showPrMonthlyReportView(modal) {
+        ensureStyles();
         const user = getLoggedInUser();
         const initialChurch = String(user?.church_name || '').trim();
         const initialPr = String(user?.pr_name || '').trim();
@@ -1007,6 +1157,7 @@
                 );
                 metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명`;
                 resultEl.innerHTML = buildPrMonthlyFormHtml(data);
+                wireBlankEditables(resultEl);
                 lastReportMeta = {
                     label: 'Pr',
                     name: data.pr_name,

@@ -19,8 +19,84 @@
     }
 
     function blank(value, cls) {
+        const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
-        return `<span class="${c.trim()}">${cell(value)}</span>`;
+        // DB에 값이 있으면 고정 표시, 빈칸만 파란 깜박임 입력란
+        if (text) {
+            return `<span class="${c.trim()}">${escapeHtml(text)}</span>`;
+        }
+        return `<input type="text" class="${c.trim()} blank-editable" value="" placeholder=" " inputmode="text" autocomplete="off" aria-label="직접 입력">`;
+    }
+
+    function lineBoxHtml(text, minHeight) {
+        const t = String(text || '').trim();
+        const h = minHeight ? ` style="min-height:${minHeight};"` : '';
+        if (t) {
+            return `<div class="line-box"${h}>${escapeHtml(t)}</div>`;
+        }
+        return `<div class="line-box blank-editable"${h} contenteditable="true" data-placeholder="입력"></div>`;
+    }
+
+    function wireBlankEditables(root) {
+        if (!root) return;
+        root.querySelectorAll('input.blank-editable').forEach((inp) => {
+            const sync = () => {
+                inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+            };
+            sync();
+            inp.addEventListener('input', sync);
+        });
+        root.querySelectorAll('.line-box.blank-editable').forEach((box) => {
+            const sync = () => {
+                box.classList.toggle('has-value', !!String(box.textContent || '').trim());
+            };
+            sync();
+            box.addEventListener('input', sync);
+        });
+    }
+
+    /** PDF/엑셀 출력 직전: 입력값을 텍스트로 고정(화면 입력란은 복원) */
+    function freezeBlankInputsForExport(formEl) {
+        const restorers = [];
+        formEl.querySelectorAll('input.blank-editable').forEach((input) => {
+            const span = document.createElement('span');
+            const base = String(input.className || '')
+                .replace(/\bblank-editable\b/g, '')
+                .replace(/\bhas-value\b/g, '')
+                .trim();
+            span.className = `${base} blank-print`.trim();
+            span.textContent = input.value || '';
+            input.style.display = 'none';
+            input.parentNode.insertBefore(span, input);
+            restorers.push(() => {
+                span.remove();
+                input.style.display = '';
+            });
+        });
+        formEl.querySelectorAll('.line-box.blank-editable').forEach((box) => {
+            const prevEditable = box.getAttribute('contenteditable');
+            const prevClass = box.className;
+            box.setAttribute('contenteditable', 'false');
+            box.classList.remove('blank-editable');
+            box.classList.add('blank-print');
+            restorers.push(() => {
+                if (prevEditable == null) box.removeAttribute('contenteditable');
+                else box.setAttribute('contenteditable', prevEditable);
+                box.className = prevClass;
+            });
+        });
+        return () => restorers.forEach((fn) => fn());
+    }
+
+    async function withFrozenBlanks(formEl, work) {
+        const restore = freezeBlankInputsForExport(formEl);
+        try {
+            // 레이아웃 반영 대기
+            await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+            return await work();
+        } finally {
+            restore();
+        }
     }
 
     function n(value) {
@@ -83,12 +159,77 @@
                 text-align: center;
                 padding: 0 4px;
                 min-height: 1.1em;
+                vertical-align: baseline;
             }
             .curia-comp-form .blank.w3 { min-width: 2.4em; }
             .curia-comp-form .blank.w4 { min-width: 3.5em; }
             .curia-comp-form .blank.w6 { min-width: 5em; }
             .curia-comp-form .blank.w10 { min-width: 8em; }
             .curia-comp-form .blank.w20 { min-width: 14em; }
+            @keyframes curia-blank-blink {
+                0%, 100% { border-bottom-color: #2563eb; box-shadow: 0 2px 0 rgba(37, 99, 235, 0.55); }
+                50% { border-bottom-color: #93c5fd; box-shadow: 0 2px 0 rgba(147, 197, 253, 0.35); }
+            }
+            .curia-comp-form input.blank.blank-editable {
+                border: none;
+                border-bottom: 2px solid #2563eb;
+                border-radius: 0;
+                background: rgba(37, 99, 235, 0.06);
+                color: #1e3a8a;
+                font: inherit;
+                font-size: inherit !important;
+                line-height: 1.3;
+                padding: 1px 4px;
+                margin: 0 1px;
+                min-height: 1.25em !important;
+                height: auto !important;
+                width: auto;
+                max-width: 100%;
+                box-sizing: border-box;
+                animation: curia-blank-blink 1.1s ease-in-out infinite;
+            }
+            .curia-comp-form input.blank.blank-editable:placeholder-shown {
+                animation: curia-blank-blink 1.1s ease-in-out infinite;
+            }
+            .curia-comp-form input.blank.blank-editable:not(:placeholder-shown),
+            .curia-comp-form input.blank.blank-editable.has-value {
+                animation: none;
+                border-bottom-color: #1d4ed8;
+                background: rgba(37, 99, 235, 0.04);
+                color: #111;
+            }
+            .curia-comp-form input.blank.blank-editable:focus {
+                outline: none;
+                animation: none;
+                border-bottom-color: #1d4ed8;
+                background: #eff6ff;
+            }
+            .curia-comp-form .blank-print {
+                border-bottom: 1px solid #333;
+                color: #111;
+                animation: none !important;
+                background: transparent !important;
+            }
+            .curia-comp-form .line-box.blank-editable {
+                border-color: #2563eb;
+                background: rgba(37, 99, 235, 0.04);
+                color: #1e3a8a;
+                outline: none;
+                animation: curia-blank-blink 1.1s ease-in-out infinite;
+                cursor: text;
+            }
+            .curia-comp-form .line-box.blank-editable.has-value,
+            .curia-comp-form .line-box.blank-editable:focus {
+                animation: none;
+                border-color: #1d4ed8;
+                color: #111;
+                background: #f8fbff;
+            }
+            .curia-comp-form .line-box.blank-editable:empty::before {
+                content: attr(data-placeholder);
+                color: #60a5fa;
+                pointer-events: none;
+            }
             .curia-comp-form .sec-title {
                 font-weight: 700;
                 margin: 14px 0 6px;
@@ -798,7 +939,7 @@
                 </table>
             </div>
             <div class="sub-title" style="font-weight:600;">2) 향후 계획</div>
-            <div class="line-box" style="min-height:72px;">${cell(futurePlans || '')}</div>
+            ${lineBoxHtml(futurePlans || '', '72px')}
         `;
     }
 
@@ -808,7 +949,7 @@
         return `
             <div class="sec-title">12. 특기 사항</div>
             <div class="special-hint">${escapeHtml(hint)}</div>
-            <div class="line-box" style="min-height:80px;">${cell(text)}</div>
+            ${lineBoxHtml(text, '80px')}
         `;
     }
 
@@ -937,7 +1078,7 @@
     }
 
     function emptyRows(colCount, rowCount) {
-        const cols = Array.from({ length: colCount }, () => '<td></td>').join('');
+        const cols = Array.from({ length: colCount }, () => `<td>${blank('', 'w6')}</td>`).join('');
         return Array.from({ length: rowCount }, () => `<tr>${cols}</tr>`).join('');
     }
 
@@ -1210,7 +1351,7 @@
                 ${buildEducationTablesHtml(m.events)}
 
                 <div class="sec-title">기타(질의 및 건의)</div>
-                <div class="line-box">${cell(inquiryText)}</div>
+                ${lineBoxHtml(inquiryText)}
 
                 ${buildActivityMattersHtml(m.activityRecords)}
 
@@ -1222,7 +1363,7 @@
 
                 ${buildRosterHtml(m.roster)}
 
-                <p class="note">※ 꾸리아명·간부(K1~K4)·조직현황·간부이동/신설/호도반납·행사·교육/피정·질의/건의·10. 활동 사항·기도생활·11. 평가(전차/금차)·간부·소속 Pr 명부는 DB에서 자동 기입됩니다.</p>
+                <p class="note">※ 꾸리아명·간부(K1~K4)·조직현황·간부이동/신설/호도반납·행사·교육/피정·질의/건의·10. 활동 사항·기도생활·11. 평가(전차/금차)·간부·소속 Pr 명부는 DB에서 자동 기입됩니다. 파란색으로 깜박이는 빈칸은 직접 입력할 수 있으며(저장 없음), PDF/Excel 출력 시 함께 포함됩니다.</p>
                 <p class="note">※ 활동종목은 세목 분류용이며, 활동횟수 집계는 세목 기준입니다(종목 접두와 무관).</p>
             </div>
         `;
@@ -1645,6 +1786,7 @@
         };
 
         container.innerHTML = buildFormHtml(model);
+        wireBlankEditables(container);
     }
 
     function hide(container) {
@@ -1710,37 +1852,39 @@
         await ensurePdfLibraries();
         ensureStyles();
 
-        const canvas = await global.html2canvas(formEl, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false
-        });
+        await withFrozenBlanks(formEl, async () => {
+            const canvas = await global.html2canvas(formEl, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
 
-        const { jsPDF } = global.jspdf;
-        const pdf = new jsPDF('portrait', 'mm', 'a4');
-        const pageWidth = 210;
-        const pageHeight = 297;
-        const margin = 8;
-        const usableWidth = pageWidth - margin * 2;
-        const usableHeight = pageHeight - margin * 2;
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const imgWidth = usableWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = margin;
+            const { jsPDF } = global.jspdf;
+            const pdf = new jsPDF('portrait', 'mm', 'a4');
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const margin = 8;
+            const usableWidth = pageWidth - margin * 2;
+            const usableHeight = pageHeight - margin * 2;
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const imgWidth = usableWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = margin;
 
-        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-        heightLeft -= usableHeight;
-
-        while (heightLeft > 0) {
-            position = margin - (imgHeight - heightLeft);
-            pdf.addPage();
             pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
             heightLeft -= usableHeight;
-        }
 
-        pdf.save(`${buildExportFileBase(meta)}.pdf`);
+            while (heightLeft > 0) {
+                position = margin - (imgHeight - heightLeft);
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+                heightLeft -= usableHeight;
+            }
+
+            pdf.save(`${buildExportFileBase(meta)}.pdf`);
+        });
     }
 
     async function exportToExcel(formEl, meta) {
@@ -1750,40 +1894,44 @@
         }
         if (!global.XLSX) throw new Error('Excel 라이브러리를 불러오지 못했습니다.');
 
-        const rows = [];
-        rows.push(['꾸리아 종합보고서']);
-        rows.push(['꾸리아', meta?.curiaName || '']);
-        rows.push(['조회기간', `${meta?.startDate || ''} ~ ${meta?.endDate || ''}`]);
-        rows.push([]);
-
-        formEl.querySelectorAll('table').forEach((table, idx) => {
-            rows.push([`표 ${idx + 1}`]);
-            table.querySelectorAll('tr').forEach((tr) => {
-                const cells = [...tr.querySelectorAll('th,td')].map((td) =>
-                    String(td.innerText || '').replace(/\s+/g, ' ').trim()
-                );
-                if (cells.some((c) => c)) rows.push(cells);
-            });
+        await withFrozenBlanks(formEl, async () => {
+            const rows = [];
+            rows.push(['꾸리아 종합보고서']);
+            rows.push(['꾸리아', meta?.curiaName || '']);
+            rows.push(['조회기간', `${meta?.startDate || ''} ~ ${meta?.endDate || ''}`]);
             rows.push([]);
-        });
 
-        const lineBoxes = formEl.querySelectorAll('.line-box');
-        lineBoxes.forEach((box, idx) => {
-            const text = String(box.innerText || '').trim();
-            if (!text) return;
-            rows.push([`서술 ${idx + 1}`, text]);
-        });
+            formEl.querySelectorAll('table').forEach((table, idx) => {
+                rows.push([`표 ${idx + 1}`]);
+                table.querySelectorAll('tr').forEach((tr) => {
+                    const cells = [...tr.querySelectorAll('th,td')].map((td) =>
+                        String(td.innerText || '').replace(/\s+/g, ' ').trim()
+                    );
+                    if (cells.some((c) => c)) rows.push(cells);
+                });
+                rows.push([]);
+            });
 
-        const worksheet = global.XLSX.utils.aoa_to_sheet(rows);
-        worksheet['!cols'] = [{ wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
-        const workbook = global.XLSX.utils.book_new();
-        global.XLSX.utils.book_append_sheet(workbook, worksheet, '꾸리아종합보고');
-        global.XLSX.writeFile(workbook, `${buildExportFileBase(meta)}.xlsx`);
+            const lineBoxes = formEl.querySelectorAll('.line-box');
+            lineBoxes.forEach((box, idx) => {
+                const text = String(box.innerText || '').trim();
+                if (!text) return;
+                rows.push([`서술 ${idx + 1}`, text]);
+            });
+
+            const worksheet = global.XLSX.utils.aoa_to_sheet(rows);
+            worksheet['!cols'] = [{ wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+            const workbook = global.XLSX.utils.book_new();
+            global.XLSX.utils.book_append_sheet(workbook, worksheet, '꾸리아종합보고');
+            global.XLSX.writeFile(workbook, `${buildExportFileBase(meta)}.xlsx`);
+        });
     }
 
     function exportToHangul(formEl, meta) {
         if (!formEl) throw new Error('출력할 꾸리아 종합보고서가 없습니다.');
-        const html = `<!DOCTYPE html>
+        const restore = freezeBlankInputsForExport(formEl);
+        try {
+            const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="utf-8">
@@ -1807,8 +1955,11 @@
     ${formEl.innerHTML}
 </body>
 </html>`;
-        downloadBlob('\ufeff' + html, 'text/html;charset=utf-8', `${buildExportFileBase(meta)}.html`);
-        alert('한글(아래한글)에서 "파일 > 열기"로 저장된 HTML 파일을 열 수 있습니다.');
+            downloadBlob('\ufeff' + html, 'text/html;charset=utf-8', `${buildExportFileBase(meta)}.html`);
+            alert('한글(아래한글)에서 "파일 > 열기"로 저장된 HTML 파일을 열 수 있습니다.');
+        } finally {
+            restore();
+        }
     }
 
     global.RegioCuriaComprehensiveReportForm = {

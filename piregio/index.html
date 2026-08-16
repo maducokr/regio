@@ -894,7 +894,7 @@
             font-size: 12px;
         }
 
-        .modal-content input {
+        .modal-content input:not(.blank-editable) {
             width: 100%;
             padding: 11px 12px;
             margin-bottom: 10px;
@@ -904,7 +904,7 @@
             background: #f8fafc;
         }
 
-        .modal-content input:focus {
+        .modal-content input:not(.blank-editable):focus {
             outline: none;
             border-color: #4A90E2;
         }
@@ -1407,7 +1407,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- test-pdf-v5 -->    <script src="deploy-mode.js"></script>
+    <!-- test-pdf-v5 -->
+
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
@@ -1420,7 +1421,7 @@
     <script src="member-form-fields.js?v=20260730b"></script>
     <script src="profile-modal.js?v=20260730b"></script>
     <script src="curia-officer-register.js"></script>
-    <script src="curia-hub.js"></script>
+    <script src="curia-hub.js?v=20260816d"></script>
     <script src="auth-ui.js"></script>
     <script src="privacy-consent.js"></script>
     <script>

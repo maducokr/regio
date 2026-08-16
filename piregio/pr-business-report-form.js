@@ -33,8 +33,55 @@
     }
 
     function blank(value, cls) {
+        const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
-        return `<span class="${c.trim()}">${cell(value)}</span>`;
+        if (text) {
+            return `<span class="${c.trim()}">${escapeHtml(text)}</span>`;
+        }
+        return `<input type="text" class="${c.trim()} blank-editable" value="" placeholder=" " inputmode="text" autocomplete="off" aria-label="직접 입력">`;
+    }
+
+    function ratioBlank(present, total) {
+        return `${blank(present, 'w3')} / ${blank(total, 'w3')}`;
+    }
+
+    function wireBlankEditables(root) {
+        if (!root) return;
+        root.querySelectorAll('input.blank-editable').forEach((inp) => {
+            const sync = () => inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+            sync();
+            inp.addEventListener('input', sync);
+        });
+    }
+
+    function freezeBlankInputsForExport(formEl) {
+        const restorers = [];
+        formEl.querySelectorAll('input.blank-editable').forEach((input) => {
+            const span = document.createElement('span');
+            const base = String(input.className || '')
+                .replace(/\bblank-editable\b/g, '')
+                .replace(/\bhas-value\b/g, '')
+                .trim();
+            span.className = `${base} blank-print`.trim();
+            span.textContent = input.value || '';
+            input.style.display = 'none';
+            input.parentNode.insertBefore(span, input);
+            restorers.push(() => {
+                span.remove();
+                input.style.display = '';
+            });
+        });
+        return () => restorers.forEach((fn) => fn());
+    }
+
+    async function withFrozenBlanks(formEl, work) {
+        const restore = freezeBlankInputsForExport(formEl);
+        try {
+            await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+            return await work();
+        } finally {
+            restore();
+        }
     }
 
     function n(value) {
@@ -241,7 +288,7 @@
         return n(v);
     }
 
-    /** 단원수 표: 행=유형, 열=전차/현재/증감 */
+    /** 단원수 표: 행=유형, 열=전차/현재/증감 — 빈칸은 편집 가능 */
     function membershipRowHtml(label, prev, curr, inc, dec, keys) {
         const pM = memVal(prev, keys.m);
         const pF = memVal(prev, keys.f);
@@ -259,33 +306,35 @@
         }
         return `<tr>
             <td class="row-label">${escapeHtml(label)}</td>
-            <td>${pM}</td><td>${pF}</td><td>${pT}</td>
-            <td>${cM}</td><td>${cF}</td><td>${cT}</td>
-            <td>${iT}</td><td>${dT}</td><td>${delta}</td>
+            <td>${blank(pM, 'w3')}</td><td>${blank(pF, 'w3')}</td><td>${blank(pT, 'w3')}</td>
+            <td>${blank(cM, 'w3')}</td><td>${blank(cF, 'w3')}</td><td>${blank(cT, 'w3')}</td>
+            <td>${blank(iT, 'w3')}</td><td>${blank(dT, 'w3')}</td><td>${blank(delta, 'w3')}</td>
         </tr>`;
     }
 
     function membershipTotalOnlyRow(label, prev, curr, inc, dec, key) {
-        const keys = { m: '', f: '', t: key };
-        // 쁘레/아듀: 계만 채움
+        const iRaw = memVal(inc, key);
+        const dRaw = memVal(dec, key);
+        let delta = '';
+        if (iRaw !== '' || dRaw !== '') {
+            delta = String((Number(iRaw) || 0) - (Number(dRaw) || 0));
+        }
         return `<tr>
             <td class="row-label">${escapeHtml(label)}</td>
-            <td></td><td></td><td>${memVal(prev, key)}</td>
-            <td></td><td></td><td>${memVal(curr, key)}</td>
-            <td>${memVal(inc, key)}</td><td>${memVal(dec, key)}</td>
-            <td>${(() => {
-                const i = Number(memVal(inc, key)) || 0;
-                const d = Number(memVal(dec, key)) || 0;
-                if (memVal(inc, key) === '' && memVal(dec, key) === '') return '';
-                return String(i - d);
-            })()}</td>
+            <td>${blank('', 'w3')}</td><td>${blank('', 'w3')}</td><td>${blank(memVal(prev, key), 'w3')}</td>
+            <td>${blank('', 'w3')}</td><td>${blank('', 'w3')}</td><td>${blank(memVal(curr, key), 'w3')}</td>
+            <td>${blank(iRaw, 'w3')}</td><td>${blank(dRaw, 'w3')}</td>
+            <td>${blank(delta, 'w3')}</td>
         </tr>`;
     }
 
     function ensureStyles() {
-        if (document.getElementById('pr-business-report-styles')) return;
-        const style = document.createElement('style');
-        style.id = 'pr-business-report-styles';
+        let style = document.getElementById('pr-business-report-styles');
+        if (!style) {
+            style = document.createElement('style');
+            style.id = 'pr-business-report-styles';
+            document.head.appendChild(style);
+        }
         style.textContent = `
             .pr-biz-form {
                 border: 1px solid #222;
@@ -338,6 +387,52 @@
             .pr-biz-form .blank.w6 { min-width: 4.5em; }
             .pr-biz-form .blank.w8 { min-width: 6em; }
             .pr-biz-form .blank.w12 { min-width: 9em; }
+            @keyframes pr-biz-blank-blink {
+                0%, 100% { border-bottom-color: #2563eb; box-shadow: 0 2px 0 rgba(37, 99, 235, 0.55); }
+                50% { border-bottom-color: #93c5fd; box-shadow: 0 2px 0 rgba(147, 197, 253, 0.35); }
+            }
+            .pr-biz-form input.blank.blank-editable {
+                border: none;
+                border-bottom: 2px solid #2563eb;
+                border-radius: 0;
+                background: rgba(37, 99, 235, 0.06);
+                color: #1e3a8a;
+                font: inherit;
+                font-size: inherit !important;
+                line-height: 1.3;
+                padding: 1px 4px;
+                margin: 0 1px;
+                min-height: 1.25em !important;
+                height: auto !important;
+                width: auto;
+                max-width: 100%;
+                box-sizing: border-box;
+                animation: pr-biz-blank-blink 1.1s ease-in-out infinite;
+            }
+            .pr-biz-form input.blank.blank-editable:placeholder-shown {
+                animation: pr-biz-blank-blink 1.1s ease-in-out infinite;
+            }
+            .pr-biz-form input.blank.blank-editable:not(:placeholder-shown),
+            .pr-biz-form input.blank.blank-editable.has-value {
+                animation: none;
+                border-bottom-color: #1d4ed8;
+                background: rgba(37, 99, 235, 0.04);
+                color: #111;
+            }
+            .pr-biz-form input.blank.blank-editable:focus {
+                outline: none;
+                animation: none;
+                border-bottom-color: #1d4ed8;
+                background: rgba(37, 99, 235, 0.08);
+            }
+            .pr-biz-form .blank.blank-print {
+                display: inline-block;
+                min-width: 2em;
+                border-bottom: 1px solid #333;
+                text-align: center;
+                padding: 0 3px;
+                min-height: 1.1em;
+            }
             .pr-biz-form table.biz-table {
                 width: 100%;
                 border-collapse: collapse;
@@ -459,7 +554,6 @@
                 .pr-biz-form .blank.w12 { min-width: 4em; max-width: 100%; }
             }
         `;
-        document.head.appendChild(style);
     }
 
     function buildFormHtml(model) {
@@ -481,9 +575,7 @@
         const vp = officerName(officers, '부단장');
         const secretary = officerName(officers, '서기');
         const treasurer = officerName(officers, '회계');
-        const memberAtt = (att.members_present !== undefined && att.members_present !== '') || att.members_total
-            ? `${cell(att.members_present)} / ${cell(att.members_total)}`
-            : ' / ';
+        const memberAtt = ratioBlank(att.members_present, att.members_total);
 
         const events = m.events || [];
         const fixedRows = FIXED_EVENTS.map((def) => {
@@ -622,26 +714,29 @@
                     <tbody>
                         <tr>
                             <td class="row-label">성명(세례명)</td>
-                            <td>${cell(m.spiritual_director)}</td>
-                            <td>${cell(m.proxy_name)}</td>
-                            <td>${cell(president)}</td>
-                            <td>${cell(vp)}</td>
-                            <td>${cell(secretary)}</td>
-                            <td>${cell(treasurer)}</td>
+                            <td>${blank(m.spiritual_director, 'w8')}</td>
+                            <td>${blank(m.proxy_name, 'w8')}</td>
+                            <td>${blank(president, 'w8')}</td>
+                            <td>${blank(vp, 'w8')}</td>
+                            <td>${blank(secretary, 'w8')}</td>
+                            <td>${blank(treasurer, 'w8')}</td>
                             <td>${memberAtt}</td>
                         </tr>
                         <tr>
                             <td class="row-label">출석상황</td>
-                            <td> / </td><td> / </td><td> / </td><td> / </td><td> / </td><td> / </td>
-                            <td>${att.officers_present || att.officers_total ? `${cell(att.officers_present)} / ${cell(att.officers_total)}` : ' / '}</td>
+                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
+                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
+                            <td>${ratioBlank(att.officers_present, att.officers_total)}</td>
                         </tr>
                         <tr>
                             <td class="row-label">평의회출석</td>
-                            <td> / </td><td> / </td><td> / </td><td> / </td><td> / </td><td> / </td><td> / </td>
+                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
+                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
+                            <td>${ratioBlank()}</td>
                         </tr>
                         <tr>
                             <td class="row-label">간부이동</td>
-                            <td colspan="7" class="left">${cell(m.officer_change)}</td>
+                            <td colspan="7" class="left">${blank(m.officer_change, 'w12')}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -677,22 +772,23 @@
                     <div>
                         <h4>수입</h4>
                         <table>
-                            <tr><td class="left">전차이월금</td><td>${cell(fin.carry_in)}</td></tr>
-                            <tr><td class="left">비밀 헌금</td><td>${cell(fin.secret_bag)}</td></tr>
-                            <tr><td class="left">${cell(fin.income_other_label)}</td><td>${cell(fin.income_other)}</td></tr>
-                            <tr><td class="left"><strong>수입계</strong></td><td>${cell(fin.income_total)}</td></tr>
+                            <tr><td class="left">전차이월금</td><td>${blank(fin.carry_in, 'w6')}</td></tr>
+                            <tr><td class="left">비밀 헌금</td><td>${blank(fin.secret_bag, 'w6')}</td></tr>
+                            <tr><td class="left">${blank(fin.income_other_label, 'w8')}</td><td>${blank(fin.income_other, 'w6')}</td></tr>
+                            <tr><td class="left">${blank('', 'w8')}</td><td>${blank('', 'w6')}</td></tr>
+                            <tr><td class="left"><strong>수입계</strong></td><td>${blank(fin.income_total, 'w6')}</td></tr>
                         </table>
                     </div>
                     <div>
                         <h4>지출</h4>
                         <table>
-                            <tr><td class="left">의연금</td><td>${cell((fin.expense_detail || {}).levy)}</td></tr>
-                            <tr><td class="left">꽃값</td><td>${cell((fin.expense_detail || {}).flower)}</td></tr>
-                            <tr><td class="left">초값</td><td>${cell((fin.expense_detail || {}).candle)}</td></tr>
-                            <tr><td class="left">위령미사예물</td><td>${cell((fin.expense_detail || {}).mass)}</td></tr>
-                            <tr><td class="left">인쇄비</td><td>${cell((fin.expense_detail || {}).print)}</td></tr>
-                            <tr><td class="left">${cell(fin.expense_other_label)}</td><td>${cell(fin.expense_other)}</td></tr>
-                            <tr><td class="left"><strong>지출계</strong></td><td>${cell(fin.expense_total)}</td></tr>
+                            <tr><td class="left">의연금</td><td>${blank((fin.expense_detail || {}).levy, 'w6')}</td></tr>
+                            <tr><td class="left">꽃값</td><td>${blank((fin.expense_detail || {}).flower, 'w6')}</td></tr>
+                            <tr><td class="left">초값</td><td>${blank((fin.expense_detail || {}).candle, 'w6')}</td></tr>
+                            <tr><td class="left">위령미사예물</td><td>${blank((fin.expense_detail || {}).mass, 'w6')}</td></tr>
+                            <tr><td class="left">인쇄비</td><td>${blank((fin.expense_detail || {}).print, 'w6')}</td></tr>
+                            <tr><td class="left">${blank(fin.expense_other_label, 'w8')}</td><td>${blank(fin.expense_other, 'w6')}</td></tr>
+                            <tr><td class="left"><strong>지출계</strong></td><td>${blank(fin.expense_total, 'w6')}</td></tr>
                         </table>
                     </div>
                     <div class="finance-balance">
@@ -725,7 +821,7 @@
                         </table>
                     </div>
                 </div>
-                <p class="biz-note">※ DB에 있는 항목(성당·Pr·직속·설립/승인일·보고기간·주회합·간부 G1~G4·단원수·참석인원이 있는 행사)만 자동 기입됩니다. 회계·출석 비율 등은 빈칸입니다.</p>
+                <p class="biz-note">※ DB에 있는 항목(성당·Pr·직속·설립/승인일·보고기간·주회합·간부 G1~G4·단원수·참석인원이 있는 행사)만 자동 기입됩니다. 파란 깜빡임 빈칸은 화면에만 직접 입력되며, PDF 출력 시 입력값이 포함됩니다(DB 저장 없음).</p>
             </div>
         `;
     }
@@ -915,6 +1011,7 @@
         } catch (e) { /* ignore */ }
 
         container.innerHTML = buildFormHtml(model);
+        wireBlankEditables(container);
     }
 
     function hide(container) {
@@ -965,43 +1062,45 @@
 
         formEl.classList.add('pr-biz-pdf-export');
         try {
-            const canvas = await global.html2canvas(formEl, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false
-            });
+            await withFrozenBlanks(formEl, async () => {
+                const canvas = await global.html2canvas(formEl, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
 
-            const { jsPDF } = global.jspdf;
-            const pdf = new jsPDF('portrait', 'mm', 'a4');
-            const pageWidth = 210;
-            const pageHeight = 297;
-            const margin = 8;
-            const usableWidth = pageWidth - margin * 2;
-            const usableHeight = pageHeight - margin * 2;
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const imgWidth = usableWidth;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = margin;
+                const { jsPDF } = global.jspdf;
+                const pdf = new jsPDF('portrait', 'mm', 'a4');
+                const pageWidth = 210;
+                const pageHeight = 297;
+                const margin = 8;
+                const usableWidth = pageWidth - margin * 2;
+                const usableHeight = pageHeight - margin * 2;
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgWidth = usableWidth;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = margin;
 
-            pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-            heightLeft -= usableHeight;
-
-            while (heightLeft > 0) {
-                position = margin - (imgHeight - heightLeft);
-                pdf.addPage();
                 pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
                 heightLeft -= usableHeight;
-            }
 
-            const stamp = new Date().toISOString().slice(0, 10);
-            const prName = meta?.prName || '';
-            const startDate = meta?.startDate || '';
-            const endDate = meta?.endDate || '';
-            const range = startDate && endDate ? `${startDate}_${endDate}` : stamp;
-            const fileName = `Regio_Pr사업보고_${safeFilePart(prName)}_${safeFilePart(range)}.pdf`;
-            pdf.save(fileName);
+                while (heightLeft > 0) {
+                    position = margin - (imgHeight - heightLeft);
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+                    heightLeft -= usableHeight;
+                }
+
+                const stamp = new Date().toISOString().slice(0, 10);
+                const prName = meta?.prName || '';
+                const startDate = meta?.startDate || '';
+                const endDate = meta?.endDate || '';
+                const range = startDate && endDate ? `${startDate}_${endDate}` : stamp;
+                const fileName = `Regio_Pr사업보고_${safeFilePart(prName)}_${safeFilePart(range)}.pdf`;
+                pdf.save(fileName);
+            });
         } finally {
             formEl.classList.remove('pr-biz-pdf-export');
         }

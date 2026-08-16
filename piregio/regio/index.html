@@ -570,7 +570,7 @@
             color: #333;
         }
 
-        .modal-content input {
+        .modal-content input:not(.blank-editable) {
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
@@ -579,7 +579,7 @@
             font-size: 12px;
         }
 
-        .modal-content input:focus {
+        .modal-content input:not(.blank-editable):focus {
             outline: none;
             border-color: #4A90E2;
         }
