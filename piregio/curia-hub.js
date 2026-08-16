@@ -28,18 +28,16 @@
             .replace(/"/g, '&quot;');
     }
 
-    function cell(value) {
-        if (value === null || value === undefined || value === '') return '';
-        return escapeHtml(value);
+    function cell(value, cls) {
+        return blank(value, cls || 'w6');
     }
 
+    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 파란 깜빡임 */
     function blank(value, cls) {
         const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
-        if (text) {
-            return `<span class="${c.trim()}">${escapeHtml(text)}</span>`;
-        }
-        return `<input type="text" class="${c.trim()} blank-editable" value="" placeholder=" " inputmode="text" autocomplete="off" aria-label="직접 입력">`;
+        const has = text.trim() ? ' has-value' : '';
+        return `<input type="text" class="${c.trim()} blank-editable${has}" value="${escapeHtml(text)}" placeholder=" " inputmode="text" autocomplete="off" aria-label="출력 전 수정">`;
     }
 
     function lineBoxHtml(text, minHeight) {
@@ -48,10 +46,8 @@
         if (minHeight) styleParts.push(`min-height:${minHeight}`);
         styleParts.push('white-space:pre-wrap');
         const styleAttr = ` style="${styleParts.join(';')}"`;
-        if (t) {
-            return `<div class="line-box"${styleAttr}>${escapeHtml(t)}</div>`;
-        }
-        return `<div class="line-box blank-editable"${styleAttr} contenteditable="true" data-placeholder="입력"></div>`;
+        const has = t ? ' has-value' : '';
+        return `<div class="line-box blank-editable${has}"${styleAttr} contenteditable="true" data-placeholder="입력">${escapeHtml(t)}</div>`;
     }
 
     function wireBlankEditables(root) {
@@ -78,11 +74,10 @@
                 .trim();
             span.className = `${base} blank-print`.trim();
             span.textContent = input.value || '';
-            input.style.display = 'none';
-            input.parentNode.insertBefore(span, input);
+            const parent = input.parentNode;
+            parent.replaceChild(span, input);
             restorers.push(() => {
-                span.remove();
-                input.style.display = '';
+                parent.replaceChild(input, span);
             });
         });
         formEl.querySelectorAll('.line-box.blank-editable').forEach((box) => {
@@ -148,6 +143,12 @@
             .council-hub-modal .org-toolbar button.pdf-btn { background:#16a34a; }
             .council-hub-modal .org-toolbar button.pdf-btn:hover { background:#15803d; }
             .council-hub-modal .org-toolbar button.pdf-btn:disabled { background:#94a3b8; cursor:not-allowed; }
+            .council-hub-modal .org-toolbar button.excel-btn { background:#2563eb; }
+            .council-hub-modal .org-toolbar button.excel-btn:hover { background:#1d4ed8; }
+            .council-hub-modal .org-toolbar button.excel-btn:disabled { background:#94a3b8; cursor:not-allowed; }
+            .council-hub-modal .org-toolbar button.hwp-btn { background:#7c3aed; }
+            .council-hub-modal .org-toolbar button.hwp-btn:hover { background:#6d28d9; }
+            .council-hub-modal .org-toolbar button.hwp-btn:disabled { background:#94a3b8; cursor:not-allowed; }
             .council-hub-modal .org-meta { margin:0 0 12px; color:#555; font-size: 12px; line-height:1.5; }
             .council-hub-modal .org-pr-block { margin-bottom:18px; }
             .council-hub-modal .org-pr-title { margin:0 0 8px; padding:8px 10px; background:#eef5fc; border-radius:8px; color:#357ABD; font-size: 12px; font-weight:700; }
@@ -354,9 +355,128 @@
 
                 const stamp = new Date().toISOString().slice(0, 10);
                 const fileName = `Regio_${safeFilePart(label)}월례보고_${safeFilePart(name)}_${year}-${String(month).padStart(2, '0')}_${stamp}.pdf`;
-                pdf.save(fileName);
+                if (global.RegioPdfShare && typeof global.RegioPdfShare.deliverJsPdf === 'function') {
+                    await global.RegioPdfShare.deliverJsPdf(pdf, fileName, {
+                        title: `${label} 월례보고`,
+                        text: `${name} ${year}년 ${month}월`
+                    });
+                } else {
+                    pdf.save(fileName);
+                }
             });
         } finally {
+            if (noteEl) noteEl.style.display = noteDisplay;
+        }
+    }
+
+    function downloadBlob(content, mime, filename) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    async function ensureXlsxLibrary() {
+        if (global.XLSX) return;
+        await loadScript('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js');
+        if (!global.XLSX) throw new Error('Excel 라이브러리를 불러오지 못했습니다.');
+    }
+
+    function monthlyExportBase(meta) {
+        const label = meta?.label || '평의회';
+        const name = meta?.name || '';
+        const year = meta?.year || '';
+        const month = meta?.month || '';
+        const stamp = new Date().toISOString().slice(0, 10);
+        return `Regio_${safeFilePart(label)}월례보고_${safeFilePart(name)}_${year}-${String(month).padStart(2, '0')}_${stamp}`;
+    }
+
+    async function exportMonthlyFormToExcel(formEl, meta) {
+        if (!formEl) throw new Error('출력할 월례보고 양식이 없습니다. 먼저 조회해주세요.');
+        await ensureXlsxLibrary();
+        const noteEl = formEl.querySelector('.note');
+        const noteDisplay = noteEl ? noteEl.style.display : '';
+        if (noteEl) noteEl.style.display = 'none';
+        try {
+            await withFrozenBlanks(formEl, async () => {
+                const rows = [];
+                const label = meta?.label || '월례';
+                rows.push([`${label} 월례 보고서`]);
+                rows.push(['명칭', meta?.name || '']);
+                rows.push(['기간', `${meta?.year || ''}년 ${meta?.month || ''}월`]);
+                rows.push([]);
+
+                formEl.querySelectorAll('table').forEach((table, idx) => {
+                    rows.push([`표 ${idx + 1}`]);
+                    table.querySelectorAll('tr').forEach((tr) => {
+                        const cells = [...tr.querySelectorAll('th,td')].map((td) =>
+                            String(td.innerText || '').replace(/\s+/g, ' ').trim()
+                        );
+                        if (cells.some((c) => c)) rows.push(cells);
+                    });
+                    rows.push([]);
+                });
+
+                const blocks = [];
+                formEl.querySelectorAll('.sec, .line-box').forEach((el) => {
+                    const text = String(el.innerText || '').replace(/\s+/g, ' ').trim();
+                    if (text) blocks.push([text]);
+                });
+                if (blocks.length) {
+                    rows.push(['본문']);
+                    blocks.forEach((b) => rows.push(b));
+                }
+
+                const worksheet = global.XLSX.utils.aoa_to_sheet(rows);
+                worksheet['!cols'] = [{ wch: 24 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+                const workbook = global.XLSX.utils.book_new();
+                global.XLSX.utils.book_append_sheet(workbook, worksheet, '월례보고');
+                global.XLSX.writeFile(workbook, `${monthlyExportBase(meta)}.xlsx`);
+            });
+        } finally {
+            if (noteEl) noteEl.style.display = noteDisplay;
+        }
+    }
+
+    function exportMonthlyFormToHangul(formEl, meta) {
+        if (!formEl) throw new Error('출력할 월례보고 양식이 없습니다. 먼저 조회해주세요.');
+        const label = meta?.label || '월례';
+        const noteEl = formEl.querySelector('.note');
+        const noteDisplay = noteEl ? noteEl.style.display : '';
+        if (noteEl) noteEl.style.display = 'none';
+        const restore = freezeBlankInputsForExport(formEl);
+        try {
+            const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="Generator" content="Regio">
+    <title>${escapeHtml(label)} 월례 보고서</title>
+    <style>
+        body { font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; padding: 20px; color: #111; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
+        th, td { border: 1px solid #333; padding: 4px; text-align: center; vertical-align: middle; }
+        .left { text-align: left; }
+        .line-box { border: 1px solid #333; min-height: 48px; padding: 8px; white-space: pre-wrap; }
+        .blank, .blank-print { display: inline; border-bottom: none; }
+        input { display: none !important; }
+    </style>
+</head>
+<body>
+    <h1>${escapeHtml(label)} 월례 보고서</h1>
+    <p>${escapeHtml(meta?.name || '')} · ${escapeHtml(String(meta?.year || ''))}년 ${escapeHtml(String(meta?.month || ''))}월</p>
+    ${formEl.innerHTML}
+</body>
+</html>`;
+            downloadBlob('\ufeff' + html, 'text/html;charset=utf-8', `${monthlyExportBase(meta)}.html`);
+            alert('한글(아래한글)에서 "파일 > 열기"로 저장된 HTML 파일을 열 수 있습니다.');
+        } finally {
+            restore();
             if (noteEl) noteEl.style.display = noteDisplay;
         }
     }
@@ -644,7 +764,7 @@
                                 ${eventRows.map((e) => `
                                     <tr>
                                         <td>${blank(e.kind, 'w4')}</td>
-                                        <td class="left">${blank(e.title, 'w10')}${e.member_name ? ` (${escapeHtml(e.member_name)})` : ''}</td>
+                                        <td class="left">${blank(e.member_name ? `${e.title || ''} (${e.member_name})` : e.title, 'w10')}</td>
                                         <td>${blank(e.organizer, 'w6')}</td>
                                         <td>${blank(e.datetime, 'w6')}</td>
                                         <td>${blank(e.place, 'w6')}</td>
@@ -695,7 +815,7 @@
                     ${lineBoxHtml(data.inquiries, '48px')}
                 </div>
 
-                <p class="note">※ DB 항목만 자동 기입: ${escapeHtml(label)}명, ${escapeHtml(label)} 직책(${officerNote}), 조직현황(현재), 행사, 주요활동내역·질의·건의(메모장). 파란색으로 깜박이는 빈칸은 직접 입력 가능하며(저장 없음), PDF 출력 시 함께 포함됩니다.</p>
+                <p class="note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 파란색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
@@ -736,7 +856,9 @@
                 <select id="councilMonthlyYear"></select>
                 <select id="councilMonthlyMonth"></select>
                 <button type="button" id="councilMonthlySearchBtn">조회</button>
-                <button type="button" class="pdf-btn" id="councilMonthlyPdfBtn" disabled>PDF 출력</button>
+                <button type="button" class="pdf-btn" id="councilMonthlyPdfBtn" disabled>PDF</button>
+                <button type="button" class="excel-btn" id="councilMonthlyExcelBtn" disabled>Excel</button>
+                <button type="button" class="hwp-btn" id="councilMonthlyHwpBtn" disabled>한글</button>
             </div>
             <p class="org-meta" id="councilMonthlyMeta">조회 버튼을 눌러주세요.</p>
             <div id="councilMonthlyResult"><div class="empty">${escapeHtml(level.label)} 명칭을 입력하고 조회하세요.</div></div>
@@ -751,7 +873,15 @@
         const yearSelect = content.querySelector('#councilMonthlyYear');
         const monthSelect = content.querySelector('#councilMonthlyMonth');
         const pdfBtn = content.querySelector('#councilMonthlyPdfBtn');
+        const excelBtn = content.querySelector('#councilMonthlyExcelBtn');
+        const hwpBtn = content.querySelector('#councilMonthlyHwpBtn');
         let lastReportMeta = null;
+
+        function setExportEnabled(on) {
+            pdfBtn.disabled = !on;
+            excelBtn.disabled = !on;
+            hwpBtn.disabled = !on;
+        }
 
         for (let y = defaultYear; y >= defaultYear - 5; y -= 1) {
             const opt = document.createElement('option');
@@ -775,7 +905,7 @@
                 return;
             }
             resultEl.innerHTML = '<div class="empty">불러오는 중...</div>';
-            pdfBtn.disabled = true;
+            setExportEnabled(false);
             lastReportMeta = null;
             try {
                 const data = await fetchCouncilMonthlyReport(
@@ -793,21 +923,25 @@
                     year: data.year,
                     month: data.month
                 };
-                pdfBtn.disabled = false;
+                setExportEnabled(true);
             } catch (error) {
                 metaEl.textContent = '';
                 resultEl.innerHTML = `<div class="empty">${escapeHtml(error.message || '조회 실패')}</div>`;
             }
         }
 
+        function getFormEl() {
+            return resultEl.querySelector('#curiaMonthlyFormPrint');
+        }
+
         async function runPdfExport() {
-            const formEl = resultEl.querySelector('#curiaMonthlyFormPrint');
+            const formEl = getFormEl();
             if (!formEl || !lastReportMeta) {
-                alert('먼저 월례보고를 조회한 뒤 PDF 출력을 눌러주세요.');
+                alert('먼저 월례보고를 조회한 뒤 출력을 눌러주세요.');
                 return;
             }
             const prevText = pdfBtn.textContent;
-            pdfBtn.disabled = true;
+            setExportEnabled(false);
             pdfBtn.textContent = 'PDF 생성 중...';
             try {
                 await exportMonthlyFormToPdf(formEl, lastReportMeta);
@@ -816,7 +950,41 @@
                 alert('PDF 생성 중 오류가 발생했습니다: ' + (error.message || error));
             } finally {
                 pdfBtn.textContent = prevText;
-                pdfBtn.disabled = !resultEl.querySelector('#curiaMonthlyFormPrint');
+                setExportEnabled(!!getFormEl());
+            }
+        }
+
+        async function runExcelExport() {
+            const formEl = getFormEl();
+            if (!formEl || !lastReportMeta) {
+                alert('먼저 월례보고를 조회한 뒤 출력을 눌러주세요.');
+                return;
+            }
+            const prevText = excelBtn.textContent;
+            setExportEnabled(false);
+            excelBtn.textContent = 'Excel 생성 중...';
+            try {
+                await exportMonthlyFormToExcel(formEl, lastReportMeta);
+            } catch (error) {
+                console.error('월례보고 Excel 오류:', error);
+                alert('Excel 생성 중 오류가 발생했습니다: ' + (error.message || error));
+            } finally {
+                excelBtn.textContent = prevText;
+                setExportEnabled(!!getFormEl());
+            }
+        }
+
+        function runHwpExport() {
+            const formEl = getFormEl();
+            if (!formEl || !lastReportMeta) {
+                alert('먼저 월례보고를 조회한 뒤 출력을 눌러주세요.');
+                return;
+            }
+            try {
+                exportMonthlyFormToHangul(formEl, lastReportMeta);
+            } catch (error) {
+                console.error('월례보고 한글 오류:', error);
+                alert('한글 파일 생성 중 오류가 발생했습니다: ' + (error.message || error));
             }
         }
 
@@ -824,6 +992,8 @@
         content.querySelector('#councilMonthlyBackBtn').onclick = () => showReportTypeChooser(modal, levelKey);
         content.querySelector('#councilMonthlySearchBtn').onclick = runSearch;
         pdfBtn.onclick = runPdfExport;
+        excelBtn.onclick = runExcelExport;
+        hwpBtn.onclick = runHwpExport;
         nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -1058,7 +1228,7 @@
                         <div style="margin-top:6px;">${blank(data.affiliation, 'w10')}</div>
                     </div>
                 </div>
-                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황(금월·전월자료 있으면 전월/증감), 행사(주관=Pr), 주요활동내역·질의·건의(메모장). 파란색으로 깜박이는 빈칸은 직접 입력 가능하며(저장 없음), PDF 출력 시 함께 포함됩니다.</p>
+                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황, 행사, 주요활동·질의·건의. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 파란색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
@@ -1099,7 +1269,9 @@
                 <select id="prMonthlyYear"></select>
                 <select id="prMonthlyMonth"></select>
                 <button type="button" id="prMonthlySearchBtn">조회</button>
-                <button type="button" class="pdf-btn" id="prMonthlyPdfBtn" disabled>PDF 출력</button>
+                <button type="button" class="pdf-btn" id="prMonthlyPdfBtn" disabled>PDF</button>
+                <button type="button" class="excel-btn" id="prMonthlyExcelBtn" disabled>Excel</button>
+                <button type="button" class="hwp-btn" id="prMonthlyHwpBtn" disabled>한글</button>
             </div>
             <p class="org-meta" id="prMonthlyMeta">조회 버튼을 눌러주세요.</p>
             <div id="prMonthlyResult"><div class="empty">성당·Pr 명칭을 입력하고 조회하세요.</div></div>
@@ -1115,7 +1287,15 @@
         const yearSelect = content.querySelector('#prMonthlyYear');
         const monthSelect = content.querySelector('#prMonthlyMonth');
         const pdfBtn = content.querySelector('#prMonthlyPdfBtn');
+        const excelBtn = content.querySelector('#prMonthlyExcelBtn');
+        const hwpBtn = content.querySelector('#prMonthlyHwpBtn');
         let lastReportMeta = null;
+
+        function setExportEnabled(on) {
+            pdfBtn.disabled = !on;
+            excelBtn.disabled = !on;
+            hwpBtn.disabled = !on;
+        }
 
         for (let y = defaultYear; y >= defaultYear - 5; y -= 1) {
             const opt = document.createElement('option');
@@ -1146,7 +1326,7 @@
                 return;
             }
             resultEl.innerHTML = '<div class="empty">불러오는 중...</div>';
-            pdfBtn.disabled = true;
+            setExportEnabled(false);
             lastReportMeta = null;
             try {
                 const data = await fetchPrMonthlyReport(
@@ -1164,21 +1344,25 @@
                     year: data.year,
                     month: data.month
                 };
-                pdfBtn.disabled = false;
+                setExportEnabled(true);
             } catch (error) {
                 metaEl.textContent = '';
                 resultEl.innerHTML = `<div class="empty">${escapeHtml(error.message || '조회 실패')}</div>`;
             }
         }
 
+        function getFormEl() {
+            return resultEl.querySelector('#prMonthlyFormPrint');
+        }
+
         async function runPdfExport() {
-            const formEl = resultEl.querySelector('#prMonthlyFormPrint');
+            const formEl = getFormEl();
             if (!formEl || !lastReportMeta) {
-                alert('먼저 월례보고를 조회한 뒤 PDF 출력을 눌러주세요.');
+                alert('먼저 월례보고를 조회한 뒤 출력을 눌러주세요.');
                 return;
             }
             const prevText = pdfBtn.textContent;
-            pdfBtn.disabled = true;
+            setExportEnabled(false);
             pdfBtn.textContent = 'PDF 생성 중...';
             try {
                 await exportMonthlyFormToPdf(formEl, lastReportMeta);
@@ -1187,7 +1371,41 @@
                 alert('PDF 생성 중 오류가 발생했습니다: ' + (error.message || error));
             } finally {
                 pdfBtn.textContent = prevText;
-                pdfBtn.disabled = !resultEl.querySelector('#prMonthlyFormPrint');
+                setExportEnabled(!!getFormEl());
+            }
+        }
+
+        async function runExcelExport() {
+            const formEl = getFormEl();
+            if (!formEl || !lastReportMeta) {
+                alert('먼저 월례보고를 조회한 뒤 출력을 눌러주세요.');
+                return;
+            }
+            const prevText = excelBtn.textContent;
+            setExportEnabled(false);
+            excelBtn.textContent = 'Excel 생성 중...';
+            try {
+                await exportMonthlyFormToExcel(formEl, lastReportMeta);
+            } catch (error) {
+                console.error('Pr 월례보고 Excel 오류:', error);
+                alert('Excel 생성 중 오류가 발생했습니다: ' + (error.message || error));
+            } finally {
+                excelBtn.textContent = prevText;
+                setExportEnabled(!!getFormEl());
+            }
+        }
+
+        function runHwpExport() {
+            const formEl = getFormEl();
+            if (!formEl || !lastReportMeta) {
+                alert('먼저 월례보고를 조회한 뒤 출력을 눌러주세요.');
+                return;
+            }
+            try {
+                exportMonthlyFormToHangul(formEl, lastReportMeta);
+            } catch (error) {
+                console.error('Pr 월례보고 한글 오류:', error);
+                alert('한글 파일 생성 중 오류가 발생했습니다: ' + (error.message || error));
             }
         }
 
@@ -1195,6 +1413,8 @@
         content.querySelector('#prMonthlyBackBtn').onclick = () => showPrReportTypeChooser(modal);
         content.querySelector('#prMonthlySearchBtn').onclick = runSearch;
         pdfBtn.onclick = runPdfExport;
+        excelBtn.onclick = runExcelExport;
+        hwpBtn.onclick = runHwpExport;
         [churchInput, nameInput].forEach((input) => {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {

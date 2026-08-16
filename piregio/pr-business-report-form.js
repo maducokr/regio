@@ -27,18 +27,16 @@
             .replace(/"/g, '&quot;');
     }
 
-    function cell(value) {
-        if (value === null || value === undefined || value === '') return '';
-        return escapeHtml(value);
+    function cell(value, cls) {
+        return blank(value, cls || 'w6');
     }
 
+    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 파란 깜빡임 */
     function blank(value, cls) {
         const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
-        if (text) {
-            return `<span class="${c.trim()}">${escapeHtml(text)}</span>`;
-        }
-        return `<input type="text" class="${c.trim()} blank-editable" value="" placeholder=" " inputmode="text" autocomplete="off" aria-label="직접 입력">`;
+        const has = text.trim() ? ' has-value' : '';
+        return `<input type="text" class="${c.trim()} blank-editable${has}" value="${escapeHtml(text)}" placeholder=" " inputmode="text" autocomplete="off" aria-label="출력 전 수정">`;
     }
 
     function ratioBlank(present, total) {
@@ -64,11 +62,10 @@
                 .trim();
             span.className = `${base} blank-print`.trim();
             span.textContent = input.value || '';
-            input.style.display = 'none';
-            input.parentNode.insertBefore(span, input);
+            const parent = input.parentNode;
+            parent.replaceChild(span, input);
             restorers.push(() => {
-                span.remove();
-                input.style.display = '';
+                parent.replaceChild(input, span);
             });
         });
         return () => restorers.forEach((fn) => fn());
@@ -87,7 +84,7 @@
     function n(value) {
         if (value === null || value === undefined || value === '') return '';
         const num = Number(value);
-        if (Number.isNaN(num)) return cell(value);
+        if (Number.isNaN(num)) return String(value);
         return String(num);
     }
 
@@ -582,9 +579,9 @@
             const ev = matchEvent(events, def.labels);
             const info = eventDateAtt(ev);
             return `<tr>
-                <td class="left">${cell(formatEventRowLabel(def.title, ev))}</td>
-                <td>${cell(info.date)}</td>
-                <td>${cell(info.attendance)}</td>
+                <td class="left">${blank(formatEventRowLabel(def.title, ev), 'w12')}</td>
+                <td>${blank(info.date, 'w6')}</td>
+                <td>${blank(info.attendance, 'w4')}</td>
             </tr>`;
         }).join('');
 
@@ -592,9 +589,9 @@
             const ev = matchEvent(events, def.labels);
             const info = eventDateAtt(ev);
             return `<tr>
-                <td class="left">${cell(formatEventRowLabel(def.title, ev))}</td>
-                <td>${cell(info.date)}</td>
-                <td>${cell(info.attendance)}</td>
+                <td class="left">${blank(formatEventRowLabel(def.title, ev), 'w12')}</td>
+                <td>${blank(info.date, 'w6')}</td>
+                <td>${blank(info.attendance, 'w4')}</td>
             </tr>`;
         }).join('');
 
@@ -639,14 +636,14 @@
                 ? (parts.join(' ') || String(ev.event_type || ''))
                 : '';
             eduRows.push(`<tr>
-                <td class="left">${cell(labelText)}</td>
-                <td>${cell(info.date)}</td>
-                <td>${cell(info.attendance)}</td>
+                <td class="left">${blank(labelText, 'w12')}</td>
+                <td>${blank(info.date, 'w6')}</td>
+                <td>${blank(info.attendance, 'w4')}</td>
             </tr>`);
         }
         // 빈 칸 최소 1줄 유지 (자료 없을 때)
         while (eduRows.length < 1) {
-            eduRows.push('<tr><td class="left"></td><td></td><td></td></tr>');
+            eduRows.push(`<tr><td class="left">${blank('', 'w12')}</td><td>${blank('', 'w6')}</td><td>${blank('', 'w4')}</td></tr>`);
         }
 
         const activeKeys = { m: 'active_m', f: 'active_f', t: 'active_t' };
@@ -821,7 +818,7 @@
                         </table>
                     </div>
                 </div>
-                <p class="biz-note">※ DB에 있는 항목(성당·Pr·직속·설립/승인일·보고기간·주회합·간부 G1~G4·단원수·참석인원이 있는 행사)만 자동 기입됩니다. 파란 깜빡임 빈칸은 화면에만 직접 입력되며, PDF 출력 시 입력값이 포함됩니다(DB 저장 없음).</p>
+                <p class="biz-note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 파란색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
@@ -1099,9 +1096,119 @@
                 const endDate = meta?.endDate || '';
                 const range = startDate && endDate ? `${startDate}_${endDate}` : stamp;
                 const fileName = `Regio_Pr사업보고_${safeFilePart(prName)}_${safeFilePart(range)}.pdf`;
-                pdf.save(fileName);
+                if (global.RegioPdfShare && typeof global.RegioPdfShare.deliverJsPdf === 'function') {
+                    await global.RegioPdfShare.deliverJsPdf(pdf, fileName, {
+                        title: 'Pr 사업보고',
+                        text: prName || fileName
+                    });
+                } else {
+                    pdf.save(fileName);
+                }
             });
         } finally {
+            formEl.classList.remove('pr-biz-pdf-export');
+        }
+    }
+
+    function downloadBlob(content, mime, filename) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    function buildPrBizExportBase(meta) {
+        const stamp = new Date().toISOString().slice(0, 10);
+        const prName = meta?.prName || '';
+        const startDate = meta?.startDate || '';
+        const endDate = meta?.endDate || '';
+        const range = startDate && endDate ? `${startDate}_${endDate}` : stamp;
+        return `Regio_Pr사업보고_${safeFilePart(prName)}_${safeFilePart(range)}`;
+    }
+
+    async function ensureXlsxLibrary() {
+        if (global.XLSX) return;
+        await loadScript('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js');
+        if (!global.XLSX) throw new Error('Excel 라이브러리를 불러오지 못했습니다.');
+    }
+
+    async function exportToExcel(formEl, meta) {
+        if (!formEl) {
+            throw new Error('출력할 사업 보고서 양식이 없습니다. 먼저 일년 집계를 조회해주세요.');
+        }
+        await ensureXlsxLibrary();
+        ensureStyles();
+        formEl.classList.add('pr-biz-pdf-export');
+        try {
+            await withFrozenBlanks(formEl, async () => {
+                const rows = [];
+                rows.push(['쁘레시디움 사업 보고서']);
+                rows.push(['Pr', meta?.prName || '']);
+                rows.push(['기간', `${meta?.startDate || ''} ~ ${meta?.endDate || ''}`]);
+                rows.push([]);
+
+                formEl.querySelectorAll('table').forEach((table, idx) => {
+                    rows.push([`표 ${idx + 1}`]);
+                    table.querySelectorAll('tr').forEach((tr) => {
+                        const cells = [...tr.querySelectorAll('th,td')].map((td) =>
+                            String(td.innerText || '').replace(/\s+/g, ' ').trim()
+                        );
+                        if (cells.some((c) => c)) rows.push(cells);
+                    });
+                    rows.push([]);
+                });
+
+                const worksheet = global.XLSX.utils.aoa_to_sheet(rows);
+                worksheet['!cols'] = [{ wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+                const workbook = global.XLSX.utils.book_new();
+                global.XLSX.utils.book_append_sheet(workbook, worksheet, 'Pr사업보고');
+                global.XLSX.writeFile(workbook, `${buildPrBizExportBase(meta)}.xlsx`);
+            });
+        } finally {
+            formEl.classList.remove('pr-biz-pdf-export');
+        }
+    }
+
+    function exportToHangul(formEl, meta) {
+        if (!formEl) {
+            throw new Error('출력할 사업 보고서 양식이 없습니다. 먼저 일년 집계를 조회해주세요.');
+        }
+        ensureStyles();
+        formEl.classList.add('pr-biz-pdf-export');
+        const restore = freezeBlankInputsForExport(formEl);
+        try {
+            const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="Generator" content="Regio">
+    <title>쁘레시디움 사업 보고서</title>
+    <style>
+        body { font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; padding: 20px; color: #111; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
+        th, td { border: 1px solid #333; padding: 4px; text-align: center; vertical-align: middle; }
+        .left { text-align: left; }
+        .blank, .blank-print { display: inline; border-bottom: none; }
+        input { display: none !important; }
+        .biz-note { display: none !important; }
+    </style>
+</head>
+<body>
+    <h1>쁘레시디움 사업 보고서</h1>
+    <p>Pr: ${escapeHtml(meta?.prName || '')}</p>
+    <p>기간: ${escapeHtml(meta?.startDate || '')} ~ ${escapeHtml(meta?.endDate || '')}</p>
+    ${formEl.innerHTML}
+</body>
+</html>`;
+            downloadBlob('\ufeff' + html, 'text/html;charset=utf-8', `${buildPrBizExportBase(meta)}.html`);
+            alert('한글(아래한글)에서 "파일 > 열기"로 저장된 HTML 파일을 열 수 있습니다.');
+        } finally {
+            restore();
             formEl.classList.remove('pr-biz-pdf-export');
         }
     }
@@ -1111,6 +1218,8 @@
         hide,
         buildFormHtml,
         ensureStyles,
-        exportToPdf
+        exportToPdf,
+        exportToExcel,
+        exportToHangul
     };
 })(typeof window !== 'undefined' ? window : global);

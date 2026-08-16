@@ -1364,6 +1364,8 @@
                 <h2 class="section-title">📋 쁘레시디움 사업 보고서</h2>
                 <div class="export-buttons" id="prBusinessExportButtons">
                     <button type="button" id="prBusinessPdfBtn" class="export-btn pdf" onclick="exportPrBusinessReportToPDF()" disabled>📄 PDF 출력</button>
+                    <button type="button" id="prBusinessExcelBtn" class="export-btn excel" onclick="exportPrBusinessReportToExcel()" disabled>📊 Excel 출력</button>
+                    <button type="button" id="prBusinessHwpBtn" class="export-btn hwp" onclick="exportPrBusinessReportToHangul()" disabled>📝 한글 출력</button>
                 </div>
             </div>
             <div id="prBusinessReportContainer"></div>
@@ -1443,17 +1445,18 @@
 
 
     <script src="date-wheel-picker.js"></script>
-    <script src="auth-ui.js"></script>    <script src="deploy-mode.js"></script>
+    <script src="auth-ui.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
-    <script src="curia-hub.js?v=20260816d"></script>
+    <script src="pdf-share.js?v=20260816g"></script>
+    <script src="curia-hub.js?v=20260816g"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260816c"></script>
-    <script src="curia-comprehensive-report-form.js?v=20260816a"></script>
+    <script src="pr-business-report-form.js?v=20260816g"></script>
+    <script src="curia-comprehensive-report-form.js?v=20260816g"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
     <script src="member-form-fields.js"></script>
@@ -1787,7 +1790,15 @@
                     heightLeft -= pageHeight;
                 }
 
-                pdf.save(`Regio_활동요약_${meta.timestamp}.pdf`);
+                const summaryPdfName = `Regio_활동요약_${meta.timestamp}.pdf`;
+                if (window.RegioPdfShare && typeof RegioPdfShare.deliverJsPdf === 'function') {
+                    await RegioPdfShare.deliverJsPdf(pdf, summaryPdfName, {
+                        title: meta.scope === 'secretary' ? SECRETARY_SUMMARY_TITLE : '활동 요약',
+                        text: summaryPdfName
+                    });
+                } else {
+                    pdf.save(summaryPdfName);
+                }
             } catch (error) {
                 console.error('PDF 생성 오류:', error);
                 alert('PDF 생성 중 오류가 발생했습니다: ' + error.message);
@@ -3166,8 +3177,10 @@
 
             if (!showForm || !window.RegioPrBusinessReportForm) {
                 section.style.display = 'none';
-                const pdfBtnHide = document.getElementById('prBusinessPdfBtn');
-                if (pdfBtnHide) pdfBtnHide.disabled = true;
+                ['prBusinessPdfBtn', 'prBusinessExcelBtn', 'prBusinessHwpBtn'].forEach((id) => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.disabled = true;
+                });
                 if (window.RegioPrBusinessReportForm) RegioPrBusinessReportForm.hide(container);
                 return;
             }
@@ -3176,17 +3189,23 @@
             const prName = document.getElementById('prNameInput')?.value?.trim() || '';
             if (!user?.church_name || !prName) {
                 section.style.display = 'none';
-                const pdfBtnHide2 = document.getElementById('prBusinessPdfBtn');
-                if (pdfBtnHide2) pdfBtnHide2.disabled = true;
+                ['prBusinessPdfBtn', 'prBusinessExcelBtn', 'prBusinessHwpBtn'].forEach((id) => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.disabled = true;
+                });
                 return;
             }
 
             section.style.display = 'block';
             const pdfBtn = document.getElementById('prBusinessPdfBtn');
+            const excelBtn = document.getElementById('prBusinessExcelBtn');
+            const hwpBtn = document.getElementById('prBusinessHwpBtn');
             if (pdfBtn) {
                 pdfBtn.disabled = true;
                 pdfBtn.textContent = '📄 PDF 출력';
             }
+            if (excelBtn) excelBtn.disabled = true;
+            if (hwpBtn) hwpBtn.disabled = true;
             await RegioPrBusinessReportForm.render({
                 churchName: user.church_name,
                 prName,
@@ -3194,9 +3213,20 @@
                 endDate,
                 container
             });
-            if (pdfBtn) {
-                pdfBtn.disabled = !container.querySelector('#prBusinessFormPrint');
-            }
+            const ready = !!container.querySelector('#prBusinessFormPrint');
+            if (pdfBtn) pdfBtn.disabled = !ready;
+            if (excelBtn) excelBtn.disabled = !ready;
+            if (hwpBtn) hwpBtn.disabled = !ready;
+        }
+
+        function getPrBusinessExportMeta() {
+            const user = getLoggedInUser();
+            return {
+                churchName: user?.church_name || '',
+                prName: document.getElementById('prNameInput')?.value?.trim() || '',
+                startDate: document.getElementById('startDate')?.value || '',
+                endDate: document.getElementById('endDate')?.value || ''
+            };
         }
 
         async function exportPrBusinessReportToPDF() {
@@ -3218,16 +3248,7 @@
             }
 
             try {
-                const user = getLoggedInUser();
-                const prName = document.getElementById('prNameInput')?.value?.trim() || '';
-                const startDate = document.getElementById('startDate')?.value || '';
-                const endDate = document.getElementById('endDate')?.value || '';
-                await RegioPrBusinessReportForm.exportToPdf(formEl, {
-                    churchName: user?.church_name || '',
-                    prName,
-                    startDate,
-                    endDate
-                });
+                await RegioPrBusinessReportForm.exportToPdf(formEl, getPrBusinessExportMeta());
             } catch (error) {
                 console.error('사업보고서 PDF 오류:', error);
                 alert('PDF 생성 중 오류가 발생했습니다: ' + (error.message || error));
@@ -3236,6 +3257,53 @@
                     pdfBtn.textContent = prevText || '📄 PDF 출력';
                     pdfBtn.disabled = !document.getElementById('prBusinessFormPrint');
                 }
+            }
+        }
+
+        async function exportPrBusinessReportToExcel() {
+            const formEl = document.getElementById('prBusinessFormPrint');
+            if (!formEl) {
+                alert('출력할 사업 보고서 양식이 없습니다. 먼저 일년 집계를 조회해주세요.');
+                return;
+            }
+            if (!window.RegioPrBusinessReportForm?.exportToExcel) {
+                alert('Excel 출력 기능을 불러오지 못했습니다.');
+                return;
+            }
+            const excelBtn = document.getElementById('prBusinessExcelBtn');
+            const prevText = excelBtn ? excelBtn.textContent : '';
+            if (excelBtn) {
+                excelBtn.disabled = true;
+                excelBtn.textContent = 'Excel 생성 중...';
+            }
+            try {
+                await RegioPrBusinessReportForm.exportToExcel(formEl, getPrBusinessExportMeta());
+            } catch (error) {
+                console.error('사업보고서 Excel 오류:', error);
+                alert('Excel 생성 중 오류가 발생했습니다: ' + (error.message || error));
+            } finally {
+                if (excelBtn) {
+                    excelBtn.textContent = prevText || '📊 Excel 출력';
+                    excelBtn.disabled = !document.getElementById('prBusinessFormPrint');
+                }
+            }
+        }
+
+        function exportPrBusinessReportToHangul() {
+            const formEl = document.getElementById('prBusinessFormPrint');
+            if (!formEl) {
+                alert('출력할 사업 보고서 양식이 없습니다. 먼저 일년 집계를 조회해주세요.');
+                return;
+            }
+            if (!window.RegioPrBusinessReportForm?.exportToHangul) {
+                alert('한글 출력 기능을 불러오지 못했습니다.');
+                return;
+            }
+            try {
+                RegioPrBusinessReportForm.exportToHangul(formEl, getPrBusinessExportMeta());
+            } catch (error) {
+                console.error('사업보고서 한글 오류:', error);
+                alert('한글 파일 생성 중 오류가 발생했습니다: ' + (error.message || error));
             }
         }
 

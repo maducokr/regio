@@ -13,28 +13,23 @@
             .replace(/"/g, '&quot;');
     }
 
-    function cell(value) {
-        if (value === null || value === undefined || value === '') return '';
-        return escapeHtml(value);
+    function cell(value, cls) {
+        return blank(value, cls || 'w6');
     }
 
+    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 파란 깜빡임 */
     function blank(value, cls) {
         const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
-        // DB에 값이 있으면 고정 표시, 빈칸만 파란 깜박임 입력란
-        if (text) {
-            return `<span class="${c.trim()}">${escapeHtml(text)}</span>`;
-        }
-        return `<input type="text" class="${c.trim()} blank-editable" value="" placeholder=" " inputmode="text" autocomplete="off" aria-label="직접 입력">`;
+        const has = text.trim() ? ' has-value' : '';
+        return `<input type="text" class="${c.trim()} blank-editable${has}" value="${escapeHtml(text)}" placeholder=" " inputmode="text" autocomplete="off" aria-label="출력 전 수정">`;
     }
 
     function lineBoxHtml(text, minHeight) {
         const t = String(text || '').trim();
-        const h = minHeight ? ` style="min-height:${minHeight};"` : '';
-        if (t) {
-            return `<div class="line-box"${h}>${escapeHtml(t)}</div>`;
-        }
-        return `<div class="line-box blank-editable"${h} contenteditable="true" data-placeholder="입력"></div>`;
+        const h = minHeight ? ` style="min-height:${minHeight};white-space:pre-wrap;"` : ' style="white-space:pre-wrap;"';
+        const has = t ? ' has-value' : '';
+        return `<div class="line-box blank-editable${has}"${h} contenteditable="true" data-placeholder="입력">${escapeHtml(t)}</div>`;
     }
 
     function wireBlankEditables(root) {
@@ -66,11 +61,10 @@
                 .trim();
             span.className = `${base} blank-print`.trim();
             span.textContent = input.value || '';
-            input.style.display = 'none';
-            input.parentNode.insertBefore(span, input);
+            const parent = input.parentNode;
+            parent.replaceChild(span, input);
             restorers.push(() => {
-                span.remove();
-                input.style.display = '';
+                parent.replaceChild(input, span);
             });
         });
         formEl.querySelectorAll('.line-box.blank-editable').forEach((box) => {
@@ -102,7 +96,7 @@
     function n(value) {
         if (value === null || value === undefined || value === '') return '';
         const num = Number(value);
-        if (Number.isNaN(num)) return cell(value);
+        if (Number.isNaN(num)) return String(value);
         return String(num);
     }
 
@@ -586,8 +580,8 @@
                     <tr>
                         ${catCell}
                         <td class="col-sub">${escapeHtml(rowDef.label)}</td>
-                        <td class="col-cnt">${agg.count > 0 ? n(agg.count) : ''}</td>
-                        <td class="col-note">${cell(agg.content)}</td>
+                        <td class="col-cnt">${blank(agg.count > 0 ? n(agg.count) : '', 'w4')}</td>
+                        <td class="col-note">${blank(agg.content, 'w20')}</td>
                         <td class="col-rmk">${rmkHtml}</td>
                     </tr>
                 `;
@@ -874,7 +868,7 @@
     }
 
     function evalNum(value) {
-        return value > 0 ? n(value) : '';
+        return blank(value > 0 ? n(value) : '', 'w4');
     }
 
     function buildEvaluationHtml(currentRecords, previousRecords, futurePlans) {
@@ -894,10 +888,10 @@
                     <td class="eval-item">${itemLabel}</td>
                     <td>${evalNum(p.count)}</td>
                     <td>${evalNum(p.result)}</td>
-                    <td>${p.ratio > 0 ? `${p.ratio}%` : ''}</td>
+                    <td>${blank(p.ratio > 0 ? `${p.ratio}%` : '', 'w4')}</td>
                     <td>${evalNum(row.count)}</td>
                     <td>${evalNum(row.result)}</td>
-                    <td>${row.ratio > 0 ? `${row.ratio}%` : ''}</td>
+                    <td>${blank(row.ratio > 0 ? `${row.ratio}%` : '', 'w4')}</td>
                 </tr>
             `;
         }).join('');
@@ -930,10 +924,10 @@
                             <td colspan="2"><strong>계</strong></td>
                             <td>${evalNum(prev.totalCount)}</td>
                             <td>${evalNum(prev.totalResult)}</td>
-                            <td>${prevRatioTotal}</td>
+                            <td>${blank(prevRatioTotal, 'w4')}</td>
                             <td>${evalNum(cur.totalCount)}</td>
                             <td>${evalNum(cur.totalResult)}</td>
-                            <td>${curRatioTotal}</td>
+                            <td>${blank(curRatioTotal, 'w4')}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1066,7 +1060,7 @@
 
     function mfy(row, key) {
         const r = row || {};
-        return n(r[key]);
+        return blank(n(r[key]), 'w4');
     }
 
     function orgTriple(row, mKey, fKey, tKey) {
@@ -1217,11 +1211,12 @@
         const change = org.change || {};
 
         function cellsFor(src, mode) {
-            if (mode === 'prAdult') return `<td></td><td></td><td>${n(src.pr_adult)}</td>`;
-            if (mode === 'prJunior') return `<td></td><td></td><td>${n(src.pr_junior)}</td>`;
+            const emptyPair = `<td>${blank('', 'w4')}</td><td>${blank('', 'w4')}</td>`;
+            if (mode === 'prAdult') return `${emptyPair}<td>${blank(n(src.pr_adult), 'w4')}</td>`;
+            if (mode === 'prJunior') return `${emptyPair}<td>${blank(n(src.pr_junior), 'w4')}</td>`;
             if (mode === 'prTotal') {
                 const t = (Number(src.pr_adult) || 0) + (Number(src.pr_junior) || 0);
-                return `<td></td><td></td><td>${t || ''}</td>`;
+                return `${emptyPair}<td>${blank(t || '', 'w4')}</td>`;
             }
             if (mode === 'activeAdult') return orgTriple(src, 'active_adult_m', 'active_adult_f', 'active_adult_t');
             if (mode === 'activeJunior') return orgTriple(src, 'active_junior_m', 'active_junior_f', 'active_junior_t');
@@ -1229,12 +1224,12 @@
                 const m = (Number(src.active_adult_m) || 0) + (Number(src.active_junior_m) || 0);
                 const f = (Number(src.active_adult_f) || 0) + (Number(src.active_junior_f) || 0);
                 const t = (Number(src.active_adult_t) || 0) + (Number(src.active_junior_t) || 0);
-                return `<td>${m || ''}</td><td>${f || ''}</td><td>${t || ''}</td>`;
+                return `<td>${blank(m || '', 'w4')}</td><td>${blank(f || '', 'w4')}</td><td>${blank(t || '', 'w4')}</td>`;
             }
-            if (mode === 'praetorian') return `<td></td><td></td><td>${n(src.praetorian)}</td>`;
+            if (mode === 'praetorian') return `${emptyPair}<td>${blank(n(src.praetorian), 'w4')}</td>`;
             if (mode === 'aux') return orgTriple(src, 'aux_m', 'aux_f', 'aux_t');
-            if (mode === 'adjutorian') return `<td></td><td></td><td>${n(src.adjutorian)}</td>`;
-            return '<td></td><td></td><td></td>';
+            if (mode === 'adjutorian') return `${emptyPair}<td>${blank(n(src.adjutorian), 'w4')}</td>`;
+            return `${emptyPair}<td>${blank('', 'w4')}</td>`;
         }
 
         function block(mode) {
@@ -1273,8 +1268,8 @@
         const baptismRow = roles.map((role) => `<td>${cell(officerMap[role].baptism_name)}</td>`).join('');
         const electedRow = roles.map((role) => `<td>${cell(officerMap[role].elected_on)}</td>`).join('');
         const attendRow = roles.map((role) => {
-            if (role === '영적지도자') return '<td></td>';
-            return `<td>${cell(officerMap[role].attendance || '00.0%')}</td>`;
+            if (role === '영적지도자') return `<td>${blank('', 'w6')}</td>`;
+            return `<td>${cell(officerMap[role].attendance || '00.0%', 'w6')}</td>`;
         }).join('');
 
         const org = m.organization || {};
@@ -1363,7 +1358,7 @@
 
                 ${buildRosterHtml(m.roster)}
 
-                <p class="note">※ 꾸리아명·간부(K1~K4)·조직현황·간부이동/신설/호도반납·행사·교육/피정·질의/건의·10. 활동 사항·기도생활·11. 평가(전차/금차)·간부·소속 Pr 명부는 DB에서 자동 기입됩니다. 파란색으로 깜박이는 빈칸은 직접 입력할 수 있으며(저장 없음), PDF/Excel 출력 시 함께 포함됩니다.</p>
+                <p class="note">※ DB에서 자동 기입된 항목을 포함해 출력물 내용은 PDF/Excel 전에 모두 수정할 수 있습니다(저장 없음). 빈칸은 파란색으로 깜박이며, 출력 시 수정 내용이 포함됩니다.</p>
                 <p class="note">※ 활동종목은 세목 분류용이며, 활동횟수 집계는 세목 기준입니다(종목 접두와 무관).</p>
             </div>
         `;
@@ -1883,7 +1878,15 @@
                 heightLeft -= usableHeight;
             }
 
-            pdf.save(`${buildExportFileBase(meta)}.pdf`);
+            const fileName = `${buildExportFileBase(meta)}.pdf`;
+            if (global.RegioPdfShare && typeof global.RegioPdfShare.deliverJsPdf === 'function') {
+                await global.RegioPdfShare.deliverJsPdf(pdf, fileName, {
+                    title: '꾸리아 종합보고',
+                    text: meta?.curiaName || fileName
+                });
+            } else {
+                pdf.save(fileName);
+            }
         });
     }
 
@@ -1929,6 +1932,9 @@
 
     function exportToHangul(formEl, meta) {
         if (!formEl) throw new Error('출력할 꾸리아 종합보고서가 없습니다.');
+        const noteEls = [...formEl.querySelectorAll('.note')];
+        const prevDisplays = noteEls.map((el) => el.style.display);
+        noteEls.forEach((el) => { el.style.display = 'none'; });
         const restore = freezeBlankInputsForExport(formEl);
         try {
             const html = `<!DOCTYPE html>
@@ -1945,7 +1951,9 @@
         th, td { border: 1px solid #333; padding: 4px; text-align: center; vertical-align: middle; }
         .left { text-align: left; }
         .sec { font-weight: 700; margin: 14px 0 6px; }
-        .box { border: 1px solid #333; min-height: 48px; padding: 8px; white-space: pre-wrap; }
+        .box, .line-box { border: 1px solid #333; min-height: 48px; padding: 8px; white-space: pre-wrap; }
+        .blank, .blank-print { display: inline; border-bottom: none; }
+        input { display: none !important; }
     </style>
 </head>
 <body>
@@ -1959,6 +1967,7 @@
             alert('한글(아래한글)에서 "파일 > 열기"로 저장된 HTML 파일을 열 수 있습니다.');
         } finally {
             restore();
+            noteEls.forEach((el, i) => { el.style.display = prevDisplays[i]; });
         }
     }
 
