@@ -19,7 +19,9 @@ const POSITION_LABELS = {
     5: '행동단원',
     6: '협조단원',
     7: '쁘레또리운',
-    8: '아듀또리움'
+    8: '아듀또리움',
+    9: '예비단원',
+    10: '휴가'
 };
 
 const FONT_CANDIDATES = [
@@ -75,6 +77,8 @@ function getPositionCodeFromText(position) {
     if (p.includes('협조')) return 6;
     if (p.includes('쁘레또리운') || p.includes('쁘레토리움') || p.includes('프레토리움')) return 7;
     if (p.includes('아듀또리움') || p.includes('아듀토리움') || p.includes('오디토리움')) return 8;
+    if (p.includes('예비')) return 9;
+    if (p.includes('휴가')) return 10;
     return null;
 }
 

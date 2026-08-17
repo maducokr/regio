@@ -1574,7 +1574,7 @@
             if (!parts.length) return;
             const date = String(record.activity_date || '').slice(0, 10);
             const rawName = String(record.member_name || '').trim();
-            const who = rawName.replace(/^[TG](?:[1-6])?[1-8]/i, '') || rawName;
+            const who = rawName.replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || rawName;
             const pr = String(record.pr_name || '').trim();
             const meta = [date, who, pr ? `Pr:${pr}` : ''].filter(Boolean).join(' · ');
             lines.push(meta ? `${meta}\n${parts.join('\n')}` : parts.join('\n'));

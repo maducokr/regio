@@ -740,14 +740,14 @@ app.get('/api/council-monthly-report', async (req, res) => {
         );
 
         function displayName(memberName) {
-            return String(memberName || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || memberName || '';
+            return String(memberName || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || memberName || '';
         }
 
         function memberCode(row) {
             const fromPos = getPositionCodeFromText(row.position);
             if (fromPos) return fromPos;
             const prefix = matchPositionPrefix(row.name);
-            if (prefix && prefix.code >= 1 && prefix.code <= 8) return prefix.code;
+            if (prefix && prefix.code >= 1 && prefix.code <= 10) return prefix.code;
             return null;
         }
 
@@ -1094,7 +1094,7 @@ app.get('/api/curia-comprehensive-movement', async (req, res) => {
         const ROLE_BY_G = { 1: '단장', 2: '부단장', 3: '서기', 4: '회계' };
 
         function displayName(memberName) {
-            return String(memberName || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || memberName || '';
+            return String(memberName || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || memberName || '';
         }
 
         function formatDate(value) {
@@ -1242,7 +1242,7 @@ app.get('/api/curia-comprehensive-roster', async (req, res) => {
         const ROLE_BY_G = { 1: '단장', 2: '부단장', 3: '서기', 4: '회계' };
 
         function displayName(memberName) {
-            return String(memberName || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || memberName || '';
+            return String(memberName || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || memberName || '';
         }
 
         function formatDate(value) {
@@ -1663,7 +1663,7 @@ app.get('/api/pr-monthly-report', async (req, res) => {
         const monthEnd = `${year}-${String(month).padStart(2, '0')}-${String(monthEndDate.getDate()).padStart(2, '0')}`;
 
         function displayName(memberName) {
-            return String(memberName || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || memberName || '';
+            return String(memberName || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || memberName || '';
         }
 
         function memberCode(row) {
@@ -1672,7 +1672,7 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             if (prefix && prefix.code >= 1 && prefix.code <= 4) return prefix.code;
             const fromPos = getPositionCodeFromText(row.position);
             if (fromPos) return fromPos;
-            if (prefix && prefix.code >= 1 && prefix.code <= 8) return prefix.code;
+            if (prefix && prefix.code >= 1 && prefix.code <= 10) return prefix.code;
             return null;
         }
 
@@ -1991,12 +1991,17 @@ app.get('/api/council-organization', async (req, res) => {
             if (p.includes('협조')) return 6;
             if (p.includes('쁘레')) return 7;
             if (p.includes('아듀')) return 8;
-            const m = String(memberName || '').match(/^[TG](?:[1-6])?([1-8])/i);
-            return m ? parseInt(m[1], 10) : 99;
+            if (p.includes('예비')) return 9;
+            if (p.includes('휴가')) return 10;
+            const m = String(memberName || '').match(/^[TG](10|[1-6][78]|[1-9])/i);
+            if (!m) return 99;
+            const raw = m[1];
+            if (raw.length === 2 && /[1-6][78]/.test(raw)) return parseInt(raw[1], 10);
+            return parseInt(raw, 10);
         }
 
         function displayName(memberName) {
-            return String(memberName || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || memberName || '';
+            return String(memberName || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || memberName || '';
         }
 
         function toMember(row) {
@@ -2110,7 +2115,7 @@ app.get('/api/curia-organization', async (req, res) => {
             group.members.push({
                 id: row.id,
                 name: row.name,
-                display_name: String(row.name || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || row.name,
+                display_name: String(row.name || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || row.name,
                 baptism_name: row.baptism_name || '',
                 gender: row.gender || '',
                 position: row.position || '',
@@ -3074,7 +3079,7 @@ function getMemberOrgNameForCouncilType(row, typeKey) {
 }
 
 function displayMemberNameForEvent(memberName) {
-    return String(memberName || '').replace(/^[TG](?:[1-6])?[1-8]/i, '') || memberName || '';
+    return String(memberName || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || memberName || '';
 }
 
 /** 메모장 note → 메모 / 주요활동내역 / 질의 / 건의 분리 */
@@ -4275,11 +4280,13 @@ app.post('/api/admin-verify', async (req, res) => {
 // 로그인 ID: G직책번호 + 성명 + 폰뒷4자리 (예: G1최유나1234)
 // 샘플 G7/G8: 기존 G1~G6 뒤에 7·8을 붙인 형태 허용 (예: G17임채은, G58신동욱)
 const POSITION_PREFIX_LETTER_CLASS = '[TG]';
-const POSITION_PREFIX_CODE_CLASS = '[1-8]';
+// G10 우선 매칭 (한 자리 1~9보다 먼저)
+const POSITION_PREFIX_CODE_CLASS = '(?:10|[1-9])';
+const POSITION_CODE_MAX = 10;
 
 function stripLeadingPositionDigit(value) {
     return String(value || '').trim()
-        .replace(new RegExp(`^[1-8](?=${POSITION_PREFIX_LETTER_CLASS}${POSITION_PREFIX_CODE_CLASS})`, 'i'), '');
+        .replace(new RegExp(`^(?:10|[1-9])(?=${POSITION_PREFIX_LETTER_CLASS}${POSITION_PREFIX_CODE_CLASS})`, 'i'), '');
 }
 
 function matchPositionPrefix(value) {
@@ -4337,6 +4344,8 @@ function getPositionCodeFromText(position) {
     if (p.includes('협조')) return 6;
     if (p.includes('쁘레또리운') || p.includes('쁘레토리움') || p.includes('프레토리움')) return 7;
     if (p.includes('아듀또리움') || p.includes('아듀토리움') || p.includes('오디토리움')) return 8;
+    if (p.includes('예비')) return 9;
+    if (p.includes('휴가')) return 10;
     return null;
 }
 
@@ -4344,7 +4353,7 @@ function inferPositionCode(position, name) {
     const fromPosition = getPositionCodeFromText(position);
     if (fromPosition) return fromPosition;
     const prefix = matchPositionPrefix(name);
-    if (prefix && prefix.code >= 1 && prefix.code <= 8) return prefix.code;
+    if (prefix && prefix.code >= 1 && prefix.code <= POSITION_CODE_MAX) return prefix.code;
     return 5;
 }
 
@@ -4382,7 +4391,7 @@ function parseLoginId(loginId) {
             style: 'prefixed'
         };
     }
-    const legacyMatch = trimmed.match(/^([1-8])(.+?)(\d{4})$/);
+    const legacyMatch = trimmed.match(/^(10|[1-9])(.+?)(\d{4})$/);
     if (legacyMatch) {
         return {
             positionCode: parseInt(legacyMatch[1], 10),
@@ -5137,7 +5146,7 @@ app.get('/api/login-id-suggest', async (req, res) => {
         if (rawName.length < 2) {
             return res.status(400).json({ success: false, error: '성명을 2자 이상 입력해주세요.' });
         }
-        if (!positionCode || positionCode < 1 || positionCode > 8) {
+        if (!positionCode || positionCode < 1 || positionCode > POSITION_CODE_MAX) {
             return res.status(400).json({ success: false, error: '직책을 선택해주세요.' });
         }
 

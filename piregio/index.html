@@ -315,7 +315,7 @@
 
         .position-picker .pos-code {
             display: inline-block;
-            width: 18px;
+            width: 32px;
             font-weight: bold;
             color: #4A90E2;
         }
@@ -1030,7 +1030,7 @@
 
         .modal-content .position-picker .pos-code {
             display: inline-block;
-            width: 18px;
+            width: 32px;
             font-weight: bold;
             color: #4A90E2;
         }
@@ -1297,6 +1297,8 @@
                         <li data-code="6" data-label="협조단원" data-tprefix="G6"><span class="pos-code">G6</span>협조단원</li>
                         <li data-code="7" data-label="쁘레또리운" data-tprefix="G7"><span class="pos-code">G7</span>쁘레또리운</li>
                         <li data-code="8" data-label="아듀또리움" data-tprefix="G8"><span class="pos-code">G8</span>아듀또리움</li>
+                        <li data-code="9" data-label="예비단원" data-tprefix="G9"><span class="pos-code">G9</span>예비단원</li>
+                        <li data-code="10" data-label="휴가" data-tprefix="G10"><span class="pos-code">G10</span>휴가</li>
                     </ul>
                 </div>
                 <div class="password-field-row">
@@ -1345,6 +1347,8 @@
                         <li data-code="6" data-label="협조단원" data-tprefix="G6"><span class="pos-code">G6</span>협조단원</li>
                         <li data-code="7" data-label="쁘레또리운" data-tprefix="G7"><span class="pos-code">G7</span>쁘레또리운</li>
                         <li data-code="8" data-label="아듀또리움" data-tprefix="G8"><span class="pos-code">G8</span>아듀또리움</li>
+                        <li data-code="9" data-label="예비단원" data-tprefix="G9"><span class="pos-code">G9</span>예비단원</li>
+                        <li data-code="10" data-label="휴가" data-tprefix="G10"><span class="pos-code">G10</span>휴가</li>
                     </ul>
                 </div>
                 <div class="id-input-box church-input-box">
@@ -1408,7 +1412,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- test-pdf-v5 -->
-
+    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
@@ -1517,7 +1521,7 @@
                     <h3 style="margin:0 0 12px;color:#333;font-size: 12px;">TEST 자료</h3>
                     <p style="margin:0 0 22px;color:#555;font-size: 12px;line-height:1.6;">
                         T가 붙은 테스트 회원 100명을 생성하여 DB에 입력하거나,<br>
-                        이름은 Pr 내 순번 G1~G7 + 성명 형식입니다 (예: G2이동식).<br>
+                        이름은 Pr 내 순번 G1~G10 + 성명 형식입니다 (예: G2이동식).<br>
                         로그인 회원 기준 TEST PDF(개인 1주·소속 Pr 1개월·꾸리아 1개월)를 출력합니다.<br>
                         실험이 끝나면 "100명 삭제"로 테스트 자료만 정리할 수 있습니다.
                     </p>
@@ -1613,9 +1617,9 @@
 
         function sanitizeIdBody(value) {
             return String(value || '').trim()
-                .replace(/^[1-8](?=[TG][1-8])/i, '')
-                .replace(/^[1-8]/, '')
-                .replace(/^[TG][1-8]/i, '');
+                .replace(/^(?:10|[1-9])(?=[TG](?:10|[1-9]))/i, '')
+                .replace(/^(?:10|[1-9])/, '')
+                .replace(/^[TG](?:10|[1-9])/i, '');
         }
 
         function parseNameAndPhone4(raw) {
@@ -1729,7 +1733,7 @@
         }
 
         function canOpenPositionPicker() {
-            // G1~G8 선택 후, 또는 성명 입력 후에는 직책 리스트를 다시 표시하지 않음
+            // G1~G10 선택 후, 또는 성명 입력 후에는 직책 리스트를 다시 표시하지 않음
             if (selectedPositionTPrefix) return false;
             if (sanitizeIdBody(usernameInput.value).trim()) return false;
             return true;
@@ -1796,7 +1800,7 @@
         }
 
         function buildLoginId() {
-            // 로그인 ID는 성명+숫자4자리 (직책 G1~G8 접두사 없음)
+            // 로그인 ID는 성명+숫자4자리 (직책 G1~G10 접두사 없음)
             return sanitizeIdBody(usernameInput.value);
         }
 
@@ -1806,14 +1810,14 @@
 
         function parseLoginStyleId(loginId) {
             const trimmed = String(loginId || '').trim();
-            const withoutLeadingCode = trimmed.replace(/^[1-8](?=[TG][1-8])/i, '');
-            const match = withoutLeadingCode.match(/^([TG])([1-8])(.+?)(\d{4})$/i);
+            const withoutLeadingCode = trimmed.replace(/^(?:10|[1-9])(?=[TG](?:10|[1-9]))/i, '');
+            const match = withoutLeadingCode.match(/^([TG])((?:10|[1-9]))(.+?)(\d{4})$/i);
             if (!match) return null;
             const code = parseInt(match[2], 10);
             const letter = match[1].toUpperCase();
             const labels = {
                 1: '단장', 2: '부단장', 3: '서기', 4: '회계',
-                5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움'
+                5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움', 9: '예비단원', 10: '휴가'
             };
             return {
                 positionCode: code,
@@ -1829,11 +1833,11 @@
                 return { ...full, hasPhoneSuffix: true };
             }
             const trimmed = String(loginId || '').trim();
-            const withoutLeadingCode = trimmed.replace(/^[1-8](?=[TG][1-8])/i, '');
-            const m = withoutLeadingCode.match(/^([TG])([1-8])(.+)$/i);
+            const withoutLeadingCode = trimmed.replace(/^(?:10|[1-9])(?=[TG](?:10|[1-9]))/i, '');
+            const m = withoutLeadingCode.match(/^([TG])((?:10|[1-9]))(.+)$/i);
             if (!m || !m[3]) {
                 const plain = trimmed;
-                if (plain && !/^[TG][1-8]/i.test(plain)) {
+                if (plain && !/^[TG](?:10|[1-9])/i.test(plain)) {
                     return {
                         name: plain,
                         positionCode: null,
@@ -1849,7 +1853,7 @@
             const letter = m[1].toUpperCase();
             const labels = {
                 1: '단장', 2: '부단장', 3: '서기', 4: '회계',
-                5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움'
+                5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움', 9: '예비단원', 10: '휴가'
             };
             return {
                 positionCode: code,
@@ -2586,7 +2590,7 @@
         function prepareLoginAfterRegistration(loginId, password) {
             const labels = {
                 1: '단장', 2: '부단장', 3: '서기', 4: '회계',
-                5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움'
+                5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움', 9: '예비단원', 10: '휴가'
             };
             loginTabs.classList.add('hidden');
             switchLoginTab('login');

@@ -56,7 +56,7 @@
             .profile-edit-modal .position-picker li { padding: 8px 12px; font-size: 12px; color: #333; cursor: pointer; }
             .profile-edit-modal .position-picker li:hover,
             .profile-edit-modal .position-picker li.selected { background: #eef5fc; color: #4A90E2; }
-            .profile-edit-modal .position-picker .pos-code { display: inline-block; width: 28px; font-weight: bold; color: #4A90E2; }
+            .profile-edit-modal .position-picker .pos-code { display: inline-block; width: 32px; font-weight: bold; color: #4A90E2; }
             .profile-edit-modal .selected-position-text { display: block; margin-bottom: 6px; font-size: 12px; color: #4A90E2; font-weight: 600; }
             .profile-edit-modal .selected-position-text.empty { color: #999; font-weight: normal; }
             .profile-edit-modal .profile-field-row { display: flex; align-items: stretch; gap: 6px; margin-bottom: 14px; }

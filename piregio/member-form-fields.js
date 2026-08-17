@@ -13,7 +13,9 @@
         { code: '5', label: '행동단원', tprefix: 'G5' },
         { code: '6', label: '협조단원', tprefix: 'G6' },
         { code: '7', label: '쁘레또리운', tprefix: 'G7' },
-        { code: '8', label: '아듀또리움', tprefix: 'G8' }
+        { code: '8', label: '아듀또리움', tprefix: 'G8' },
+        { code: '9', label: '예비단원', tprefix: 'G9' },
+        { code: '10', label: '휴가', tprefix: 'G10' }
     ];
 
     const POSITION_LABELS = POSITION_ITEMS.reduce((acc, item) => {
@@ -54,17 +56,20 @@
             .replace(/</g, '&lt;');
     }
 
+    // G10 우선 (한 자리 1~9보다 먼저)
+    const POSITION_CODE_RE = '(?:10|[1-9])';
+
     function sanitizeIdBody(value) {
         return String(value || '').trim()
-            .replace(/^[1-8](?=[TG][1-8])/i, '')
-            .replace(/^[1-8]/, '')
-            .replace(/^[TG][1-8]/i, '');
+            .replace(new RegExp(`^(?:10|[1-9])(?=[TG]${POSITION_CODE_RE})`, 'i'), '')
+            .replace(/^(?:10|[1-9])/, '')
+            .replace(new RegExp(`^[TG]${POSITION_CODE_RE}`, 'i'), '');
     }
 
     function parseLoginStyleId(loginId) {
         const trimmed = String(loginId || '').trim();
-        const withoutLeadingCode = trimmed.replace(/^[1-8](?=[TG][1-8])/i, '');
-        const match = withoutLeadingCode.match(/^([TG])([1-8])(.+?)(\d{4})$/i);
+        const withoutLeadingCode = trimmed.replace(new RegExp(`^(?:10|[1-9])(?=[TG]${POSITION_CODE_RE})`, 'i'), '');
+        const match = withoutLeadingCode.match(new RegExp(`^([TG])(${POSITION_CODE_RE})(.+?)(\\d{4})$`, 'i'));
         if (!match) return null;
         const code = parseInt(match[2], 10);
         const letter = match[1].toUpperCase();
@@ -99,9 +104,9 @@
         const resetBtn = showReset
             ? '<button type="button" class="id-reset-btn" id="resetRegIdBtn" title="처음부터 다시 입력">수정</button>'
             : '';
-        // 프로필: G1~G8 접두사 + 바로 뒤 빨간 직책변경 클릭
+        // 프로필: G1~G10 접두사 + 바로 뒤 빨간 직책변경 클릭
         const prefixHtml = isProfile
-            ? `<button type="button" class="id-g-prefix-btn" id="regIdPrefixBtn" title="직책(G1~G8) 변경">G?</button>
+            ? `<button type="button" class="id-g-prefix-btn" id="regIdPrefixBtn" title="직책(G1~G10) 변경">G?</button>
                <button type="button" class="id-position-change-btn" id="regPositionChangeBtn" title="직책 선택">직책</button>`
             : `<span class="id-prefix-label">ID</span>`;
         const positionHint = isProfile
@@ -118,7 +123,7 @@
                 <ul class="position-picker" id="regPositionPicker">${buildPositionPickerHtml()}</ul>
             </div>
             <p class="id-hint">${isProfile
-                ? '이름 앞 <strong>G1~G8</strong> 뒤의 <strong style="color:#dc3545;">빨간 변경</strong>을 눌러 직책을 바꿉니다.'
+                ? '이름 앞 <strong>G1~G10</strong> 뒤의 <strong style="color:#dc3545;">빨간 변경</strong>을 눌러 직책을 바꿉니다.'
                 : '직책 선택 후 <strong>성명+숫자4자리</strong> 입력 (G는 자동 적용)'}</p>
             <p class="id-hint" id="regCuriaHint" style="display:none;">협조단원은 <strong>Pr만</strong> 입력하면 되며, 꾸리아 명칭은 나중에 기록할 수 있습니다.</p>
         `;
@@ -448,7 +453,7 @@
                 positionChangeBtn.textContent = tPrefix ? '변경' : '선택';
                 positionChangeBtn.title = tPrefix
                     ? `직책 변경 (현재 ${tPrefix}${label ? ' ' + label : ''})`
-                    : '직책(G1~G8) 선택';
+                    : '직책(G1~G10) 선택';
             }
             if (!regSelectedPositionText) return;
             if (code && label && tPrefix) {
@@ -675,7 +680,7 @@
     function memberToRegFields(user) {
         const name = String((user && user.name) || '');
         const phone4 = String((user && user.phone_last4) || '').replace(/\D/g, '').slice(-4);
-        const prefixMatch = name.match(/^([TG])([1-8])(.+)$/i);
+        const prefixMatch = name.match(/^([TG])((?:10|[1-9]))(.+)$/i);
         if (prefixMatch) {
             const code = prefixMatch[2];
             const pos = POSITION_ITEMS.find((p) => p.code === code);
@@ -779,7 +784,7 @@
                 };
             }
         }
-        const codeMatch = String((profileUser && profileUser.name) || '').match(/^[TG]([1-8])/i);
+        const codeMatch = String((profileUser && profileUser.name) || '').match(/^[TG]((?:10|[1-9]))/i);
         return {
             name: profileUser.name,
             phone_last4: profileUser.phone_last4,

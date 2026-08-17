@@ -1445,7 +1445,7 @@
 
 
     <script src="date-wheel-picker.js"></script>
-    <script src="auth-ui.js"></script>
+    <script src="auth-ui.js"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
@@ -3796,7 +3796,7 @@
 
         function memoWhoLabel(record) {
             const rawName = String(record.member_name || record.name || '').trim();
-            const who = rawName.replace(/^[TG](?:[1-6])?[1-8]/i, '') || rawName;
+            const who = rawName.replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || rawName;
             const pr = String(record.pr_name || '').trim();
             const parts = [];
             if (who) parts.push(who);
