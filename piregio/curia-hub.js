@@ -278,7 +278,10 @@
             }
             .curia-monthly-form .line-box.blank-editable.has-value,
             .curia-monthly-form .line-box.blank-editable:focus {
-                animation:none; border-color:#2563eb; color:#1d4ed8; background:rgba(37,99,235,0.06);
+                animation:none !important;
+                border-color:#2563eb !important;
+                color:#1d4ed8 !important;
+                background:rgba(37,99,235,0.06) !important;
             }
             .curia-monthly-form .line-box.blank-editable:empty::before {
                 content:attr(data-placeholder); color:#f87171; pointer-events:none;
