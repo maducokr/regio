@@ -185,18 +185,20 @@
             .curia-comp-form input.blank.blank-editable:placeholder-shown {
                 animation: curia-blank-blink 1.1s ease-in-out infinite;
             }
+            /* DB·기입된 값: 파란색 / 빈칸: 위 빨간색 깜빡임 */
             .curia-comp-form input.blank.blank-editable:not(:placeholder-shown),
             .curia-comp-form input.blank.blank-editable.has-value {
                 animation: none;
-                border-bottom-color: #b91c1c;
-                background: rgba(220, 38, 38, 0.04);
-                color: #111;
+                border-bottom-color: #2563eb;
+                background: rgba(37, 99, 235, 0.06);
+                color: #1d4ed8;
             }
             .curia-comp-form input.blank.blank-editable:focus {
                 outline: none;
                 animation: none;
-                border-bottom-color: #b91c1c;
-                background: #fef2f2;
+                border-bottom-color: #2563eb;
+                background: rgba(37, 99, 235, 0.1);
+                color: #1d4ed8;
             }
             .curia-comp-form .blank-print {
                 border-bottom: 1px solid #333;
@@ -215,9 +217,9 @@
             .curia-comp-form .line-box.blank-editable.has-value,
             .curia-comp-form .line-box.blank-editable:focus {
                 animation: none;
-                border-color: #b91c1c;
-                color: #111;
-                background: #fef2f2;
+                border-color: #2563eb;
+                color: #1d4ed8;
+                background: rgba(37, 99, 235, 0.06);
             }
             .curia-comp-form .line-box.blank-editable:empty::before {
                 content: attr(data-placeholder);
@@ -1358,7 +1360,7 @@
 
                 ${buildRosterHtml(m.roster)}
 
-                <p class="note">※ DB에서 자동 기입된 항목을 포함해 출력물 내용은 PDF/Excel 전에 모두 수정할 수 있습니다(저장 없음). 빈칸은 빨간색으로 깜박이며, 출력 시 수정 내용이 포함됩니다.</p>
+                <p class="note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF/Excel 전에 모두 수정할 수 있으며(저장 없음), 출력 시 수정 내용이 포함됩니다.</p>
                 <p class="note">※ 활동종목은 세목 분류용이며, 활동횟수 집계는 세목 기준입니다(종목 접두와 무관).</p>
             </div>
         `;

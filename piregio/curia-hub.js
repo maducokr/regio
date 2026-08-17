@@ -211,22 +211,24 @@
             .council-hub-modal .curia-monthly-form input.blank.w10.blank-editable { min-width:8em !important; }
             .curia-monthly-form .blank.w20.blank-editable,
             .council-hub-modal .curia-monthly-form input.blank.w20.blank-editable { min-width:14em !important; }
+            /* DB·기입된 값: 파란색 / 빈칸: 위 빨간색 깜빡임 */
             .council-hub-modal .curia-monthly-form input.blank.blank-editable:not(:placeholder-shown),
             .council-hub-modal .curia-monthly-form input.blank.blank-editable.has-value,
             .curia-monthly-form input.blank.blank-editable:not(:placeholder-shown),
             .curia-monthly-form input.blank.blank-editable.has-value {
                 animation:none !important;
-                border-bottom-color:#b91c1c !important;
-                background:rgba(220,38,38,0.04) !important;
-                color:#111 !important;
+                border-bottom-color:#2563eb !important;
+                background:rgba(37,99,235,0.06) !important;
+                color:#1d4ed8 !important;
                 box-shadow:none;
             }
             .council-hub-modal .curia-monthly-form input.blank.blank-editable:focus,
             .curia-monthly-form input.blank.blank-editable:focus {
                 outline:none !important;
                 animation:none !important;
-                border-bottom-color:#b91c1c !important;
-                background:#fef2f2 !important;
+                border-bottom-color:#2563eb !important;
+                background:rgba(37,99,235,0.1) !important;
+                color:#1d4ed8 !important;
             }
             .curia-monthly-form .blank-print {
                 display:inline-block; min-width:2.2em; border-bottom:1px solid #333; color:#111;
@@ -240,7 +242,7 @@
             }
             .curia-monthly-form .line-box.blank-editable.has-value,
             .curia-monthly-form .line-box.blank-editable:focus {
-                animation:none; border-color:#b91c1c; color:#111; background:#fef2f2;
+                animation:none; border-color:#2563eb; color:#1d4ed8; background:rgba(37,99,235,0.06);
             }
             .curia-monthly-form .line-box.blank-editable:empty::before {
                 content:attr(data-placeholder); color:#f87171; pointer-events:none;
@@ -815,7 +817,7 @@
                     ${lineBoxHtml(data.inquiries, '48px')}
                 </div>
 
-                <p class="note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 빨간색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
+                <p class="note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
@@ -1228,7 +1230,7 @@
                         <div style="margin-top:6px;">${blank(data.affiliation, 'w10')}</div>
                     </div>
                 </div>
-                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황, 행사, 주요활동·질의·건의. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 빨간색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
+                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황, 행사, 주요활동·질의·건의. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }

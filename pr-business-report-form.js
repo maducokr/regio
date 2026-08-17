@@ -409,18 +409,20 @@
             .pr-biz-form input.blank.blank-editable:placeholder-shown {
                 animation: pr-biz-blank-blink 1.1s ease-in-out infinite;
             }
+            /* DB·기입된 값: 파란색 / 빈칸: 위 빨간색 깜빡임 */
             .pr-biz-form input.blank.blank-editable:not(:placeholder-shown),
             .pr-biz-form input.blank.blank-editable.has-value {
                 animation: none;
-                border-bottom-color: #b91c1c;
-                background: rgba(220, 38, 38, 0.04);
-                color: #111;
+                border-bottom-color: #2563eb;
+                background: rgba(37, 99, 235, 0.06);
+                color: #1d4ed8;
             }
             .pr-biz-form input.blank.blank-editable:focus {
                 outline: none;
                 animation: none;
-                border-bottom-color: #b91c1c;
-                background: rgba(220, 38, 38, 0.08);
+                border-bottom-color: #2563eb;
+                background: rgba(37, 99, 235, 0.1);
+                color: #1d4ed8;
             }
             .pr-biz-form .blank.blank-print {
                 display: inline-block;
@@ -818,7 +820,7 @@
                         </table>
                     </div>
                 </div>
-                <p class="biz-note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 빨간색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
+                <p class="biz-note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
