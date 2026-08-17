@@ -50,10 +50,38 @@
         return `<div class="line-box blank-editable${has}"${styleAttr} contenteditable="true" data-placeholder="입력">${escapeHtml(t)}</div>`;
     }
 
+    function fitBlankInputWidth(inp) {
+        if (!inp || !inp.classList.contains('amt')) return;
+        const cs = window.getComputedStyle(inp);
+        const minPx = parseFloat(cs.minWidth) || 26;
+        const probe = document.createElement('span');
+        probe.setAttribute('aria-hidden', 'true');
+        probe.style.cssText = [
+            'position:absolute',
+            'left:-9999px',
+            'top:0',
+            'visibility:hidden',
+            'white-space:pre',
+            `font:${cs.font}`,
+            `letter-spacing:${cs.letterSpacing}`,
+            `padding-left:${cs.paddingLeft}`,
+            `padding-right:${cs.paddingRight}`
+        ].join(';');
+        const raw = String(inp.value || '');
+        probe.textContent = raw.length ? raw : '0';
+        document.body.appendChild(probe);
+        const w = Math.ceil(probe.getBoundingClientRect().width) + 10;
+        document.body.removeChild(probe);
+        inp.style.width = `${Math.max(minPx, w)}px`;
+    }
+
     function wireBlankEditables(root) {
         if (!root) return;
         root.querySelectorAll('input.blank-editable').forEach((inp) => {
-            const sync = () => inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+            const sync = () => {
+                inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+                fitBlankInputWidth(inp);
+            };
             sync();
             inp.addEventListener('input', sync);
         });
@@ -175,6 +203,14 @@
             .curia-monthly-form .blank.w6 { min-width:5em; }
             .curia-monthly-form .blank.w10 { min-width:8em; }
             .curia-monthly-form .blank.w20 { min-width:14em; }
+            /* Pr 월례 7.회계 금액칸: 기본 ~1/3, 내용에 따라 늘어남 */
+            .curia-monthly-form .blank.amt,
+            .council-hub-modal .curia-monthly-form input.blank.amt.blank-editable {
+                min-width:1.6em !important;
+                width:1.6em;
+                max-width:100%;
+                field-sizing:content;
+            }
             @keyframes monthly-blank-blink {
                 0%, 100% { border-bottom-color:#dc2626; box-shadow:0 2px 0 rgba(220,38,38,0.55); }
                 50% { border-bottom-color:#fca5a5; box-shadow:0 2px 0 rgba(252,165,165,0.35); }
@@ -1198,16 +1234,16 @@
                 <div class="sec">
                     <div class="sec-title">7. 회계 보고</div>
                     <div>
-                        이월금 ${blank(fin.brought_forward, 'w6')}
-                        &nbsp; 수입 ${blank(fin.income, 'w6')}
-                        &nbsp; 지출 ${blank(fin.expense, 'w6')}
-                        &nbsp; 잔액 ${blank(fin.balance, 'w6')}
+                        이월금 ${blank(fin.brought_forward, 'amt')}
+                        &nbsp; 수입 ${blank(fin.income, 'amt')}
+                        &nbsp; 지출 ${blank(fin.expense, 'amt')}
+                        &nbsp; 잔액 ${blank(fin.balance, 'amt')}
                     </div>
                     <div style="margin-top:6px;">
                         중요 지출 내역
-                        (의연금 ${blank(expenseDetail.contribution, 'w6')}
-                        &nbsp; 꽃값 ${blank(expenseDetail.flowers, 'w6')}
-                        &nbsp; 기타 ${blank(expenseDetail.others, 'w10')})
+                        (의연금 ${blank(expenseDetail.contribution, 'amt')}
+                        &nbsp; 꽃값 ${blank(expenseDetail.flowers, 'amt')}
+                        &nbsp; 기타 ${blank(expenseDetail.others, 'amt')})
                     </div>
                 </div>
 
