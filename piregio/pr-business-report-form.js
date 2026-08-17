@@ -31,7 +31,7 @@
         return blank(value, cls || 'w6');
     }
 
-    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 파란 깜빡임 */
+    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 빨간 깜빡임 */
     function blank(value, cls) {
         const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
@@ -385,15 +385,15 @@
             .pr-biz-form .blank.w8 { min-width: 6em; }
             .pr-biz-form .blank.w12 { min-width: 9em; }
             @keyframes pr-biz-blank-blink {
-                0%, 100% { border-bottom-color: #2563eb; box-shadow: 0 2px 0 rgba(37, 99, 235, 0.55); }
-                50% { border-bottom-color: #93c5fd; box-shadow: 0 2px 0 rgba(147, 197, 253, 0.35); }
+                0%, 100% { border-bottom-color: #dc2626; box-shadow: 0 2px 0 rgba(220, 38, 38, 0.55); }
+                50% { border-bottom-color: #fca5a5; box-shadow: 0 2px 0 rgba(252, 165, 165, 0.35); }
             }
             .pr-biz-form input.blank.blank-editable {
                 border: none;
-                border-bottom: 2px solid #2563eb;
+                border-bottom: 2px solid #dc2626;
                 border-radius: 0;
-                background: rgba(37, 99, 235, 0.06);
-                color: #1e3a8a;
+                background: rgba(220, 38, 38, 0.06);
+                color: #7f1d1d;
                 font: inherit;
                 font-size: inherit !important;
                 line-height: 1.3;
@@ -412,15 +412,15 @@
             .pr-biz-form input.blank.blank-editable:not(:placeholder-shown),
             .pr-biz-form input.blank.blank-editable.has-value {
                 animation: none;
-                border-bottom-color: #1d4ed8;
-                background: rgba(37, 99, 235, 0.04);
+                border-bottom-color: #b91c1c;
+                background: rgba(220, 38, 38, 0.04);
                 color: #111;
             }
             .pr-biz-form input.blank.blank-editable:focus {
                 outline: none;
                 animation: none;
-                border-bottom-color: #1d4ed8;
-                background: rgba(37, 99, 235, 0.08);
+                border-bottom-color: #b91c1c;
+                background: rgba(220, 38, 38, 0.08);
             }
             .pr-biz-form .blank.blank-print {
                 display: inline-block;
@@ -818,7 +818,7 @@
                         </table>
                     </div>
                 </div>
-                <p class="biz-note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 파란색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
+                <p class="biz-note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 빨간색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }

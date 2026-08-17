@@ -32,7 +32,7 @@
         return blank(value, cls || 'w6');
     }
 
-    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 파란 깜빡임 */
+    /** 값이 있어도 PDF 전 수정 가능(저장 없음). 빈칸만 빨간 깜빡임 */
     function blank(value, cls) {
         const text = value === null || value === undefined || value === '' ? '' : String(value);
         const c = cls ? ` blank ${cls}` : ' blank';
@@ -176,8 +176,8 @@
             .curia-monthly-form .blank.w10 { min-width:8em; }
             .curia-monthly-form .blank.w20 { min-width:14em; }
             @keyframes monthly-blank-blink {
-                0%, 100% { border-bottom-color:#2563eb; box-shadow:0 2px 0 rgba(37,99,235,0.55); }
-                50% { border-bottom-color:#93c5fd; box-shadow:0 2px 0 rgba(147,197,253,0.35); }
+                0%, 100% { border-bottom-color:#dc2626; box-shadow:0 2px 0 rgba(220,38,38,0.55); }
+                50% { border-bottom-color:#fca5a5; box-shadow:0 2px 0 rgba(252,165,165,0.35); }
             }
             /* 모달 전역 input 스타일(.modal-content input)보다 우선 — 빈칸 직접입력 */
             .council-hub-modal .curia-monthly-form input.blank.blank-editable,
@@ -189,10 +189,10 @@
                 margin:0 1px !important;
                 padding:1px 4px !important;
                 border:none !important;
-                border-bottom:2px solid #2563eb !important;
+                border-bottom:2px solid #dc2626 !important;
                 border-radius:0 !important;
-                background:rgba(37,99,235,0.08) !important;
-                color:#1e3a8a !important;
+                background:rgba(220,38,38,0.08) !important;
+                color:#7f1d1d !important;
                 font:inherit !important;
                 font-size:inherit !important;
                 line-height:1.3 !important;
@@ -200,7 +200,7 @@
                 height:auto !important;
                 box-sizing:border-box !important;
                 vertical-align:baseline !important;
-                box-shadow:0 2px 0 rgba(37,99,235,0.45);
+                box-shadow:0 2px 0 rgba(220,38,38,0.45);
                 animation:monthly-blank-blink 1.1s ease-in-out infinite !important;
             }
             .curia-monthly-form .blank.w4.blank-editable,
@@ -216,8 +216,8 @@
             .curia-monthly-form input.blank.blank-editable:not(:placeholder-shown),
             .curia-monthly-form input.blank.blank-editable.has-value {
                 animation:none !important;
-                border-bottom-color:#1d4ed8 !important;
-                background:rgba(37,99,235,0.04) !important;
+                border-bottom-color:#b91c1c !important;
+                background:rgba(220,38,38,0.04) !important;
                 color:#111 !important;
                 box-shadow:none;
             }
@@ -225,8 +225,8 @@
             .curia-monthly-form input.blank.blank-editable:focus {
                 outline:none !important;
                 animation:none !important;
-                border-bottom-color:#1d4ed8 !important;
-                background:#eff6ff !important;
+                border-bottom-color:#b91c1c !important;
+                background:#fef2f2 !important;
             }
             .curia-monthly-form .blank-print {
                 display:inline-block; min-width:2.2em; border-bottom:1px solid #333; color:#111;
@@ -235,15 +235,15 @@
             }
             .curia-monthly-form .line-box { border:1px solid #333; min-height:42px; padding:6px 8px; margin-top:4px; }
             .curia-monthly-form .line-box.blank-editable {
-                border-color:#2563eb !important; background:rgba(37,99,235,0.04) !important; color:#1e3a8a;
+                border-color:#dc2626 !important; background:rgba(220,38,38,0.04) !important; color:#7f1d1d;
                 outline:none; animation:monthly-blank-blink 1.1s ease-in-out infinite; cursor:text;
             }
             .curia-monthly-form .line-box.blank-editable.has-value,
             .curia-monthly-form .line-box.blank-editable:focus {
-                animation:none; border-color:#1d4ed8; color:#111; background:#f8fbff;
+                animation:none; border-color:#b91c1c; color:#111; background:#fef2f2;
             }
             .curia-monthly-form .line-box.blank-editable:empty::before {
-                content:attr(data-placeholder); color:#60a5fa; pointer-events:none;
+                content:attr(data-placeholder); color:#f87171; pointer-events:none;
             }
             .curia-monthly-form table.form-table { width:100%; border-collapse:collapse; margin-top:4px; font-size:11px; }
             .curia-monthly-form table.form-table th,
@@ -815,7 +815,7 @@
                     ${lineBoxHtml(data.inquiries, '48px')}
                 </div>
 
-                <p class="note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 파란색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
+                <p class="note">※ DB 항목이 자동 기입됩니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 빨간색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
@@ -1228,7 +1228,7 @@
                         <div style="margin-top:6px;">${blank(data.affiliation, 'w10')}</div>
                     </div>
                 </div>
-                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황, 행사, 주요활동·질의·건의. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 파란색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
+                <p class="note">※ DB 자동 기입: Pr명, 간부(G1~G4), 단원현황, 행사, 주요활동·질의·건의. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), 빈칸은 빨간색으로 깜박입니다. PDF에는 수정한 내용이 포함됩니다.</p>
             </div>
         `;
     }
