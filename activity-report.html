@@ -1618,14 +1618,13 @@
                 if (isMemoOnlyCategory(rawCategory) || isMemoEventCategory(rawCategory)) {
                     return;
                 }
-                // 활동종목(접두)은 분류용. 활동횟수·필드 합산은 세목만 기준.
-                const semok = getCategorySemok(rawCategory) || formatCategoryLabel(rawCategory);
-                const semokKey = normalizeSemokKey(semok);
-                const categoryLabel = semok;
+                // 활동요약: 종목-세목 전체 표시 (예: 복음선교-가두선교)
+                const categoryLabel = formatCategoryLabel(rawCategory);
+                const categoryKey = normalizeSemokKey(categoryLabel);
                 const contentNote = extractSummaryContentNote(record.note);
                 if (contentNote) {
-                    if (!contentByCategory[semokKey]) contentByCategory[semokKey] = new Set();
-                    contentByCategory[semokKey].add(contentNote);
+                    if (!contentByCategory[categoryKey]) contentByCategory[categoryKey] = new Set();
+                    contentByCategory[categoryKey].add(contentNote);
                 }
 
                 const fieldMappings = [
@@ -1655,7 +1654,7 @@
                     if ((record[mapping.field] && record[mapping.field] > 0) ||
                         (mapping.field === 'count' && hasCountField)) {
                         const fieldDisplayName = getFieldDisplayName(rawCategory, mapping.name);
-                        const key = `${semokKey}::${fieldDisplayName}`;
+                        const key = `${categoryKey}::${fieldDisplayName}`;
 
                         if (!groupedData[key]) {
                             groupedData[key] = {
@@ -1689,9 +1688,9 @@
                 })
                 .map(key => {
                     const data = groupedData[key];
-                    const semokKey = normalizeSemokKey(data.subCategory);
-                    const notes = contentByCategory[semokKey]
-                        ? [...contentByCategory[semokKey]]
+                    const categoryKey = normalizeSemokKey(data.subCategory);
+                    const notes = contentByCategory[categoryKey]
+                        ? [...contentByCategory[categoryKey]]
                         : [];
                     return {
                         subCategory: data.subCategory,
@@ -2624,7 +2623,7 @@
                 </tr>
             `).join('');
             return {
-                headers: ['세목', '내용', '활동내역(합계)', '일자 수'],
+                headers: ['종목-세목', '내용', '활동내역(합계)', '일자 수'],
                 body
             };
         }
@@ -4527,7 +4526,7 @@
             html += `
                 <thead>
                     <tr>
-                        <th>세목</th>
+                        <th>종목-세목</th>
                         <th>내용</th>
                         <th>활동내역 (합계)</th>
                         <th>일자 수</th>
@@ -4539,7 +4538,7 @@
             summaryRows.forEach(row => {
                 html += `
                     <tr>
-                        <td class="cell-subcategory" data-label="세목">${escapeHtml(row.subCategory)}</td>
+                        <td class="cell-subcategory" data-label="종목-세목">${escapeHtml(row.subCategory)}</td>
                         <td class="cell-content" data-label="내용">${escapeHtml(row.contentText || '')}</td>
                         <td class="cell-activity" data-label="활동내역 (합계)">${escapeHtml(row.activityText)}</td>
                         <td class="cell-days" data-label="일자 수">${row.dateCount}일</td>
