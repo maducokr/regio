@@ -6214,10 +6214,14 @@ app.post('/api/register', async (req, res) => {
         }
 
         const positionCode = inferPositionCode(position, name);
-        // 등록신청에서는 꾸리아만 입력 — 꼬미시움·레지아·세나뚜스는 저장하지 않음
+        // 등록신청: 꼬미시움·레지아는 미입력, 세나뚜스는 서울·광주·대구 중 선택 저장
         const comitiaToSave = null;
         const regiaToSave = null;
-        const senatusToSave = null;
+        const senatusRaw = String(senatus_name || '').trim();
+        if (!['서울', '광주', '대구'].includes(senatusRaw)) {
+            return res.status(400).json({ error: '세나뚜스(서울·광주·대구)를 선택해주세요.' });
+        }
+        const senatusToSave = senatusRaw;
 
         let officerAppointedToSave = null;
         let prFoundedToSave = null;

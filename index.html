@@ -2715,6 +2715,7 @@
                 const isG1toG4 = parsedId.positionCode >= 1 && parsedId.positionCode <= 4;
                 const selectedGender = modal.querySelector('input[name="regGender"]:checked');
                 const selectedPrType = modal.querySelector('input[name="regPrType"]:checked');
+                const selectedSenatus = modal.querySelector('input[name="regSenatus"]:checked');
                 const formData = {
                     name: parsedId.name,
                     baptism_name: document.getElementById('regBaptismName').value.trim() || null,
@@ -2723,7 +2724,7 @@
                     curia_name: isCooperator ? null : (document.getElementById('regCuriaName').value.trim() || null),
                     comitia_name: null,
                     regia_name: null,
-                    senatus_name: null,
+                    senatus_name: selectedSenatus ? selectedSenatus.value : '',
                     pr_name: document.getElementById('regPrName').value.trim(),
                     pr_type: selectedPrType ? selectedPrType.value : '',
                     position: parsedId.position,
@@ -2734,6 +2735,10 @@
                 // 클라이언트 측 유효성 검사
                 if (!formData.gender || (formData.gender !== '남' && formData.gender !== '여')) {
                     alert('성별(남/여)을 선택해주세요.');
+                    return;
+                }
+                if (!['서울', '광주', '대구'].includes(formData.senatus_name)) {
+                    alert('세나뚜스(서울·광주·대구)를 선택해주세요.');
                     return;
                 }
                 if (!['성인', '직속', '청년', '소년'].includes(formData.pr_type)) {

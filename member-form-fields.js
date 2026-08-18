@@ -167,6 +167,10 @@
             <div id="regCuriaNameWrap" class="reg-curia-comitia-row">
                 <input type="text" placeholder="[  ]꾸리아 (정식명칭 숫자X)" id="regCuriaName">
             </div>
+            <div id="regSenatusWrap" class="reg-senatus-row">
+                <span class="reg-senatus-label">세나뚜스</span>
+                ${buildChoiceTabsHtml('regSenatus', SENATUS_OPTIONS, '세나뚜스')}
+            </div>
         `;
     }
 
@@ -601,10 +605,17 @@
             }
             case 'curia': {
                 const code = String(idField.getSelectedPositionCode() || '');
-                if (code === '6') return { ok: true };
+                if (code === '6') {
+                    // 협조단원도 세나뚜스는 선택
+                }
                 const curia = modal.querySelector('#regCuriaName')?.value.trim() || '';
-                if (curia && /\d/.test(curia)) {
+                if (code !== '6' && curia && /\d/.test(curia)) {
                     return { ok: false, message: '꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.' };
+                }
+                const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
+                const senatus = senatusEl ? String(senatusEl.value || '').trim() : '';
+                if (!SENATUS_OPTIONS.includes(senatus)) {
+                    return { ok: false, message: '세나뚜스(서울·광주·대구)를 선택해주세요.' };
                 }
                 return { ok: true };
             }
@@ -725,6 +736,11 @@
         setVal('regCuriaName', u.curia_name);
         setVal('regPrName', u.pr_name);
 
+        if (u.senatus_name && SENATUS_OPTIONS.includes(u.senatus_name)) {
+            const senatusRadio = modal.querySelector(`input[name="regSenatus"][value="${u.senatus_name}"]`);
+            if (senatusRadio) senatusRadio.checked = true;
+        }
+
         let appointed = u.officer_appointed_on || '';
         if (appointed && typeof appointed === 'string' && appointed.includes('T')) {
             appointed = appointed.slice(0, 10);
@@ -824,6 +840,7 @@
         const isG1toG4 = ['1', '2', '3', '4'].includes(positionCode);
         const selectedGender = modal.querySelector('input[name="regGender"]:checked');
         const selectedPrType = modal.querySelector('input[name="regPrType"]:checked');
+        const selectedSenatus = modal.querySelector('input[name="regSenatus"]:checked');
 
         const formData = {
             name,
@@ -831,7 +848,7 @@
             gender: (profileUser && profileUser.gender) || null,
             church_name: (profileUser && profileUser.church_name) || '',
             curia_name: isCooperator ? null : ((profileUser && profileUser.curia_name) || null),
-            // 꼬미시움·레지아·세나뚜스는 입력란 제거 — 기존 값 유지
+            // 꼬미시움·레지아는 입력란 제거 — 기존 값 유지. 세나뚜스는 등록/수정 시 선택
             comitia_name: (profileUser && profileUser.comitia_name) || null,
             regia_name: (profileUser && profileUser.regia_name) || null,
             senatus_name: (profileUser && profileUser.senatus_name) || null,
@@ -913,6 +930,9 @@
             formData.gender = selectedGender ? selectedGender.value : null;
             formData.church_name = modal.querySelector('#regChurchName').value.trim();
             formData.curia_name = isCooperator ? null : (modal.querySelector('#regCuriaName').value.trim() || null);
+            formData.senatus_name = selectedSenatus && SENATUS_OPTIONS.includes(selectedSenatus.value)
+                ? selectedSenatus.value
+                : null;
             formData.officer_appointed_on = isG1toG4 ? readAppointedOn() : null;
             Object.assign(formData, readPrDates());
             Object.assign(formData, readPrMeeting());
@@ -934,6 +954,10 @@
             formData.church_name = modal.querySelector('#regChurchName').value.trim();
         } else if (onlyFieldKey === 'curia') {
             formData.curia_name = isCooperator ? null : (modal.querySelector('#regCuriaName').value.trim() || null);
+            const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
+            formData.senatus_name = senatusEl && SENATUS_OPTIONS.includes(senatusEl.value)
+                ? senatusEl.value
+                : null;
         } else if (onlyFieldKey === 'officerAppointed') {
             formData.officer_appointed_on = isG1toG4 ? readAppointedOn() : null;
         } else if (onlyFieldKey === 'prDates') {
@@ -950,7 +974,6 @@
             formData.curia_name = null;
             formData.comitia_name = null;
             formData.regia_name = null;
-            formData.senatus_name = null;
             formData.officer_appointed_on = null;
             formData.pr_founded_on = null;
             formData.pr_approved_on = null;
@@ -962,6 +985,7 @@
     function captureFormSnapshot(modal, idField) {
         const genderEl = modal.querySelector('input[name="regGender"]:checked');
         const prTypeEl = modal.querySelector('input[name="regPrType"]:checked');
+        const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
         const appointedEl = modal.querySelector('#regOfficerAppointedOn');
         const foundedEl = modal.querySelector('#regPrFoundedOn');
         const approvedEl = modal.querySelector('#regPrApprovedOn');
@@ -979,6 +1003,7 @@
             gender: genderEl ? genderEl.value : '',
             church: modal.querySelector('#regChurchName').value.trim(),
             curia: modal.querySelector('#regCuriaName')?.value.trim() || '',
+            senatus: senatusEl ? senatusEl.value : '',
             password: modal.querySelector('#regPassword').value.trim(),
             prFounded: foundedEl ? String(foundedEl.value || '').trim() : '',
             prApproved: approvedEl ? String(approvedEl.value || '').trim() : '',
@@ -1009,6 +1034,14 @@
             .modal-content .reg-pr-type-row,
             .modal-content .reg-curia-comitia-row,
             .modal-content .reg-regia-senatus-row { display: flex; gap: 8px; align-items: stretch; }
+            .modal-content .reg-senatus-row {
+                display: flex; gap: 8px; align-items: center; margin: 0 0 14px;
+                padding: 8px 10px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;
+            }
+            .modal-content .reg-senatus-label {
+                flex-shrink: 0; font-size: 12px; font-weight: 600; color: #334155; min-width: 52px;
+            }
+            .modal-content .reg-senatus-row .reg-choice-tabs { flex: 1; }
             .modal-content .reg-baptism-gender-row > input,
             .modal-content .reg-pr-type-row > input,
             .modal-content .reg-curia-comitia-row > input,
