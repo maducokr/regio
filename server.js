@@ -1678,7 +1678,8 @@ app.get('/api/pr-monthly-report', async (req, res) => {
 
         const membersResult = await pool.query(
             `SELECT id, name, baptism_name, gender, position, pr_name, pr_type, curia_name, church_name,
-                    officer_appointed_on, pr_meeting_weekday, pr_meeting_hour, pr_meeting_minute, pr_meeting_place,
+                    senatus_name, officer_appointed_on, phone_full, phone_last4,
+                    pr_meeting_weekday, pr_meeting_hour, pr_meeting_minute, pr_meeting_place,
                     pr_founded_on, pr_approved_on
              FROM member
              WHERE church_name = $1 AND pr_name = $2
@@ -1810,13 +1811,25 @@ app.get('/api/pr-monthly-report', async (req, res) => {
         const officers = [1, 2, 3, 4].map((code) => {
             const found = officersByCode.get(code);
             if (!found) {
-                return { role: ROLE_BY_CODE[code], name: '', baptism_name: '', appointed_on: '', remark: '' };
+                return {
+                    role: ROLE_BY_CODE[code],
+                    name: '',
+                    baptism_name: '',
+                    appointed_on: '',
+                    address: '',
+                    phone: '',
+                    remark: ''
+                };
             }
+            const phone = String(found.phone_full || '').trim()
+                || (found.phone_last4 ? `****${String(found.phone_last4).slice(-4)}` : '');
             return {
                 role: ROLE_BY_CODE[code],
                 name: displayName(found.name),
                 baptism_name: found.baptism_name || '',
                 appointed_on: formatAppointedOn(found.officer_appointed_on),
+                address: '',
+                phone,
                 remark: ''
             };
         });
@@ -1920,11 +1933,88 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             console.warn('Pr 단원현황 전월 비교 생략:', snapError.message);
         }
 
+        // 대구 세나뚜스 양식용: 해당 월 Pr 활동 합계
+        let activityTotals = [];
+        try {
+            const actResult = await pool.query(
+                `SELECT ac.category_name,
+                        COALESCE(SUM(ar.count), 0)::int AS count,
+                        COALESCE(SUM(ar.catechism_guide), 0)::int AS catechism_guide,
+                        COALESCE(SUM(ar.group_join), 0)::int AS group_join,
+                        COALESCE(SUM(ar.resolution), 0)::int AS resolution,
+                        COALESCE(SUM(ar.sacrament), 0)::int AS sacrament,
+                        COALESCE(SUM(ar.confirmation), 0)::int AS confirmation,
+                        COALESCE(SUM(ar.baptism), 0)::int AS baptism,
+                        COALESCE(SUM(ar.first_communion), 0)::int AS first_communion,
+                        COALESCE(SUM(ar.funeral_attendance), 0)::int AS funeral_attendance,
+                        COALESCE(SUM(ar.funeral_mass), 0)::int AS funeral_mass,
+                        COALESCE(SUM(ar.memorial_mass), 0)::int AS memorial_mass,
+                        COALESCE(SUM(ar.conditional_baptism), 0)::int AS conditional_baptism,
+                        COALESCE(SUM(ar.conditional_communion), 0)::int AS conditional_communion,
+                        COALESCE(SUM(ar.membership), 0)::int AS membership
+                 FROM activity_records ar
+                 INNER JOIN activity_categories ac ON ar.category_id = ac.id
+                 INNER JOIN member m ON ar.member_id = m.id
+                 WHERE m.church_name = $1 AND m.pr_name = $2
+                   AND ar.activity_date::date BETWEEN $3::date AND $4::date
+                 GROUP BY ac.category_name`,
+                [churchName, prName, monthStart, monthEnd]
+            );
+            activityTotals = actResult.rows || [];
+        } catch (actError) {
+            console.warn('Pr 월례 활동합계 조회 생략:', actError.message);
+            activityTotals = [];
+        }
+
+        // 세나뚜스(다수 소속)
+        const senatusCounts = new Map();
+        for (const row of membersResult.rows) {
+            const s = String(row.senatus_name || '').trim();
+            if (!s) continue;
+            senatusCounts.set(s, (senatusCounts.get(s) || 0) + 1);
+        }
+        let senatusName = '';
+        let maxSenatus = 0;
+        for (const [name, count] of senatusCounts) {
+            if (count > maxSenatus) {
+                maxSenatus = count;
+                senatusName = name;
+            }
+        }
+
+        // 교육·피정 / 레지오·기타행사 텍스트 (대구 양식 4·5)
+        const eduLines = [];
+        const legionEventLines = [];
+        for (const ev of events) {
+            const kind = String(ev.kind || '').trim();
+            const title = String(ev.title || '').trim();
+            const line = [kind, title, ev.datetime, ev.place, ev.attendance].filter(Boolean).join(' / ');
+            if (!line) continue;
+            if (/교육|피정|연수/.test(`${kind}${title}`)) eduLines.push(line);
+            else legionEventLines.push(line);
+        }
+
+        // 증감(순증) — 대구 양식은 증/감 분리 없이 한 행
+        const membershipDelta = blankMembershipRow();
+        const hasPrev = PR_MEMBERSHIP_KEYS.some((k) => membershipPrevious[k] !== null && membershipPrevious[k] !== undefined);
+        if (hasPrev) {
+            for (const key of PR_MEMBERSHIP_KEYS) {
+                const cur = Number(membershipCurrent[key]);
+                const prev = Number(membershipPrevious[key]);
+                if (!Number.isFinite(cur) || !Number.isFinite(prev)) {
+                    membershipDelta[key] = null;
+                } else {
+                    membershipDelta[key] = cur - prev;
+                }
+            }
+        }
+
         const membershipBlock = {
             previous: membershipPrevious,
             current: membershipCurrent,
             increase: membershipIncrease,
-            decrease: membershipDecrease
+            decrease: membershipDecrease,
+            delta: membershipDelta
         };
 
         res.json({
@@ -1932,8 +2022,10 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             form_title: '레지오 마리애 쁘레시디움 월례 보고서',
             church_name: churchName,
             pr_name: prName,
+            senatus_name: senatusName,
             year,
             month,
+            report_day: monthEndDate.getDate(),
             meeting_from: '',
             meeting_to: '',
             meeting: meetingInfo,
@@ -1943,12 +2035,18 @@ app.get('/api/pr-monthly-report', async (req, res) => {
                 officers_present: '',
                 officers_total: officers.filter((o) => o.name).length || '',
                 members_present: '',
-                members_total: membership.active_t || ''
+                members_total: membership.active_t || '',
+                duty_days: '',
+                attended_days: '',
+                rate: ''
             },
             spiritual_director: '',
             officers,
             membership: membershipBlock,
             events,
+            activity_totals: activityTotals,
+            edu_text: eduLines.join('\n'),
+            legion_event_text: legionEventLines.join('\n'),
             finance: {
                 brought_forward: '',
                 income: '',

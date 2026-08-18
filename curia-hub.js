@@ -296,6 +296,8 @@
             .curia-monthly-form table.form-table td { border:1px solid #333; padding:4px 5px; text-align:center; vertical-align:middle; }
             .curia-monthly-form table.form-table th { background:#f3f4f6; font-weight:600; }
             .curia-monthly-form table.form-table td.left { text-align:left; }
+            .curia-monthly-form.pr-monthly-daegu .daegu-act-table td { font-size:10px; vertical-align:top; }
+            .curia-monthly-form.pr-monthly-daegu .daegu-act-table th { font-size:11px; }
             .curia-monthly-form .finance-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #333; }
             .curia-monthly-form .finance-col { border-right:1px solid #333; }
             .curia-monthly-form .finance-col:last-child { border-right:none; }
@@ -1103,6 +1105,490 @@
         `;
     }
 
+    function sumActivityTotals(totals, matcher, field) {
+        const key = field || 'count';
+        let n = 0;
+        for (const row of totals || []) {
+            const name = String(row.category_name || '');
+            if (typeof matcher === 'function' ? matcher(name) : matcher.test(name)) {
+                n += Number(row[key]) || 0;
+            }
+        }
+        return n > 0 ? n : '';
+    }
+
+    function formatEventLineList(text) {
+        return String(text || '').trim();
+    }
+
+    /** 대구 세나뚜스 Pr 월례보고서 양식 (공식 이미지 양식) */
+    function buildPrMonthlyDaeguFormHtml(data) {
+        const officers = data.officers || [];
+        const mem = data.membership || {};
+        const meeting = data.meeting || {};
+        const att = data.attendance || {};
+        const totals = data.activity_totals || [];
+        const year = data.year || '';
+        const month = data.month || '';
+        const day = data.report_day || '';
+
+        const officerRows = ['단장', '부단장', '서기', '회계'].map((role) => {
+            const found = officers.find((o) => o.role === role) || {};
+            return `
+                <tr>
+                    <td>${escapeHtml(role)}</td>
+                    <td>${blank(found.name, 'w6')}</td>
+                    <td>${blank(found.baptism_name, 'w6')}</td>
+                    <td>${blank(found.attendance_mark, 'w4')}</td>
+                    <td>${blank(found.remark, 'w6')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const a = {
+            neighbor: sumActivityTotals(totals, (n) => /가톨릭|가두선교|외인|개종|방문|복음선교/.test(n) && !/예비|교리반/.test(n)),
+            catechismLead: sumActivityTotals(totals, (n) => /교리반\s*인도|교리반인도/.test(n)),
+            catechumen: sumActivityTotals(totals, (n) => /예비신자|예비자/.test(n)),
+            baptized: sumActivityTotals(totals, (n) => /예비신자|예비자|세례/.test(n), 'baptism')
+                || sumActivityTotals(totals, (n) => /세례자|영세/.test(n)),
+            familyCare: sumActivityTotals(totals, (n) => /가정|교우\s*돌봄|교우방문|가정을/.test(n)),
+            groupJoin: sumActivityTotals(totals, (n) => /단체\s*가입|단체가입/.test(n), 'group_join')
+                || sumActivityTotals(totals, (n) => /단체\s*가입|단체가입/.test(n)),
+            sacramentInvite: sumActivityTotals(totals, (n) => /성사권유|혼인장애|회두|판공/.test(n)),
+            conversion: sumActivityTotals(totals, (n) => /회두|개종/.test(n)),
+            confession: sumActivityTotals(totals, (n) => /판공|고해/.test(n), 'sacrament')
+                || sumActivityTotals(totals, (n) => /판공|고해/.test(n)),
+            confirmation: sumActivityTotals(totals, (n) => /견진/.test(n), 'confirmation')
+                || sumActivityTotals(totals, (n) => /견진/.test(n)),
+            infantBaptism: sumActivityTotals(totals, (n) => /유아세례/.test(n), 'baptism')
+                || sumActivityTotals(totals, (n) => /유아세례/.test(n)),
+            marriageFix: sumActivityTotals(totals, (n) => /혼인장애/.test(n), 'resolution')
+                || sumActivityTotals(totals, (n) => /혼인장애/.test(n)),
+            neighborShare: sumActivityTotals(totals, (n) => /상가|위령|장례|병자|봉성체|대세|보례|병원|복지|어려움/.test(n)),
+            funeralVisit: sumActivityTotals(totals, (n) => /상가/.test(n))
+                || sumActivityTotals(totals, (n) => /상가/.test(n), 'funeral_attendance'),
+            memorialPrayer: sumActivityTotals(totals, (n) => /위령기도|위령미사|보미사/.test(n))
+                || sumActivityTotals(totals, (n) => /위령|보미사/.test(n), 'memorial_mass'),
+            funeralMass: sumActivityTotals(totals, (n) => /장례미사/.test(n), 'funeral_mass')
+                || sumActivityTotals(totals, (n) => /장례미사/.test(n)),
+            burialEscort: sumActivityTotals(totals, (n) => /장지|장례수행|장지수행/.test(n)),
+            anointing: sumActivityTotals(totals, (n) => /병자성사/.test(n)),
+            sickCommunion: sumActivityTotals(totals, (n) => /봉성체/.test(n), 'conditional_communion')
+                || sumActivityTotals(totals, (n) => /봉성체/.test(n)),
+            conditionalBaptism: sumActivityTotals(totals, (n) => /대세/.test(n), 'conditional_baptism')
+                || sumActivityTotals(totals, (n) => /대세/.test(n)),
+            baptismComplete: sumActivityTotals(totals, (n) => /보례/.test(n)),
+            hospital: sumActivityTotals(totals, (n) => /병원|복지시설|복지/.test(n)),
+            shareOther: sumActivityTotals(totals, (n) => /나눔|돌봄-기타/.test(n)),
+            parishOps: sumActivityTotals(totals, (n) => /본당|주일학교|전례|사도직/.test(n) && !/첫\s*영성체/.test(n)),
+            firstCommunionLead: sumActivityTotals(totals, (n) => /첫\s*영성체.*교리|첫영성체/.test(n)),
+            firstCommunionBaptism: sumActivityTotals(totals, (n) => /첫\s*영성체/.test(n), 'baptism')
+                || sumActivityTotals(totals, (n) => /첫\s*영성체/.test(n), 'first_communion'),
+            legionGrow: sumActivityTotals(totals, (n) => /행동단원\s*모집|협조단원\s*모집|Pr설립|레지오활동/.test(n)),
+            activeRecruit: sumActivityTotals(totals, (n) => /행동단원\s*모집/.test(n), 'membership')
+                || sumActivityTotals(totals, (n) => /행동단원\s*모집/.test(n)),
+            auxRecruit: sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n), 'membership')
+                || sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n)),
+            smallCommunity: sumActivityTotals(totals, (n) => /소공동체/.test(n)),
+            nature: sumActivityTotals(totals, (n) => /자연보호|생태|환경|생명존중/.test(n)),
+            higherCouncil: sumActivityTotals(totals, (n) => /성경|복음묵상|필사|빛잡지|성모님의\s*군단|미사|상급/.test(n)),
+            bibleRead: sumActivityTotals(totals, (n) => /성경통독|성경\s*통독|성경읽기/.test(n)),
+            gospelMed: sumActivityTotals(totals, (n) => /복음묵상|미사전도서|말씀묵상/.test(n)),
+            bibleWrite: sumActivityTotals(totals, (n) => /성경필사|필사/.test(n)),
+            magazine: sumActivityTotals(totals, (n) => /빛잡지|성모님의\s*군단|군단지/.test(n)),
+            massAround: sumActivityTotals(totals, (n) => /주회.*미사|회합.*미사/.test(n)),
+            weekdayMass: sumActivityTotals(totals, (n) => /평일미사/.test(n)),
+            higherOther: sumActivityTotals(totals, (n) => /상급평의회|권고/.test(n)),
+            rosary: sumActivityTotals(totals, (n) => /묵주기도/.test(n)),
+            otherAct: sumActivityTotals(totals, (n) => /기타활동|기타사목|특별활동/.test(n))
+        };
+
+        const resultCell = (label, value, unit) =>
+            `${escapeHtml(label)} ${blank(value, 'amt')}${unit ? ` ${escapeHtml(unit)}` : ''}`;
+
+        return `
+            <div class="curia-monthly-form pr-monthly-daegu" id="prMonthlyFormPrint">
+                <div class="form-head">
+                    <div class="org-en">LEGIO MARIAE</div>
+                    <div class="org-ko">레지오 마리애</div>
+                    <div class="form-title">쁘레시디움 월례 보고서</div>
+                    <div class="form-asof">
+                        ${blank(year, 'w4')}년 ${blank(month, 'w3')}월 ${blank(day, 'w3')}일
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">1. (주)회합 일시 및 장소</div>
+                    <div>
+                        ${blank(meeting.weekday, 'w4')}요일
+                        ${blank(meeting.hour, 'w3')}시
+                        ${blank(meeting.minute, 'w3')}분
+                        &nbsp; 장소: ${blank(meeting.place, 'w20')}
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">2. 단원현황</div>
+                    <div class="org-table-wrap">
+                        <table class="form-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">구분</th>
+                                    <th colspan="3">행동 단원</th>
+                                    <th rowspan="2">쁘레또리움<br>단원</th>
+                                    <th colspan="3">협조 단원</th>
+                                    <th rowspan="2">아쥬또리움<br>단원</th>
+                                </tr>
+                                <tr>
+                                    <th>남</th><th>여</th><th>계</th>
+                                    <th>남</th><th>여</th><th>계</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>전월</td>${membershipCells(mem.previous)}</tr>
+                                <tr><td>금월</td>${membershipCells(mem.current)}</tr>
+                                <tr><td>증감</td>${membershipCells(mem.delta || {})}</tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">3. 출석현황 <span style="font-weight:400;font-size:11px;">(출석: /, 결석: ○)</span></div>
+                    <div class="org-table-wrap">
+                        <table class="form-table">
+                            <thead>
+                                <tr>
+                                    <th>직책</th><th>성명</th><th>세례명</th><th>출결</th><th>비고</th>
+                                </tr>
+                            </thead>
+                            <tbody>${officerRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">4. 교육 및 피정</div>
+                    ${lineBoxHtml(formatEventLineList(data.edu_text), '42px')}
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">5. 레지오 행사 및 기타행사</div>
+                    ${lineBoxHtml(formatEventLineList(data.legion_event_text), '42px')}
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">6. 출석상황</div>
+                    <div>
+                        월간 전체 출석의무 일수: ${blank(att.duty_days, 'amt')}일,
+                        월간 출석 일수: ${blank(att.attended_days, 'amt')}일,
+                        월간 출석률: ${blank(att.rate, 'amt')}%
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">7. 월례보고 (주요내용)</div>
+                    <div class="org-table-wrap">
+                        <table class="form-table daegu-act-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:28%;">종목</th>
+                                    <th style="width:14%;">활동 횟수</th>
+                                    <th>내용(결과)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="left">이웃에 가톨릭 알리기</td>
+                                    <td>${blank(a.neighbor, 'amt')}</td>
+                                    <td class="left">${resultCell('교리반 인도', a.catechismLead, '명')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="left">예비신자와 함께하는 활동</td>
+                                    <td>${blank(a.catechumen, 'amt')}</td>
+                                    <td class="left">${resultCell('영세자', a.baptized, '명')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="left">가정을 위한 활동, 교우 돌봄</td>
+                                    <td>${blank(a.familyCare, 'amt')}</td>
+                                    <td class="left">${resultCell('단체 가입', a.groupJoin, '명')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="left">성사권유 및 혼인장애자를 위한 활동</td>
+                                    <td>${blank(a.sacramentInvite, 'amt')}</td>
+                                    <td class="left">
+                                        ${resultCell('회두', a.conversion, '명')}
+                                        &nbsp; ${resultCell('판공', a.confession, '명')}
+                                        &nbsp; ${resultCell('견진', a.confirmation, '명')}<br>
+                                        ${resultCell('유아세례', a.infantBaptism, '명')}
+                                        &nbsp; ${resultCell('혼인장애 해소', a.marriageFix, '명')}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="left">어려움을 겪는 이웃과 나눔 활동</td>
+                                    <td>${blank(a.neighborShare, 'amt')}</td>
+                                    <td class="left">
+                                        ${resultCell('상가방문 및 돌봄', a.funeralVisit, '회')}
+                                        &nbsp; ${resultCell('위령기도', a.memorialPrayer, '회')}<br>
+                                        ${resultCell('장례미사', a.funeralMass, '회')}
+                                        &nbsp; ${resultCell('장지수행', a.burialEscort, '회')}<br>
+                                        ${resultCell('병자성사', a.anointing, '명')}
+                                        &nbsp; ${resultCell('봉성체', a.sickCommunion, '명')}<br>
+                                        ${resultCell('대세자', a.conditionalBaptism, '명')}
+                                        &nbsp; ${resultCell('보례자', a.baptismComplete, '명')}<br>
+                                        ${resultCell('병원 및 복지시설', a.hospital, '회')}
+                                        &nbsp; ${resultCell('기타', a.shareOther, '회')}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="left">본당운영에 기여하는 활동</td>
+                                    <td>${blank(a.parishOps, 'amt')}</td>
+                                    <td class="left">
+                                        ${resultCell('첫 영성체 교리반 인도', a.firstCommunionLead, '회')}<br>
+                                        ${resultCell('첫 영성체반 유아세례 외 영세', a.firstCommunionBaptism, '명')}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="left">레지오 발전을 위한 활동</td>
+                                    <td>${blank(a.legionGrow, 'amt')}</td>
+                                    <td class="left">
+                                        ${resultCell('행동단원', a.activeRecruit, '명')}
+                                        &nbsp; ${resultCell('협조단원', a.auxRecruit, '명')}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="left">소공동체와 함께하는 활동</td>
+                                    <td>${blank(a.smallCommunity, 'amt')}</td>
+                                    <td class="left">${blank('', 'w20')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="left">자연보호 및 생명존중 운동</td>
+                                    <td>${blank(a.nature, 'amt')}</td>
+                                    <td class="left">${blank('', 'w20')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="left">상급평의회가 권고한 활동</td>
+                                    <td>${blank(a.higherCouncil, 'amt')}</td>
+                                    <td class="left">
+                                        ${resultCell('성경통독', a.bibleRead, '장')}
+                                        &nbsp; ${resultCell('미사전도서/복음묵상', a.gospelMed, '회')}<br>
+                                        ${resultCell('성경필사', a.bibleWrite, '장')}
+                                        &nbsp; ${resultCell('성모님의 군단/빛잡지 읽기', a.magazine, '회')}<br>
+                                        ${resultCell('주회 전후 미사', a.massAround, '회')}
+                                        &nbsp; ${resultCell('평일미사', a.weekdayMass, '회')}<br>
+                                        ${resultCell('기타', a.higherOther, '회')}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="left">묵주기도 (Se.에서 권고한 지향)</td>
+                                    <td>${blank(a.rosary, 'amt')}</td>
+                                    <td class="left">${resultCell('', a.rosary, '단')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="left">기타활동</td>
+                                    <td>${blank(a.otherAct, 'amt')}</td>
+                                    <td class="left">${resultCell('', a.otherAct, '회')}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sec" style="display:flex; justify-content:space-between; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                    <div>
+                        ${blank(data.council_name, 'w20')} 평의회 (Co. Cu.) 직속
+                    </div>
+                    <div style="text-align:right;">
+                        Pr. 단장 ${blank(data.president_name, 'w10')} (인)
+                        <div style="margin-top:6px;">
+                            ${blank(data.church_name, 'w10')} · ${blank(data.pr_name, 'w10')}
+                        </div>
+                    </div>
+                </div>
+                <p class="note">※ 대구 세나뚜스 양식 · DB 자동 기입(단원현황·간부·행사·활동합계). DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).</p>
+            </div>
+        `;
+    }
+
+    /** 광주 세나뚜스 Pr 월례보고서 양식 (공식 이미지 양식) */
+    function buildPrMonthlyGwangjuFormHtml(data) {
+        const officers = data.officers || [];
+        const mem = data.membership || {};
+        const meeting = data.meeting || {};
+        const att = data.attendance || {};
+        const fin = data.finance || {};
+        const totals = data.activity_totals || [];
+        const year = data.year || '';
+        const month = data.month || '';
+        const day = data.report_day || '';
+        const yy = String(year).length === 4 ? String(year).slice(2) : String(year);
+
+        const officerRows = ['단장', '부단장', '서기', '회계'].map((role) => {
+            const found = officers.find((o) => o.role === role) || {};
+            return `
+                <tr>
+                    <td>${escapeHtml(role)}</td>
+                    <td>${blank(found.name, 'w6')}</td>
+                    <td>${blank(found.baptism_name, 'w6')}</td>
+                    <td>${blank(found.appointed_on, 'w6')}</td>
+                    <td>${blank(found.address, 'w10')}</td>
+                    <td>${blank(found.phone, 'w8')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const rosary = sumActivityTotals(totals, (n) => /묵주기도/.test(n));
+        const evangelism = sumActivityTotals(totals, (n) => /입교권면|외인\s*입교|가두선교|복음선교/.test(n));
+        const conversion = sumActivityTotals(totals, (n) => /회두권면|회두|개종권면|개종/.test(n));
+        const recruit = sumActivityTotals(totals, (n) => /입단권면|행동단원\s*모집|협조단원\s*모집|회원모집/.test(n));
+
+        const eventText = formatEventLineList(data.legion_event_text);
+        const eduText = formatEventLineList(data.edu_text);
+        const specialText = String(data.major_activities || data.memo || '').trim();
+        const inquiryText = String(data.inquiries || '').trim();
+
+        function pct(present, total) {
+            const p = Number(present);
+            const t = Number(total);
+            if (!Number.isFinite(p) || !Number.isFinite(t) || t <= 0) return '';
+            return Math.round((p / t) * 100);
+        }
+
+        return `
+            <div class="curia-monthly-form pr-monthly-gwangju" id="prMonthlyFormPrint">
+                <div class="form-head">
+                    <div class="org-en">LEGIO MARIAE</div>
+                    <div class="org-ko">레지오 마리애</div>
+                    <div class="form-title">쁘레시디움 월례 보고서</div>
+                </div>
+
+                <div class="form-curia-name" style="text-align:left;">
+                    직속 평의회 명칭 :
+                    ${blank(data.council_name, 'w12')} 꾸리아 / 꼬미씨움
+                </div>
+                <div style="margin:6px 0 10px;">
+                    ${blank(data.pr_name, 'w12')} 쁘레시디움
+                    &nbsp; 제 ${blank(data.meeting_from, 'w4')} 차 ~ 제 ${blank(data.meeting_to, 'w4')} 차
+                    &nbsp; ${blank(month, 'w3')} 월분
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">1. 주회 일시 및 장소</div>
+                    <div>
+                        매주 ${blank(meeting.weekday, 'w4')}요일
+                        ${blank(meeting.hour, 'w3')}시
+                        ${blank(meeting.minute, 'w3')}분
+                        &nbsp; ${blank(meeting.place, 'w12')} 회의실
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">
+                        2. 간부 명단
+                        (영적 지도신부 : ${blank(data.spiritual_director, 'w8')})
+                        &nbsp; 20${blank(yy, 'w3')}년 ${blank(month, 'w3')}월 ${blank(day, 'w3')}일 현재
+                    </div>
+                    <div class="org-table-wrap">
+                        <table class="form-table">
+                            <thead>
+                                <tr>
+                                    <th>직책</th><th>성명</th><th>세례명</th><th>임명일</th><th>주소</th><th>전화</th>
+                                </tr>
+                            </thead>
+                            <tbody>${officerRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">3. 단원 현황</div>
+                    <div class="org-table-wrap">
+                        <table class="form-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">구분</th>
+                                    <th colspan="3">행동단원</th>
+                                    <th rowspan="2">쁘레또리움<br>단원</th>
+                                    <th colspan="3">협조단원</th>
+                                    <th rowspan="2">아쥬또리움<br>단원</th>
+                                </tr>
+                                <tr>
+                                    <th>남</th><th>여</th><th>계</th>
+                                    <th>남</th><th>여</th><th>계</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>전월</td>${membershipCells(mem.previous)}</tr>
+                                <tr><td>현재</td>${membershipCells(mem.current)}</tr>
+                                <tr><td>증감</td>${membershipCells(mem.delta || {})}</tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">4. 출석률</div>
+                    <div>
+                        간부 ${blank(att.officers_present, 'amt')} / ${blank(att.officers_total, 'amt')}
+                        ( ${blank(pct(att.officers_present, att.officers_total), 'amt')} % )
+                        &nbsp;&nbsp;
+                        단원 ${blank(att.members_present, 'amt')} / ${blank(att.members_total, 'amt')}
+                        ( ${blank(pct(att.members_present, att.members_total), 'amt')} % )
+                    </div>
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">5. 주요 사항</div>
+                    <div style="margin:4px 0;"><strong>가. 행사</strong></div>
+                    ${lineBoxHtml(eventText, '40px')}
+                    <div style="margin:8px 0 4px;"><strong>나. 계획</strong></div>
+                    ${lineBoxHtml('', '36px')}
+                    <div style="margin:8px 0 4px;"><strong>다. 순방</strong></div>
+                    ${lineBoxHtml('', '36px')}
+                    <div style="margin:8px 0 4px;"><strong>라. 회계</strong></div>
+                    <div>
+                        이월금 ${blank(fin.brought_forward, 'amt')} 원
+                        &nbsp; 수입 ${blank(fin.income, 'amt')} 원
+                        &nbsp; 지출 ${blank(fin.expense, 'amt')} 원
+                        &nbsp; 잔액 ${blank(fin.balance, 'amt')} 원
+                    </div>
+                    <div style="margin:8px 0 4px;"><strong>마. 교육 및 피정</strong></div>
+                    ${lineBoxHtml(eduText, '40px')}
+                    <div style="margin:8px 0 4px;"><strong>바. 특기 사항</strong></div>
+                    ${lineBoxHtml(specialText, '48px')}
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">6. 주회 시간 및 장소 변경</div>
+                    ${lineBoxHtml('', '36px')}
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">7. 기타(질의 및 건의)</div>
+                    ${lineBoxHtml(inquiryText, '48px')}
+                </div>
+
+                <div class="sec">
+                    <div class="sec-title">8. 활동 사항</div>
+                    <div style="line-height:1.9;">
+                        가. 묵주기도 ${blank(rosary, 'amt')} 단<br>
+                        나. 입교권면 ${blank(evangelism, 'amt')} 회<br>
+                        다. 회두권면 ${blank(conversion, 'amt')} 회<br>
+                        라. 입단권면 ${blank(recruit, 'amt')} 회
+                    </div>
+                </div>
+
+                <div class="sec" style="text-align:right; margin-top:16px;">
+                    단장 ${blank(data.president_name, 'w10')} 서명
+                    <div style="margin-top:6px;">
+                        ${blank(data.church_name, 'w10')} · ${blank(data.pr_name, 'w10')}
+                    </div>
+                </div>
+                <p class="note">※ 광주 세나뚜스 양식 · DB 자동 기입(직속평의회·Pr·주회합·간부·단원현황·행사·교육·활동횟수). DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).</p>
+            </div>
+        `;
+    }
+
     function buildPrMonthlyFormHtml(data) {
         const events = data.events || [];
         const eventRows = (events.length ? events : [{ kind: '', title: '', organizer: '', datetime: '', place: '', attendance: '' }])
@@ -1308,7 +1794,7 @@
         content.innerHTML = `
             <span class="close">&times;</span>
             <h2>Pr 월례보고</h2>
-            <p class="hub-sub">쁘레시디움 월례 보고서 양식에 DB 보유 항목만 자동 기입합니다.</p>
+            <p class="hub-sub">쁘레시디움 월례 보고서 양식에 DB 보유 항목만 자동 기입합니다. (세나뚜스 대구·광주이면 각 공식 양식)</p>
             <div class="org-toolbar">
                 <input type="text" id="prMonthlyChurchInput" placeholder="성당 명칭" value="${escapeHtml(initialChurch)}">
                 <input type="text" id="prMonthlyNameInput" placeholder="Pr 명칭" value="${escapeHtml(initialPr)}">
@@ -1381,8 +1867,13 @@
                     yearSelect.value,
                     monthSelect.value
                 );
-                metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명`;
-                resultEl.innerHTML = buildPrMonthlyFormHtml(data);
+                metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${data.senatus_name ? ` · ${data.senatus_name}세나뚜스` : ''}`;
+                const senatus = String(user?.senatus_name || '').trim();
+                let formHtml;
+                if (senatus === '대구') formHtml = buildPrMonthlyDaeguFormHtml(data);
+                else if (senatus === '광주') formHtml = buildPrMonthlyGwangjuFormHtml(data);
+                else formHtml = buildPrMonthlyFormHtml(data);
+                resultEl.innerHTML = formHtml;
                 wireBlankEditables(resultEl);
                 lastReportMeta = {
                     label: 'Pr',
