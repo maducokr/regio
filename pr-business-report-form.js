@@ -43,10 +43,38 @@
         return `${blank(present, 'w3')} / ${blank(total, 'w3')}`;
     }
 
+    function fitBlankInputWidth(inp) {
+        if (!inp || !inp.classList.contains('blank-editable')) return;
+        const cs = window.getComputedStyle(inp);
+        const minPx = parseFloat(cs.minWidth) || 8;
+        const probe = document.createElement('span');
+        probe.setAttribute('aria-hidden', 'true');
+        probe.style.cssText = [
+            'position:absolute',
+            'left:-9999px',
+            'top:0',
+            'visibility:hidden',
+            'white-space:pre',
+            `font:${cs.font}`,
+            `letter-spacing:${cs.letterSpacing}`,
+            `padding-left:${cs.paddingLeft}`,
+            `padding-right:${cs.paddingRight}`
+        ].join(';');
+        const raw = String(inp.value || '');
+        probe.textContent = raw.length ? raw : '0';
+        document.body.appendChild(probe);
+        const w = Math.ceil(probe.getBoundingClientRect().width) + 8;
+        document.body.removeChild(probe);
+        inp.style.width = `${Math.max(minPx, raw.length ? w : minPx)}px`;
+    }
+
     function wireBlankEditables(root) {
         if (!root) return;
         root.querySelectorAll('input.blank-editable').forEach((inp) => {
-            const sync = () => inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+            const sync = () => {
+                inp.classList.toggle('has-value', !!String(inp.value || '').trim());
+                fitBlankInputWidth(inp);
+            };
             sync();
             inp.addEventListener('input', sync);
         });
@@ -397,14 +425,23 @@
                 font: inherit;
                 font-size: inherit !important;
                 line-height: 1.3;
-                padding: 1px 4px;
+                padding: 1px 2px;
                 margin: 0 1px;
                 min-height: 1.25em !important;
                 height: auto !important;
-                width: auto;
+                min-width: 2mm !important;
+                width: 2mm;
                 max-width: 100%;
                 box-sizing: border-box;
                 animation: pr-biz-blank-blink 1.1s ease-in-out infinite;
+                field-sizing: content;
+            }
+            .pr-biz-form input.blank.w3.blank-editable,
+            .pr-biz-form input.blank.w4.blank-editable,
+            .pr-biz-form input.blank.w6.blank-editable,
+            .pr-biz-form input.blank.w8.blank-editable,
+            .pr-biz-form input.blank.w12.blank-editable {
+                min-width: 2mm !important;
             }
             .pr-biz-form input.blank.blank-editable:placeholder-shown {
                 animation: pr-biz-blank-blink 1.1s ease-in-out infinite;

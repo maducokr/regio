@@ -51,9 +51,9 @@
     }
 
     function fitBlankInputWidth(inp) {
-        if (!inp || !inp.classList.contains('amt')) return;
+        if (!inp || !inp.classList.contains('blank-editable')) return;
         const cs = window.getComputedStyle(inp);
-        const minPx = parseFloat(cs.minWidth) || 26;
+        const minPx = parseFloat(cs.minWidth) || 8;
         const probe = document.createElement('span');
         probe.setAttribute('aria-hidden', 'true');
         probe.style.cssText = [
@@ -70,9 +70,9 @@
         const raw = String(inp.value || '');
         probe.textContent = raw.length ? raw : '0';
         document.body.appendChild(probe);
-        const w = Math.ceil(probe.getBoundingClientRect().width) + 10;
+        const w = Math.ceil(probe.getBoundingClientRect().width) + 8;
         document.body.removeChild(probe);
-        inp.style.width = `${Math.max(minPx, w)}px`;
+        inp.style.width = `${Math.max(minPx, raw.length ? w : minPx)}px`;
     }
 
     function wireBlankEditables(root) {
@@ -203,11 +203,13 @@
             .curia-monthly-form .blank.w6 { min-width:5em; }
             .curia-monthly-form .blank.w10 { min-width:8em; }
             .curia-monthly-form .blank.w20 { min-width:14em; }
-            /* Pr 월례 7.회계 금액칸: 기본 ~1/3, 내용에 따라 늘어남 */
+            /* Pr 월례 7.회계 금액칸 포함 — 빈칸·수정표시 라인 기본 2mm, 내용에 따라 확장 */
             .curia-monthly-form .blank.amt,
-            .council-hub-modal .curia-monthly-form input.blank.amt.blank-editable {
-                min-width:1.6em !important;
-                width:1.6em;
+            .council-hub-modal .curia-monthly-form input.blank.amt.blank-editable,
+            .council-hub-modal .curia-monthly-form input.blank.blank-editable,
+            .curia-monthly-form input.blank.blank-editable {
+                min-width:2mm !important;
+                width:2mm;
                 max-width:100%;
                 field-sizing:content;
             }
@@ -219,11 +221,11 @@
             .council-hub-modal .curia-monthly-form input.blank.blank-editable,
             .curia-monthly-form input.blank.blank-editable {
                 display:inline-block !important;
-                width:auto !important;
-                min-width:2.2em !important;
+                width:2mm;
+                min-width:2mm !important;
                 max-width:100% !important;
                 margin:0 1px !important;
-                padding:1px 4px !important;
+                padding:1px 2px !important;
                 border:none !important;
                 border-bottom:2px solid #dc2626 !important;
                 border-radius:0 !important;
@@ -238,15 +240,18 @@
                 vertical-align:baseline !important;
                 box-shadow:0 2px 0 rgba(220,38,38,0.45);
                 animation:monthly-blank-blink 1.1s ease-in-out infinite !important;
+                field-sizing:content;
             }
             .curia-monthly-form .blank.w4.blank-editable,
-            .council-hub-modal .curia-monthly-form input.blank.w4.blank-editable { min-width:3.5em !important; }
+            .council-hub-modal .curia-monthly-form input.blank.w4.blank-editable,
             .curia-monthly-form .blank.w6.blank-editable,
-            .council-hub-modal .curia-monthly-form input.blank.w6.blank-editable { min-width:5em !important; }
+            .council-hub-modal .curia-monthly-form input.blank.w6.blank-editable,
             .curia-monthly-form .blank.w10.blank-editable,
-            .council-hub-modal .curia-monthly-form input.blank.w10.blank-editable { min-width:8em !important; }
+            .council-hub-modal .curia-monthly-form input.blank.w10.blank-editable,
             .curia-monthly-form .blank.w20.blank-editable,
-            .council-hub-modal .curia-monthly-form input.blank.w20.blank-editable { min-width:14em !important; }
+            .council-hub-modal .curia-monthly-form input.blank.w20.blank-editable {
+                min-width:2mm !important;
+            }
             /* DB·기입된 값: 파란색 / 빈칸: 위 빨간색 깜빡임 */
             .council-hub-modal .curia-monthly-form input.blank.blank-editable:not(:placeholder-shown),
             .council-hub-modal .curia-monthly-form input.blank.blank-editable.has-value,
