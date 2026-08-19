@@ -1455,7 +1455,7 @@
     <script src="curia-hub.js?v=20260819b"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260819b"></script>
+    <script src="pr-business-report-form.js?v=20260819d"></script>
     <script src="curia-comprehensive-report-form.js?v=20260819b"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
@@ -2623,7 +2623,7 @@
                 </tr>
             `).join('');
             return {
-                headers: ['세목', '내용', '활동내역(합계)', '일자 수'],
+                headers: ['종목-세목', '내용', '활동내역(합계)', '일자 수'],
                 body
             };
         }
@@ -3210,6 +3210,7 @@
                 prName,
                 startDate,
                 endDate,
+                senatusName: user.senatus_name || '',
                 container
             });
             const ready = !!container.querySelector('#prBusinessFormPrint');
@@ -4526,7 +4527,7 @@
             html += `
                 <thead>
                     <tr>
-                        <th>세목</th>
+                        <th>종목-세목</th>
                         <th>내용</th>
                         <th>활동내역 (합계)</th>
                         <th>일자 수</th>
@@ -4538,7 +4539,7 @@
             summaryRows.forEach(row => {
                 html += `
                     <tr>
-                        <td class="cell-subcategory" data-label="세목">${escapeHtml(row.subCategory)}</td>
+                        <td class="cell-subcategory" data-label="종목-세목">${escapeHtml(row.subCategory)}</td>
                         <td class="cell-content" data-label="내용">${escapeHtml(row.contentText || '')}</td>
                         <td class="cell-activity" data-label="활동내역 (합계)">${escapeHtml(row.activityText)}</td>
                         <td class="cell-days" data-label="일자 수">${row.dateCount}일</td>
