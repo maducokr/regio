@@ -1361,6 +1361,13 @@
         return '';
     }
 
+    /** 출력 양식용: 대구·광주만 전용, 그 외(서울·해외 등)는 서울(기본) 양식. 집계는 실제 소속 기준. */
+    function formTemplateSenatus(name) {
+        const s = resolveSenatusName(name);
+        if (s === '대구' || s === '광주') return s;
+        return '서울';
+    }
+
     function recordsToActivityTotals(records) {
         const map = new Map();
         (records || []).forEach((rec) => {
@@ -3043,12 +3050,13 @@
             monthly?.senatus_name,
             opts.senatusName
         );
-        const isGwangju = senatusName === '광주';
-        const isDaegu = senatusName === '대구';
+        const formSenatus = formTemplateSenatus(senatusName);
+        const isGwangju = formSenatus === '광주';
+        const isDaegu = formSenatus === '대구';
         console.info('[꾸리아종합보고] senatus=', senatusName, {
             user: user?.senatus_name,
             monthly: monthly?.senatus_name,
-            form: isDaegu ? '대구' : (isGwangju ? '광주' : '기본')
+            form: formSenatus
         });
 
         try {

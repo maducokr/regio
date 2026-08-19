@@ -192,6 +192,13 @@
         return '';
     }
 
+    /** 출력 양식용: 대구·광주만 전용, 그 외(서울·해외 등)는 서울 양식. 집계 필터는 실제 senatus_name 유지. */
+    function formTemplateSenatus(name) {
+        const s = resolveSenatusName(name);
+        if (s === '대구' || s === '광주') return s;
+        return '서울';
+    }
+
     function sumActivityTotals(totals, matcher, field) {
         const key = field || 'count';
         let nSum = 0;
@@ -2141,7 +2148,8 @@
 
     function buildFormHtml(model) {
         const m = model || {};
-        const isSeoul = resolveSenatusName(m.senatus_name) === '서울';
+        // 서울 외 해외 세나뚜스도 서울 양식(활동 사항 포함) 사용. 소속 표기는 실제 senatus_name.
+        const useSeoulForm = formTemplateSenatus(m.senatus_name) === '서울';
         const officers = m.officers || [];
         const mem = m.membership || {};
         const prev = mem.previous || {};
@@ -2237,7 +2245,7 @@
         const auxKeys = { m: 'aux_m', f: 'aux_f', t: 'aux_t' };
 
         return `
-            <div class="pr-biz-form${isSeoul ? ' pr-biz-seoul' : ''}" id="prBusinessFormPrint">
+            <div class="pr-biz-form${useSeoulForm ? ' pr-biz-seoul' : ''}" id="prBusinessFormPrint">
                 <div class="biz-head">
                     <div class="biz-logo">LEGIO<br>MARIAE</div>
                     <div class="biz-titles">
@@ -2405,9 +2413,9 @@
                         </table>
                     </div>
                 </div>
-                ${isSeoul ? buildSeoulActivitySectionHtml(m.activity_totals) : ''}
-                <p class="biz-note">${isSeoul
-                    ? '※ 서울 무염시태 세나뚜스 사업보고서 · 활동 횟수·세목은 DB 합계입니다. DB에 없는 항목·운영 상황은 직접 입력합니다. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).'
+                ${useSeoulForm ? buildSeoulActivitySectionHtml(m.activity_totals) : ''}
+                <p class="biz-note">${useSeoulForm
+                    ? '※ 서울 무염시태 세나뚜스 양식(해외 세나뚜스 포함) · 활동 횟수·세목은 DB 합계(소속 Pr 기준)입니다. DB에 없는 항목·운영 상황은 직접 입력합니다. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).'
                     : '※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.'}</p>
             </div>
         `;
@@ -2495,17 +2503,18 @@
             monthly?.senatus_name,
             opts.senatusName
         );
-        const isDaegu = senatusName === '대구';
-        const isGwangju = senatusName === '광주';
-        const isSeoul = senatusName === '서울';
+        const formSenatus = formTemplateSenatus(senatusName);
+        const isDaegu = formSenatus === '대구';
+        const isGwangju = formSenatus === '광주';
+        const useSeoulForm = formSenatus === '서울';
         console.info('[Pr사업보고] senatus=', senatusName, {
             user: user?.senatus_name,
             monthly: monthly?.senatus_name,
             opts: opts.senatusName,
-            form: isDaegu ? '대구' : (isGwangju ? '광주' : (isSeoul ? '서울' : '기본'))
+            form: formSenatus
         });
 
-        if (isDaegu || isGwangju || isSeoul) {
+        if (isDaegu || isGwangju || useSeoulForm) {
             try {
                 activityTotals = await fetchActivityTotals(churchName, prName, startDate, endDate);
             } catch (error) {

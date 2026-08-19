@@ -75,6 +75,13 @@
         return '';
     }
 
+    /** 출력 양식용: 대구·광주만 전용, 그 외(서울·해외 등)는 서울 양식 */
+    function formTemplateSenatus(name) {
+        const s = resolveSenatusName(name);
+        if (s === '대구' || s === '광주') return s;
+        return '서울';
+    }
+
     /** DB에서 확인된 로그인 회원 세나뚜스로 세션을 맞춘다(잘못된 옛 값 덮어씀). */
     function rememberSenatusName(senatus, force) {
         const name = resolveSenatusName(senatus);
@@ -984,7 +991,7 @@
         content.innerHTML = `
             <span class="close">&times;</span>
             <h2>${escapeHtml(level.label)} 월례보고</h2>
-            <p class="hub-sub">공식 양식에 DB 보유 항목만 자동 기입합니다. (세나뚜스 대구·광주이면 각 공식 양식)</p>
+            <p class="hub-sub">공식 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
             <div class="org-toolbar">
                 <input type="text" id="councilMonthlyNameInput" placeholder="${escapeHtml(level.label)} 명칭" value="${escapeHtml(initialName)}">
                 <select id="councilMonthlyYear"></select>
@@ -1055,9 +1062,10 @@
                     data.senatus_name,
                     user?.senatus_name
                 );
+                const formSenatus = formTemplateSenatus(senatus);
                 let formHtml;
-                if (senatus === '대구') formHtml = buildCouncilMonthlyDaeguFormHtml(data);
-                else if (senatus === '광주') formHtml = buildCouncilMonthlyGwangjuFormHtml(data);
+                if (formSenatus === '대구') formHtml = buildCouncilMonthlyDaeguFormHtml(data);
+                else if (formSenatus === '광주') formHtml = buildCouncilMonthlyGwangjuFormHtml(data);
                 else formHtml = buildMonthlyFormHtml(data);
                 resultEl.innerHTML = formHtml;
                 wireBlankEditables(resultEl);
@@ -2354,7 +2362,7 @@
         content.innerHTML = `
             <span class="close">&times;</span>
             <h2>Pr 월례보고</h2>
-            <p class="hub-sub">쁘레시디움 월례 보고서 양식에 DB 보유 항목만 자동 기입합니다. (세나뚜스 대구·광주이면 각 공식 양식)</p>
+            <p class="hub-sub">쁘레시디움 월례 보고서 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
             <div class="org-toolbar">
                 <input type="text" id="prMonthlyChurchInput" placeholder="성당 명칭" value="${escapeHtml(initialChurch)}">
                 <input type="text" id="prMonthlyNameInput" placeholder="Pr 명칭" value="${escapeHtml(initialPr)}">
@@ -2434,9 +2442,10 @@
                     data.senatus_name,
                     user?.senatus_name
                 );
+                const formSenatus = formTemplateSenatus(senatus);
                 let formHtml;
-                if (senatus === '대구') formHtml = buildPrMonthlyDaeguFormHtml(data);
-                else if (senatus === '광주') formHtml = buildPrMonthlyGwangjuFormHtml(data);
+                if (formSenatus === '대구') formHtml = buildPrMonthlyDaeguFormHtml(data);
+                else if (formSenatus === '광주') formHtml = buildPrMonthlyGwangjuFormHtml(data);
                 else formHtml = buildPrMonthlyFormHtml(data);
                 resultEl.innerHTML = formHtml;
                 wireBlankEditables(resultEl);
