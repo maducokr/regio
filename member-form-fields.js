@@ -26,7 +26,7 @@
 
     const GENDER_OPTIONS = ['남', '여'];
     const PR_TYPE_OPTIONS = ['성인', '직속', '청년', '소년'];
-    const SENATUS_OPTIONS = ['서울', '광주', '대구'];
+    const SENATUS_OPTIONS = ['서울', '광주', '대구', '해외'];
     const WEEKDAY_OPTIONS = ['월', '화', '수', '목', '금', '토', '일'];
     const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => String(i));
     const MINUTE_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
@@ -615,7 +615,7 @@
                 const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
                 const senatus = senatusEl ? String(senatusEl.value || '').trim() : '';
                 if (!SENATUS_OPTIONS.includes(senatus)) {
-                    return { ok: false, message: '세나뚜스(서울·광주·대구)를 선택해주세요.' };
+                    return { ok: false, message: '세나뚜스(서울·광주·대구·해외)를 선택해주세요.' };
                 }
                 return { ok: true };
             }

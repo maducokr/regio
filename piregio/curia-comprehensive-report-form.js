@@ -1344,6 +1344,7 @@
             if (/대구/.test(s)) return '대구';
             if (/광주/.test(s)) return '광주';
             if (/서울/.test(s)) return '서울';
+            if (/해외/.test(s)) return '해외';
             return s;
         }
         return '';
