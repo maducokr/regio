@@ -1250,7 +1250,9 @@
         `;
     }
 
-    function buildOrgCompositionRows(org) {
+    function buildOrgCompositionRows(org, options) {
+        const opts = options || {};
+        const includeYouth = opts.includeYouth === true;
         const founded = org.founded || {};
         const previous = org.previous || {};
         const current = org.current || {};
@@ -1259,17 +1261,27 @@
         function cellsFor(src, mode) {
             const emptyPair = `<td>${blank('', 'w4')}</td><td>${blank('', 'w4')}</td>`;
             if (mode === 'prAdult') return `${emptyPair}<td>${blank(n(src.pr_adult), 'w4')}</td>`;
+            if (mode === 'prYouth') return `${emptyPair}<td>${blank(n(src.pr_youth), 'w4')}</td>`;
             if (mode === 'prJunior') return `${emptyPair}<td>${blank(n(src.pr_junior), 'w4')}</td>`;
             if (mode === 'prTotal') {
-                const t = (Number(src.pr_adult) || 0) + (Number(src.pr_junior) || 0);
+                const t = (Number(src.pr_adult) || 0)
+                    + (includeYouth ? (Number(src.pr_youth) || 0) : 0)
+                    + (Number(src.pr_junior) || 0);
                 return `${emptyPair}<td>${blank(t || '', 'w4')}</td>`;
             }
             if (mode === 'activeAdult') return orgTriple(src, 'active_adult_m', 'active_adult_f', 'active_adult_t');
+            if (mode === 'activeYouth') return orgTriple(src, 'active_youth_m', 'active_youth_f', 'active_youth_t');
             if (mode === 'activeJunior') return orgTriple(src, 'active_junior_m', 'active_junior_f', 'active_junior_t');
             if (mode === 'activeTotal') {
-                const m = (Number(src.active_adult_m) || 0) + (Number(src.active_junior_m) || 0);
-                const f = (Number(src.active_adult_f) || 0) + (Number(src.active_junior_f) || 0);
-                const t = (Number(src.active_adult_t) || 0) + (Number(src.active_junior_t) || 0);
+                const m = (Number(src.active_adult_m) || 0)
+                    + (includeYouth ? (Number(src.active_youth_m) || 0) : 0)
+                    + (Number(src.active_junior_m) || 0);
+                const f = (Number(src.active_adult_f) || 0)
+                    + (includeYouth ? (Number(src.active_youth_f) || 0) : 0)
+                    + (Number(src.active_junior_f) || 0);
+                const t = (Number(src.active_adult_t) || 0)
+                    + (includeYouth ? (Number(src.active_youth_t) || 0) : 0)
+                    + (Number(src.active_junior_t) || 0);
                 return `<td>${blank(m || '', 'w4')}</td><td>${blank(f || '', 'w4')}</td><td>${blank(t || '', 'w4')}</td>`;
             }
             if (mode === 'praetorian') return `${emptyPair}<td>${blank(n(src.praetorian), 'w4')}</td>`;
@@ -1282,11 +1294,18 @@
             return `${cellsFor(founded, mode)}${cellsFor(previous, mode)}${cellsFor(current, mode)}${cellsFor(change, mode)}`;
         }
 
+        const prRowspan = includeYouth ? 4 : 3;
+        const activeRowspan = includeYouth ? 4 : 3;
+        const youthPrRow = includeYouth ? `<tr><td>청년</td>${block('prYouth')}</tr>` : '';
+        const youthActiveRow = includeYouth ? `<tr><td>청년</td>${block('activeYouth')}</tr>` : '';
+
         return `
-            <tr><td rowspan="3">쁘레시디움</td><td>성인</td>${block('prAdult')}</tr>
+            <tr><td rowspan="${prRowspan}">쁘레시디움</td><td>성인</td>${block('prAdult')}</tr>
+            ${youthPrRow}
             <tr><td>소년</td>${block('prJunior')}</tr>
             <tr><td>계</td>${block('prTotal')}</tr>
-            <tr><td rowspan="3">행동단원</td><td>성인</td>${block('activeAdult')}</tr>
+            <tr><td rowspan="${activeRowspan}">행동단원</td><td>성인</td>${block('activeAdult')}</tr>
+            ${youthActiveRow}
             <tr><td>소년</td>${block('activeJunior')}</tr>
             <tr><td>계</td>${block('activeTotal')}</tr>
             <tr><td colspan="2">쁘레또리움단원</td>${block('praetorian')}</tr>
@@ -2690,7 +2709,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${buildOrgCompositionRows(org)}
+                            ${buildOrgCompositionRows(org, { includeYouth: true })}
                         </tbody>
                     </table>
                 </div>

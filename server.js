@@ -751,10 +751,6 @@ app.get('/api/council-monthly-report', async (req, res) => {
             return null;
         }
 
-        function isJuniorPr(prType) {
-            return String(prType || '').trim() === '소년';
-        }
-
         function ageBucket(prType) {
             const t = String(prType || '').trim();
             if (t === '소년') return 'junior';
@@ -793,11 +789,15 @@ app.get('/api/council-monthly-report', async (req, res) => {
             cu_direct: null,
             cu_junior: null,
             pr_adult: null,
+            pr_youth: null,
             pr_direct: null,
             pr_junior: null,
             active_adult_m: null,
             active_adult_f: null,
             active_adult_t: null,
+            active_youth_m: null,
+            active_youth_f: null,
+            active_youth_t: null,
             active_junior_m: null,
             active_junior_f: null,
             active_junior_t: null,
@@ -816,11 +816,15 @@ app.get('/api/council-monthly-report', async (req, res) => {
             cu_direct: 0,
             cu_junior: 0,
             pr_adult: 0,
+            pr_youth: 0,
             pr_direct: 0,
             pr_junior: 0,
             active_adult_m: 0,
             active_adult_f: 0,
             active_adult_t: 0,
+            active_youth_m: 0,
+            active_youth_f: 0,
+            active_youth_t: 0,
             active_junior_m: 0,
             active_junior_f: 0,
             active_junior_t: 0,
@@ -831,7 +835,7 @@ app.get('/api/council-monthly-report', async (req, res) => {
             adjutorian: 0
         };
 
-        const prSeen = { adult: new Set(), direct: new Set(), junior: new Set() };
+        const prSeen = { adult: new Set(), youth: new Set(), direct: new Set(), junior: new Set() };
         // 꾸리아별 Pr 유형 수집 → Cu. 수(성인/소년) 판별용
         const curiaPrTypes = new Map();
         // 레지아 소속 꼬미시움(Co.) 집계용
@@ -853,6 +857,7 @@ app.get('/api/council-monthly-report', async (req, res) => {
                 const prType = String(row.pr_type || '').trim();
                 if (prType === '소년') prSeen.junior.add(prName);
                 else if (prType === '직속') prSeen.direct.add(prName);
+                else if (prType === '청년') prSeen.youth.add(prName);
                 else prSeen.adult.add(prName);
                 prSeenByAge[ageKey].add(prName);
 
@@ -865,7 +870,6 @@ app.get('/api/council-monthly-report', async (req, res) => {
 
             const code = memberCode(row);
             const gender = String(row.gender || '').trim();
-            const junior = isJuniorPr(row.pr_type);
             const ageRow = membershipByAge[ageKey];
 
             if (code === 7) {
@@ -894,10 +898,14 @@ app.get('/api/council-monthly-report', async (req, res) => {
             const isActive = !code || (code >= 1 && code <= 5);
             if (!isActive) continue;
 
-            if (junior) {
+            if (ageKey === 'junior') {
                 if (gender === '남') current.active_junior_m += 1;
                 else if (gender === '여') current.active_junior_f += 1;
                 current.active_junior_t += 1;
+            } else if (ageKey === 'youth') {
+                if (gender === '남') current.active_youth_m += 1;
+                else if (gender === '여') current.active_youth_f += 1;
+                current.active_youth_t += 1;
             } else {
                 if (gender === '남') current.active_adult_m += 1;
                 else if (gender === '여') current.active_adult_f += 1;
@@ -913,6 +921,7 @@ app.get('/api/council-monthly-report', async (req, res) => {
         membershipByAge.junior.pr = prSeenByAge.junior.size;
 
         current.pr_adult = prSeen.adult.size;
+        current.pr_youth = prSeen.youth.size;
         current.pr_direct = prSeen.direct.size;
         current.pr_junior = prSeen.junior.size;
         current.co_count = comitiaSeen.size;
