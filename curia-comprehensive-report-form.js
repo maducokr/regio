@@ -2602,9 +2602,16 @@
         const end = parseYmd(m.end_date);
         const meeting = m.meeting || {};
         const officers = m.officers || [];
-        const roles = ['영적지도자', '단장', '부단장', '서기', '회계'];
+        const roles = ['영적지도자', '대리자', '단장', '부단장', '서기', '회계'];
+        const proxyFromOfficers = officerByRole(officers, '대리자');
         const officerMap = {
             영적지도자: { name: m.spiritual_director || '', baptism_name: '', elected_on: '', attendance: '' },
+            대리자: {
+                name: m.spiritual_proxy || proxyFromOfficers.name || '',
+                baptism_name: proxyFromOfficers.baptism_name || '',
+                elected_on: proxyFromOfficers.elected_on || '',
+                attendance: ''
+            },
             단장: officerByRole(officers, '단장'),
             부단장: officerByRole(officers, '부단장'),
             서기: officerByRole(officers, '서기'),
@@ -2615,7 +2622,7 @@
         const baptismRow = roles.map((role) => `<td>${cell(officerMap[role].baptism_name)}</td>`).join('');
         const electedRow = roles.map((role) => `<td>${cell(officerMap[role].elected_on)}</td>`).join('');
         const attendRow = roles.map((role) => {
-            if (role === '영적지도자') return `<td>${blank('', 'w6')}</td>`;
+            if (role === '영적지도자' || role === '대리자') return `<td>${blank('', 'w6')}</td>`;
             return `<td>${cell(officerMap[role].attendance || '00.0%', 'w6')}</td>`;
         }).join('');
 
@@ -2646,8 +2653,9 @@
                     <table class="form-table">
                         <thead>
                             <tr>
-                                <th style="width:16%"></th>
+                                <th style="width:14%"></th>
                                 <th>영적지도자</th>
+                                <th>대리자</th>
                                 <th>단장</th>
                                 <th>부단장</th>
                                 <th>서기</th>
@@ -3127,6 +3135,7 @@
             approved_d: monthly?.approved_d || '',
             meeting: monthly?.meeting || {},
             spiritual_director: monthly?.spiritual_director || '',
+            spiritual_proxy: monthly?.spiritual_proxy || '',
             officers: monthly?.officers || [],
             president_name: monthly?.president_name || '',
             organization: {
