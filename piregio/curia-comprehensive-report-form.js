@@ -1344,7 +1344,18 @@
             if (/대구/.test(s)) return '대구';
             if (/광주/.test(s)) return '광주';
             if (/서울/.test(s)) return '서울';
-            if (/해외/.test(s)) return '해외';
+            if (/^LA$/i.test(s) || /엘에이/.test(s)) return 'LA';
+            if (/뉴욕|New\s*York/i.test(s)) return '뉴욕';
+            if (/필라델피아|Philadelphia|릴라델피아/i.test(s)) return '필라델피아';
+            if (/^세계$/.test(s)) return '세계';
+            if (/토론토|토론트|Toronto/i.test(s)) return '토론토';
+            if (/몬트리올|Montreal/i.test(s)) return '몬트리올';
+            if (/브라질|Brazil/i.test(s)) return '브라질';
+            if (/아르헨|Argentina|아르헨티나/i.test(s)) return '아르헨';
+            if (/파리|Paris/i.test(s)) return '파리';
+            if (/마드리드|Madrid/i.test(s)) return '마드리드';
+            if (/바르셀로나|Barcelona/i.test(s)) return '바르셀로나';
+            if (/빌바오|Bilbao/i.test(s)) return '빌바오';
             return s;
         }
         return '';

@@ -1422,7 +1422,7 @@
     <script src="test-export-view.js"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
-    <script src="member-form-fields.js?v=20260819k"></script>
+    <script src="member-form-fields.js?v=20260819n"></script>
     <script src="profile-modal.js?v=20260730b"></script>
     <script src="curia-officer-register.js"></script>
     <script src="auth-ui.js?v=20260819i"></script>
@@ -2774,8 +2774,8 @@
                     alert('성별(남/여)을 선택해주세요.');
                     return;
                 }
-                if (!['서울', '광주', '대구', '해외'].includes(formData.senatus_name)) {
-                    alert('세나뚜스(서울·광주·대구·해외)를 선택해주세요.');
+                if (!['서울', '광주', '대구', 'LA', '뉴욕', '필라델피아', '세계', '토론토', '몬트리올', '브라질', '아르헨', '파리', '마드리드', '바르셀로나', '빌바오'].includes(formData.senatus_name)) {
+                    alert('세나뚜스(서울·광주·대구·LA·뉴욕·필라델피아·세계·토론토·몬트리올·브라질·아르헨·파리·마드리드·바르셀로나·빌바오)를 선택해주세요.');
                     return;
                 }
                 if (!['성인', '직속', '청년', '소년'].includes(formData.pr_type)) {

@@ -6283,8 +6283,8 @@ app.put('/api/user/:id', async (req, res) => {
         }
 
         if (senatus_name !== undefined && senatus_name !== null && String(senatus_name).trim() !== ''
-            && !['서울', '광주', '대구', '해외'].includes(String(senatus_name).trim())) {
-            return res.status(400).json({ error: '세나뚜스는 서울·광주·대구·해외 중 하나여야 합니다.' });
+            && !['서울', '광주', '대구', 'LA', '뉴욕', '필라델피아', '세계', '토론토', '몬트리올', '브라질', '아르헨', '파리', '마드리드', '바르셀로나', '빌바오'].includes(String(senatus_name).trim())) {
+            return res.status(400).json({ error: '세나뚜스는 서울·광주·대구·LA·뉴욕·필라델피아·세계·토론토·몬트리올·브라질·아르헨·파리·마드리드·바르셀로나·빌바오 중 하나여야 합니다.' });
         }
 
         // 사용자 존재 확인
@@ -6588,12 +6588,13 @@ app.post('/api/register', async (req, res) => {
         }
 
         const positionCode = inferPositionCode(position, name);
-        // 등록신청: 꼬미시움·레지아는 미입력, 세나뚜스는 서울·광주·대구·해외 중 선택 저장
+        // 등록신청: 꼬미시움·레지아는 미입력, 세나뚜스는 허용 목록 중 선택 저장
         const comitiaToSave = null;
         const regiaToSave = null;
         const senatusRaw = String(senatus_name || '').trim();
-        if (!['서울', '광주', '대구', '해외'].includes(senatusRaw)) {
-            return res.status(400).json({ error: '세나뚜스(서울·광주·대구·해외)를 선택해주세요.' });
+        const allowedSenatus = ['서울', '광주', '대구', 'LA', '뉴욕', '필라델피아', '세계', '토론토', '몬트리올', '브라질', '아르헨', '파리', '마드리드', '바르셀로나', '빌바오'];
+        if (!allowedSenatus.includes(senatusRaw)) {
+            return res.status(400).json({ error: `세나뚜스(${allowedSenatus.join('·')})를 선택해주세요.` });
         }
         const senatusToSave = senatusRaw;
 
