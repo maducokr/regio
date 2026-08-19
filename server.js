@@ -1447,8 +1447,11 @@ app.get('/api/curia-comprehensive-roster', async (req, res) => {
         }
 
         const membersResult = await pool.query(
-            `SELECT id, name, baptism_name, position, pr_name, curia_officer, curia_officer_elected_on,
-                    officer_appointed_on, phone_full, phone_last4
+            `SELECT id, name, baptism_name, gender, position, pr_name, pr_type, curia_officer, curia_officer_elected_on,
+                    officer_appointed_on, phone_full, phone_last4, church_name,
+                    curia_meeting_on, curia_meeting_place,
+                    pr_meeting_weekday, pr_meeting_hour, pr_meeting_minute, pr_meeting_place,
+                    pr_founded_on, pr_approved_on
              FROM member
              WHERE curia_name = $1
              ORDER BY pr_name ASC NULLS LAST, id ASC`,
@@ -1493,12 +1496,80 @@ app.get('/api/curia-comprehensive-roster', async (req, res) => {
         ];
 
         const prMap = new Map();
+        const curiaStats = {
+            church_name: '',
+            pr_count: 0,
+            active_m: 0,
+            active_f: 0,
+            active_t: 0,
+            praetorian: 0,
+            aux_m: 0,
+            aux_f: 0,
+            aux_t: 0,
+            adjutorian: 0,
+            meeting_weekday: '',
+            meeting_time_place: '',
+            founded_on: ''
+        };
+
+        function memberCodeFromRow(row) {
+            const fromPos = getPositionCodeFromText(row.position);
+            if (fromPos) return fromPos;
+            const trimmed = String(row.name || '').trim();
+            const m = trimmed.match(/^[TG]((?:10|[1-9]))/i);
+            return m ? parseInt(m[1], 10) : null;
+        }
+
         for (const row of membersResult.rows) {
+            if (!curiaStats.church_name && row.church_name) {
+                curiaStats.church_name = String(row.church_name).trim();
+            }
+            if (!curiaStats.founded_on) {
+                curiaStats.founded_on = formatDate(row.pr_founded_on) || formatDate(row.pr_approved_on);
+            }
+            if (!curiaStats.meeting_weekday && row.curia_meeting_on) {
+                const parts = formatDate(row.curia_meeting_on).split('-');
+                if (parts.length === 3) {
+                    const wd = ['일', '월', '화', '수', '목', '금', '토'];
+                    const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+                    if (!Number.isNaN(dt.getTime())) curiaStats.meeting_weekday = wd[dt.getUTCDay()];
+                }
+            }
+            if (!curiaStats.meeting_time_place && row.curia_meeting_place) {
+                curiaStats.meeting_time_place = String(row.curia_meeting_place).trim();
+            }
+
+            const code = memberCodeFromRow(row);
+            const gender = String(row.gender || '').trim();
+            if (code === 7) curiaStats.praetorian += 1;
+            else if (code === 8) curiaStats.adjutorian += 1;
+            else if (code === 6) {
+                if (gender === '남') curiaStats.aux_m += 1;
+                else if (gender === '여') curiaStats.aux_f += 1;
+                curiaStats.aux_t += 1;
+            } else if (!code || (code >= 1 && code <= 5) || code === 9 || code === 10) {
+                if (gender === '남') curiaStats.active_m += 1;
+                else if (gender === '여') curiaStats.active_f += 1;
+                curiaStats.active_t += 1;
+            }
+
             const prName = String(row.pr_name || '').trim();
             if (!prName) continue;
             if (!prMap.has(prName)) {
                 prMap.set(prName, {
                     pr_name: prName,
+                    founded_on: formatDate(row.pr_founded_on) || formatDate(row.pr_approved_on),
+                    meeting_weekday: String(row.pr_meeting_weekday || '').trim(),
+                    meeting_time_place: [
+                        row.pr_meeting_hour != null && row.pr_meeting_hour !== ''
+                            ? `${row.pr_meeting_hour}시${row.pr_meeting_minute != null && row.pr_meeting_minute !== '' ? ` ${row.pr_meeting_minute}분` : ''}`
+                            : '',
+                        String(row.pr_meeting_place || '').trim()
+                    ].filter(Boolean).join(' '),
+                    active_m: 0,
+                    active_f: 0,
+                    aux_m: 0,
+                    aux_f: 0,
                     officers: {
                         단장: { name: '', baptism_name: '', appointed_on: '' },
                         부단장: { name: '', baptism_name: '', appointed_on: '' },
@@ -1507,10 +1578,20 @@ app.get('/api/curia-comprehensive-roster', async (req, res) => {
                     }
                 });
             }
-            const code = parseGOfficerCode(row.name, row.position);
-            if (!code) continue;
-            const role = ROLE_BY_G[code];
-            const slot = prMap.get(prName).officers[role];
+            const pr = prMap.get(prName);
+            if (!pr.founded_on) pr.founded_on = formatDate(row.pr_founded_on) || formatDate(row.pr_approved_on);
+            if (!pr.meeting_weekday && row.pr_meeting_weekday) pr.meeting_weekday = String(row.pr_meeting_weekday).trim();
+            if (code === 6) {
+                if (gender === '남') pr.aux_m += 1;
+                else if (gender === '여') pr.aux_f += 1;
+            } else if (!code || (code >= 1 && code <= 5) || code === 9 || code === 10) {
+                if (gender === '남') pr.active_m += 1;
+                else if (gender === '여') pr.active_f += 1;
+            }
+            const gCode = parseGOfficerCode(row.name, row.position);
+            if (!gCode) continue;
+            const role = ROLE_BY_G[gCode];
+            const slot = pr.officers[role];
             if (slot && !slot.name) {
                 slot.name = displayName(row.name);
                 slot.baptism_name = row.baptism_name || '';
@@ -1521,12 +1602,14 @@ app.get('/api/curia-comprehensive-roster', async (req, res) => {
         const praesidia = [...prMap.values()].sort((a, b) =>
             String(a.pr_name).localeCompare(String(b.pr_name), 'ko')
         );
+        curiaStats.pr_count = praesidia.length;
 
         res.json({
             success: true,
             curia_name: curiaName,
             officers,
-            praesidia
+            praesidia,
+            curia_stats: curiaStats
         });
     } catch (err) {
         console.error('꾸리아 종합보고 명부 조회 오류:', err);
