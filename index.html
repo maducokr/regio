@@ -1422,7 +1422,7 @@
     <script src="test-export-view.js"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
-    <script src="member-form-fields.js?v=20260819n"></script>
+    <script src="member-form-fields.js?v=20260819q"></script>
     <script src="profile-modal.js?v=20260730b"></script>
     <script src="curia-officer-register.js"></script>
     <script src="auth-ui.js?v=20260819i"></script>
@@ -2752,7 +2752,8 @@
                 const isG1toG4 = parsedId.positionCode >= 1 && parsedId.positionCode <= 4;
                 const selectedGender = modal.querySelector('input[name="regGender"]:checked');
                 const selectedPrType = modal.querySelector('input[name="regPrType"]:checked');
-                const selectedSenatus = modal.querySelector('input[name="regSenatus"]:checked');
+                const senatusSelect = document.getElementById('regSenatus');
+                const selectedSenatus = senatusSelect ? String(senatusSelect.value || '').trim() : '';
                 const formData = {
                     name: parsedId.name,
                     baptism_name: document.getElementById('regBaptismName').value.trim() || null,
@@ -2761,7 +2762,7 @@
                     curia_name: isCooperator ? null : (document.getElementById('regCuriaName').value.trim() || null),
                     comitia_name: null,
                     regia_name: null,
-                    senatus_name: selectedSenatus ? selectedSenatus.value : '',
+                    senatus_name: selectedSenatus,
                     pr_name: document.getElementById('regPrName').value.trim(),
                     pr_type: selectedPrType ? selectedPrType.value : '',
                     position: parsedId.position,

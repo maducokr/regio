@@ -174,8 +174,10 @@
                 <input type="text" placeholder="[  ]꾸리아 (정식명칭 숫자X)" id="regCuriaName">
             </div>
             <div id="regSenatusWrap" class="reg-senatus-row">
-                <span class="reg-senatus-label">세나뚜스</span>
-                ${buildChoiceTabsHtml('regSenatus', SENATUS_OPTIONS, '세나뚜스')}
+                <label class="reg-senatus-label" for="regSenatus">세나뚜스</label>
+                <select id="regSenatus" name="regSenatus" aria-label="세나뚜스" required>
+                    ${buildSelectOptions(SENATUS_OPTIONS, '세나뚜스 선택')}
+                </select>
             </div>
         `;
     }
@@ -576,6 +578,12 @@
         };
     }
 
+    function getSenatusSelectValue(modal) {
+        const el = modal && modal.querySelector('#regSenatus');
+        const value = el ? String(el.value || '').trim() : '';
+        return SENATUS_OPTIONS.includes(value) ? value : '';
+    }
+
     function validateField(fieldKey, modal, idField, mode) {
         const isProfile = mode === 'profile';
         switch (fieldKey) {
@@ -618,9 +626,8 @@
                 if (code !== '6' && curia && /\d/.test(curia)) {
                     return { ok: false, message: '꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.' };
                 }
-                const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
-                const senatus = senatusEl ? String(senatusEl.value || '').trim() : '';
-                if (!SENATUS_OPTIONS.includes(senatus)) {
+                const senatus = getSenatusSelectValue(modal);
+                if (!senatus) {
                     return { ok: false, message: `세나뚜스(${SENATUS_OPTIONS_LABEL})를 선택해주세요.` };
                 }
                 return { ok: true };
@@ -743,8 +750,8 @@
         setVal('regPrName', u.pr_name);
 
         if (u.senatus_name && SENATUS_OPTIONS.includes(u.senatus_name)) {
-            const senatusRadio = modal.querySelector(`input[name="regSenatus"][value="${u.senatus_name}"]`);
-            if (senatusRadio) senatusRadio.checked = true;
+            const senatusSelect = modal.querySelector('#regSenatus');
+            if (senatusSelect) senatusSelect.value = u.senatus_name;
         }
 
         let appointed = u.officer_appointed_on || '';
@@ -846,7 +853,7 @@
         const isG1toG4 = ['1', '2', '3', '4'].includes(positionCode);
         const selectedGender = modal.querySelector('input[name="regGender"]:checked');
         const selectedPrType = modal.querySelector('input[name="regPrType"]:checked');
-        const selectedSenatus = modal.querySelector('input[name="regSenatus"]:checked');
+        const selectedSenatus = getSenatusSelectValue(modal);
 
         const formData = {
             name,
@@ -936,9 +943,7 @@
             formData.gender = selectedGender ? selectedGender.value : null;
             formData.church_name = modal.querySelector('#regChurchName').value.trim();
             formData.curia_name = isCooperator ? null : (modal.querySelector('#regCuriaName').value.trim() || null);
-            formData.senatus_name = selectedSenatus && SENATUS_OPTIONS.includes(selectedSenatus.value)
-                ? selectedSenatus.value
-                : null;
+            formData.senatus_name = selectedSenatus || null;
             formData.officer_appointed_on = isG1toG4 ? readAppointedOn() : null;
             Object.assign(formData, readPrDates());
             Object.assign(formData, readPrMeeting());
@@ -960,10 +965,7 @@
             formData.church_name = modal.querySelector('#regChurchName').value.trim();
         } else if (onlyFieldKey === 'curia') {
             formData.curia_name = isCooperator ? null : (modal.querySelector('#regCuriaName').value.trim() || null);
-            const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
-            formData.senatus_name = senatusEl && SENATUS_OPTIONS.includes(senatusEl.value)
-                ? senatusEl.value
-                : null;
+            formData.senatus_name = getSenatusSelectValue(modal) || null;
         } else if (onlyFieldKey === 'officerAppointed') {
             formData.officer_appointed_on = isG1toG4 ? readAppointedOn() : null;
         } else if (onlyFieldKey === 'prDates') {
@@ -991,7 +993,7 @@
     function captureFormSnapshot(modal, idField) {
         const genderEl = modal.querySelector('input[name="regGender"]:checked');
         const prTypeEl = modal.querySelector('input[name="regPrType"]:checked');
-        const senatusEl = modal.querySelector('input[name="regSenatus"]:checked');
+        const senatusValue = getSenatusSelectValue(modal);
         const appointedEl = modal.querySelector('#regOfficerAppointedOn');
         const foundedEl = modal.querySelector('#regPrFoundedOn');
         const approvedEl = modal.querySelector('#regPrApprovedOn');
@@ -1009,7 +1011,7 @@
             gender: genderEl ? genderEl.value : '',
             church: modal.querySelector('#regChurchName').value.trim(),
             curia: modal.querySelector('#regCuriaName')?.value.trim() || '',
-            senatus: senatusEl ? senatusEl.value : '',
+            senatus: senatusValue,
             password: modal.querySelector('#regPassword').value.trim(),
             prFounded: foundedEl ? String(foundedEl.value || '').trim() : '',
             prApproved: approvedEl ? String(approvedEl.value || '').trim() : '',
@@ -1047,7 +1049,11 @@
             .modal-content .reg-senatus-label {
                 flex-shrink: 0; font-size: 12px; font-weight: 600; color: #334155; min-width: 52px;
             }
-            .modal-content .reg-senatus-row .reg-choice-tabs { flex: 1; }
+            .modal-content .reg-senatus-row select {
+                flex: 1; min-width: 0; height: 42px; padding: 0 10px;
+                border: 1px solid #ddd; border-radius: 6px; background: #fff;
+                font-size: 13px; color: #222;
+            }
             .modal-content .reg-baptism-gender-row > input,
             .modal-content .reg-pr-type-row > input,
             .modal-content .reg-curia-comitia-row > input,

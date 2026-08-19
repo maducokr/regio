@@ -3135,6 +3135,7 @@
             approved_d: monthly?.approved_d || '',
             meeting: monthly?.meeting || {},
             spiritual_director: monthly?.spiritual_director || '',
+            spiritual_proxy: monthly?.spiritual_proxy || '',
             officers: monthly?.officers || [],
             president_name: monthly?.president_name || '',
             organization: {
