@@ -1307,6 +1307,13 @@
         }
     }
 
+    async function refreshLoggedInUser() {
+        if (global.RegioAuth && typeof global.RegioAuth.refreshLoggedInUserFromServer === 'function') {
+            return global.RegioAuth.refreshLoggedInUserFromServer();
+        }
+        return getLoggedInUser();
+    }
+
     function resolveSenatusName(...candidates) {
         for (const raw of candidates) {
             const s = String(raw == null ? '' : raw).trim();
@@ -1317,23 +1324,6 @@
             return s;
         }
         return '';
-    }
-
-    function rememberSenatusName(senatus) {
-        const name = resolveSenatusName(senatus);
-        if (!name) return;
-        try {
-            const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
-            if (!raw) return;
-            const user = JSON.parse(raw);
-            if (resolveSenatusName(user?.senatus_name)) return;
-            user.senatus_name = name;
-            const next = JSON.stringify(user);
-            sessionStorage.setItem('userInfo', next);
-            localStorage.setItem('userInfo', next);
-        } catch (e) {
-            /* ignore */
-        }
     }
 
     function recordsToActivityTotals(records) {
@@ -3001,7 +2991,7 @@
         let events = null;
         let roster = { officers: [], praesidia: [], curia_stats: {} };
         let previousRecords = [];
-        const user = getLoggedInUser();
+        const user = await refreshLoggedInUser() || getLoggedInUser();
 
         try {
             monthly = await fetchCouncilMonthly(
@@ -3014,11 +3004,10 @@
         }
 
         const senatusName = resolveSenatusName(
-            opts.senatusName,
             user?.senatus_name,
+            opts.senatusName,
             monthly?.senatus_name
         );
-        rememberSenatusName(senatusName);
         const isGwangju = senatusName === '광주';
         const isDaegu = senatusName === '대구';
 

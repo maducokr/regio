@@ -66,6 +66,43 @@
         }
     }
 
+    /**
+     * 로그인 세션의 소속(세나뚜스 등)을 DB 회원 정보로 갱신.
+     * localStorage에 남은 옛 세나뚜스(예: 서울)가 양식 분기를 가로채는 것을 방지.
+     */
+    async function refreshLoggedInUserFromServer() {
+        const user = getStoredUser(false);
+        if (!user || !user.id) return user;
+        try {
+            const response = await fetch(`/api/members/${encodeURIComponent(user.id)}`);
+            if (!response.ok) return user;
+            const row = await response.json();
+            if (!row || !row.id) return user;
+
+            const next = {
+                ...user,
+                name: row.name != null ? row.name : user.name,
+                baptism_name: row.baptism_name != null ? row.baptism_name : user.baptism_name,
+                church_name: row.church_name != null ? row.church_name : user.church_name,
+                curia_name: row.curia_name != null ? row.curia_name : user.curia_name,
+                comitia_name: row.comitia_name != null ? row.comitia_name : user.comitia_name,
+                regia_name: row.regia_name != null ? row.regia_name : user.regia_name,
+                senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
+                pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
+                pr_type: row.pr_type != null ? row.pr_type : user.pr_type,
+                position: row.position != null ? row.position : user.position,
+                gender: row.gender != null ? row.gender : user.gender,
+                curia_officer: row.curia_officer != null ? row.curia_officer : user.curia_officer,
+                email: row.email != null ? row.email : user.email
+            };
+            storeLoginSuccess(next);
+            return next;
+        } catch (error) {
+            console.warn('로그인 소속 갱신 실패:', error);
+            return user;
+        }
+    }
+
     function isLoggedIn() {
         return !!getStoredUser(false);
     }
@@ -339,6 +376,7 @@
         loginWithGoogleCredential,
         storeLoginSuccess,
         getStoredUser,
+        refreshLoggedInUserFromServer,
         isLoggedIn,
         hasActiveSession,
         updateHamburgerMenuVisibility,

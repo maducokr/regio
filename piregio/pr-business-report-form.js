@@ -138,6 +138,13 @@
         }
     }
 
+    async function refreshLoggedInUser() {
+        if (global.RegioAuth && typeof global.RegioAuth.refreshLoggedInUserFromServer === 'function') {
+            return global.RegioAuth.refreshLoggedInUserFromServer();
+        }
+        return getLoggedInUser();
+    }
+
     function resolveSenatusName(...candidates) {
         for (const raw of candidates) {
             const s = String(raw == null ? '' : raw).trim();
@@ -148,23 +155,6 @@
             return s;
         }
         return '';
-    }
-
-    function rememberSenatusName(senatus) {
-        const name = resolveSenatusName(senatus);
-        if (!name) return;
-        try {
-            const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
-            if (!raw) return;
-            const user = JSON.parse(raw);
-            if (resolveSenatusName(user?.senatus_name)) return;
-            user.senatus_name = name;
-            const next = JSON.stringify(user);
-            sessionStorage.setItem('userInfo', next);
-            localStorage.setItem('userInfo', next);
-        } catch (e) {
-            /* ignore */
-        }
     }
 
     function sumActivityTotals(totals, matcher, field) {
@@ -2121,13 +2111,12 @@
             console.warn('Pr 사업보고 교육·피정 조회 실패:', error);
         }
 
-        const user = getLoggedInUser();
+        const user = await refreshLoggedInUser() || getLoggedInUser();
         const senatusName = resolveSenatusName(
-            opts.senatusName,
             user?.senatus_name,
+            opts.senatusName,
             monthly?.senatus_name
         );
-        rememberSenatusName(senatusName);
         const isDaegu = senatusName === '대구';
         const isGwangju = senatusName === '광주';
 

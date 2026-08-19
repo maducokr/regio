@@ -20,6 +20,13 @@
         }
     }
 
+    async function refreshLoggedInUser() {
+        if (global.RegioAuth && typeof global.RegioAuth.refreshLoggedInUserFromServer === 'function') {
+            return global.RegioAuth.refreshLoggedInUserFromServer();
+        }
+        return getLoggedInUser();
+    }
+
     /** 로그인·API 등 후보에서 세나뚜스 표준명(대구/광주/서울) 추출 */
     function resolveSenatusName(...candidates) {
         for (const raw of candidates) {
@@ -33,15 +40,20 @@
         return '';
     }
 
-    /** 로그인 세션에 세나뚜스가 비어 있으면 API에서 확정된 값으로 보강 */
-    function rememberSenatusName(senatus) {
+    /** DB에서 확인된 로그인 회원 세나뚜스로 세션을 맞춘다(잘못된 옛 값 덮어씀). */
+    function rememberSenatusName(senatus, force) {
         const name = resolveSenatusName(senatus);
         if (!name) return;
         try {
             const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
             if (!raw) return;
             const user = JSON.parse(raw);
-            if (resolveSenatusName(user?.senatus_name)) return;
+            const current = resolveSenatusName(user?.senatus_name);
+            if (!force && current && current === name) return;
+            if (!force && current && current !== name) {
+                // 로그인 회원 DB 값이 있으면 그쪽이 우선 — 단위 다수결로 덮지 않음
+                return;
+            }
             user.senatus_name = name;
             const next = JSON.stringify(user);
             sessionStorage.setItem('userInfo', next);
@@ -1001,14 +1013,13 @@
                     yearSelect.value,
                     monthSelect.value
                 );
-                metaEl.textContent = `${data.label}: ${data.council_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${data.senatus_name ? ` · ${data.senatus_name}세나뚜스` : ''}`;
-                const liveUser = getLoggedInUser();
+                const liveUser = await refreshLoggedInUser();
+                metaEl.textContent = `${data.label}: ${data.council_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${(liveUser?.senatus_name || data.senatus_name) ? ` · ${liveUser?.senatus_name || data.senatus_name}세나뚜스` : ''}`;
                 const senatus = resolveSenatusName(
                     liveUser?.senatus_name,
                     data.senatus_name,
                     user?.senatus_name
                 );
-                rememberSenatusName(senatus);
                 let formHtml;
                 if (senatus === '대구') formHtml = buildCouncilMonthlyDaeguFormHtml(data);
                 else if (senatus === '광주') formHtml = buildCouncilMonthlyGwangjuFormHtml(data);
@@ -1130,6 +1141,7 @@
             alert('로그인이 필요합니다.');
             return;
         }
+        refreshLoggedInUser().catch(() => {});
 
         const existing = document.querySelector('.council-hub-modal');
         if (existing) closeModal(existing);
@@ -2380,14 +2392,13 @@
                     yearSelect.value,
                     monthSelect.value
                 );
-                metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${data.senatus_name ? ` · ${data.senatus_name}세나뚜스` : ''}`;
-                const liveUser = getLoggedInUser();
+                const liveUser = await refreshLoggedInUser();
+                metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${(liveUser?.senatus_name || data.senatus_name) ? ` · ${liveUser?.senatus_name || data.senatus_name}세나뚜스` : ''}`;
                 const senatus = resolveSenatusName(
                     liveUser?.senatus_name,
                     data.senatus_name,
                     user?.senatus_name
                 );
-                rememberSenatusName(senatus);
                 let formHtml;
                 if (senatus === '대구') formHtml = buildPrMonthlyDaeguFormHtml(data);
                 else if (senatus === '광주') formHtml = buildPrMonthlyGwangjuFormHtml(data);
@@ -2509,6 +2520,7 @@
             alert('로그인이 필요합니다.');
             return;
         }
+        refreshLoggedInUser().catch(() => {});
 
         const existing = document.querySelector('.council-hub-modal');
         if (existing) closeModal(existing);

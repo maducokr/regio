@@ -1445,18 +1445,18 @@
 
 
     <script src="date-wheel-picker.js"></script>
-    <script src="auth-ui.js"></script>
+    <script src="auth-ui.js?v=20260819h"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
     <script src="pdf-share.js?v=20260816g"></script>
-    <script src="curia-hub.js?v=20260819g"></script>
+    <script src="curia-hub.js?v=20260819h"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260819g"></script>
-    <script src="curia-comprehensive-report-form.js?v=20260819g"></script>
+    <script src="pr-business-report-form.js?v=20260819h"></script>
+    <script src="curia-comprehensive-report-form.js?v=20260819h"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
     <script src="member-form-fields.js"></script>
@@ -2629,10 +2629,17 @@
         }
 
         // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // 로그인 상태 확인
             if (!checkLoginStatus()) {
                 return;
+            }
+            if (window.RegioAuth && typeof RegioAuth.refreshLoggedInUserFromServer === 'function') {
+                try {
+                    await RegioAuth.refreshLoggedInUserFromServer();
+                } catch (e) {
+                    console.warn('소속 갱신 실패:', e);
+                }
             }
             initReportScope();
             const scope = getReportScope();
