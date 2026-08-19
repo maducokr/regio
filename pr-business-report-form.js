@@ -355,6 +355,178 @@
         };
     }
 
+    /** 서울 무염시태 세나뚜스 사업보고 활동 사항 세목 집계 */
+    function computeSeoulActivityCounts(totals) {
+        const one = (matcher, field) => sumActivityTotals(totals, matcher, field);
+
+        const nonbelieverInvite = one((n) => /외인\s*입교|입교\s*권면|외인권면/.test(n) && !/중단|재권면/.test(n));
+        const catechismRestart = one((n) => /교리\s*중단|재권면|중단자/.test(n));
+        const convertInvite = one((n) => /개종\s*권면|개종권면|개종/.test(n) && !/회두/.test(n));
+        const streetMission = one((n) => /가두\s*선교|가두선교/.test(n));
+        const visitMission = one((n) => /방문\s*선교|방문선교/.test(n));
+        const evangelismCount = sumParenCounts(
+            nonbelieverInvite, catechismRestart, convertInvite, streetMission, visitMission
+        ) || one((n) => /입교\s*권면|복음선교|가두|외인/.test(n) && !/예비|교리반\s*인도/.test(n));
+
+        const catechismCare = one((n) => /교리반\s*인도|예비신자\s*돌봄|예비자\s*돌봄/.test(n))
+            || one((n) => /교리반/.test(n), 'catechism_guide');
+        const correspondence = one((n) => /통신교리/.test(n));
+        const catechismHelp = one((n) => /교리반\s*봉사|교리반\s*협조|교리\s*봉사/.test(n));
+        const catechumenCount = sumParenCounts(catechismCare, correspondence, catechismHelp)
+            || one((n) => /예비신자|예비자|통신교리|교리반/.test(n));
+
+        const newBaptized = one((n) => /새\s*영세|영세자\s*돌봄|새영세자/.test(n));
+        const transferIn = one((n) => /전입\s*교우|전입교우/.test(n));
+        const coldCare = one((n) => /냉담/.test(n));
+        const marriageGuide = one((n) => /조당|혼인장애/.test(n));
+        const sacramentInvite = one((n) => /성사\s*권면|성사권유|판공|견진|회두/.test(n));
+        const infantBaptism = one((n) => /유아\s*세례|유아세례/.test(n));
+        const firstCommunion = one((n) => /첫\s*영성체|첫영성체/.test(n));
+        const homeVisit = one((n) => /교우\s*가정|가정\s*방문|교우방문/.test(n));
+        const believerCount = sumParenCounts(
+            newBaptized, transferIn, coldCare, marriageGuide,
+            sacramentInvite, infantBaptism, firstCommunion, homeVisit
+        ) || one((n) => /교우\s*돌봄|교우방문|냉담|성사|혼인|영세자|전입|첫\s*영성체|유아세례/.test(n));
+
+        const believerSick = one((n) => /교우\s*환자|교우환자|병자/.test(n) && !/외인|비신자/.test(n));
+        const nonbelieverSick = one((n) => /외인\s*환자|비신자\s*환자|외인환자/.test(n));
+        const multicultural = one((n) => /다문화/.test(n));
+        const nonbelieverFuneral = one((n) => /외인\s*상가|비신자\s*상가/.test(n));
+        const believerFuneral = one((n) => /교우\s*상가|교우상가/.test(n))
+            || one((n) => /상가/.test(n) && !/외인|비신자/.test(n), 'funeral_attendance');
+        const yeondo = one((n) => /위령기도|연도/.test(n));
+        const funeralMass = one((n) => /장례미사/.test(n), 'funeral_mass') || one((n) => /장례미사/.test(n));
+        const memorialMass = one((n) => /추모미사|위령미사|보미사/.test(n), 'memorial_mass')
+            || one((n) => /추모미사|위령미사|보미사/.test(n));
+        const coffin = one((n) => /입출관|입관|출관/.test(n));
+        const burial = one((n) => /장지수행|장지|장례수행/.test(n));
+        const hardshipCount = sumParenCounts(
+            believerSick, nonbelieverSick, multicultural,
+            nonbelieverFuneral, believerFuneral, yeondo,
+            funeralMass, memorialMass, coffin, burial
+        ) || one((n) => /상가|위령|장례|환자|병자|장지|다문화|연도/.test(n));
+
+        const activeRecruit = one((n) => /행동단원\s*모집|입단권면/.test(n), 'membership')
+            || one((n) => /행동단원\s*모집|입단권면/.test(n));
+        const auxRecruit = one((n) => /협조단원\s*모집|협조단원\s*돌봄/.test(n), 'membership')
+            || one((n) => /협조단원/.test(n));
+        const juniorLegion = one((n) => /소년\s*레지오|유년|소년단/.test(n));
+        const expansionCount = sumParenCounts(activeRecruit, auxRecruit, juniorLegion)
+            || one((n) => /행동단원|협조단원|레지오\s*확장|회원모집|Pr설립/.test(n));
+
+        const disaster = one((n) => /재해|사고\s*피해자|재난/.test(n));
+        const welfare = one((n) => /복지시설|복지\s*봉사/.test(n));
+        const hospital = one((n) => /병원\s*방문|병원방문|병원\s*활동/.test(n));
+        const specialCount = sumParenCounts(disaster, welfare, hospital)
+            || one((n) => /특별\s*활동|재해|복지|병원/.test(n));
+
+        const eventHelp = one((n) => /행사\s*준비|행사\s*협조|본당\s*행사/.test(n));
+        const sundaySchool = one((n) => /주일학교/.test(n));
+        const cleaning = one((n) => /청소|미화/.test(n));
+        const massGuide = one((n) => /미사\s*안내|전례\s*협조|미사안내/.test(n));
+        const parishOther = one((n) => /기타\s*본당|본당\s*협조/.test(n) && !/행사|주일|청소|미사/.test(n));
+        const parishCount = sumParenCounts(eventHelp, sundaySchool, cleaning, massGuide, parishOther)
+            || one((n) => /본당|주일학교|전례|청소|미사안내/.test(n) && !/첫\s*영성체/.test(n));
+
+        const smallMeet = one((n) => /소공동체\s*모임|소공동체\s*참석/.test(n));
+        const zoneEdu = one((n) => /구역|반장\s*교육|반장교육/.test(n));
+        const banInvite = one((n) => /반모임|반\s*모임/.test(n));
+        const smallOther = one((n) => /소공동체/.test(n) && !/모임|구역|반장|반모임/.test(n));
+        const smallCount = sumParenCounts(smallMeet, zoneEdu, banInvite, smallOther)
+            || one((n) => /소공동체|구역|반모임|반장/.test(n));
+
+        const familyPray = one((n) => /가족이\s*함께\s*기도|가정\s*기도|가족기도/.test(n));
+        const familyBible = one((n) => /성경\s*봉독|성경\s*묵상|가정.*성경/.test(n));
+        const familyMass = one((n) => /가정.*미사|가족.*미사|미사참례/.test(n) && /가정|가족/.test(n));
+        const familyWelfare = one((n) => /가정성화|가족.*복지|가정.*봉사/.test(n));
+        const familyCount = sumParenCounts(familyPray, familyBible, familyMass, familyWelfare)
+            || one((n) => /가정성화|가족이\s*함께|가정\s*단위/.test(n));
+
+        const nature = one((n) => /자연보호|생태|환경/.test(n));
+        const otherCount = nature || one((n) => /기타\s*활동|기타활동/.test(n));
+
+        const dioceseOrder = one((n) => /교구\s*지시|세나뚜스\s*지시|상급.*지시/.test(n));
+        const pastorOrder = one((n) => /사목자\s*지시|본당\s*신부|주임신부/.test(n));
+
+        return {
+            dioceseOrder,
+            pastorOrder,
+            evangelismCount,
+            nonbelieverInvite,
+            catechismRestart,
+            convertInvite,
+            streetMission,
+            visitMission,
+            catechumenCount,
+            catechismCare,
+            correspondence,
+            catechismHelp,
+            believerCount,
+            newBaptized,
+            transferIn,
+            coldCare,
+            marriageGuide,
+            sacramentInvite,
+            infantBaptism,
+            firstCommunion,
+            homeVisit,
+            hardshipCount,
+            believerSick,
+            nonbelieverSick,
+            multicultural,
+            nonbelieverFuneral,
+            believerFuneral,
+            yeondo,
+            funeralMass,
+            memorialMass,
+            coffin,
+            burial,
+            expansionCount,
+            activeRecruit,
+            auxRecruit,
+            juniorLegion,
+            specialCount,
+            disaster,
+            welfare,
+            hospital,
+            parishCount,
+            eventHelp,
+            sundaySchool,
+            cleaning,
+            massGuide,
+            parishOther,
+            smallCount,
+            smallMeet,
+            zoneEdu,
+            banInvite,
+            smallOther,
+            familyCount,
+            familyPray,
+            familyBible,
+            familyMass,
+            familyWelfare,
+            otherCount,
+            nature
+        };
+    }
+
+    function seoulParen(label, value) {
+        return `${escapeHtml(label)}(${blank(value, 'w3')})`;
+    }
+
+    function sumParenCounts(...vals) {
+        let n = 0;
+        let any = false;
+        vals.forEach((v) => {
+            const num = Number(v);
+            if (Number.isFinite(num) && num > 0) {
+                n += num;
+                any = true;
+            }
+        });
+        return any ? String(n) : '';
+    }
+
     function attendancePct(present, total) {
         const p = Number(present);
         const t = Number(total);
@@ -374,6 +546,151 @@
                 <div class="daegu-act-count">활동 회수: ${blank(count, 'w4')} 회</div>
                 ${resultsHtml ? `<div class="daegu-act-result"><strong>활동 결과:</strong> ${resultsHtml}</div>` : ''}
             </div>
+        `;
+    }
+
+    function buildSeoulActivitySectionHtml(activityTotals) {
+        const a = computeSeoulActivityCounts(activityTotals || []);
+        return `
+            <div class="biz-sec-title">활동 사항</div>
+            <p class="seoul-act-hint">
+                ※ 아래 내용은 대표적 활동 예시이며, 각 쁘레시디움에서 필요에 따라 추가·삭제·수정하여 해당 활동의 횟수를 기재합니다.
+            </p>
+            <div class="biz-scroll">
+            <table class="biz-table seoul-act-table">
+                <thead>
+                    <tr>
+                        <th style="width:18%">종 목</th>
+                        <th style="width:10%">활동횟수</th>
+                        <th>활동 내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>교구 또는 세나뚜스 지시 사항</td>
+                        <td>${blank(a.dioceseOrder, 'w4')}</td>
+                        <td class="left">${blank('', 'w20')}</td>
+                    </tr>
+                    <tr>
+                        <td>본당 사목자 지시 사항</td>
+                        <td>${blank(a.pastorOrder, 'w4')}</td>
+                        <td class="left">${blank('', 'w20')}</td>
+                    </tr>
+                    <tr>
+                        <td>입교 권면</td>
+                        <td>${blank(a.evangelismCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('외인 입교 권면', a.nonbelieverInvite)},
+                            ${seoulParen('교리 중단자 재권면', a.catechismRestart)},
+                            ${seoulParen('개종 권면', a.convertInvite)},
+                            ${seoulParen('가두 선교', a.streetMission)},
+                            ${seoulParen('방문 선교', a.visitMission)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>예비신자 돌봄</td>
+                        <td>${blank(a.catechumenCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('교리반 인도 예비신자 돌봄', a.catechismCare)},
+                            ${seoulParen('통신교리자 돌봄', a.correspondence)},
+                            ${seoulParen('교리반 봉사 또는 협조', a.catechismHelp)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>교우 돌봄</td>
+                        <td>${blank(a.believerCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('새 영세자 돌봄', a.newBaptized)},
+                            ${seoulParen('전입교우 돌봄', a.transferIn)},
+                            ${seoulParen('냉담 교우 돌봄', a.coldCare)},
+                            ${seoulParen('조당(혼인장애)자 안내', a.marriageGuide)},
+                            ${seoulParen('성사 권면', a.sacramentInvite)},
+                            ${seoulParen('유아 세례 권면', a.infantBaptism)},
+                            ${seoulParen('첫 영성체', a.firstCommunion)},
+                            ${seoulParen('교우 가정 방문', a.homeVisit)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>어려움 겪는 분 돌봄</td>
+                        <td>${blank(a.hardshipCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('교우 환자 방문', a.believerSick)},
+                            ${seoulParen('외인 환자 방문', a.nonbelieverSick)},
+                            ${seoulParen('다문화 가정 돌봄', a.multicultural)},
+                            ${seoulParen('외인 상가 돌봄', a.nonbelieverFuneral)},
+                            ${seoulParen('교우 상가 돌봄', a.believerFuneral)},
+                            ${seoulParen('위령기도[연도]', a.yeondo)},
+                            ${seoulParen('장례미사', a.funeralMass)},
+                            ${seoulParen('추모미사', a.memorialMass)},
+                            ${seoulParen('입출관', a.coffin)},
+                            ${seoulParen('장지수행', a.burial)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>레지오 확장</td>
+                        <td>${blank(a.expansionCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('행동단원 모집', a.activeRecruit)},
+                            ${seoulParen('협조단원 모집 및 돌봄', a.auxRecruit)},
+                            ${seoulParen('소년 레지오 지도', a.juniorLegion)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>특별 활동</td>
+                        <td>${blank(a.specialCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('재해 및 사고 피해자 돌봄', a.disaster)},
+                            ${seoulParen('복지시설 노력 봉사', a.welfare)},
+                            ${seoulParen('병원방문 활동', a.hospital)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>본당 협조</td>
+                        <td>${blank(a.parishCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('행사 준비 및 협조', a.eventHelp)},
+                            ${seoulParen('주일학교 돌봄', a.sundaySchool)},
+                            ${seoulParen('청소 미화', a.cleaning)},
+                            ${seoulParen('미사안내 봉사', a.massGuide)},
+                            ${seoulParen('기타 본당 협조', a.parishOther)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>소공동체 활동<br>(본당과 직장)</td>
+                        <td>${blank(a.smallCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('소공동체 모임 참석', a.smallMeet)},
+                            ${seoulParen('구역·반장교육 참석', a.zoneEdu)},
+                            ${seoulParen('반모임 참석 권유', a.banInvite)},
+                            ${seoulParen('기타', a.smallOther)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>가정성화 활동<br>(가족 단위)</td>
+                        <td>${blank(a.familyCount, 'w4')}</td>
+                        <td class="left">
+                            ${seoulParen('가족이 함께 기도하기', a.familyPray)},
+                            ${seoulParen('성경 봉독 및 묵상', a.familyBible)},
+                            ${seoulParen('미사참례', a.familyMass)},
+                            ${seoulParen('복지시설 봉사', a.familyWelfare)}
+                            <div style="margin-top:4px;font-size:10px;color:#555;">※ 운영과 관리 지침서 활동 부분 참조</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>기타 활동</td>
+                        <td>${blank(a.otherCount, 'w4')}</td>
+                        <td class="left">${seoulParen('자연보호 활동', a.nature)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="biz-sec-title">쁘레시디움 운영 상황</div>
+            <div class="seoul-ops-label">어려운 상황을 극복한 내용과 자랑하고 싶은 내용</div>
+            ${lineBoxHtml('', '120px')}
+            <div class="seoul-ops-label">운영상 애로 사항</div>
+            ${lineBoxHtml('', '72px')}
+            <div class="seoul-form-id">서울 무염시태 세나뚜스 양식 제7호(2024년 12월)</div>
         `;
     }
 
@@ -799,6 +1116,27 @@
                 font-weight: 700;
                 font-size: 12px;
                 margin: 8px 0 4px;
+            }
+            .pr-biz-form.pr-biz-seoul .seoul-act-hint {
+                font-size: 11px;
+                color: #444;
+                margin: 0 0 8px;
+                line-height: 1.45;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-act-table td.left {
+                font-size: 11px;
+                line-height: 1.55;
+            }
+            .pr-biz-form.pr-biz-seoul .seoul-ops-label {
+                font-weight: 600;
+                margin: 8px 0 4px;
+                font-size: 12px;
+            }
+            .pr-biz-form.pr-biz-seoul .seoul-form-id {
+                text-align: right;
+                font-size: 11px;
+                margin-top: 12px;
+                color: #333;
             }
             .pr-biz-form .biz-scroll {
                 width: 100%;
@@ -1791,6 +2129,7 @@
 
     function buildFormHtml(model) {
         const m = model || {};
+        const isSeoul = resolveSenatusName(m.senatus_name) === '서울';
         const officers = m.officers || [];
         const mem = m.membership || {};
         const prev = mem.previous || {};
@@ -1886,7 +2225,7 @@
         const auxKeys = { m: 'aux_m', f: 'aux_f', t: 'aux_t' };
 
         return `
-            <div class="pr-biz-form" id="prBusinessFormPrint">
+            <div class="pr-biz-form${isSeoul ? ' pr-biz-seoul' : ''}" id="prBusinessFormPrint">
                 <div class="biz-head">
                     <div class="biz-logo">LEGIO<br>MARIAE</div>
                     <div class="biz-titles">
@@ -2054,7 +2393,10 @@
                         </table>
                     </div>
                 </div>
-                <p class="biz-note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>
+                ${isSeoul ? buildSeoulActivitySectionHtml(m.activity_totals) : ''}
+                <p class="biz-note">${isSeoul
+                    ? '※ 서울 무염시태 세나뚜스 사업보고서 · 활동 횟수·세목은 DB 합계입니다. DB에 없는 항목·운영 상황은 직접 입력합니다. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).'
+                    : '※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.'}</p>
             </div>
         `;
     }
@@ -2143,14 +2485,15 @@
         );
         const isDaegu = senatusName === '대구';
         const isGwangju = senatusName === '광주';
+        const isSeoul = senatusName === '서울';
         console.info('[Pr사업보고] senatus=', senatusName, {
             user: user?.senatus_name,
             monthly: monthly?.senatus_name,
             opts: opts.senatusName,
-            form: isDaegu ? '대구' : (isGwangju ? '광주' : '기본')
+            form: isDaegu ? '대구' : (isGwangju ? '광주' : (isSeoul ? '서울' : '기본'))
         });
 
-        if (isDaegu || isGwangju) {
+        if (isDaegu || isGwangju || isSeoul) {
             try {
                 activityTotals = await fetchActivityTotals(churchName, prName, startDate, endDate);
             } catch (error) {
