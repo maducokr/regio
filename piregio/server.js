@@ -5410,7 +5410,11 @@ app.get('/api/login-id-suggest', async (req, res) => {
     try {
         const rawName = String(req.query.name || '').trim();
         const phoneLast4 = String(req.query.phone_last4 || '').replace(/\D/g, '').slice(-4);
-        const positionCode = parseInt(req.query.position_code, 10);
+        const positionCodeRaw = parseInt(req.query.position_code, 10);
+        const hasPositionFilter = Number.isFinite(positionCodeRaw)
+            && positionCodeRaw >= 1
+            && positionCodeRaw <= POSITION_CODE_MAX;
+        const positionCode = hasPositionFilter ? positionCodeRaw : null;
         const hasPhone = phoneLast4.length === 4;
 
         if (!rawName) {
@@ -5418,9 +5422,6 @@ app.get('/api/login-id-suggest', async (req, res) => {
         }
         if (rawName.length < 2) {
             return res.status(400).json({ success: false, error: '성명을 2자 이상 입력해주세요.' });
-        }
-        if (!positionCode || positionCode < 1 || positionCode > POSITION_CODE_MAX) {
-            return res.status(400).json({ success: false, error: '직책을 선택해주세요.' });
         }
 
         let result;
@@ -5444,6 +5445,11 @@ app.get('/api/login-id-suggest', async (req, res) => {
             );
         }
 
+        const POSITION_LABELS = {
+            1: '단장', 2: '부단장', 3: '서기', 4: '회계',
+            5: '행동단원', 6: '협조단원', 7: '쁘레또리운', 8: '아듀또리움', 9: '예비단원', 10: '휴가'
+        };
+
         const members = result.rows
             .filter((row) => {
                 const real = extractRealNameFromMemberName(row.name);
@@ -5457,18 +5463,26 @@ app.get('/api/login-id-suggest', async (req, res) => {
                     const phone4 = String(row.phone_last4 || '').replace(/\D/g, '').slice(-4);
                     if (phone4 !== phoneLast4) return false;
                 }
-                return inferPositionCode(row.position, row.name) === positionCode;
+                if (hasPositionFilter) {
+                    return inferPositionCode(row.position, row.name) === positionCode;
+                }
+                return true;
             })
             .map((row) => {
                 const real = extractRealNameFromMemberName(row.name);
                 const phone4 = String(row.phone_last4 || '').replace(/\D/g, '').slice(-4).padStart(4, '0');
                 const exact = real === rawName || real.replace(/\d+$/, '') === rawName;
+                const code = inferPositionCode(row.position, row.name);
+                const tPrefix = code ? `G${code}` : '';
                 return {
                     id: row.id,
                     name: row.name,
                     display_name: real,
                     baptism_name: row.baptism_name || '',
                     position: row.position || '',
+                    position_code: code || '',
+                    position_label: (code && POSITION_LABELS[code]) || row.position || '',
+                    position_tprefix: tPrefix,
                     phone_last4: phone4,
                     church_name: row.church_name || '',
                     pr_name: row.pr_name || '',
@@ -5477,7 +5491,9 @@ app.get('/api/login-id-suggest', async (req, res) => {
                     exact_name: exact
                 };
             })
-            .sort((a, b) => Number(b.exact_name) - Number(a.exact_name) || a.display_name.localeCompare(b.display_name, 'ko'));
+            .sort((a, b) => Number(b.exact_name) - Number(a.exact_name)
+                || a.display_name.localeCompare(b.display_name, 'ko')
+                || Number(a.position_code || 99) - Number(b.position_code || 99));
 
         res.json({ success: true, count: members.length, members });
     } catch (err) {

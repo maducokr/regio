@@ -303,6 +303,9 @@
             .curia-monthly-form.council-monthly-daegu .daegu-council-mem { font-size:10px; }
             .curia-monthly-form.council-monthly-daegu .daegu-council-mem th,
             .curia-monthly-form.council-monthly-daegu .daegu-council-mem td { padding:3px 2px; }
+            .curia-monthly-form.council-monthly-gwangju .gj-council-status { font-size:10px; }
+            .curia-monthly-form.council-monthly-gwangju .gj-council-status th,
+            .curia-monthly-form.council-monthly-gwangju .gj-council-status td { padding:3px 2px; }
             .curia-monthly-form .finance-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #333; }
             .curia-monthly-form .finance-col { border-right:1px solid #333; }
             .curia-monthly-form .finance-col:last-child { border-right:none; }
@@ -903,7 +906,7 @@
         content.innerHTML = `
             <span class="close">&times;</span>
             <h2>${escapeHtml(level.label)} 월례보고</h2>
-            <p class="hub-sub">공식 양식에 DB 보유 항목만 자동 기입합니다. (세나뚜스 대구이면 대구 평의회 양식)</p>
+            <p class="hub-sub">공식 양식에 DB 보유 항목만 자동 기입합니다. (세나뚜스 대구·광주이면 각 공식 양식)</p>
             <div class="org-toolbar">
                 <input type="text" id="councilMonthlyNameInput" placeholder="${escapeHtml(level.label)} 명칭" value="${escapeHtml(initialName)}">
                 <select id="councilMonthlyYear"></select>
