@@ -4275,6 +4275,7 @@ app.get('/api/activity-categories', async (req, res) => {
                     WHEN '지구와함께' THEN 3
                     WHEN '복음선교' THEN 4
                     WHEN '입교 권면' THEN 5
+                    WHEN '예비신자 돌봄' THEN 6
                     WHEN '예비자 돌봄' THEN 6
                     WHEN '교우돌봄' THEN 7
                     WHEN '어려운자돌봄' THEN 8

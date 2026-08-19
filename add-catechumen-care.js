@@ -1,6 +1,6 @@
-// 신규 활동그룹 '예비자 돌봄' 3개 종목을 실제 DB에 반영하는 스크립트
-// - 교리반 인도, 예비자 돌봄, 통신교리자
-// - 각 종목 입력필드: 횟수(회,단,시간)
+// 활동그룹 '예비신자 돌봄' 3개 세목을 DB에 반영
+// - 예비신자 돌봄, 통신교리자 돌봄, 교리반 봉사
+// - 기존 '예비자 돌봄' 항목이 있으면 rename-catechumen-care.js 사용
 require('dotenv').config();
 const { Pool } = require('pg');
 
@@ -12,11 +12,11 @@ const pool = new Pool({
     port: parseInt(process.env.DB_PORT || '5432', 10),
 });
 
-const GROUP = '예비자 돌봄';
+const GROUP = '예비신자 돌봄';
 const NEW_ITEMS = [
-    { name: '예비자 돌봄-교리반 인도', desc: '예비자 교리반 인도 활동' },
-    { name: '예비자 돌봄-타인이인도한예비신자', desc: '타인이 인도한 예비신자 돌봄 활동' },
-    { name: '예비자 돌봄-통신교리자', desc: '통신교리자 돌봄 활동' },
+    { name: '예비신자 돌봄-예비신자 돌봄', desc: '예비신자 돌봄 활동' },
+    { name: '예비신자 돌봄-통신교리자 돌봄', desc: '통신교리자 돌봄 활동' },
+    { name: '예비신자 돌봄-교리반 봉사', desc: '교리반 봉사 활동' },
 ];
 
 async function main() {
@@ -32,7 +32,9 @@ async function main() {
             await client.query(
                 `INSERT INTO activity_categories (category_name, category_group, description)
                  VALUES ($1, $2, $3)
-                 ON CONFLICT (category_name) DO NOTHING`,
+                 ON CONFLICT (category_name) DO UPDATE
+                 SET category_group = EXCLUDED.category_group,
+                     description = EXCLUDED.description`,
                 [item.name, GROUP, item.desc]
             );
             console.log(`[categories] 추가/확인: ${item.name}`);
@@ -49,7 +51,7 @@ async function main() {
         }
 
         await client.query('COMMIT');
-        console.log('\n✅ 예비자 돌봄 신규 항목 DB 반영 완료.');
+        console.log('\n✅ 예비신자 돌봄 항목 DB 반영 완료.');
 
         const cats = await client.query(
             `SELECT category_name FROM activity_categories WHERE category_group = $1 ORDER BY id`,

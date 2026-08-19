@@ -18,6 +18,7 @@ const NEW_ITEMS = [
     { name: '특별활동-사고피해자돌봄', desc: '사고 피해자 돌봄 활동' },
     { name: '특별활동-복지시설노력봉사', desc: '복지시설 노력봉사 활동' },
     { name: '특별활동-병원방문', desc: '병원 방문 활동' },
+    { name: '특별활동-호구조사', desc: '호구조사(호별방문) 활동' },
 ];
 
 async function main() {

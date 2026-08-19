@@ -127,6 +127,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-유아 세례 권면') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-유아 세례 권면" INTEGER DEFAULT 0;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-첫영성체') THEN
+        ALTER TABLE member ADD COLUMN "교우돌봄-첫영성체" INTEGER DEFAULT 0;
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'member' AND column_name = '교우돌봄-군인선원돌봄') THEN
         ALTER TABLE member ADD COLUMN "교우돌봄-군인선원돌봄" INTEGER DEFAULT 0;
     END IF;

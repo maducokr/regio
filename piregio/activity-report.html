@@ -1456,7 +1456,7 @@
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
     <script src="pr-business-report-form.js?v=20260819o"></script>
-    <script src="curia-comprehensive-report-form.js?v=20260819t"></script>
+    <script src="curia-comprehensive-report-form.js?v=20260819u"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
     <script src="member-form-fields.js"></script>
@@ -4189,9 +4189,9 @@
             '복음선교-교리반협조': ['횟수'],
             '복음선교-교리반 인도': ['횟수', '세례자 () 명'],
             '복음선교-교리반인도예비자': ['횟수', '세례자 () 명'],
-            '예비자 돌봄-교리반 인도': ['횟수', '세례자 () 명'],
-            '예비자 돌봄-타인이인도한예비신자': ['횟수', '세례자 () 명'],
-            '예비자 돌봄-통신교리자': ['횟수', '세례자 () 명'],
+            '예비신자 돌봄-예비신자 돌봄': ['횟수', '세례자 () 명'],
+            '예비신자 돌봄-통신교리자 돌봄': ['횟수', '세례자 () 명'],
+            '예비신자 돌봄-교리반 봉사': ['횟수', '세례자 () 명'],
             '교우돌봄-신영세자돌봄(방문)': ['횟수', '단체가입'],
             '교우돌봄-교우 가정방문': ['횟수', '단체가입'],
             '교우돌봄-냉담 교우 방문': ['횟수', '회두'],
@@ -4201,6 +4201,7 @@
             '교우돌봄-전입교우돌봄(방문)': ['횟수', '단체가입'],
             '교우돌봄-견진성사권면': ['횟수', '견진'],
             '교우돌봄-유아 세례 권면': ['횟수', '세례'],
+            '교우돌봄-첫영성체': ['횟수', '첫영성체'],
             '교우돌봄-군인선원돌봄': ['횟수', '첫영성체'],
             '교우돌봄-청소년 돌봄': ['횟수'],
             '어려운자돌봄-교우 상가 방문 및 돌봄': ['횟수', '연도', '장지참석', '장례미사', '추모미사', '입출관'],
@@ -4242,6 +4243,7 @@
             '특별활동-사고피해자돌봄': ['횟수'],
             '특별활동-복지시설노력봉사': ['횟수'],
             '특별활동-병원방문': ['횟수'],
+            '특별활동-호구조사': ['횟수'],
             '자연보호-생태 환경보호 활동': ['횟수'],
             '자연보호-자연보호활동': ['횟수'],
             '자연보호-환경정화': ['횟수'],
@@ -4321,16 +4323,16 @@
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
 
-            // 예비자 돌봄
-            '예비자 돌봄-교리반 인도': [
+            // 예비신자 돌봄
+            '예비신자 돌봄-예비신자 돌봄': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
-            '예비자 돌봄-타인이인도한예비신자': [
+            '예비신자 돌봄-통신교리자 돌봄': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
-            '예비자 돌봄-통신교리자': [
+            '예비신자 돌봄-교리반 봉사': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
@@ -4371,6 +4373,10 @@
             '교우돌봄-유아 세례 권면': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례', is_required: false }
+            ],
+            '교우돌봄-첫영성체': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
             ],
             '교우돌봄-군인선원돌봄': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
@@ -4460,6 +4466,7 @@
             '특별활동-사고피해자돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '특별활동-복지시설노력봉사': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '특별활동-병원방문': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+            '특별활동-호구조사': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
 
             // 자연보호
             '자연보호-생태 환경보호 활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
