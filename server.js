@@ -732,7 +732,7 @@ app.get('/api/council-monthly-report', async (req, res) => {
 
         const membersResult = await pool.query(
             `SELECT id, name, baptism_name, gender, position, pr_name, pr_type, curia_officer,
-                    church_name, curia_name, comitia_name, regia_name
+                    church_name, curia_name, comitia_name, regia_name, senatus_name
              FROM member
              WHERE ${meta.nameField} = $1
              ORDER BY id`,
@@ -755,11 +755,45 @@ app.get('/api/council-monthly-report', async (req, res) => {
             return String(prType || '').trim() === '소년';
         }
 
+        function ageBucket(prType) {
+            const t = String(prType || '').trim();
+            if (t === '소년') return 'junior';
+            if (t === '청년') return 'youth';
+            return 'adult';
+        }
+
+        const emptyAgeStats = () => ({
+            pr: 0,
+            active_m: 0,
+            active_f: 0,
+            active_t: 0,
+            praetorian: 0,
+            aux_m: 0,
+            aux_f: 0,
+            aux_t: 0,
+            adjutorian: 0
+        });
+
+        const membershipByAge = {
+            adult: emptyAgeStats(),
+            youth: emptyAgeStats(),
+            junior: emptyAgeStats()
+        };
+        const prSeenByAge = {
+            adult: new Set(),
+            youth: new Set(),
+            junior: new Set()
+        };
+
         const emptyOrgRow = () => ({
             co_count: null,
+            co_adult: null,
+            co_junior: null,
             cu_adult: null,
+            cu_direct: null,
             cu_junior: null,
             pr_adult: null,
+            pr_direct: null,
             pr_junior: null,
             active_adult_m: null,
             active_adult_f: null,
@@ -776,9 +810,13 @@ app.get('/api/council-monthly-report', async (req, res) => {
 
         const current = {
             co_count: 0,
+            co_adult: 0,
+            co_junior: 0,
             cu_adult: 0,
+            cu_direct: 0,
             cu_junior: 0,
             pr_adult: 0,
+            pr_direct: 0,
             pr_junior: 0,
             active_adult_m: 0,
             active_adult_f: 0,
@@ -793,20 +831,30 @@ app.get('/api/council-monthly-report', async (req, res) => {
             adjutorian: 0
         };
 
-        const prSeen = { adult: new Set(), junior: new Set() };
+        const prSeen = { adult: new Set(), direct: new Set(), junior: new Set() };
         // 꾸리아별 Pr 유형 수집 → Cu. 수(성인/소년) 판별용
         const curiaPrTypes = new Map();
         // 레지아 소속 꼬미시움(Co.) 집계용
         const comitiaSeen = new Set();
+        const senatusCounts = new Map();
+        const churchCounts = new Map();
 
         for (const row of membersResult.rows) {
             const prName = String(row.pr_name || '').trim();
             const curiaName = String(row.curia_name || '').trim();
             const comitiaName = String(row.comitia_name || '').trim();
+            const senatus = String(row.senatus_name || '').trim();
+            const church = String(row.church_name || '').trim();
             if (comitiaName) comitiaSeen.add(comitiaName);
+            if (senatus) senatusCounts.set(senatus, (senatusCounts.get(senatus) || 0) + 1);
+            if (church) churchCounts.set(church, (churchCounts.get(church) || 0) + 1);
+            const ageKey = ageBucket(row.pr_type);
             if (prName) {
-                if (isJuniorPr(row.pr_type)) prSeen.junior.add(prName);
+                const prType = String(row.pr_type || '').trim();
+                if (prType === '소년') prSeen.junior.add(prName);
+                else if (prType === '직속') prSeen.direct.add(prName);
                 else prSeen.adult.add(prName);
+                prSeenByAge[ageKey].add(prName);
 
                 if (curiaName) {
                     if (!curiaPrTypes.has(curiaName)) curiaPrTypes.set(curiaName, new Map());
@@ -818,19 +866,28 @@ app.get('/api/council-monthly-report', async (req, res) => {
             const code = memberCode(row);
             const gender = String(row.gender || '').trim();
             const junior = isJuniorPr(row.pr_type);
+            const ageRow = membershipByAge[ageKey];
 
             if (code === 7) {
                 current.praetorian += 1;
+                ageRow.praetorian += 1;
                 continue;
             }
             if (code === 8) {
                 current.adjutorian += 1;
+                ageRow.adjutorian += 1;
                 continue;
             }
             if (code === 6) {
-                if (gender === '남') current.aux_m += 1;
-                else if (gender === '여') current.aux_f += 1;
+                if (gender === '남') {
+                    current.aux_m += 1;
+                    ageRow.aux_m += 1;
+                } else if (gender === '여') {
+                    current.aux_f += 1;
+                    ageRow.aux_f += 1;
+                }
                 current.aux_t += 1;
+                ageRow.aux_t += 1;
                 continue;
             }
 
@@ -846,17 +903,27 @@ app.get('/api/council-monthly-report', async (req, res) => {
                 else if (gender === '여') current.active_adult_f += 1;
                 current.active_adult_t += 1;
             }
+            if (gender === '남') ageRow.active_m += 1;
+            else if (gender === '여') ageRow.active_f += 1;
+            ageRow.active_t += 1;
         }
 
+        membershipByAge.adult.pr = prSeenByAge.adult.size;
+        membershipByAge.youth.pr = prSeenByAge.youth.size;
+        membershipByAge.junior.pr = prSeenByAge.junior.size;
+
         current.pr_adult = prSeen.adult.size;
+        current.pr_direct = prSeen.direct.size;
         current.pr_junior = prSeen.junior.size;
         current.co_count = comitiaSeen.size;
+        current.co_adult = comitiaSeen.size;
+        current.co_junior = 0;
 
-        // Cu. 수: 해당 꼬미시움(또는 상위) 소속 꾸리아 — 전부 소년 Pr이면 소년, 아니면 성인
+        // Cu. 수: 해당 꼬미시움(또는 상위) 소속 꾸리아 — 소년/직속/성인
         for (const [, prMap] of curiaPrTypes) {
-            const types = [...prMap.values()];
-            const allJunior = types.length > 0 && types.every((t) => isJuniorPr(t));
-            if (allJunior) current.cu_junior += 1;
+            const types = [...prMap.values()].map((t) => String(t || '').trim());
+            if (types.length > 0 && types.every((t) => t === '소년')) current.cu_junior += 1;
+            else if (types.length > 0 && types.every((t) => t === '직속')) current.cu_direct += 1;
             else current.cu_adult += 1;
         }
 
@@ -864,10 +931,15 @@ app.get('/api/council-monthly-report', async (req, res) => {
         // - 꾸리아: Pr만 / 꼬미시움: Cu+Pr / 레지아: Co+Cu+Pr
         if (type === 'curia') {
             current.co_count = null;
+            current.co_adult = null;
+            current.co_junior = null;
             current.cu_adult = null;
+            current.cu_direct = null;
             current.cu_junior = null;
         } else if (type === 'comitia') {
             current.co_count = null;
+            current.co_adult = null;
+            current.co_junior = null;
         }
 
         const prefix = meta.officerPrefix;
@@ -880,7 +952,8 @@ app.get('/api/council-monthly-report', async (req, res) => {
 
         const officerRows = await pool.query(
             `SELECT id, name, baptism_name, curia_officer, curia_officer_elected_on,
-                    curia_approved_on, curia_meeting_on, curia_meeting_place
+                    curia_approved_on, curia_meeting_on, curia_meeting_place,
+                    phone_full, phone_last4, resident_id_front6
              FROM member
              WHERE ${meta.nameField} = $1
                AND UPPER(TRIM(curia_officer)) IN ($2, $3, $4, $5)
@@ -914,13 +987,27 @@ app.get('/api/council-monthly-report', async (req, res) => {
         const officers = OFFICER_ROLES.map((role) => {
             const found = officersByCode.get(role.code);
             if (!found) {
-                return { role: role.key, name: '', baptism_name: '', elected_on: '', remark: '' };
+                return {
+                    role: role.key,
+                    name: '',
+                    baptism_name: '',
+                    elected_on: '',
+                    birth: '',
+                    address: '',
+                    phone: '',
+                    remark: ''
+                };
             }
+            const phone = String(found.phone_full || '').trim()
+                || (found.phone_last4 ? `****${String(found.phone_last4).slice(-4)}` : '');
             return {
                 role: role.key,
                 name: displayName(found.name),
                 baptism_name: found.baptism_name || '',
                 elected_on: formatElectedOn(found.curia_officer_elected_on),
+                birth: String(found.resident_id_front6 || '').trim(),
+                address: '',
+                phone,
                 remark: ''
             };
         });
@@ -1002,6 +1089,75 @@ app.get('/api/council-monthly-report', async (req, res) => {
             console.warn(`${meta.label} 월례 메모 조회 생략:`, memoError.message);
         }
 
+        // 대구 세나뚜스 양식용: 산하 회원 활동 합계
+        let activityTotals = [];
+        try {
+            const actResult = await pool.query(
+                `SELECT ac.category_name,
+                        COALESCE(SUM(ar.count), 0)::int AS count,
+                        COALESCE(SUM(ar.catechism_guide), 0)::int AS catechism_guide,
+                        COALESCE(SUM(ar.group_join), 0)::int AS group_join,
+                        COALESCE(SUM(ar.resolution), 0)::int AS resolution,
+                        COALESCE(SUM(ar.sacrament), 0)::int AS sacrament,
+                        COALESCE(SUM(ar.confirmation), 0)::int AS confirmation,
+                        COALESCE(SUM(ar.baptism), 0)::int AS baptism,
+                        COALESCE(SUM(ar.first_communion), 0)::int AS first_communion,
+                        COALESCE(SUM(ar.funeral_attendance), 0)::int AS funeral_attendance,
+                        COALESCE(SUM(ar.funeral_mass), 0)::int AS funeral_mass,
+                        COALESCE(SUM(ar.memorial_mass), 0)::int AS memorial_mass,
+                        COALESCE(SUM(ar.conditional_baptism), 0)::int AS conditional_baptism,
+                        COALESCE(SUM(ar.conditional_communion), 0)::int AS conditional_communion,
+                        COALESCE(SUM(ar.membership), 0)::int AS membership
+                 FROM activity_records ar
+                 INNER JOIN activity_categories ac ON ar.category_id = ac.id
+                 INNER JOIN member m ON ar.member_id = m.id
+                 WHERE m.${meta.nameField} = $1
+                   AND ar.activity_date::date BETWEEN $2::date AND $3::date
+                 GROUP BY ac.category_name`,
+                [name, monthStart, monthEnd]
+            );
+            activityTotals = actResult.rows || [];
+        } catch (actError) {
+            console.warn(`${meta.label} 월례 활동합계 조회 생략:`, actError.message);
+            activityTotals = [];
+        }
+
+        const eduLines = [];
+        const legionEventLines = [];
+        for (const ev of events) {
+            const kind = String(ev.kind || '').trim();
+            const title = String(ev.title || '').trim();
+            const line = [kind, title, ev.datetime, ev.place, ev.attendance].filter(Boolean).join(' / ');
+            if (!line) continue;
+            if (/교육|피정|연수/.test(`${kind}${title}${ev.event_type || ''}`)) eduLines.push(line);
+            else legionEventLines.push(line);
+        }
+
+        let senatusName = '';
+        let maxSenatus = 0;
+        for (const [sName, count] of senatusCounts) {
+            if (count > maxSenatus) {
+                maxSenatus = count;
+                senatusName = sName;
+            }
+        }
+        let churchName = '';
+        let maxChurch = 0;
+        for (const [cName, count] of churchCounts) {
+            if (count > maxChurch) {
+                maxChurch = count;
+                churchName = cName;
+            }
+        }
+
+        const membershipByAgeTotal = emptyAgeStats();
+        for (const key of Object.keys(membershipByAgeTotal)) {
+            membershipByAgeTotal[key] =
+                membershipByAge.adult[key]
+                + membershipByAge.youth[key]
+                + membershipByAge.junior[key];
+        }
+
         res.json({
             success: true,
             type,
@@ -1009,9 +1165,12 @@ app.get('/api/council-monthly-report', async (req, res) => {
             form_title: `${meta.label} 월례 보고서`,
             council_name: name,
             curia_name: name,
+            church_name: churchName,
+            senatus_name: senatusName,
             report_no: '',
             year,
             month,
+            report_day: String(now.getDate()),
             meeting: {
                 year: meetingYear,
                 month: meetingMonth,
@@ -1022,7 +1181,13 @@ app.get('/api/council-monthly-report', async (req, res) => {
                 place: curiaMeetingPlace
             },
             attendance: {
-                officers_present: '', officers_total: '', members_present: '', members_total: ''
+                officers_present: '',
+                officers_total: officers.filter((o) => o.name).length || '',
+                members_present: '',
+                members_total: membersResult.rows.length || '',
+                rate_total: '',
+                rate_officers: '',
+                rate_members: ''
             },
             spiritual_director: '',
             spiritual_proxy: '',
@@ -1033,8 +1198,17 @@ app.get('/api/council-monthly-report', async (req, res) => {
                 increase: emptyOrgRow(),
                 decrease: emptyOrgRow()
             },
+            membership_by_age: {
+                adult: membershipByAge.adult,
+                youth: membershipByAge.youth,
+                junior: membershipByAge.junior,
+                total: membershipByAgeTotal
+            },
             new_or_dissolved: '',
             events,
+            activity_totals: activityTotals,
+            edu_text: eduLines.join('\n'),
+            legion_event_text: legionEventLines.join('\n'),
             finance: {
                 income: {
                     brought_forward: '', contribution: '', interest: '', merchandise: '', total: ''
@@ -1053,7 +1227,8 @@ app.get('/api/council-monthly-report', async (req, res) => {
             approved_y: approvedParts[0] || '',
             approved_m: approvedParts[1] ? String(Number(approvedParts[1])) : '',
             approved_d: approvedParts[2] ? String(Number(approvedParts[2])) : '',
-            total_members: membersResult.rows.length
+            total_members: membersResult.rows.length,
+            president_name: officers.find((o) => o.role === '단장')?.name || ''
         });
     } catch (err) {
         console.error('평의회 월례보고 조회 오류:', err);

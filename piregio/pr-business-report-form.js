@@ -2219,7 +2219,7 @@
 
         container.innerHTML = isDaegu
             ? buildDaeguBusinessFormHtml(model)
-            : buildFormHtml(model);
+            : (isGwangju ? buildGwangjuBusinessFormHtml(model) : buildFormHtml(model));
         wireBlankEditables(container);
     }
 
@@ -2430,6 +2430,7 @@
         hide,
         buildFormHtml,
         buildDaeguBusinessFormHtml,
+        buildGwangjuBusinessFormHtml,
         ensureStyles,
         exportToPdf,
         exportToExcel,
