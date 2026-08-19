@@ -1311,7 +1311,30 @@
         if (global.RegioAuth && typeof global.RegioAuth.refreshLoggedInUserFromServer === 'function') {
             return global.RegioAuth.refreshLoggedInUserFromServer();
         }
-        return getLoggedInUser();
+        const user = getLoggedInUser();
+        if (!user || !user.id) return user;
+        try {
+            const response = await fetch(`/api/members/${encodeURIComponent(user.id)}`);
+            if (!response.ok) return user;
+            const row = await response.json();
+            if (!row || !row.id) return user;
+            const next = {
+                ...user,
+                church_name: row.church_name != null ? row.church_name : user.church_name,
+                curia_name: row.curia_name != null ? row.curia_name : user.curia_name,
+                comitia_name: row.comitia_name != null ? row.comitia_name : user.comitia_name,
+                regia_name: row.regia_name != null ? row.regia_name : user.regia_name,
+                senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
+                pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
+                position: row.position != null ? row.position : user.position
+            };
+            const raw = JSON.stringify(next);
+            sessionStorage.setItem('userInfo', raw);
+            localStorage.setItem('userInfo', raw);
+            return next;
+        } catch (e) {
+            return user;
+        }
     }
 
     function resolveSenatusName(...candidates) {
@@ -3005,11 +3028,16 @@
 
         const senatusName = resolveSenatusName(
             user?.senatus_name,
-            opts.senatusName,
-            monthly?.senatus_name
+            monthly?.senatus_name,
+            opts.senatusName
         );
         const isGwangju = senatusName === '광주';
         const isDaegu = senatusName === '대구';
+        console.info('[꾸리아종합보고] senatus=', senatusName, {
+            user: user?.senatus_name,
+            monthly: monthly?.senatus_name,
+            form: isDaegu ? '대구' : (isGwangju ? '광주' : '기본')
+        });
 
         try {
             movement = await fetchMovement(curiaName, endDate);

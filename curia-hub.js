@@ -24,7 +24,30 @@
         if (global.RegioAuth && typeof global.RegioAuth.refreshLoggedInUserFromServer === 'function') {
             return global.RegioAuth.refreshLoggedInUserFromServer();
         }
-        return getLoggedInUser();
+        const user = getLoggedInUser();
+        if (!user || !user.id) return user;
+        try {
+            const response = await fetch(`/api/members/${encodeURIComponent(user.id)}`);
+            if (!response.ok) return user;
+            const row = await response.json();
+            if (!row || !row.id) return user;
+            const next = {
+                ...user,
+                church_name: row.church_name != null ? row.church_name : user.church_name,
+                curia_name: row.curia_name != null ? row.curia_name : user.curia_name,
+                comitia_name: row.comitia_name != null ? row.comitia_name : user.comitia_name,
+                regia_name: row.regia_name != null ? row.regia_name : user.regia_name,
+                senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
+                pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
+                position: row.position != null ? row.position : user.position
+            };
+            const raw = JSON.stringify(next);
+            sessionStorage.setItem('userInfo', raw);
+            localStorage.setItem('userInfo', raw);
+            return next;
+        } catch (e) {
+            return user;
+        }
     }
 
     /** 로그인·API 등 후보에서 세나뚜스 표준명(대구/광주/서울) 추출 */
