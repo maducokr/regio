@@ -278,6 +278,60 @@
                 max-width: 280px;
                 text-align: right;
             }
+            .curia-comp-form table.form-table.seoul-act1-table th,
+            .curia-comp-form table.form-table.seoul-act1-table td {
+                font-size: 11px;
+                padding: 6px 5px;
+                vertical-align: top;
+            }
+            .curia-comp-form table.form-table.seoul-act1-table td.col-item {
+                font-weight: 600;
+                width: 18%;
+                text-align: center;
+                vertical-align: middle;
+            }
+            .curia-comp-form table.form-table.seoul-act1-table td.col-cnt {
+                width: 10%;
+                text-align: center;
+                vertical-align: middle;
+            }
+            .curia-comp-form table.form-table.seoul-act1-table td.col-detail {
+                text-align: left;
+                line-height: 1.55;
+            }
+            .curia-comp-form .seoul-act-instr {
+                margin: 0 0 8px;
+                font-size: 11px;
+                color: #333;
+                line-height: 1.5;
+            }
+            .curia-comp-form .seoul-act2-box {
+                border: 1px solid #333;
+                padding: 12px 12px 16px;
+                margin: 0 0 12px;
+                min-height: 220px;
+            }
+            .curia-comp-form .seoul-act2-sub {
+                font-weight: 700;
+                text-decoration: underline;
+                text-underline-offset: 3px;
+                margin: 0 0 8px;
+            }
+            .curia-comp-form .seoul-act2-box .seoul-act2-sub:not(:first-child) {
+                margin-top: 18px;
+            }
+            .curia-comp-form .seoul-ops13-box {
+                border: 1px solid #333;
+                min-height: 280px;
+                padding: 10px 12px;
+                margin: 0 0 8px;
+            }
+            .curia-comp-form .seoul-form-footer {
+                text-align: right;
+                font-size: 11px;
+                color: #444;
+                margin: 4px 0 10px;
+            }
             .curia-comp-form table.form-table.seoul-finance-table th,
             .curia-comp-form table.form-table.seoul-finance-table td {
                 font-size: 10.5px;
@@ -2752,18 +2806,9 @@
                 <div class="sec-title">기타(질의 및 건의)</div>
                 ${lineBoxHtml(inquiryText)}
 
-                ${buildActivityMattersHtml(m.activityRecords)}
+                ${buildSeoulOfficialActivityTailHtml()}
 
-                ${buildPrayerLifeHtml(m.activityRecords)}
-
-                ${buildEvaluationHtml(m.evalCurrent, m.evalPrevious, m.futurePlans)}
-
-                ${buildSpecialNotesHtml(m.specialNotes)}
-
-                ${buildRosterHtml(m.roster)}
-
-                <p class="note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF/Excel 전에 모두 수정할 수 있으며(저장 없음), 출력 시 수정 내용이 포함됩니다.</p>
-                <p class="note">※ 활동종목은 세목 분류용이며, 활동횟수 집계는 세목 기준입니다(종목 접두와 무관).</p>
+                <p class="note">※ 활동·운영 란은 직접 기입합니다. 빈칸은 빨간색으로 깜박이며, PDF/Excel 전 수정 가능합니다(저장 없음).</p>
             </div>
         `;
     }
@@ -2780,6 +2825,136 @@
                 <td>${cell(r.place)}</td>
                 <td>${cell(r.attendance)}</td>
             </tr>
+        `;
+    }
+
+    /** 서울 양식: (세목 ) 직접 기입용 */
+    function seoulParenBlank(label) {
+        return `${escapeHtml(label)}(${blank('', 'w3')})`;
+    }
+
+    /**
+     * 서울 세나뚜스 꾸리아 종합보고 — 기존 10.활동사항~명부 대신
+     * 공식 양식 11.활동사항(1) / 12.활동사항(2) / 13.운영상황 (직접 기입)
+     */
+    function buildSeoulOfficialActivityTailHtml() {
+        const cnt = () => blank('', 'w4');
+        const detailBlank = () => blank('', 'w20');
+        const join = (items) => items.map(seoulParenBlank).join(', ');
+
+        const rows = [
+            {
+                item: '교구 또는 세나뚜스 지시 사항',
+                detail: detailBlank()
+            },
+            {
+                item: '본당 사목자 지시 사항',
+                detail: detailBlank()
+            },
+            {
+                item: '입교 권면',
+                detail: join([
+                    '외인 입교 권면', '교리 중단자 재권면', '개종 권면', '가두 선교', '방문 선교'
+                ])
+            },
+            {
+                item: '예비신자 돌봄',
+                detail: join([
+                    '교리반 인도 예비신자 돌봄', '통신교리자 돌봄', '교리반 봉사 또는 협조'
+                ])
+            },
+            {
+                item: '교우 돌봄',
+                detail: join([
+                    '새 영세자 돌봄', '전입교우 돌봄', '냉담 교우 돌봄', '조당(혼인장애)자 안내',
+                    '성사 권면', '유아 세례 권면', '첫 영성체', '교우 가정 방문'
+                ])
+            },
+            {
+                item: '어려움 겪는 분 돌봄',
+                detail: join([
+                    '교우 환자 방문', '외인 환자 방문', '다문화 가정 돌봄', '외인 상가 돌봄', '교우 상가 돌봄',
+                    '위령기도[연도]', '장례미사', '추모미사', '입관', '장지수행'
+                ])
+            },
+            {
+                item: '레지오 확장',
+                detail: join([
+                    '행동단원 모집', '협조단원 모집 및 돌봄', '소년 레지오 지도'
+                ])
+            },
+            {
+                item: '특별 활동',
+                detail: join([
+                    '호구조사(호별방문)', '재해 및 사고 피해자 돌봄', '복지시설 노력 봉사', '병원방문 활동'
+                ])
+            },
+            {
+                item: '본당 협조',
+                detail: join([
+                    '행사 준비 및 협조', '주일학교 돌봄', '청소 미화', '미사안내 봉사', '기타 본당 협조'
+                ])
+            },
+            {
+                item: '소공동체 활동<br>(본당과 직장)',
+                detail: join([
+                    '소공동체 모임 참석', '구역·반장교육 참석', '반모임 참석 권유', '기타'
+                ])
+            },
+            {
+                item: '가정성화 활동<br>(가족 단위)',
+                detail: join([
+                    '기도하기', '성경 봉독 및 기도', '미사참례', '복지시설 봉사'
+                ])
+            },
+            {
+                item: '기타 활동',
+                detail: detailBlank()
+            }
+        ];
+
+        const body = rows.map((r) => `
+            <tr>
+                <td class="col-item">${r.item}</td>
+                <td class="col-cnt">${cnt()}</td>
+                <td class="col-detail">${r.detail}</td>
+            </tr>
+        `).join('');
+
+        return `
+            <div class="sec-title">11. 활동 사항(1) :
+                <span style="font-weight:400;font-size:11px;">활동은 아래 내용을 기준으로 작성하되 필요에 따라서 내용을 수정할 수 있습니다.</span>
+            </div>
+            <div class="org-table-wrap">
+                <table class="form-table seoul-act1-table">
+                    <thead>
+                        <tr>
+                            <th style="width:18%">종 목</th>
+                            <th style="width:10%">활동횟수</th>
+                            <th>활 동 내 용</th>
+                        </tr>
+                    </thead>
+                    <tbody>${body}</tbody>
+                </table>
+            </div>
+
+            <div class="sec-title">12. 활동 사항(2) :</div>
+            <p class="seoul-act-instr">
+                ① 서울대교구 소속 꾸리아는 지난 1년간 본당 사목자의 사목 방침을 실천하기 위해 활동했던 내용들을 정리하고 운영상 어려웠던 점과 해결 방안을 제시한다.<br>
+                ② 교구 레지아(서울대교구 제외) 소속의 꾸리아는 교구장의 사목 목표를 따르는 레지아의 실천 계획을 실천하고 정리하며, 운영상 어려웠던 점과 해결 방안을 제시한다.
+            </p>
+            <div class="seoul-act2-box">
+                <div class="seoul-act2-sub">가) 중점 목표와 실천 결과</div>
+                ${lineBoxHtml('', '100px')}
+                <div class="seoul-act2-sub">나) 운영상 애로사항 및 해결 방법</div>
+                ${lineBoxHtml('', '100px')}
+            </div>
+
+            <div class="sec-title">13. 운영상황 :
+                <span style="font-weight:400;font-size:11px;">쁘레시디움 사업 보고서 중에서 어려움을 극복한 내용이나 기타 다양한 활동 사례들을 발췌하여 기록한다.</span>
+            </div>
+            ${lineBoxHtml('', '280px')}
+            <div class="seoul-form-footer">서울 무염시태 세나뚜스 양식 제16호(2024년 12월)</div>
         `;
     }
 
