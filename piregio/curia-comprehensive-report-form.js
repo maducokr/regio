@@ -261,6 +261,36 @@
                 color: #f87171;
                 pointer-events: none;
             }
+            .curia-comp-form .finance-hint {
+                margin: 0 0 8px;
+                font-size: 11px;
+                color: #444;
+            }
+            .curia-comp-form .seoul-finance-balance {
+                margin: 8px 0 4px;
+                font-weight: 700;
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+            }
+            .curia-comp-form .seoul-finance-balance .blank {
+                flex: 1;
+                max-width: 280px;
+                text-align: right;
+            }
+            .curia-comp-form table.form-table.seoul-finance-table th,
+            .curia-comp-form table.form-table.seoul-finance-table td {
+                font-size: 10.5px;
+                padding: 3px 4px;
+            }
+            .curia-comp-form table.form-table.seoul-finance-table td.cat {
+                font-weight: 600;
+                background: #fafafa;
+            }
+            .curia-comp-form table.form-table.seoul-finance-table tr.total-row td {
+                font-weight: 700;
+                background: #f3f4f6;
+            }
             .curia-comp-form .sec-title {
                 font-weight: 700;
                 margin: 14px 0 6px;
@@ -2750,6 +2780,107 @@
                 <td>${cell(r.place)}</td>
                 <td>${cell(r.attendance)}</td>
             </tr>
+        `;
+    }
+
+    /** 서울 꾸리아 종합보고 7. 회계 보고 — 전 항목 직접 기입 */
+    function buildSeoulFinanceReportHtml() {
+        const amt = () => blank('', 'w6');
+        const freeLabel = () => blank('', 'w10');
+
+        const expenseGroups = [
+            { cat: '의연금', items: [''] },
+            { cat: '회의비', items: ['월례 회의비', '간부 회의비'] },
+            { cat: '꽃·초', items: ['꽃값', '초값'] },
+            { cat: '교육 / 피정', items: ['단원교육', '단원피정', '장소예약'] },
+            { cat: '인쇄비', items: ['종합 보고서', '월례회의 자료'] },
+            { cat: '비품비', items: ['벡실리움 / 성모상', '레지오제대보/단기'] },
+            { cat: '행사비', items: ['아치에스', '연차 총 친목회', '야외행사', '토론대회', '간담회'] },
+            { cat: '활동비', items: [''] },
+            { cat: '보조비', items: ['신설 Pr.', '청년/소년 Pr.', '수첩', 'Pr. 양식', '신입단원 교본'] },
+            { cat: '교통 / 통신', items: ['우표 / 전화', '교통비'] },
+            { cat: '수수료', items: ['송금'] },
+            { cat: '도서 / 문구', items: ['사무용품', '월간지', '소모품'] },
+            { cat: '상품비', items: ['교본', '뗏세라'] },
+            { cat: '기타', items: ['단원선종', '택배비'] }
+        ];
+
+        const expenseRows = [];
+        expenseGroups.forEach((g) => {
+            g.items.forEach((item, i) => {
+                expenseRows.push({
+                    cat: g.cat,
+                    item,
+                    isFirst: i === 0,
+                    rowspan: g.items.length
+                });
+            });
+        });
+
+        const incomeLabels = [
+            '전차이월금',
+            '의연금',
+            '이자수입',
+            '상품비 — 교본',
+            '상품비 — 뗏세라',
+            '기타수입'
+        ];
+        while (incomeLabels.length < expenseRows.length) {
+            incomeLabels.push('');
+        }
+
+        const rowsHtml = expenseRows.map((ex, idx) => {
+            const incomeLabel = incomeLabels[idx]
+                ? `<td class="left">${escapeHtml(incomeLabels[idx])}</td>`
+                : `<td class="left">${freeLabel()}</td>`;
+            const catCell = ex.isFirst
+                ? `<td class="left cat" rowspan="${ex.rowspan}">${escapeHtml(ex.cat)}</td>`
+                : '';
+            const itemCell = ex.item
+                ? `<td class="left">${escapeHtml(ex.item)}</td>`
+                : '<td class="left"></td>';
+            const subtotalCell = ex.isFirst
+                ? `<td rowspan="${ex.rowspan}">${amt()}</td>`
+                : '';
+            return `<tr>
+                ${incomeLabel}<td>${amt()}</td>
+                ${catCell}${itemCell}<td>${amt()}</td>${subtotalCell}
+            </tr>`;
+        }).join('');
+
+        return `
+            <div class="sec-title">7. 회계 보고</div>
+            <p class="finance-hint">회계 내용은 아래 기준으로 작성하되 필요에 따라서 내용을 수정할 수 있습니다. (전 항목 직접 기입 · 저장 없음)</p>
+            <div class="org-table-wrap">
+                <table class="form-table seoul-finance-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">수 입</th>
+                            <th colspan="4">지 출</th>
+                        </tr>
+                        <tr>
+                            <th style="width:18%">항목</th>
+                            <th style="width:10%">금액</th>
+                            <th style="width:14%">구분</th>
+                            <th style="width:22%">세목</th>
+                            <th style="width:10%">금액</th>
+                            <th style="width:10%">소계</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                        <tr class="total-row">
+                            <td class="left">수입합계</td>
+                            <td>${amt()}</td>
+                            <td class="left" colspan="3">지출합계</td>
+                            <td>${amt()}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="seoul-finance-balance">
+                <span>잔 액</span>${amt()}
+            </div>
         `;
     }
 
