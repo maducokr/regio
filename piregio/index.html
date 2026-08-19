@@ -1284,7 +1284,7 @@
                     <div class="id-input-box has-id-reset">
                         <span class="login-rank-blink empty" id="selectedPositionText" title="직급 선택">직급</span>
                         <span class="id-prefix-label">ID</span>
-                        <input type="text" class="input-field" placeholder="성명+숫자4자리" id="username" autocomplete="new-password">
+                        <input type="text" class="input-field" placeholder="성명만 입력 후 직급·ID 선택" id="username" autocomplete="new-password">
                         <button type="button" class="id-reset-btn" id="resetLoginIdBtn" title="처음부터 다시 로그인">수정</button>
                     </div>
                     <ul class="login-id-suggest" id="loginIdSuggest" aria-label="ID 후보 목록"></ul>
@@ -1411,7 +1411,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- test-pdf-v5 -->    <script src="deploy-mode.js"></script>
+    <!-- test-pdf-v5 -->
+    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
@@ -1425,7 +1426,7 @@
     <script src="profile-modal.js?v=20260730b"></script>
     <script src="curia-officer-register.js"></script>
     <script src="pdf-share.js?v=20260816g"></script>
-    <script src="curia-hub.js?v=20260819b"></script>
+    <script src="curia-hub.js?v=20260819g"></script>
     <script src="auth-ui.js"></script>
     <script src="privacy-consent.js"></script>
     <script>
@@ -1652,10 +1653,24 @@
                 loginIdSuggest.classList.add('open');
                 return;
             }
+            hidePositionPicker();
             loginIdSuggest.innerHTML = members.map((m) => {
                 const label = m.display_name || m.id_body || '';
-                return `<li data-id-body="${escapeHtmlAttr(m.id_body)}" data-login-id="${escapeHtmlAttr(m.login_id)}">
-                    <span class="suggest-main">${escapeHtmlText(label)}</span>
+                const rank = [m.position_tprefix, m.position_label].filter(Boolean).join(' ');
+                const subParts = [
+                    rank,
+                    m.church_name || '',
+                    m.pr_name || '',
+                    m.phone_last4 ? `···${m.phone_last4}` : ''
+                ].filter(Boolean);
+                const sub = subParts.join(' · ');
+                return `<li data-id-body="${escapeHtmlAttr(m.id_body)}"
+                    data-login-id="${escapeHtmlAttr(m.login_id)}"
+                    data-position-code="${escapeHtmlAttr(m.position_code || '')}"
+                    data-position-label="${escapeHtmlAttr(m.position_label || '')}"
+                    data-position-tprefix="${escapeHtmlAttr(m.position_tprefix || '')}">
+                    <span class="suggest-main">${escapeHtmlText(label)}${m.phone_last4 ? escapeHtmlText(m.phone_last4) : ''}</span>
+                    ${sub ? `<span class="suggest-sub">${escapeHtmlText(sub)}</span>` : ''}
                 </li>`;
             }).join('');
             loginIdSuggest.classList.add('open');
@@ -1673,19 +1688,26 @@
             return escapeHtmlText(value).replace(/'/g, '&#39;');
         }
 
-        function applySuggestedLoginId(idBody) {
+        function applySuggestedLoginId(idBody, meta) {
             loginIdPickedFromSuggest = true;
+            if (meta && meta.positionCode && meta.positionLabel && meta.positionTPrefix) {
+                selectedPositionCode = String(meta.positionCode);
+                selectedPositionTPrefix = meta.positionTPrefix;
+                updateSelectedPositionDisplay(selectedPositionCode, meta.positionLabel, selectedPositionTPrefix);
+                if (positionPicker) {
+                    positionPicker.querySelectorAll('li').forEach((item) => {
+                        item.classList.toggle('selected', item.dataset.code === selectedPositionCode);
+                    });
+                }
+            }
             usernameInput.value = sanitizeIdBody(idBody);
             hideLoginIdSuggest();
+            hidePositionPicker();
             checkInputs();
             passwordInput.focus();
         }
 
         async function fetchLoginIdSuggest() {
-            if (!selectedPositionCode || !selectedPositionTPrefix) {
-                hideLoginIdSuggest();
-                return;
-            }
             if (loginIdPickedFromSuggest) return;
 
             const parsed = parseNameAndPhone4(usernameInput.value);
@@ -1697,10 +1719,10 @@
             const requestId = ++loginSuggestRequestId;
             try {
                 const params = new URLSearchParams({
-                    name: parsed.name,
-                    position_code: String(selectedPositionCode)
+                    name: parsed.name
                 });
                 if (parsed.phone_last4) params.set('phone_last4', parsed.phone_last4);
+                if (selectedPositionCode) params.set('position_code', String(selectedPositionCode));
 
                 const response = await fetch(`/api/login-id-suggest?${params.toString()}`);
                 const data = await response.json();
@@ -1712,12 +1734,16 @@
 
                 const members = data.members || [];
                 const exactMatches = members.filter((m) => m.exact_name);
-                // 성명 완전 일치가 1명이면 ID란에 성명+숫자4자리 자동 기입
-                if (exactMatches.length === 1) {
-                    applySuggestedLoginId(exactMatches[0].id_body);
+                // 직급까지 선택된 상태에서 성명 완전 일치가 1명이면 자동 기입
+                if (selectedPositionCode && exactMatches.length === 1) {
+                    applySuggestedLoginId(exactMatches[0].id_body, {
+                        positionCode: exactMatches[0].position_code,
+                        positionLabel: exactMatches[0].position_label,
+                        positionTPrefix: exactMatches[0].position_tprefix
+                    });
                     return;
                 }
-                // 2명 이상(또는 부분일치)이면 목록에서 선택
+                // 이름만 입력했거나 동명이인이면 목록에서 직급·ID 선택
                 showLoginIdSuggest(members);
             } catch (error) {
                 if (requestId !== loginSuggestRequestId) return;
@@ -1732,18 +1758,21 @@
         }
 
         function canOpenPositionPicker() {
-            // G1~G10 선택 후, 또는 성명 입력 후에는 직책 리스트를 다시 표시하지 않음
-            if (selectedPositionTPrefix) return false;
-            if (sanitizeIdBody(usernameInput.value).trim()) return false;
+            // ID를 후보에서 확정한 뒤에는 focus 시 자동 표시하지 않음
+            if (loginIdPickedFromSuggest) return false;
+            // 성명+숫자4자리까지 완성된 뒤에는 focus 시 자동 표시하지 않음
+            const parsed = parseNameAndPhone4(usernameInput.value);
+            if (parsed && parsed.phone_last4) return false;
             return true;
         }
 
-        function showPositionPicker() {
+        function showPositionPicker(force) {
             if (!positionPicker) return;
-            if (!canOpenPositionPicker()) {
+            if (!force && !canOpenPositionPicker()) {
                 hidePositionPicker();
                 return;
             }
+            hideLoginIdSuggest();
             positionPicker.classList.add('open');
         }
 
@@ -2155,10 +2184,15 @@
         }
 
         if (positionPicker) {
-            usernameInput.addEventListener('focus', () => showPositionPicker());
-            usernameInput.addEventListener('click', () => showPositionPicker());
+            usernameInput.addEventListener('focus', () => showPositionPicker(false));
+            usernameInput.addEventListener('click', () => showPositionPicker(false));
             if (selectedPositionText) {
-                selectedPositionText.addEventListener('click', () => showPositionPicker());
+                selectedPositionText.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // 직급 라벨 클릭 시에는 이름 입력 후에도 다시 선택 가능
+                    showPositionPicker(true);
+                });
             }
             positionPicker.querySelectorAll('li').forEach(item => {
                 item.addEventListener('mousedown', (e) => {
@@ -2183,7 +2217,11 @@
                 const item = e.target.closest('li[data-id-body]');
                 if (!item) return;
                 e.preventDefault();
-                applySuggestedLoginId(item.dataset.idBody || '');
+                applySuggestedLoginId(item.dataset.idBody || '', {
+                    positionCode: item.dataset.positionCode || '',
+                    positionLabel: item.dataset.positionLabel || '',
+                    positionTPrefix: item.dataset.positionTprefix || ''
+                });
             });
         }
 

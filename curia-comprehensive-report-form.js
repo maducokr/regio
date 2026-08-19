@@ -1307,6 +1307,35 @@
         }
     }
 
+    function resolveSenatusName(...candidates) {
+        for (const raw of candidates) {
+            const s = String(raw == null ? '' : raw).trim();
+            if (!s || s === '-' || /미등록/.test(s)) continue;
+            if (/대구/.test(s)) return '대구';
+            if (/광주/.test(s)) return '광주';
+            if (/서울/.test(s)) return '서울';
+            return s;
+        }
+        return '';
+    }
+
+    function rememberSenatusName(senatus) {
+        const name = resolveSenatusName(senatus);
+        if (!name) return;
+        try {
+            const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+            if (!raw) return;
+            const user = JSON.parse(raw);
+            if (resolveSenatusName(user?.senatus_name)) return;
+            user.senatus_name = name;
+            const next = JSON.stringify(user);
+            sessionStorage.setItem('userInfo', next);
+            localStorage.setItem('userInfo', next);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
     function recordsToActivityTotals(records) {
         const map = new Map();
         (records || []).forEach((rec) => {
@@ -2973,9 +3002,6 @@
         let roster = { officers: [], praesidia: [], curia_stats: {} };
         let previousRecords = [];
         const user = getLoggedInUser();
-        const senatusName = String(opts.senatusName || user?.senatus_name || '').trim();
-        const isGwangju = senatusName === '광주';
-        const isDaegu = senatusName === '대구';
 
         try {
             monthly = await fetchCouncilMonthly(
@@ -2986,6 +3012,16 @@
         } catch (error) {
             console.warn('꾸리아 종합보고 월례 API 실패:', error);
         }
+
+        const senatusName = resolveSenatusName(
+            opts.senatusName,
+            user?.senatus_name,
+            monthly?.senatus_name
+        );
+        rememberSenatusName(senatusName);
+        const isGwangju = senatusName === '광주';
+        const isDaegu = senatusName === '대구';
+
         try {
             movement = await fetchMovement(curiaName, endDate);
         } catch (error) {

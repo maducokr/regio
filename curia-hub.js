@@ -20,6 +20,37 @@
         }
     }
 
+    /** 로그인·API 등 후보에서 세나뚜스 표준명(대구/광주/서울) 추출 */
+    function resolveSenatusName(...candidates) {
+        for (const raw of candidates) {
+            const s = String(raw == null ? '' : raw).trim();
+            if (!s || s === '-' || /미등록/.test(s)) continue;
+            if (/대구/.test(s)) return '대구';
+            if (/광주/.test(s)) return '광주';
+            if (/서울/.test(s)) return '서울';
+            return s;
+        }
+        return '';
+    }
+
+    /** 로그인 세션에 세나뚜스가 비어 있으면 API에서 확정된 값으로 보강 */
+    function rememberSenatusName(senatus) {
+        const name = resolveSenatusName(senatus);
+        if (!name) return;
+        try {
+            const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+            if (!raw) return;
+            const user = JSON.parse(raw);
+            if (resolveSenatusName(user?.senatus_name)) return;
+            user.senatus_name = name;
+            const next = JSON.stringify(user);
+            sessionStorage.setItem('userInfo', next);
+            localStorage.setItem('userInfo', next);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/&/g, '&amp;')
@@ -971,7 +1002,13 @@
                     monthSelect.value
                 );
                 metaEl.textContent = `${data.label}: ${data.council_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${data.senatus_name ? ` · ${data.senatus_name}세나뚜스` : ''}`;
-                const senatus = String(user?.senatus_name || data.senatus_name || '').trim();
+                const liveUser = getLoggedInUser();
+                const senatus = resolveSenatusName(
+                    liveUser?.senatus_name,
+                    data.senatus_name,
+                    user?.senatus_name
+                );
+                rememberSenatusName(senatus);
                 let formHtml;
                 if (senatus === '대구') formHtml = buildCouncilMonthlyDaeguFormHtml(data);
                 else if (senatus === '광주') formHtml = buildCouncilMonthlyGwangjuFormHtml(data);
@@ -2344,7 +2381,13 @@
                     monthSelect.value
                 );
                 metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${data.senatus_name ? ` · ${data.senatus_name}세나뚜스` : ''}`;
-                const senatus = String(user?.senatus_name || '').trim();
+                const liveUser = getLoggedInUser();
+                const senatus = resolveSenatusName(
+                    liveUser?.senatus_name,
+                    data.senatus_name,
+                    user?.senatus_name
+                );
+                rememberSenatusName(senatus);
                 let formHtml;
                 if (senatus === '대구') formHtml = buildPrMonthlyDaeguFormHtml(data);
                 else if (senatus === '광주') formHtml = buildPrMonthlyGwangjuFormHtml(data);

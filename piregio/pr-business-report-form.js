@@ -138,6 +138,35 @@
         }
     }
 
+    function resolveSenatusName(...candidates) {
+        for (const raw of candidates) {
+            const s = String(raw == null ? '' : raw).trim();
+            if (!s || s === '-' || /미등록/.test(s)) continue;
+            if (/대구/.test(s)) return '대구';
+            if (/광주/.test(s)) return '광주';
+            if (/서울/.test(s)) return '서울';
+            return s;
+        }
+        return '';
+    }
+
+    function rememberSenatusName(senatus) {
+        const name = resolveSenatusName(senatus);
+        if (!name) return;
+        try {
+            const raw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+            if (!raw) return;
+            const user = JSON.parse(raw);
+            if (resolveSenatusName(user?.senatus_name)) return;
+            user.senatus_name = name;
+            const next = JSON.stringify(user);
+            sessionStorage.setItem('userInfo', next);
+            localStorage.setItem('userInfo', next);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
     function sumActivityTotals(totals, matcher, field) {
         const key = field || 'count';
         let nSum = 0;
@@ -2093,7 +2122,12 @@
         }
 
         const user = getLoggedInUser();
-        const senatusName = String(opts.senatusName || user?.senatus_name || monthly?.senatus_name || '').trim();
+        const senatusName = resolveSenatusName(
+            opts.senatusName,
+            user?.senatus_name,
+            monthly?.senatus_name
+        );
+        rememberSenatusName(senatusName);
         const isDaegu = senatusName === '대구';
         const isGwangju = senatusName === '광주';
 

@@ -17,6 +17,7 @@ const TARGETS = [
 ];
 
 const ROOT_SHARED_FILES = [
+    'index.html',
     'app-mode.js',
     'deploy-mode.js',
     'webview-android.js',
