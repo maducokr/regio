@@ -40,6 +40,7 @@ const ITEMS = [
 ];
 
 const FIELDS = [
+    { name: '횟수', display: '횟수', required: false },
     { name: '교리반 인도', display: '교리반 인도', required: false },
     { name: '세례자', display: '세례자', required: false },
     { name: '자기 소개서', display: '자기 소개서', required: false }

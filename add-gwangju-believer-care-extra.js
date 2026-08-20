@@ -41,6 +41,7 @@ const ITEMS = [
 ];
 
 const FIELDS = [
+    { name: '횟수', display: '횟수', required: false },
     { name: '단체 가입', display: '단체 가입', required: false },
     { name: '쉬는 교우 회두', display: '쉬는 교우 회두', required: false },
     { name: '혼인 장애 해소', display: '혼인 장애 해소', required: false },

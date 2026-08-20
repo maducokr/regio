@@ -1,6 +1,6 @@
 /**
  * 본당협조(광주 세나뚜스) 종목·세목 추가
- * 활동요약: 면담(세대), 기타
+ * 활동요약: 횟수, 면담(세대), 기타
  * 사용: node add-gwangju-parish-coop-activity.js [--render]
  */
 require('dotenv').config();
@@ -40,6 +40,7 @@ const ITEMS = [
 ];
 
 const FIELDS = [
+    { name: '횟수', display: '횟수', required: false },
     { name: '면담', display: '면담', required: false },
     { name: '기타', display: '기타', required: false }
 ];

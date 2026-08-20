@@ -38,6 +38,7 @@ const ITEMS = [
 ];
 
 const FIELDS = [
+    { name: '횟수', display: '횟수', required: false },
     { name: '죽을 위험 중의 세례', display: '죽을 위험 중의 세례', required: false },
     { name: '세례보충예식', display: '세례보충예식', required: false }
 ];

@@ -37,6 +37,7 @@ const ITEMS = [
 ];
 
 const FIELDS = [
+    { name: '횟수', display: '횟수', required: false },
     { name: '행동단원 입단', display: '행동단원 입단', required: false },
     { name: '협조단원 입단', display: '협조단원 입단', required: false }
 ];
