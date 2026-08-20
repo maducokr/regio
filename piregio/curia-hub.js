@@ -1267,23 +1267,29 @@
             firstCommunionLead: sumActivityTotals(totals, (n) => /첫\s*영성체.*교리|첫영성체/.test(n)),
             firstCommunionBaptism: sumActivityTotals(totals, (n) => /첫\s*영성체/.test(n), 'baptism')
                 || sumActivityTotals(totals, (n) => /첫\s*영성체/.test(n), 'first_communion'),
-            legionGrow: sumActivityTotals(totals, (n) => /행동단원\s*모집|협조단원\s*모집|Pr설립|레지오활동/.test(n)),
-            activeRecruit: sumActivityTotals(totals, (n) => /행동단원\s*모집/.test(n), 'membership')
-                || sumActivityTotals(totals, (n) => /행동단원\s*모집/.test(n)),
-            auxRecruit: sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n), 'membership')
+            legionGrow: sumActivityTotals(totals, (n) => /레지오의\s*발전을\s*위한\s*활동|행동단원\s*모집|협조단원\s*모집|Pr설립|Pr\.\s*설립|레지오활동|소년\s*Pr|유년|평의회|교본공부|활동소홀/.test(n)),
+            activeRecruit: sumActivityTotals(totals, (n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'membership')
+                || sumActivityTotals(totals, (n) => /행동단원\s*모집|행동\s*단원\s*모집/.test(n), 'membership')
+                || sumActivityTotals(totals, (n) => /행동단원\s*모집|행동\s*단원\s*모집/.test(n)),
+            auxRecruit: sumActivityTotals(totals, (n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'group_join')
+                || sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n), 'membership')
                 || sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n)),
-            smallCommunity: sumActivityTotals(totals, (n) => /소공동체/.test(n)),
-            nature: sumActivityTotals(totals, (n) => /자연보호|생태|환경|생명존중/.test(n)),
-            higherCouncil: sumActivityTotals(totals, (n) => /성경|복음묵상|필사|빛잡지|성모님의\s*군단|미사|상급/.test(n)),
-            bibleRead: sumActivityTotals(totals, (n) => /성경통독|성경\s*통독|성경읽기/.test(n)),
-            gospelMed: sumActivityTotals(totals, (n) => /복음묵상|미사전도서|말씀묵상/.test(n)),
-            bibleWrite: sumActivityTotals(totals, (n) => /성경필사|필사/.test(n)),
+            smallCommunity: sumActivityTotals(totals, (n) => /소공동체와\s*함께하는\s*활동|소공동체/.test(n)),
+            nature: sumActivityTotals(totals, (n) => /자연보호\s*및\s*생명존중|자연보호|생태|환경|생명존중|낙태|장기기증|헌혈/.test(n)),
+            higherCouncil: sumActivityTotals(totals, (n) => /상급평의회가\s*지시한\s*활동|성경|복음묵상|필사|빛잡지|성모님의\s*군단|미사|상급|기도생활/.test(n)),
+            bibleRead: sumActivityTotals(totals, (n) => /상급평의회가\s*지시한\s*활동/.test(n), 'year_count')
+                || sumActivityTotals(totals, (n) => /성경통독|성경\s*통독|성경읽기/.test(n)),
+            gospelMed: sumActivityTotals(totals, (n) => /복음묵상|미사전도서|말씀묵상|미사전\s*독서/.test(n)),
+            bibleWrite: sumActivityTotals(totals, (n) => /상급평의회가\s*지시한\s*활동/.test(n), 'catechism_guide')
+                || sumActivityTotals(totals, (n) => /성경필사|성경\s*쓰기|성경쓰기|필사/.test(n)),
             magazine: sumActivityTotals(totals, (n) => /빛잡지|성모님의\s*군단|군단지/.test(n)),
             massAround: sumActivityTotals(totals, (n) => /주회.*미사|회합.*미사/.test(n)),
             weekdayMass: sumActivityTotals(totals, (n) => /평일미사/.test(n)),
-            higherOther: sumActivityTotals(totals, (n) => /상급평의회|권고/.test(n)),
-            rosary: sumActivityTotals(totals, (n) => /묵주기도/.test(n)),
-            otherAct: sumActivityTotals(totals, (n) => /기타활동|기타사목|특별활동/.test(n))
+            higherOther: sumActivityTotals(totals, (n) => /상급평의회|권고|기타\s*상급평의회/.test(n)),
+            rosary: sumActivityTotals(totals, (n) => /상급평의회가\s*지시한\s*활동/.test(n), 'establishment')
+                || sumActivityTotals(totals, (n) => /묵주기도|묵주\s*기도/.test(n)),
+            otherAct: sumActivityTotals(totals, (n) => /기타\s*활동|기타활동|기타사목|특별활동/.test(n) && !/상급평의회/.test(n))
+                || sumActivityTotals(totals, (n) => /^기타\s*활동-|^기타활동-/.test(n)),
         };
     }
 

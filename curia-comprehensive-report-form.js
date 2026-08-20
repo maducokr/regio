@@ -1577,68 +1577,140 @@
         };
     }
 
-    /** 대구 꾸리아 종합보고 활동 세목 집계 */
+    /** 대구 꾸리아 종합보고 활동 세목 집계 (Pr 월례와 동일 유사매칭) */
     function computeDaeguCompActivity(records) {
         const totals = recordsToActivityTotals(records);
+        const one = (matcher, field) => sumTotals(totals, matcher, field);
+
+        const neighbor = one((n) =>
+            /이웃에\s*가톨릭|신앙전하기|교리반수강|통신교리수강|교리반중단자|주택방문|선교책자|접촉활동/.test(n)
+            || ((/외인\s*입교|입교\s*권면|개종권면|가두선교|방문선교|교리\s*중단자/.test(n)
+                || (/복음선교/.test(n) && /외인|입교|개종|가두|방문선교|중단/.test(n)))
+                && !/예비|교리반|통신교리/.test(n)));
+        const catechumen = one((n) =>
+            /예비신자와\s*함께|교리반에\s*동반|미사동반|본당행사\s*동반|본당생활\s*안내|신앙생활\s*지도|출석\s*점검|예비자행정|교리반간식|예비신자의\s*아기|예비신자|예비자|통신교리|교리반\s*인도|교리반인도|교리반\s*봉사|교리반협조|교리반\s*협조/.test(n)
+            && !/첫\s*영성체|첫영성체|교리반수강|통신교리수강|교리반중단자|이웃에\s*가톨릭/.test(n));
+        const catechismLead = one((n) =>
+            /교리반\s*인도|교리반인도|교리반수강|통신교리수강|교리반중단자|이웃에\s*가톨릭|신앙전하기|가두선교|주택방문|선교책자|접촉활동/.test(n),
+            'catechism_guide')
+            || one((n) => /교리반\s*인도|교리반인도|교리반\s*봉사|교리반협조/.test(n), 'catechism_guide')
+            || one((n) => /교리반\s*인도|교리반인도/.test(n));
+        const baptized = one((n) =>
+            /예비신자와\s*함께|예비신자|예비자|통신교리|교리반/.test(n) && !/유아|교리반수강|통신교리수강|교리반중단자|이웃에\s*가톨릭/.test(n),
+            'baptism')
+            || one((n) => /세례자|영세자/.test(n) && !/유아/.test(n));
+        const familyCare = one((n) =>
+            /가정을\s*위한\s*활동|가족일상기도|외짝교우|가족불우|출가자녀|2대3대|신심단체|다문화가정|신영세자방문|신영세자영적|가족간축복|가정성화/.test(n)
+            || /신영세자|전입교우|교우\s*가정|청소년\s*돌봄|군인선원/.test(n)
+            || (/교우돌봄|교우\s*돌봄/.test(n)
+                && !/냉담|회두|판공|견진|유아|혼인|첫\s*영성체|첫영성체|성사/.test(n)));
+        const groupJoin = one((n) =>
+            /신영세자|전입교우|교우\s*가정|단체\s*가입|단체가입|신심단체|가정을\s*위한\s*활동/.test(n),
+            'group_join')
+            || one((n) => /단체\s*가입|단체가입|신심단체/.test(n));
+        const sacramentInvite = one((n) =>
+            /성사권유\s*및\s*혼인|쉬는\s*교우|성사표|견진성사|유아세례\s*권유|유아세례\s*시|유아세례\s*행정|혼인장애|냉담자\s*접촉|성사권유|성사\s*권면|조당|판공|견진|유아\s*세례|냉담/.test(n)
+            && !/가정을\s*위한\s*활동|이웃에\s*가톨릭|예비신자와\s*함께/.test(n));
+        const conversion = one((n) =>
+            /성사권유\s*및\s*혼인|쉬는\s*교우|냉담자\s*접촉|냉담교우회두|회두/.test(n), 'meeting_head')
+            || one((n) => /회두/.test(n));
+        const confession = one((n) =>
+            /성사권유\s*및\s*혼인|판공|고해|성사표/.test(n), 'sacrament')
+            || one((n) => /판공|고해/.test(n));
+        const confirmation = one((n) =>
+            /성사권유\s*및\s*혼인|견진/.test(n), 'confirmation')
+            || one((n) => /견진/.test(n));
+        const infantBaptism = one((n) =>
+            /성사권유\s*및\s*혼인|유아\s*세례|유아세례/.test(n), 'baptism')
+            || one((n) => /유아\s*세례|유아세례/.test(n));
+        const marriageFix = one((n) =>
+            /성사권유\s*및\s*혼인|혼인\s*장애|혼인장애|조당/.test(n), 'resolution')
+            || one((n) => /혼인\s*장애|혼인장애|조당/.test(n));
+        const neighborShare = one((n) =>
+            /어려움을\s*겪는\s*이웃|상가|위령|장례|장지|추모미사|병자|환자|봉성체|대세|보례|병원|복지|재해|사고\s*피해자|재소자|교통사고|어려운자/.test(n)
+            && !/가정성화|가정을\s*위한\s*활동|다문화가정|성사권유\s*및\s*혼인/.test(n));
+        const funeralVisit = one((n) =>
+            /어려움을\s*겪는\s*이웃|상가/.test(n), 'funeral_attendance')
+            || one((n) => /상가/.test(n));
+        const memorialPrayer = one((n) =>
+            /어려움을\s*겪는\s*이웃|위령기도/.test(n), 'year_count')
+            || one((n) => /위령기도|연도|위령미사|보미사/.test(n), 'memorial_mass')
+            || one((n) => /위령기도|연도|위령미사|보미사/.test(n));
+        const funeralMass = one((n) =>
+            /어려움을\s*겪는\s*이웃|장례미사|고별식/.test(n), 'funeral_mass')
+            || one((n) => /장례미사|고별식/.test(n));
+        const burialEscort = one((n) =>
+            /어려움을\s*겪는\s*이웃|장지|장례수행|장지수행/.test(n), 'inout_count')
+            || one((n) => /장지|장례수행|장지수행/.test(n));
+        const anointing = one((n) =>
+            /어려움을\s*겪는\s*이웃|병자성사/.test(n), 'sacrament')
+            || one((n) => /병자성사/.test(n));
+        const sickCommunion = one((n) =>
+            /어려움을\s*겪는\s*이웃|봉성체/.test(n), 'first_communion')
+            || one((n) => /봉성체/.test(n), 'conditional_communion')
+            || one((n) => /봉성체/.test(n));
+        const conditionalBaptism = one((n) =>
+            /어려움을\s*겪는\s*이웃|대세/.test(n), 'conditional_baptism')
+            || one((n) => /대세/.test(n));
+        const baptismComplete = one((n) =>
+            /어려움을\s*겪는\s*이웃|보례/.test(n), 'conditional_communion')
+            || one((n) => /보례/.test(n));
+        const hospital = one((n) =>
+            /어려움을\s*겪는\s*이웃/.test(n), 'establishment')
+            || one((n) => /병원|복지시설|복지\s*봉사|복지시설/.test(n) && !/가정성화/.test(n));
+        const shareOther = one((n) =>
+            /어려움을\s*겪는\s*이웃/.test(n), 'group_join')
+            || one((n) => /나눔|돌봄-기타|재해|사고\s*피해자|재소자|교통사고/.test(n) && !/병원|복지|상가/.test(n));
+        const parishOps = one((n) =>
+            (/본당협조활동|본당|주일학교|전례|사도직|호구|교세조사|청소|정비|보수공사|성시간|차량|교통정리|피정참가|피정\s*봉사|행사\s*준비|미사안내|제구|사무협조|본당교회협조|교육·피정|교육▪피정/.test(n)
+                || /특별활동-호구조사|호구조사/.test(n))
+            && !/첫\s*영성체|첫영성체|소공동체|구역|반모임|반장|직장공동체|교통사고|어려움을\s*겪는/.test(n));
+        const firstCommunionLead = one((n) =>
+            /본당협조활동.*첫영성체|첫\s*영성체|첫영성체/.test(n), 'catechism_guide')
+            || one((n) => /첫\s*영성체|첫영성체/.test(n));
+        const firstCommunionBaptism = one((n) =>
+            /본당협조활동.*첫영성체|첫\s*영성체|첫영성체/.test(n), 'baptism')
+            || one((n) => /첫\s*영성체|첫영성체/.test(n), 'first_communion');
+        const parishCatechism = one((n) => /본당협조활동.*첫영성체|교리반|첫영성체\s*교리반/.test(n), 'catechism_guide')
+            || one((n) => /교리반\s*인도|교리반인도/.test(n));
+        const legionGrow = one((n) => /레지오의\s*발전을\s*위한\s*활동|행동단원\s*모집|협조단원\s*모집|Pr설립|Pr\.\s*설립|레지오활동|입단권면|소년\s*레지오|소년\s*Pr|유년|평의회\s*순방|평의회\s*참석|교본공부|활동소홀/.test(n));
+        const activeRecruit = one((n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'membership')
+            || one((n) => /행동단원\s*모집|행동\s*단원\s*모집|입단권면/.test(n), 'membership')
+            || one((n) => /행동단원\s*모집|행동\s*단원\s*모집|입단권면/.test(n));
+        const auxRecruit = one((n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'group_join')
+            || one((n) => /협조단원\s*모집|협조단원\s*돌봄/.test(n), 'membership')
+            || one((n) => /협조단원\s*모집|협조단원/.test(n));
+        const smallCommunity = one((n) => /소공동체와\s*함께하는\s*활동|소공동체|구역|반모임|반장|직장공동체/.test(n));
+        const nature = one((n) =>
+            /자연보호\s*및\s*생명존중|자연보호|생태|환경|생명존중|낙태|장기기증|헌혈|지구와함께|아껴쓰기|고쳐쓰기|다시쓰기|거절하기|재고하기|재생하기/.test(n));
+        const higherCouncil = one((n) =>
+            /상급평의회가\s*지시한\s*활동|기도생활|성경통독|성경\s*통독|성경읽기|성경쓰기|성경필사|복음묵상|빛잡지|성모님의\s*군단|평일미사|상급|묵주기도|성체조배|십자가의\s*길|소성무일도|주회\s*전후\s*미사/.test(n));
+        const bibleRead = one((n) => /상급평의회가\s*지시한\s*활동/.test(n), 'year_count')
+            || one((n) => /성경통독|성경\s*통독|성경읽기/.test(n));
+        const gospelMeditation = one((n) => /복음묵상|미사\s*전\s*독서|미사전\s*독서|독서.*복음/.test(n));
+        const bibleWrite = one((n) => /상급평의회가\s*지시한\s*활동/.test(n), 'catechism_guide')
+            || one((n) => /성경필사|성경\s*쓰기|성경쓰기|필사/.test(n));
+        const magazine = one((n) => /성모님의\s*군단|빛잡지|빛\s*잡지/.test(n));
+        const meetingMass = one((n) => /주회\s*전후\s*미사|주회합.*미사/.test(n));
+        const weekdayMass = one((n) => /평일미사/.test(n));
+        const higherOther = one((n) => /상급평의회\s*지시|상급.*지시|기타\s*상급평의회/.test(n));
+        const rosary = one((n) => /상급평의회가\s*지시한\s*활동/.test(n), 'establishment')
+            || one((n) => /묵주기도|묵주\s*기도/.test(n));
+        const otherAct = one((n) =>
+            /기타\s*활동|기타활동|기타사목/.test(n)
+            || (/특별활동/.test(n) && !/병원|복지|재해|사고|호구/.test(n)));
+
         return {
-            neighbor: sumTotals(totals, (n) => /가톨릭|가두선교|외인|개종|방문|복음선교/.test(n) && !/예비|교리반/.test(n)),
-            catechismLead: sumTotals(totals, (n) => /교리반\s*인도|교리반인도/.test(n))
-                || sumTotals(totals, (n) => /교리반/.test(n), 'catechism_guide'),
-            catechumen: sumTotals(totals, (n) => /예비신자|예비자/.test(n)),
-            baptized: sumTotals(totals, (n) => /예비신자|예비자|세례|영세/.test(n), 'baptism')
-                || sumTotals(totals, (n) => /세례자|영세/.test(n)),
-            familyCare: sumTotals(totals, (n) => /가정|교우\s*돌봄|교우방문|가정을/.test(n)),
-            groupJoin: sumTotals(totals, (n) => /단체\s*가입|단체가입/.test(n), 'group_join')
-                || sumTotals(totals, (n) => /단체\s*가입|단체가입/.test(n)),
-            sacramentInvite: sumTotals(totals, (n) => /성사권유|혼인장애|회두|판공|견진|유아세례/.test(n)),
-            conversion: sumTotals(totals, (n) => /회두|개종/.test(n)),
-            confession: sumTotals(totals, (n) => /판공|고해/.test(n), 'sacrament')
-                || sumTotals(totals, (n) => /판공|고해/.test(n)),
-            confirmation: sumTotals(totals, (n) => /견진/.test(n), 'confirmation')
-                || sumTotals(totals, (n) => /견진/.test(n)),
-            infantBaptism: sumTotals(totals, (n) => /유아세례/.test(n), 'baptism')
-                || sumTotals(totals, (n) => /유아세례/.test(n)),
-            marriageFix: sumTotals(totals, (n) => /혼인장애/.test(n), 'resolution')
-                || sumTotals(totals, (n) => /혼인장애/.test(n)),
-            neighborShare: sumTotals(totals, (n) => /상가|위령|장례|병자|봉성체|대세|보례|병원|복지|어려움/.test(n)),
-            funeralVisit: sumTotals(totals, (n) => /상가/.test(n))
-                || sumTotals(totals, (n) => /상가/.test(n), 'funeral_attendance'),
-            memorialPrayer: sumTotals(totals, (n) => /위령기도|위령미사|보미사|연도/.test(n))
-                || sumTotals(totals, (n) => /위령|보미사/.test(n), 'memorial_mass'),
-            funeralMass: sumTotals(totals, (n) => /장례미사/.test(n), 'funeral_mass')
-                || sumTotals(totals, (n) => /장례미사/.test(n)),
-            burialEscort: sumTotals(totals, (n) => /장지|장례수행|장지수행/.test(n)),
-            anointing: sumTotals(totals, (n) => /병자성사/.test(n)),
-            sickCommunion: sumTotals(totals, (n) => /봉성체/.test(n), 'conditional_communion')
-                || sumTotals(totals, (n) => /봉성체/.test(n)),
-            conditionalBaptism: sumTotals(totals, (n) => /대세/.test(n), 'conditional_baptism')
-                || sumTotals(totals, (n) => /대세/.test(n)),
-            baptismComplete: sumTotals(totals, (n) => /보례/.test(n)),
-            hospital: sumTotals(totals, (n) => /병원|복지시설|복지/.test(n)),
-            shareOther: sumTotals(totals, (n) => /나눔|돌봄-기타/.test(n)),
-            parishOps: sumTotals(totals, (n) => /본당|주일학교|전례|사도직|호구조사|청소|차량/.test(n) && !/첫\s*영성체/.test(n)),
-            firstCommunionLead: sumTotals(totals, (n) => /첫\s*영성체/.test(n)),
-            firstCommunionBaptism: sumTotals(totals, (n) => /첫\s*영성체/.test(n), 'baptism')
-                || sumTotals(totals, (n) => /첫\s*영성체/.test(n), 'first_communion'),
-            parishCatechism: sumTotals(totals, (n) => /교리반/.test(n), 'catechism_guide')
-                || sumTotals(totals, (n) => /교리반\s*인도|교리반인도/.test(n)),
-            legionGrow: sumTotals(totals, (n) => /행동단원\s*모집|협조단원\s*모집|Pr설립|레지오활동|입단권면/.test(n)),
-            activeRecruit: sumTotals(totals, (n) => /행동단원\s*모집|입단권면/.test(n), 'membership')
-                || sumTotals(totals, (n) => /행동단원\s*모집|입단권면/.test(n)),
-            auxRecruit: sumTotals(totals, (n) => /협조단원\s*모집/.test(n), 'membership')
-                || sumTotals(totals, (n) => /협조단원\s*모집/.test(n)),
-            smallCommunity: sumTotals(totals, (n) => /소공동체/.test(n)),
-            nature: sumTotals(totals, (n) => /자연보호|생태|환경|생명존중|헌혈/.test(n)),
-            higherCouncil: sumTotals(totals, (n) => /성경|복음묵상|필사|빛잡지|성모님의\s*군단|미사|상급|묵주/.test(n)),
-            bibleRead: sumTotals(totals, (n) => /성경통독|성경\s*통독|성경읽기/.test(n)),
-            gospelMeditation: sumTotals(totals, (n) => /복음묵상|미사\s*전\s*독서|독서.*복음/.test(n)),
-            bibleWrite: sumTotals(totals, (n) => /성경필사|성경\s*쓰기|필사/.test(n)),
-            magazine: sumTotals(totals, (n) => /성모님의\s*군단|빛잡지|빛\s*잡지/.test(n)),
-            meetingMass: sumTotals(totals, (n) => /주회\s*전후\s*미사|주회합.*미사/.test(n)),
-            weekdayMass: sumTotals(totals, (n) => /평일미사/.test(n)),
-            higherOther: sumTotals(totals, (n) => /상급평의회\s*지시|상급.*지시/.test(n)),
-            rosary: sumTotals(totals, (n) => /묵주기도/.test(n)),
-            otherAct: sumTotals(totals, (n) => /기타활동|기타사목|특별활동/.test(n))
+            neighbor, catechismLead, catechumen, baptized,
+            familyCare, groupJoin,
+            sacramentInvite, conversion, confession, confirmation, infantBaptism, marriageFix,
+            neighborShare, funeralVisit, memorialPrayer, funeralMass, burialEscort,
+            anointing, sickCommunion, conditionalBaptism, baptismComplete, hospital, shareOther,
+            parishOps, firstCommunionLead, firstCommunionBaptism, parishCatechism,
+            legionGrow, activeRecruit, auxRecruit,
+            smallCommunity, nature, higherCouncil,
+            bibleRead, gospelMeditation, bibleWrite, magazine, meetingMass, weekdayMass, higherOther, rosary,
+            otherAct
         };
     }
 
@@ -2948,7 +3020,7 @@
         const familyCount = sumParenCounts(familyPray, familyBible, familyMass, familyWelfare)
             || one((n) => /가정성화|가족이\s*함께|가정\s*단위/.test(n));
 
-        const nature = one((n) => /자연보호|생태|환경/.test(n));
+        const nature = one((n) => /자연보호\s*및\s*생명존중|자연보호|생태|환경|생명존중|낙태|장기기증|헌혈/.test(n));
         const otherCount = nature || one((n) => /기타활동-기타|기타\s*활동/.test(n));
 
         const dioceseOrder = one((n) => /교구\s*지시|세나뚜스\s*지시|상급.*지시|교구\s*또는\s*세나뚜스/.test(n));

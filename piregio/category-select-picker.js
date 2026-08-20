@@ -94,6 +94,25 @@
                 font-size: 12px !important;
                 word-break: keep-all; overflow-wrap: anywhere;
             }
+            .regio-sp-item.is-accent-green .regio-sp-item-label {
+                color: #15803d;
+                font-weight: 700;
+            }
+            .regio-sp-item.is-accent-green.is-selected {
+                background: #ecfdf5;
+                color: #15803d;
+            }
+            .regio-sp-item.is-accent-green.is-selected .mark {
+                border-color: #16a34a;
+                background: radial-gradient(circle at center, #16a34a 0 45%, transparent 48%);
+            }
+            .regio-sp-daegu-hint {
+                margin: 0; padding: 6px 12px 8px;
+                font-size: 11px !important; line-height: 1.4;
+                color: #15803d; font-weight: 600;
+                border-bottom: 1px solid #eef2f7;
+                background: #f0fdf4;
+            }
             .regio-sp-empty {
                 padding: 24px 16px; text-align: center;
                 color: #94a3b8; font-size: 12px !important;
@@ -125,6 +144,7 @@
                     <p class="regio-sp-title">활동 종목 선택</p>
                     <button type="button" class="regio-sp-close" data-sp-close>닫기</button>
                 </div>
+                <p class="regio-sp-daegu-hint">녹색 글씨 = 대구 세나뚜스 종목</p>
                 <div class="regio-sp-search-wrap">
                     <input type="search" class="regio-sp-search" placeholder="종목 검색" autocomplete="off" enterkeyhint="search">
                 </div>
@@ -171,10 +191,16 @@
 
         options.forEach((opt) => {
             const selected = opt.value === select.value;
+            const accentGreen = opt.dataset.accent === 'green'
+                || opt.classList.contains('is-new-category-green')
+                || (typeof global.isDaeguSenatusCategory === 'function'
+                    && global.isDaeguSenatusCategory(opt.value));
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = `regio-sp-item${selected ? ' is-selected' : ''}`;
-            btn.innerHTML = `<span class="regio-sp-item-label">${escapeHtml(opt.textContent || '')}</span><span class="mark" aria-hidden="true"></span>`;
+            btn.className = `regio-sp-item${selected ? ' is-selected' : ''}${accentGreen ? ' is-accent-green' : ''}`;
+            const labelText = escapeHtml(opt.textContent || '');
+            btn.innerHTML = `<span class="regio-sp-item-label">${labelText}</span><span class="mark" aria-hidden="true"></span>`;
+            if (accentGreen) btn.title = '대구 세나뚜스 종목';
             btn.addEventListener('click', () => {
                 const prev = select.value;
                 select.value = opt.value;

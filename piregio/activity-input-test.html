@@ -312,6 +312,34 @@
             line-height: 1.3;
         }
 
+        /* 대구 세나뚜스 종목 — 선택란·피커 녹색 */
+        #categorySelect option.is-new-category-green {
+            color: #15803d;
+            font-weight: 600;
+        }
+        #categorySelect.is-new-category-green {
+            color: #15803d;
+            font-weight: 700;
+            border-color: #86efac;
+            background: #f0fdf4;
+        }
+        .daegu-senatus-hint {
+            margin: 8px 0 0;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #15803d;
+            font-weight: 600;
+        }
+        .daegu-senatus-hint span {
+            display: inline-block;
+            width: 0.65em;
+            height: 0.65em;
+            margin-right: 0.35em;
+            border-radius: 2px;
+            background: #16a34a;
+            vertical-align: middle;
+        }
+
         .field-item input {
             width: 5.5em;
             flex-shrink: 0;
@@ -728,6 +756,7 @@
                     <option value="">선택</option>
                 </select>
             </div>
+            <p class="daegu-senatus-hint"><span></span>녹색 종목 = 대구 세나뚜스 (기존 종목과 구분)</p>
         </div>
 
         <div class="panel">
@@ -833,7 +862,8 @@
     </div>
 
     <script src="date-wheel-picker.js"></script>
-    <script src="category-select-picker.js?v=20260817a"></script>
+    <script src="daegu-senatus-categories.js?v=20260820a"></script>
+    <script src="category-select-picker.js?v=20260820h"></script>
     <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -901,6 +931,38 @@
             return name;
         }
 
+        /** 대구 세나뚜스 종목 — 라벨 녹색 (daegu-senatus-categories.js) */
+        function isNewGreenCategory(categoryName) {
+            if (typeof window.isDaeguSenatusCategory === 'function') {
+                return window.isDaeguSenatusCategory(categoryName);
+            }
+            const groups = window.DAEGU_SENATUS_CATEGORY_GROUPS || [];
+            const name = String(categoryName || '').trim();
+            if (!name) return false;
+            return groups.some((g) => name === g || name.startsWith(`${g}-`));
+        }
+
+        function markCategoryOptionGreen(option, categoryName) {
+            if (!option) return;
+            if (isNewGreenCategory(categoryName)) {
+                option.classList.add('is-new-category-green');
+                option.dataset.accent = 'green';
+                option.title = '대구 세나뚜스 종목';
+            } else {
+                option.classList.remove('is-new-category-green');
+                delete option.dataset.accent;
+                option.removeAttribute('title');
+            }
+        }
+
+        function syncCategorySelectGreenStyle() {
+            const select = document.getElementById('categorySelect');
+            if (!select) return;
+            const isGreen = isNewGreenCategory(select.value);
+            select.classList.toggle('is-new-category-green', isGreen);
+            select.title = isGreen ? '대구 세나뚜스 종목' : '';
+        }
+
         function ensureCategoryOption(categoryName) {
             const select = document.getElementById('categorySelect');
             if (!select || !categoryName) return;
@@ -913,6 +975,7 @@
             } else {
                 option.textContent = formatCategoryOptionLabel(categoryName);
             }
+            markCategoryOptionGreen(option, categoryName);
             // 종목 선택난에는 보이지 않게 유지 (행사 UI에서만 사용)
             if (isMemoEventCategoryName(categoryName)) {
                 option.hidden = true;
@@ -924,6 +987,7 @@
             const option = document.createElement('option');
             option.value = categoryName;
             option.textContent = formatCategoryOptionLabel(categoryName);
+            markCategoryOptionGreen(option, categoryName);
             select.appendChild(option);
         }
 
@@ -1728,15 +1792,88 @@
                         '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면',
                         '복음선교-방문선교', '복음선교-가두선교',
                         '복음선교-예비신자관리돌봄', '복음선교-통신교리자 돌봄', '복음선교-교리반협조', '복음선교-교리반 인도', '복음선교-교리반인도예비자',
+
+                        // 이웃에 가톨릭 알리기활동
+                        '이웃에 가톨릭 알리기활동-이웃에 신앙전하기', '이웃에 가톨릭 알리기활동-교리반수강권유',
+                        '이웃에 가톨릭 알리기활동-통신교리수강권유', '이웃에 가톨릭 알리기활동-교리반중단자재수강권유',
+                        '이웃에 가톨릭 알리기활동-가두선교', '이웃에 가톨릭 알리기활동-주택방문',
+                        '이웃에 가톨릭 알리기활동-선교책자전달', '이웃에 가톨릭 알리기활동-접촉활동',
                         
                         // 예비신자 돌봄
                         '예비신자 돌봄-예비신자 돌봄', '예비신자 돌봄-통신교리자 돌봄', '예비신자 돌봄-교리반 봉사',
+
+                        // 예비신자와 함께하는 활동
+                        '예비신자와 함께하는 활동-교리반에 동반 참석', '예비신자와 함께하는 활동-미사동반 참례',
+                        '예비신자와 함께하는 활동-본당행사 동반 참석', '예비신자와 함께하는 활동-본당생활 안내',
+                        '예비신자와 함께하는 활동-기도 등 신앙생활 지도', '예비신자와 함께하는 활동-교리반의 출석 점검',
+                        '예비신자와 함께하는 활동-예비자행정지원', '예비신자와 함께하는 활동-교리반간식 봉사',
+                        '예비신자와 함께하는 활동-교리 시간에 예비신자의 아기를 돌봄', '예비신자와 함께하는 활동-기타',
                         
                         // 교우돌봄
                         '교우돌봄-신영세자돌봄(방문)', '교우돌봄-교우 가정방문', '교우돌봄-냉담 교우 방문', '교우돌봄-냉담교우회두 권면',
                         '교우돌봄-혼인 장애자 돌봄', '교우돌봄-판공성사 권면', '교우돌봄-전입교우돌봄(방문)',
                         '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-첫영성체', '교우돌봄-군인선원돌봄', '교우돌봄-청소년 돌봄',
                         '교우돌봄-청소년 돌봄',
+
+                        // 가정을 위한 활동, 교우 돌봄
+                        '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
+                        '가정을 위한 활동, 교우 돌봄-외짝교우 부부기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부미사참례',
+                        '가정을 위한 활동, 교우 돌봄-가족불우이웃시설봉사', '가정을 위한 활동, 교우 돌봄-출가자녀와기도',
+                        '가정을 위한 활동, 교우 돌봄-출가자녀와봉사활동', '가정을 위한 활동, 교우 돌봄-2대3대와함께미사',
+                        '가정을 위한 활동, 교우 돌봄-신심단체 가입 권유', '가정을 위한 활동, 교우 돌봄-다문화가정도움지원',
+                        '가정을 위한 활동, 교우 돌봄-신영세자방문 기도', '가정을 위한 활동, 교우 돌봄-신영세자방문 돌봄',
+                        '가정을 위한 활동, 교우 돌봄-신영세자영적대화', '가정을 위한 활동, 교우 돌봄-가족간축복',
+                        '가정을 위한 활동, 교우 돌봄-기타',
+                    // 성사권유 및 혼인장애자를 위한 활동
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우 방문 성사보기 권유', '성사권유 및 혼인장애자를 위한 활동-쉬는 교우에게 본당 행사 참가 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우신앙상담', '성사권유 및 혼인장애자를 위한 활동-판공성사 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-성사표 전달', '성사권유 및 혼인장애자를 위한 활동-견진성사 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-견진성사대부모 주선', '성사권유 및 혼인장애자를 위한 활동-유아세례 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-유아세례 시 대부모 주선', '성사권유 및 혼인장애자를 위한 활동-유아세례 행정 협조',
+                    '성사권유 및 혼인장애자를 위한 활동-혼인장애자를 방문', '성사권유 및 혼인장애자를 위한 활동-혼인장애를 해소협조',
+                    '성사권유 및 혼인장애자를 위한 활동-냉담자 접촉활동',
+                    // 어려움을 겪는 이웃과 나눔 활동
+                    '어려움을 겪는 이웃과 나눔 활동-상가방문', '어려움을 겪는 이웃과 나눔 활동-위령기도',
+                    '어려움을 겪는 이웃과 나눔 활동-장례미사', '어려움을 겪는 이웃과 나눔 활동-장지수행',
+                    '어려움을 겪는 이웃과 나눔 활동-추모미사 참례', '어려움을 겪는 이웃과 나눔 활동-병자성사',
+                    '어려움을 겪는 이웃과 나눔 활동-봉성체 주선', '어려움을 겪는 이웃과 나눔 활동-병원봉사',
+                    '어려움을 겪는 이웃과 나눔 활동-환자방문', '어려움을 겪는 이웃과 나눔 활동-복지시설 봉사',
+                    '어려움을 겪는 이웃과 나눔 활동-복지시설 위문', '어려움을 겪는 이웃과 나눔 활동-재해 및 사고 피해자 방문',
+                    '어려움을 겪는 이웃과 나눔 활동-재해 및 사고 피해자 봉사', '어려움을 겪는 이웃과 나눔 활동-재소자 방문',
+                    '어려움을 겪는 이웃과 나눔 활동-재소자 돌봄', '어려움을 겪는 이웃과 나눔 활동-교통사고자돌봄',
+                    // 본당협조활동
+                    '본당협조활동-본당 행사 준비 및 협조', '본당협조활동-전례 봉사',
+                    '본당협조활동-성시간 참석', '본당협조활동-본당 교육 및 피정에 참석권유',
+                    '본당협조활동-본당 교육 및 피정 봉사', '본당협조활동-주일학교 봉사',
+                    '본당협조활동-본당 대청소에 참여', '본당협조활동-본당시설의 청소',
+                    '본당협조활동-본당시설의 정비', '본당협조활동-본당 보수공사에 노력봉사',
+                    '본당협조활동-본당 교세조사', '본당협조활동-교육·피정에 차량봉사',
+                    '본당협조활동-교육·피정에 교통정리', '본당협조활동-첫영성체 교리반에 인도',
+                    // 레지오의 발전을 위한 활동
+                    '레지오의 발전을 위한 활동-소년 Pr. 설립 권유', '레지오의 발전을 위한 활동-소년 Pr. 설립 지도',
+                    '레지오의 발전을 위한 활동-행동 단원 가입 권유', '레지오의 발전을 위한 활동-행동 단원 모집',
+                    '레지오의 발전을 위한 활동-협조단원 가입 권유', '레지오의 발전을 위한 활동-협조단원 모집',
+                    '레지오의 발전을 위한 활동-활동소홀 단원 돌보기', '레지오의 발전을 위한 활동-Pr.설립 권유',
+                    '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정참석', '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정 봉사',
+                    '레지오의 발전을 위한 활동-Pr.주회 순방', '레지오의 발전을 위한 활동-평의회 순방',
+                    '레지오의 발전을 위한 활동-평의회 참석', '레지오의 발전을 위한 활동-교본공부',
+                    '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정에 차량봉사', '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정 교통정리',
+                    '레지오의 발전을 위한 활동-기타',
+                    // 소공동체와 함께하는 활동
+                    '소공동체와 함께하는 활동-소공동체 모임 참석', '소공동체와 함께하는 활동-소공동체 모임 참석 권유',
+                    '소공동체와 함께하는 활동-소공동체 회의 참석', '소공동체와 함께하는 활동-소공동체 교육 참석',
+                    // 자연보호 및 생명존중 운동에 동참
+                    '자연보호 및 생명존중 운동에 동참-생태환경 운동 실천', '자연보호 및 생명존중 운동에 동참-낙태반대운동 참가',
+                    '자연보호 및 생명존중 운동에 동참-사후 장기기증운동 동참', '자연보호 및 생명존중 운동에 동참-헌혈',
+                    '자연보호 및 생명존중 운동에 동참-헌혈권유',
+                    // 상급평의회가 지시한 활동
+                    '상급평의회가 지시한 활동-성경통독', '상급평의회가 지시한 활동-성경쓰기',
+                    '상급평의회가 지시한 활동-주회 전후 미사', '상급평의회가 지시한 활동-미사전 독서‧복음 묵상',
+                    '상급평의회가 지시한 활동-성모님의 군단 및 빛 잡지 읽기', '상급평의회가 지시한 활동-평일미사 참례',
+                    '상급평의회가 지시한 활동-평일미사 참례 권유', '상급평의회가 지시한 활동-기타 상급평의회에서 지시한 활동',
+                    // 기타 활동
+                    '기타 활동-기타활동',
+
                         
                         // 어려운자돌봄
                         '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
@@ -1791,6 +1928,7 @@
                 
                 console.log('활동 종목 로드 완료. 총 옵션 수:', select.options.length);
                 if (window.RegioSelectPicker) RegioSelectPicker.enhance(select);
+                syncCategorySelectGreenStyle();
                 
             } catch (error) {
                 console.error('활동 종목 로드 실패:', error);
@@ -1817,15 +1955,89 @@
                     '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면',
                     '복음선교-방문선교', '복음선교-가두선교',
                     '복음선교-예비신자관리돌봄', '복음선교-통신교리자 돌봄', '복음선교-교리반협조', '복음선교-교리반 인도', '복음선교-교리반인도예비자',
+
+                    // 이웃에 가톨릭 알리기활동
+                    '이웃에 가톨릭 알리기활동-이웃에 신앙전하기', '이웃에 가톨릭 알리기활동-교리반수강권유',
+                    '이웃에 가톨릭 알리기활동-통신교리수강권유', '이웃에 가톨릭 알리기활동-교리반중단자재수강권유',
+                    '이웃에 가톨릭 알리기활동-가두선교', '이웃에 가톨릭 알리기활동-주택방문',
+                    '이웃에 가톨릭 알리기활동-선교책자전달', '이웃에 가톨릭 알리기활동-접촉활동',
                     
                     // 예비신자 돌봄
                     '예비신자 돌봄-예비신자 돌봄', '예비신자 돌봄-통신교리자 돌봄', '예비신자 돌봄-교리반 봉사',
+
+                    // 예비신자와 함께하는 활동
+                    '예비신자와 함께하는 활동-교리반에 동반 참석', '예비신자와 함께하는 활동-미사동반 참례',
+                    '예비신자와 함께하는 활동-본당행사 동반 참석', '예비신자와 함께하는 활동-본당생활 안내',
+                    '예비신자와 함께하는 활동-기도 등 신앙생활 지도', '예비신자와 함께하는 활동-교리반의 출석 점검',
+                    '예비신자와 함께하는 활동-예비자행정지원', '예비신자와 함께하는 활동-교리반간식 봉사',
+                    '예비신자와 함께하는 활동-교리 시간에 예비신자의 아기를 돌봄', '예비신자와 함께하는 활동-기타',
                     
                     // 교우돌봄
                     '교우돌봄-신영세자돌봄(방문)', '교우돌봄-교우 가정방문', '교우돌봄-냉담 교우 방문', '교우돌봄-냉담교우회두 권면',
                     '교우돌봄-혼인 장애자 돌봄', '교우돌봄-판공성사 권면', '교우돌봄-전입교우돌봄(방문)',
                     '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-첫영성체', '교우돌봄-군인선원돌봄',
                     '교우돌봄-청소년 돌봄',
+
+                    // 가정을 위한 활동, 교우 돌봄
+                    '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
+                    '가정을 위한 활동, 교우 돌봄-외짝교우 부부기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부미사참례',
+                    '가정을 위한 활동, 교우 돌봄-가족불우이웃시설봉사', '가정을 위한 활동, 교우 돌봄-출가자녀와기도',
+                    '가정을 위한 활동, 교우 돌봄-출가자녀와봉사활동', '가정을 위한 활동, 교우 돌봄-2대3대와함께미사',
+                    '가정을 위한 활동, 교우 돌봄-신심단체 가입 권유', '가정을 위한 활동, 교우 돌봄-다문화가정도움지원',
+                    '가정을 위한 활동, 교우 돌봄-신영세자방문 기도', '가정을 위한 활동, 교우 돌봄-신영세자방문 돌봄',
+                    '가정을 위한 활동, 교우 돌봄-신영세자영적대화', '가정을 위한 활동, 교우 돌봄-가족간축복',
+                    '가정을 위한 활동, 교우 돌봄-기타',
+
+                    // 성사권유 및 혼인장애자를 위한 활동
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우 방문 성사보기 권유', '성사권유 및 혼인장애자를 위한 활동-쉬는 교우에게 본당 행사 참가 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우신앙상담', '성사권유 및 혼인장애자를 위한 활동-판공성사 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-성사표 전달', '성사권유 및 혼인장애자를 위한 활동-견진성사 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-견진성사대부모 주선', '성사권유 및 혼인장애자를 위한 활동-유아세례 권유',
+                    '성사권유 및 혼인장애자를 위한 활동-유아세례 시 대부모 주선', '성사권유 및 혼인장애자를 위한 활동-유아세례 행정 협조',
+                    '성사권유 및 혼인장애자를 위한 활동-혼인장애자를 방문', '성사권유 및 혼인장애자를 위한 활동-혼인장애를 해소협조',
+                    '성사권유 및 혼인장애자를 위한 활동-냉담자 접촉활동',
+
+                    // 어려움을 겪는 이웃과 나눔 활동
+                    '어려움을 겪는 이웃과 나눔 활동-상가방문', '어려움을 겪는 이웃과 나눔 활동-위령기도',
+                    '어려움을 겪는 이웃과 나눔 활동-장례미사', '어려움을 겪는 이웃과 나눔 활동-장지수행',
+                    '어려움을 겪는 이웃과 나눔 활동-추모미사 참례', '어려움을 겪는 이웃과 나눔 활동-병자성사',
+                    '어려움을 겪는 이웃과 나눔 활동-봉성체 주선', '어려움을 겪는 이웃과 나눔 활동-병원봉사',
+                    '어려움을 겪는 이웃과 나눔 활동-환자방문', '어려움을 겪는 이웃과 나눔 활동-복지시설 봉사',
+                    '어려움을 겪는 이웃과 나눔 활동-복지시설 위문', '어려움을 겪는 이웃과 나눔 활동-재해 및 사고 피해자 방문',
+                    '어려움을 겪는 이웃과 나눔 활동-재해 및 사고 피해자 봉사', '어려움을 겪는 이웃과 나눔 활동-재소자 방문',
+                    '어려움을 겪는 이웃과 나눔 활동-재소자 돌봄', '어려움을 겪는 이웃과 나눔 활동-교통사고자돌봄',
+                    // 본당협조활동
+                    '본당협조활동-본당 행사 준비 및 협조', '본당협조활동-전례 봉사',
+                    '본당협조활동-성시간 참석', '본당협조활동-본당 교육 및 피정에 참석권유',
+                    '본당협조활동-본당 교육 및 피정 봉사', '본당협조활동-주일학교 봉사',
+                    '본당협조활동-본당 대청소에 참여', '본당협조활동-본당시설의 청소',
+                    '본당협조활동-본당시설의 정비', '본당협조활동-본당 보수공사에 노력봉사',
+                    '본당협조활동-본당 교세조사', '본당협조활동-교육·피정에 차량봉사',
+                    '본당협조활동-교육·피정에 교통정리', '본당협조활동-첫영성체 교리반에 인도',
+                    // 레지오의 발전을 위한 활동
+                    '레지오의 발전을 위한 활동-소년 Pr. 설립 권유', '레지오의 발전을 위한 활동-소년 Pr. 설립 지도',
+                    '레지오의 발전을 위한 활동-행동 단원 가입 권유', '레지오의 발전을 위한 활동-행동 단원 모집',
+                    '레지오의 발전을 위한 활동-협조단원 가입 권유', '레지오의 발전을 위한 활동-협조단원 모집',
+                    '레지오의 발전을 위한 활동-활동소홀 단원 돌보기', '레지오의 발전을 위한 활동-Pr.설립 권유',
+                    '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정참석', '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정 봉사',
+                    '레지오의 발전을 위한 활동-Pr.주회 순방', '레지오의 발전을 위한 활동-평의회 순방',
+                    '레지오의 발전을 위한 활동-평의회 참석', '레지오의 발전을 위한 활동-교본공부',
+                    '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정에 차량봉사', '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정 교통정리',
+                    '레지오의 발전을 위한 활동-기타',
+                    // 소공동체와 함께하는 활동
+                    '소공동체와 함께하는 활동-소공동체 모임 참석', '소공동체와 함께하는 활동-소공동체 모임 참석 권유',
+                    '소공동체와 함께하는 활동-소공동체 회의 참석', '소공동체와 함께하는 활동-소공동체 교육 참석',
+                    // 자연보호 및 생명존중 운동에 동참
+                    '자연보호 및 생명존중 운동에 동참-생태환경 운동 실천', '자연보호 및 생명존중 운동에 동참-낙태반대운동 참가',
+                    '자연보호 및 생명존중 운동에 동참-사후 장기기증운동 동참', '자연보호 및 생명존중 운동에 동참-헌혈',
+                    '자연보호 및 생명존중 운동에 동참-헌혈권유',
+                    // 상급평의회가 지시한 활동
+                    '상급평의회가 지시한 활동-성경통독', '상급평의회가 지시한 활동-성경쓰기',
+                    '상급평의회가 지시한 활동-주회 전후 미사', '상급평의회가 지시한 활동-미사전 독서‧복음 묵상',
+                    '상급평의회가 지시한 활동-성모님의 군단 및 빛 잡지 읽기', '상급평의회가 지시한 활동-평일미사 참례',
+                    '상급평의회가 지시한 활동-평일미사 참례 권유', '상급평의회가 지시한 활동-기타 상급평의회에서 지시한 활동',
+                    // 기타 활동
+                    '기타 활동-기타활동',
                     
                     // 어려운자돌봄
                     '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
@@ -1917,6 +2129,7 @@
 
         // 활동 종목 선택 시 필드 로드
         document.getElementById('categorySelect').addEventListener('change', async function() {
+            syncCategorySelectGreenStyle();
             const categoryName = this.value;
             if (!categoryName) {
                 document.getElementById('activityFields').innerHTML = '<p class="empty-hint">종목을 선택하면 입력란이 나타납니다.</p>';
@@ -1993,6 +2206,38 @@
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명,건)', is_required: true },
                         { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
                     ],
+                    '이웃에 가톨릭 알리기활동-이웃에 신앙전하기': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-교리반수강권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-통신교리수강권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-교리반중단자재수강권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-가두선교': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-주택방문': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-선교책자전달': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '이웃에 가톨릭 알리기활동-접촉활동': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
                     '복음선교-예비신자관리돌봄': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                         { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
@@ -2023,6 +2268,46 @@
                     '예비신자 돌봄-교리반 봉사': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                         { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-교리반에 동반 참석': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-미사동반 참례': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-본당행사 동반 참석': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-본당생활 안내': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-기도 등 신앙생활 지도': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-교리반의 출석 점검': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-예비자행정지원': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-교리반간식 봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-교리 시간에 예비신자의 아기를 돌봄': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
+                    ],
+                    '예비신자와 함께하는 활동-기타': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'baptism', field_display_name: '영세자', is_required: false }
                     ],
                     
                     // 교우돌봄
@@ -2071,6 +2356,618 @@
                         { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
                     ],
                     '교우돌봄-청소년 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+
+                    // 가정을 위한 활동, 교우 돌봄
+                    '가정을 위한 활동, 교우 돌봄-가족일상기도': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-외짝교우 부부기도': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-외짝교우 부부미사참례': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-가족불우이웃시설봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-출가자녀와기도': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-출가자녀와봉사활동': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-2대3대와함께미사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-신심단체 가입 권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-다문화가정도움지원': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-신영세자방문 기도': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-신영세자방문 돌봄': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-신영세자영적대화': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-가족간축복': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+                    '가정을 위한 활동, 교우 돌봄-기타': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+                    ],
+
+                    // 성사권유 및 혼인장애자를 위한 활동
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우 방문 성사보기 권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우에게 본당 행사 참가 권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-쉬는 교우신앙상담': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-판공성사 권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-성사표 전달': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-견진성사 권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-견진성사대부모 주선': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-유아세례 권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-유아세례 시 대부모 주선': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-유아세례 행정 협조': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-혼인장애자를 방문': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-혼인장애를 해소협조': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+                    '성사권유 및 혼인장애자를 위한 활동-냉담자 접촉활동': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'meeting_head', field_display_name: '회두', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인장애 해소', is_required: false }
+                    ],
+
+                    // 어려움을 겪는 이웃과 나눔 활동
+                    '어려움을 겪는 이웃과 나눔 활동-상가방문': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-위령기도': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-장례미사': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-장지수행': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-추모미사 참례': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-병자성사': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-봉성체 주선': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-병원봉사': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-환자방문': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-복지시설 봉사': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-복지시설 위문': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-재해 및 사고 피해자 방문': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-재해 및 사고 피해자 봉사': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-재소자 방문': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-재소자 돌봄': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '어려움을 겪는 이웃과 나눔 활동-교통사고자돌봄': [
+                        { field_name: 'count', field_display_name: '활동횟수', is_required: true },
+                        { field_name: 'funeral_attendance', field_display_name: '상가방문', is_required: false },
+                        { field_name: 'year_count', field_display_name: '위령기도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사', is_required: false },
+                        { field_name: 'inout_count', field_display_name: '장지수행', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '병자성사', is_required: false },
+                        { field_name: 'first_communion', field_display_name: '봉성체', is_required: false },
+                        { field_name: 'conditional_baptism', field_display_name: '대세자', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '보례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '병원 및 복지시설', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+
+                    // 본당협조활동
+                    '본당협조활동-본당 행사 준비 및 협조': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-전례 봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-성시간 참석': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당 교육 및 피정에 참석권유': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당 교육 및 피정 봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-주일학교 봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당 대청소에 참여': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당시설의 청소': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당시설의 정비': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당 보수공사에 노력봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-본당 교세조사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-교육·피정에 차량봉사': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-교육·피정에 교통정리': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+                    '본당협조활동-첫영성체 교리반에 인도': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '첫 영성체 교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아세례 외 영세', is_required: false }
+                    ],
+
+                    // 레지오의 발전을 위한 활동
+                    '레지오의 발전을 위한 활동-소년 Pr. 설립 권유': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-소년 Pr. 설립 지도': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-행동 단원 가입 권유': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-행동 단원 모집': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-협조단원 가입 권유': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-협조단원 모집': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-활동소홀 단원 돌보기': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-Pr.설립 권유': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정참석': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정 봉사': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-Pr.주회 순방': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-평의회 순방': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-평의회 참석': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-교본공부': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정에 차량봉사': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정 교통정리': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '레지오의 발전을 위한 활동-기타': [
+                        { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+
+                    // 소공동체와 함께하는 활동
+                    '소공동체와 함께하는 활동-소공동체 모임 참석': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '소공동체와 함께하는 활동-소공동체 모임 참석 권유': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '소공동체와 함께하는 활동-소공동체 회의 참석': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '소공동체와 함께하는 활동-소공동체 교육 참석': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+
+                    // 자연보호 및 생명존중 운동에 동참
+                    '자연보호 및 생명존중 운동에 동참-생태환경 운동 실천': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '자연보호 및 생명존중 운동에 동참-낙태반대운동 참가': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '자연보호 및 생명존중 운동에 동참-사후 장기기증운동 동참': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '자연보호 및 생명존중 운동에 동참-헌혈': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '자연보호 및 생명존중 운동에 동참-헌혈권유': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+
+                    // 상급평의회가 지시한 활동
+                    '상급평의회가 지시한 활동-성경통독': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-성경쓰기': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-주회 전후 미사': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-미사전 독서‧복음 묵상': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-성모님의 군단 및 빛 잡지 읽기': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-평일미사 참례': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-평일미사 참례 권유': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+                    '상급평의회가 지시한 활동-기타 상급평의회에서 지시한 활동': [
+                        { field_name: 'count', field_display_name: '활동 회수', is_required: true },
+                        { field_name: 'year_count', field_display_name: '성경 통독', is_required: false },
+                        { field_name: 'establishment', field_display_name: '묵주 기도', is_required: false },
+                        { field_name: 'catechism_guide', field_display_name: '성경 쓰기', is_required: false }
+                    ],
+
+                    // 기타 활동
+                    '기타 활동-기타활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+
+
+
+
+
+
+
+
+
                     
                     // 어려운자돌봄
                     '어려운자돌봄-교우 상가 방문 및 돌봄': [
@@ -2189,7 +3086,7 @@
         function isBaptizedPersonField(field) {
             const key = `${field.field_name || ''}|${field.field_display_name || ''}`;
             // 세례자 () 명, 피정참가 () 명, 교육참가 () 명 등 인원 선택
-            return /세례자|baptism|^세례(\||$)|피정참가|교육참가|\(\)\s*명/i.test(key);
+            return /세례자|영세자|유아세례|첫\s*영성체\s*교리반\s*인도|행동단원\s*모집|협조단원\s*모집|회두|판공|견진|혼인장애\s*해소|병자성사|봉성체|대세자|보례자|baptism|confirmation|meeting_head|sacrament|resolution|first_communion|conditional_baptism|conditional_communion|catechism_guide|membership|^세례(\||$)|피정참가|교육참가|\(\)\s*명/i.test(key);
         }
 
         function baptizedPersonSelectHtml(field) {
@@ -2352,32 +3249,53 @@
                         // 한글 필드명을 영문 필드명으로 매핑
                         const fieldNameMapping = {
                             '횟수': 'count',
+                            '활동횟수': 'count',
+                            '활동 회수': 'count',
                             '교리반인도': 'catechism_guide',
+                            '첫 영성체 교리반 인도': 'catechism_guide',
+                            '성경 쓰기': 'catechism_guide',
                             '단체가입': 'group_join',
+                            '기타': 'group_join',
+                            '행동단원 모집': 'membership',
+                            '협조단원 모집': 'group_join',
                             '회두': 'meeting_head',
                             '해소': 'resolution',
+                            '혼인장애 해소': 'resolution',
                             '성사': 'sacrament',
+                            '판공': 'sacrament',
                             '병자성사': 'sacrament',
                             '견진': 'confirmation',
                             '세례': 'baptism',
                             '세례자': 'baptism',
                             '세례자 () 명': 'baptism',
+                            '영세자': 'baptism',
+                            '유아세례': 'baptism',
+                            '유아세례 외 영세': 'baptism',
                             '첫영성체': 'first_communion',
                             '병자영성체': 'first_communion',
+                            '봉성체': 'first_communion',
                             '연도': 'year_count',
+                            '위령기도': 'year_count',
+                            '성경 통독': 'year_count',
                             '장례미사': 'funeral_mass',
                             '추모미사': 'memorial_mass',
                             '장지참석': 'funeral_attendance',
+                            '상가방문': 'funeral_attendance',
                             '입출관': 'inout_count',
+                            '장지수행': 'inout_count',
                             '대세': 'conditional_baptism',
+                            '대세자': 'conditional_baptism',
                             '보례': 'conditional_communion',
+                            '보례자': 'conditional_communion',
                             '입단': 'membership',
                             '설립': 'establishment',
+                            '병원 및 복지시설': 'establishment',
+                            '묵주 기도': 'establishment',
+                            '묵주기도': 'establishment',
                             '피정참가': 'membership',
                             '피정참가 () 명': 'membership',
                             '교육참가': 'establishment',
                             '교육참가 () 명': 'establishment',
-                              // 입출관은 연도 필드로 매핑
                         };
                         
                         if (fieldNameMapping[fieldName]) {
