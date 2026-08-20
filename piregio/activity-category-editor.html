@@ -111,6 +111,9 @@
         .category-header.is-daegu-senatus {
             background: linear-gradient(135deg, #16a34a, #15803d);
         }
+        .category-header.is-gwangju-senatus {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
         .activity-card.is-daegu-senatus {
             border-color: #86efac;
             background: #f0fdf4;
@@ -118,10 +121,23 @@
         .activity-card.is-daegu-senatus .activity-name {
             color: #15803d;
         }
+        .activity-card.is-gwangju-senatus {
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+        .activity-card.is-gwangju-senatus .activity-name {
+            color: #1d4ed8;
+        }
         .daegu-senatus-legend {
-            margin: 0 0 12px;
+            margin: 0 0 6px;
             font-size: 12px;
             color: #15803d;
+            font-weight: 600;
+        }
+        .gwangju-senatus-legend {
+            margin: 0 0 12px;
+            font-size: 12px;
+            color: #1d4ed8;
             font-weight: 600;
         }
 
@@ -476,7 +492,8 @@
 
     <div class="container">
         <h2 class="page-title">활동종목 및 활동자료 관리</h2>
-        <p class="daegu-senatus-legend">녹색 그룹/카드 = 대구 세나뚜스 종목 (기존 종목과 구분)</p>
+        <p class="daegu-senatus-legend">녹색 그룹/카드 = 대구 세나뚜스</p>
+        <p class="gwangju-senatus-legend">파란색 카드 = 광주 세나뚜스</p>
         
         <div id="successMessage" class="success-message"></div>
         <div id="errorMessage" class="error-message"></div>
@@ -503,6 +520,7 @@
                         <select class="form-input" id="newCategoryGroup" required>
                             <option value="">활동그룹을 선택하세요</option>
                             <option value="기도생활">기도생활</option>
+                            <option value="영성생활">영성생활</option>
                             <option value="가정성화활동">가정성화활동</option>
                             <option value="지구와함께">지구와함께</option>
                             <option value="복음선교">복음선교</option>
@@ -510,19 +528,23 @@
                             <option value="예비신자 돌봄">예비신자 돌봄</option>
                             <option value="예비신자와 함께하는 활동">예비신자와 함께하는 활동</option>
                             <option value="교우돌봄">교우돌봄</option>
+                            <option value="이웃돌봄">이웃돌봄</option>
                             <option value="가정을 위한 활동, 교우 돌봄">가정을 위한 활동, 교우 돌봄</option>
                             <option value="성사권유 및 혼인장애자를 위한 활동">성사권유 및 혼인장애자를 위한 활동</option>
                             <option value="어려운자돌봄">어려운자돌봄</option>
                             <option value="어려움을 겪는 이웃과 나눔 활동">어려움을 겪는 이웃과 나눔 활동</option>
                             <option value="레지오활동">레지오활동</option>
+                            <option value="확장">확장</option>
                             <option value="레지오의 발전을 위한 활동">레지오의 발전을 위한 활동</option>
                             <option value="소공동체와 함께하는 활동">소공동체와 함께하는 활동</option>
                             <option value="본당교회협조">본당교회협조</option>
                             <option value="본당협조활동">본당협조활동</option>
+                            <option value="본당협조">본당협조</option>
                             <option value="특별활동">특별활동</option>
                             <option value="자연보호 및 생명존중 운동에 동참">자연보호 및 생명존중 운동에 동참</option>
                             <option value="상급평의회가 지시한 활동">상급평의회가 지시한 활동</option>
                             <option value="기타 활동">기타 활동</option>
+                            <option value="기타">기타</option>
                             <option value="자연보호">자연보호</option>
                             <option value="기타활동">기타활동</option>
                         </select>
@@ -546,6 +568,7 @@
 
     <script src="webview-android.js"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
+    <script src="gwangju-senatus-categories.js?v=20260820h"></script>
     <script>
         let categories = [];
         let activityRecords = {};
@@ -555,6 +578,10 @@
 
         function isDaeguGroup(name) {
             return typeof isDaeguSenatusCategory === 'function' && isDaeguSenatusCategory(name);
+        }
+
+        function isGwangjuItem(name) {
+            return typeof isGwangjuSenatusCategory === 'function' && isGwangjuSenatusCategory(name);
         }
 
         // 페이지 로드 시 데이터 가져오기
@@ -646,8 +673,9 @@
             section.className = 'category-section';
             
             const header = document.createElement('div');
-            header.className = 'category-header' + (isDaeguGroup(groupName) ? ' is-daegu-senatus' : '');
-            header.textContent = isDaeguGroup(groupName) ? `${groupName} · 대구 세나뚜스` : groupName;
+            const daegu = isDaeguGroup(groupName);
+            header.className = 'category-header' + (daegu ? ' is-daegu-senatus' : '');
+            header.textContent = daegu ? `${groupName} · 대구 세나뚜스` : groupName;
             
             const content = document.createElement('div');
             content.className = 'category-content';
@@ -670,7 +698,11 @@
         // 활동 카드 생성
         function createActivityCard(category) {
             const card = document.createElement('div');
-            card.className = 'activity-card' + (isDaeguGroup(category.category_name) ? ' is-daegu-senatus' : '');
+            const gwangju = isGwangjuItem(category.category_name);
+            const daegu = isDaeguGroup(category.category_name);
+            card.className = 'activity-card'
+                + (daegu ? ' is-daegu-senatus' : '')
+                + (gwangju ? ' is-gwangju-senatus' : '');
             card.id = `card-${category.id}`;
             
             const records = activityRecords[category.id] || [];
@@ -732,6 +764,7 @@
                     <input type="text" class="edit-input" id="edit-name-${category.id}" value="${category.category_name}" placeholder="활동종목명">
                     <select class="edit-input" id="edit-group-${category.id}">
                         <option value="기도생활" ${category.category_group === '기도생활' ? 'selected' : ''}>기도생활</option>
+                        <option value="영성생활" ${category.category_group === '영성생활' ? 'selected' : ''}>영성생활</option>
                         <option value="가정성화활동" ${category.category_group === '가정성화활동' ? 'selected' : ''}>가정성화활동</option>
                         <option value="지구와함께" ${category.category_group === '지구와함께' ? 'selected' : ''}>지구와함께</option>
                         <option value="복음선교" ${category.category_group === '복음선교' ? 'selected' : ''}>복음선교</option>
@@ -739,19 +772,23 @@
                         <option value="예비신자 돌봄" ${category.category_group === '예비신자 돌봄' || category.category_group === '예비자 돌봄' ? 'selected' : ''}>예비신자 돌봄</option>
                         <option value="예비신자와 함께하는 활동" ${category.category_group === '예비신자와 함께하는 활동' ? 'selected' : ''}>예비신자와 함께하는 활동</option>
                         <option value="교우돌봄" ${category.category_group === '교우돌봄' ? 'selected' : ''}>교우돌봄</option>
+                        <option value="이웃돌봄" ${category.category_group === '이웃돌봄' ? 'selected' : ''}>이웃돌봄</option>
                         <option value="가정을 위한 활동, 교우 돌봄" ${category.category_group === '가정을 위한 활동, 교우 돌봄' ? 'selected' : ''}>가정을 위한 활동, 교우 돌봄</option>
                         <option value="성사권유 및 혼인장애자를 위한 활동" ${category.category_group === '성사권유 및 혼인장애자를 위한 활동' ? 'selected' : ''}>성사권유 및 혼인장애자를 위한 활동</option>
                         <option value="어려운자돌봄" ${category.category_group === '어려운자돌봄' ? 'selected' : ''}>어려운자돌봄</option>
                         <option value="어려움을 겪는 이웃과 나눔 활동" ${category.category_group === '어려움을 겪는 이웃과 나눔 활동' ? 'selected' : ''}>어려움을 겪는 이웃과 나눔 활동</option>
                         <option value="레지오활동" ${category.category_group === '레지오활동' ? 'selected' : ''}>레지오활동</option>
+                        <option value="확장" ${category.category_group === '확장' ? 'selected' : ''}>확장</option>
                         <option value="레지오의 발전을 위한 활동" ${category.category_group === '레지오의 발전을 위한 활동' ? 'selected' : ''}>레지오의 발전을 위한 활동</option>
                         <option value="소공동체와 함께하는 활동" ${category.category_group === '소공동체와 함께하는 활동' ? 'selected' : ''}>소공동체와 함께하는 활동</option>
                         <option value="본당교회협조" ${category.category_group === '본당교회협조' ? 'selected' : ''}>본당교회협조</option>
                         <option value="본당협조활동" ${category.category_group === '본당협조활동' ? 'selected' : ''}>본당협조활동</option>
+                        <option value="본당협조" ${category.category_group === '본당협조' ? 'selected' : ''}>본당협조</option>
                         <option value="특별활동" ${category.category_group === '특별활동' ? 'selected' : ''}>특별활동</option>
                         <option value="자연보호 및 생명존중 운동에 동참" ${category.category_group === '자연보호 및 생명존중 운동에 동참' ? 'selected' : ''}>자연보호 및 생명존중 운동에 동참</option>
                         <option value="상급평의회가 지시한 활동" ${category.category_group === '상급평의회가 지시한 활동' ? 'selected' : ''}>상급평의회가 지시한 활동</option>
                         <option value="기타 활동" ${category.category_group === '기타 활동' ? 'selected' : ''}>기타 활동</option>
+                        <option value="기타" ${category.category_group === '기타' ? 'selected' : ''}>기타</option>
                         <option value="자연보호" ${category.category_group === '자연보호' ? 'selected' : ''}>자연보호</option>
                         <option value="기타활동" ${category.category_group === '기타활동' ? 'selected' : ''}>기타활동</option>
                     </select>

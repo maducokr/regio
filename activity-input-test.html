@@ -323,6 +323,17 @@
             border-color: #86efac;
             background: #f0fdf4;
         }
+        /* 광주 세나뚜스 종목 — 선택란·피커 파란색 */
+        #categorySelect option.is-new-category-blue {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+        #categorySelect.is-new-category-blue {
+            color: #1d4ed8;
+            font-weight: 700;
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
         .daegu-senatus-hint {
             margin: 8px 0 0;
             font-size: 12px;
@@ -337,6 +348,22 @@
             margin-right: 0.35em;
             border-radius: 2px;
             background: #16a34a;
+            vertical-align: middle;
+        }
+        .gwangju-senatus-hint {
+            margin: 4px 0 0;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+        .gwangju-senatus-hint span {
+            display: inline-block;
+            width: 0.65em;
+            height: 0.65em;
+            margin-right: 0.35em;
+            border-radius: 2px;
+            background: #2563eb;
             vertical-align: middle;
         }
 
@@ -756,7 +783,8 @@
                     <option value="">선택</option>
                 </select>
             </div>
-            <p class="daegu-senatus-hint"><span></span>녹색 종목 = 대구 세나뚜스 (기존 종목과 구분)</p>
+            <p class="daegu-senatus-hint"><span></span>녹색 종목 = 대구 세나뚜스</p>
+            <p class="gwangju-senatus-hint"><span></span>파란색 종목 = 광주 세나뚜스</p>
         </div>
 
         <div class="panel">
@@ -863,7 +891,8 @@
 
     <script src="date-wheel-picker.js"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="category-select-picker.js?v=20260820h"></script>
+    <script src="gwangju-senatus-categories.js?v=20260820h"></script>
+    <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260819i"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -931,7 +960,7 @@
             return name;
         }
 
-        /** 대구 세나뚜스 종목 — 라벨 녹색 (daegu-senatus-categories.js) */
+        /** 대구(녹색) / 광주(파란) 세나뚜스 종목 표기 */
         function isNewGreenCategory(categoryName) {
             if (typeof window.isDaeguSenatusCategory === 'function') {
                 return window.isDaeguSenatusCategory(categoryName);
@@ -942,16 +971,29 @@
             return groups.some((g) => name === g || name.startsWith(`${g}-`));
         }
 
+        function isNewBlueCategory(categoryName) {
+            if (typeof window.isGwangjuSenatusCategory === 'function') {
+                return window.isGwangjuSenatusCategory(categoryName);
+            }
+            const list = window.GWANGJU_SENATUS_CATEGORIES || [];
+            const name = String(categoryName || '').trim();
+            if (!name) return false;
+            return list.some((c) => name === c || name.startsWith(`${c}-`));
+        }
+
         function markCategoryOptionGreen(option, categoryName) {
             if (!option) return;
+            option.classList.remove('is-new-category-green', 'is-new-category-blue');
+            delete option.dataset.accent;
+            option.removeAttribute('title');
             if (isNewGreenCategory(categoryName)) {
                 option.classList.add('is-new-category-green');
                 option.dataset.accent = 'green';
                 option.title = '대구 세나뚜스 종목';
-            } else {
-                option.classList.remove('is-new-category-green');
-                delete option.dataset.accent;
-                option.removeAttribute('title');
+            } else if (isNewBlueCategory(categoryName)) {
+                option.classList.add('is-new-category-blue');
+                option.dataset.accent = 'blue';
+                option.title = '광주 세나뚜스 종목';
             }
         }
 
@@ -959,8 +1001,10 @@
             const select = document.getElementById('categorySelect');
             if (!select) return;
             const isGreen = isNewGreenCategory(select.value);
+            const isBlue = isNewBlueCategory(select.value);
             select.classList.toggle('is-new-category-green', isGreen);
-            select.title = isGreen ? '대구 세나뚜스 종목' : '';
+            select.classList.toggle('is-new-category-blue', isBlue);
+            select.title = isGreen ? '대구 세나뚜스 종목' : (isBlue ? '광주 세나뚜스 종목' : '');
         }
 
         function ensureCategoryOption(categoryName) {
@@ -1779,6 +1823,9 @@
                         '기도생활-묵주기도', '기도생활-평일미사', '기도생활-십자가의길',
                         '기도생활-성경읽기', '기도생활-성경쓰기', '기도생활-소성무일도',
                         '기도생활-성체조배', '기도생활-기타',
+                        // 영성생활 (광주 세나뚜스)
+                        '영성생활-평일 미사', '영성생활-묵주 기도', '영성생활-십자가의 길',
+                        '영성생활-성경 봉독, 쓰기', '영성생활-소성무일도', '영성생활-기타',
                         
                         // 가정성화활동
                         '가정성화활동-가족이함께기도하기', '가정성화활동-성경봉독 및 묵상',
@@ -1792,6 +1839,9 @@
                         '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면',
                         '복음선교-방문선교', '복음선교-가두선교',
                         '복음선교-예비신자관리돌봄', '복음선교-통신교리자 돌봄', '복음선교-교리반협조', '복음선교-교리반 인도', '복음선교-교리반인도예비자',
+                        // 복음선교 (광주 세나뚜스)
+                        '복음선교-비신자 입교 권면', '복음선교-교리반 인도 예비자', '복음선교-통신교리자',
+                        '복음선교-타인이 인도한 예비자', '복음선교-교리반 봉사 및 협조',
 
                         // 이웃에 가톨릭 알리기활동
                         '이웃에 가톨릭 알리기활동-이웃에 신앙전하기', '이웃에 가톨릭 알리기활동-교리반수강권유',
@@ -1813,6 +1863,26 @@
                         '교우돌봄-신영세자돌봄(방문)', '교우돌봄-교우 가정방문', '교우돌봄-냉담 교우 방문', '교우돌봄-냉담교우회두 권면',
                         '교우돌봄-혼인 장애자 돌봄', '교우돌봄-판공성사 권면', '교우돌봄-전입교우돌봄(방문)',
                         '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-첫영성체', '교우돌봄-군인선원돌봄', '교우돌봄-청소년 돌봄',
+                        '교우돌봄-교우 상가 방문 및 돌봄', '교우돌봄-교우 환자 방문 및 돌봄',
+                        // 교우돌봄 (광주 세나뚜스 추가)
+                        '교우돌봄-신 세례자 방문', '교우돌봄-쉬는 교우 방문', '교우돌봄-교우 가정 방문',
+                        '교우돌봄-혼인 장애자 방문', '교우돌봄-성사 권면', '교우돌봄-전입 교우 방문',
+                        '교우돌봄-첫 영성체',
+                        // 이웃돌봄 (광주 세나뚜스)
+                        '이웃돌봄-비신자 환자 방문 및 돌봄', '이웃돌봄-비신자 상가방문 및 돌봄',
+                        '이웃돌봄-병원 방문 및 활동', '이웃돌봄-복지시설 노력 봉사',
+                        '이웃돌봄-재해 및 사고 피해자',
+                        // 확장 (광주 세나뚜스)
+                        '확장-행동단원 모집', '확장-협조단원 모집',
+                        '확장-소년 레지오 설립을 위한 활동', '확장-소년 레지오 돌봄',
+                        // 본당협조 (광주 세나뚜스)
+                        '본당협조-행사 준비 및 협조', '본당협조-본당 교세 조사(호별방문)',
+                        '본당협조-주일학교 돌봄', '본당협조-전례 협조', '본당협조-청소 미화',
+                        '본당협조-차량 봉사 및 교통정리',
+                        '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)',
+                        // 기타 (광주 세나뚜스)
+                        '기타-출판물 보급', '기타-생태 환경보호 활동',
+                        '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
                         '교우돌봄-청소년 돌봄',
 
                         // 가정을 위한 활동, 교우 돌봄
@@ -1873,6 +1943,9 @@
                     '상급평의회가 지시한 활동-평일미사 참례 권유', '상급평의회가 지시한 활동-기타 상급평의회에서 지시한 활동',
                     // 기타 활동
                     '기타 활동-기타활동',
+                    // 기타 (광주 세나뚜스)
+                    '기타-출판물 보급', '기타-생태 환경보호 활동',
+                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
 
                         
                         // 어려운자돌봄
@@ -1942,6 +2015,9 @@
                     '기도생활-묵주기도', '기도생활-평일미사', '기도생활-십자가의길',
                     '기도생활-성경읽기', '기도생활-성경쓰기', '기도생활-소성무일도',
                     '기도생활-성체조배', '기도생활-기타',
+                    // 영성생활 (광주 세나뚜스)
+                    '영성생활-평일 미사', '영성생활-묵주 기도', '영성생활-십자가의 길',
+                    '영성생활-성경 봉독, 쓰기', '영성생활-소성무일도', '영성생활-기타',
                     
                     // 가정성화활동
                     '가정성화활동-가족이함께기도하기', '가정성화활동-성경봉독 및 묵상',
@@ -1955,6 +2031,9 @@
                     '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면',
                     '복음선교-방문선교', '복음선교-가두선교',
                     '복음선교-예비신자관리돌봄', '복음선교-통신교리자 돌봄', '복음선교-교리반협조', '복음선교-교리반 인도', '복음선교-교리반인도예비자',
+                    // 복음선교 (광주 세나뚜스)
+                    '복음선교-비신자 입교 권면', '복음선교-교리반 인도 예비자', '복음선교-통신교리자',
+                    '복음선교-타인이 인도한 예비자', '복음선교-교리반 봉사 및 협조',
 
                     // 이웃에 가톨릭 알리기활동
                     '이웃에 가톨릭 알리기활동-이웃에 신앙전하기', '이웃에 가톨릭 알리기활동-교리반수강권유',
@@ -1977,6 +2056,26 @@
                     '교우돌봄-혼인 장애자 돌봄', '교우돌봄-판공성사 권면', '교우돌봄-전입교우돌봄(방문)',
                     '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-첫영성체', '교우돌봄-군인선원돌봄',
                     '교우돌봄-청소년 돌봄',
+                    '교우돌봄-교우 상가 방문 및 돌봄', '교우돌봄-교우 환자 방문 및 돌봄',
+                    // 교우돌봄 (광주 세나뚜스 추가)
+                    '교우돌봄-신 세례자 방문', '교우돌봄-쉬는 교우 방문', '교우돌봄-교우 가정 방문',
+                    '교우돌봄-혼인 장애자 방문', '교우돌봄-성사 권면', '교우돌봄-전입 교우 방문',
+                    '교우돌봄-첫 영성체',
+                    // 이웃돌봄 (광주 세나뚜스)
+                    '이웃돌봄-비신자 환자 방문 및 돌봄', '이웃돌봄-비신자 상가방문 및 돌봄',
+                    '이웃돌봄-병원 방문 및 활동', '이웃돌봄-복지시설 노력 봉사',
+                    '이웃돌봄-재해 및 사고 피해자',
+                    // 확장 (광주 세나뚜스)
+                    '확장-행동단원 모집', '확장-협조단원 모집',
+                    '확장-소년 레지오 설립을 위한 활동', '확장-소년 레지오 돌봄',
+                    // 본당협조 (광주 세나뚜스)
+                    '본당협조-행사 준비 및 협조', '본당협조-본당 교세 조사(호별방문)',
+                    '본당협조-주일학교 돌봄', '본당협조-전례 협조', '본당협조-청소 미화',
+                    '본당협조-차량 봉사 및 교통정리',
+                    '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)',
+                    // 기타 (광주 세나뚜스)
+                    '기타-출판물 보급', '기타-생태 환경보호 활동',
+                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
 
                     // 가정을 위한 활동, 교우 돌봄
                     '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
@@ -2038,6 +2137,9 @@
                     '상급평의회가 지시한 활동-평일미사 참례 권유', '상급평의회가 지시한 활동-기타 상급평의회에서 지시한 활동',
                     // 기타 활동
                     '기타 활동-기타활동',
+                    // 기타 (광주 세나뚜스)
+                    '기타-출판물 보급', '기타-생태 환경보호 활동',
+                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
                     
                     // 어려운자돌봄
                     '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
@@ -2170,6 +2272,13 @@
                     '기도생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
                     '기도생활-성체조배': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
                     '기도생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    // 영성생활 (광주 세나뚜스)
+                    '영성생활-평일 미사': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-묵주 기도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-십자가의 길': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-성경 봉독, 쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
 
                     // 가정성화활동
                     '가정성화활동-가족이함께기도하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -2195,16 +2304,43 @@
                         { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
                     ],
                     '복음선교-교리 중단자 권면': [
-                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
-                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
                     ],
                     '복음선교-방문선교': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                         { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
                     ],
                     '복음선교-가두선교': [
-                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명,건)', is_required: true },
-                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
+                    ],
+                    '복음선교-비신자 입교 권면': [
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
+                    ],
+                    '복음선교-교리반 인도 예비자': [
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
+                    ],
+                    '복음선교-통신교리자': [
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
+                    ],
+                    '복음선교-타인이 인도한 예비자': [
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
+                    ],
+                    '복음선교-교리반 봉사 및 협조': [
+                        { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                        { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                        { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
                     ],
                     '이웃에 가톨릭 알리기활동-이웃에 신앙전하기': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
@@ -2344,18 +2480,168 @@
                         { field_name: 'confirmation', field_display_name: '견진', is_required: false }
                     ],
                     '교우돌봄-유아 세례 권면': [
-                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
-                        { field_name: 'baptism', field_display_name: '세례', is_required: false }
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
                     ],
                     '교우돌봄-첫영성체': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                         { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
+                    ],
+                    '교우돌봄-신 세례자 방문': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
+                    ],
+                    '교우돌봄-쉬는 교우 방문': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
+                    ],
+                    '교우돌봄-교우 가정 방문': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
+                    ],
+                    '교우돌봄-혼인 장애자 방문': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
+                    ],
+                    '교우돌봄-성사 권면': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
+                    ],
+                    '교우돌봄-전입 교우 방문': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
+                    ],
+                    '교우돌봄-첫 영성체': [
+                        { field_name: 'group_join', field_display_name: '단체 가입', is_required: false },
+                        { field_name: 'meeting_head', field_display_name: '쉬는 교우 회두', is_required: false },
+                        { field_name: 'resolution', field_display_name: '혼인 장애 해소', is_required: false },
+                        { field_name: 'sacrament', field_display_name: '판공 성사', is_required: false },
+                        { field_name: 'confirmation', field_display_name: '견진 성사', is_required: false },
+                        { field_name: 'baptism', field_display_name: '유아 세례', is_required: false }
                     ],
                     '교우돌봄-군인선원돌봄': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                         { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
                     ],
                     '교우돌봄-청소년 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '교우돌봄-교우 상가 방문 및 돌봄': [
+                        { field_name: 'year_count', field_display_name: '연도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사(고별식)', is_required: false },
+                        { field_name: 'funeral_attendance', field_display_name: '기타 상가 활동', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    '교우돌봄-교우 환자 방문 및 돌봄': [
+                        { field_name: 'year_count', field_display_name: '연도', is_required: false },
+                        { field_name: 'funeral_mass', field_display_name: '장례미사(고별식)', is_required: false },
+                        { field_name: 'funeral_attendance', field_display_name: '기타 상가 활동', is_required: false },
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+                    ],
+                    // 이웃돌봄 (광주 세나뚜스)
+                    '이웃돌봄-비신자 환자 방문 및 돌봄': [
+                        { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '세례보충예식', is_required: false }
+                    ],
+                    '이웃돌봄-비신자 상가방문 및 돌봄': [
+                        { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '세례보충예식', is_required: false }
+                    ],
+                    '이웃돌봄-병원 방문 및 활동': [
+                        { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '세례보충예식', is_required: false }
+                    ],
+                    '이웃돌봄-복지시설 노력 봉사': [
+                        { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '세례보충예식', is_required: false }
+                    ],
+                    '이웃돌봄-재해 및 사고 피해자': [
+                        { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
+                        { field_name: 'conditional_communion', field_display_name: '세례보충예식', is_required: false }
+                    ],
+                    // 확장 (광주 세나뚜스)
+                    '확장-행동단원 모집': [
+                        { field_name: 'membership', field_display_name: '행동단원 입단', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 입단', is_required: false }
+                    ],
+                    '확장-협조단원 모집': [
+                        { field_name: 'membership', field_display_name: '행동단원 입단', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 입단', is_required: false }
+                    ],
+                    '확장-소년 레지오 설립을 위한 활동': [
+                        { field_name: 'membership', field_display_name: '행동단원 입단', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 입단', is_required: false }
+                    ],
+                    '확장-소년 레지오 돌봄': [
+                        { field_name: 'membership', field_display_name: '행동단원 입단', is_required: false },
+                        { field_name: 'group_join', field_display_name: '협조단원 입단', is_required: false }
+                    ],
+                    '본당협조-행사 준비 및 협조': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-본당 교세 조사(호별방문)': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-주일학교 돌봄': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-전례 협조': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-청소 미화': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-차량 봉사 및 교통정리': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)': [
+                        { field_name: 'count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '기타-출판물 보급': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-생태 환경보호 활동': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-생명존중 활동': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-가정성화 활동(가족단위)': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
 
                     // 가정을 위한 활동, 교우 돌봄
                     '가정을 위한 활동, 교우 돌봄-가족일상기도': [
@@ -2959,6 +3245,11 @@
 
                     // 기타 활동
                     '기타 활동-기타활동': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    // 기타 (광주 세나뚜스)
+                    '기타-출판물 보급': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-생태 환경보호 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-생명존중 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-가정성화 활동(가족단위)': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
 
 
 
@@ -3086,7 +3377,7 @@
         function isBaptizedPersonField(field) {
             const key = `${field.field_name || ''}|${field.field_display_name || ''}`;
             // 세례자 () 명, 피정참가 () 명, 교육참가 () 명 등 인원 선택
-            return /세례자|영세자|유아세례|첫\s*영성체\s*교리반\s*인도|행동단원\s*모집|협조단원\s*모집|회두|판공|견진|혼인장애\s*해소|병자성사|봉성체|대세자|보례자|baptism|confirmation|meeting_head|sacrament|resolution|first_communion|conditional_baptism|conditional_communion|catechism_guide|membership|^세례(\||$)|피정참가|교육참가|\(\)\s*명/i.test(key);
+            return /세례자|영세자|유아세례|유아\s*세례|첫\s*영성체\s*교리반\s*인도|교리반\s*인도|자기\s*소개서|행동단원\s*모집|행동단원\s*입단|협조단원\s*모집|협조단원\s*입단|단체\s*가입|단체가입|쉬는\s*교우\s*회두|회두|판공|견진|혼인\s*장애\s*해소|혼인장애\s*해소|병자성사|봉성체|대세자|보례자|연도|장례미사\(고별식\)|기타\s*상가\s*활동|죽을\s*위험\s*중의\s*세례|세례보충예식|baptism|confirmation|meeting_head|sacrament|resolution|first_communion|conditional_baptism|conditional_communion|catechism_guide|membership|group_join|establishment|^세례(\||$)|피정참가|교육참가|\(\)\s*명/i.test(key);
         }
 
         function baptizedPersonSelectHtml(field) {
@@ -3252,24 +3543,34 @@
                             '활동횟수': 'count',
                             '활동 회수': 'count',
                             '교리반인도': 'catechism_guide',
+                            '교리반 인도': 'catechism_guide',
                             '첫 영성체 교리반 인도': 'catechism_guide',
                             '성경 쓰기': 'catechism_guide',
                             '단체가입': 'group_join',
+                            '단체 가입': 'group_join',
                             '기타': 'group_join',
+                            '면담': 'count',
                             '행동단원 모집': 'membership',
+                            '행동단원 입단': 'membership',
                             '협조단원 모집': 'group_join',
+                            '협조단원 입단': 'group_join',
                             '회두': 'meeting_head',
+                            '쉬는 교우 회두': 'meeting_head',
                             '해소': 'resolution',
                             '혼인장애 해소': 'resolution',
+                            '혼인 장애 해소': 'resolution',
                             '성사': 'sacrament',
                             '판공': 'sacrament',
+                            '판공 성사': 'sacrament',
                             '병자성사': 'sacrament',
                             '견진': 'confirmation',
+                            '견진 성사': 'confirmation',
                             '세례': 'baptism',
                             '세례자': 'baptism',
                             '세례자 () 명': 'baptism',
                             '영세자': 'baptism',
                             '유아세례': 'baptism',
+                            '유아 세례': 'baptism',
                             '유아세례 외 영세': 'baptism',
                             '첫영성체': 'first_communion',
                             '병자영성체': 'first_communion',
@@ -3278,17 +3579,22 @@
                             '위령기도': 'year_count',
                             '성경 통독': 'year_count',
                             '장례미사': 'funeral_mass',
+                            '장례미사(고별식)': 'funeral_mass',
                             '추모미사': 'memorial_mass',
                             '장지참석': 'funeral_attendance',
                             '상가방문': 'funeral_attendance',
+                            '기타 상가 활동': 'funeral_attendance',
                             '입출관': 'inout_count',
                             '장지수행': 'inout_count',
                             '대세': 'conditional_baptism',
                             '대세자': 'conditional_baptism',
+                            '죽을 위험 중의 세례': 'conditional_baptism',
                             '보례': 'conditional_communion',
                             '보례자': 'conditional_communion',
+                            '세례보충예식': 'conditional_communion',
                             '입단': 'membership',
                             '설립': 'establishment',
+                            '자기 소개서': 'establishment',
                             '병원 및 복지시설': 'establishment',
                             '묵주 기도': 'establishment',
                             '묵주기도': 'establishment',

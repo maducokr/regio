@@ -4271,6 +4271,7 @@ app.get('/api/activity-categories', async (req, res) => {
             ORDER BY
                 CASE category_group
                     WHEN '기도생활' THEN 1
+                    WHEN '영성생활' THEN 1
                     WHEN '가정성화활동' THEN 2
                     WHEN '지구와함께' THEN 3
                     WHEN '복음선교' THEN 4
@@ -4280,15 +4281,18 @@ app.get('/api/activity-categories', async (req, res) => {
                     WHEN '예비자 돌봄' THEN 6
                     WHEN '예비신자와 함께하는 활동' THEN 6
                     WHEN '교우돌봄' THEN 7
+                    WHEN '이웃돌봄' THEN 8
                     WHEN '가정을 위한 활동, 교우 돌봄' THEN 7
                     WHEN '성사권유 및 혼인장애자를 위한 활동' THEN 7
                     WHEN '어려운자돌봄' THEN 8
                     WHEN '어려움을 겪는 이웃과 나눔 활동' THEN 8
                     WHEN '레지오활동' THEN 9
                     WHEN '레지오의 발전을 위한 활동' THEN 9
+                    WHEN '확장' THEN 9
                     WHEN '소공동체와 함께하는 활동' THEN 10
                     WHEN '본당교회협조' THEN 11
                     WHEN '본당협조활동' THEN 11
+                    WHEN '본당협조' THEN 11
                     WHEN '특별활동' THEN 12
                     WHEN '자연보호 및 생명존중 운동에 동참' THEN 13
                     WHEN '자연보호' THEN 13
@@ -4513,23 +4517,23 @@ app.post('/api/activity-records', async (req, res) => {
                 category_id: categoryId,
                 member_id: member_id,
                 target: field_data.target || null,
-                count: field_data['활동 회수'] || field_data.활동횟수 || field_data.횟수 || field_data.count || 0,
-                catechism_guide: field_data['성경 쓰기'] || field_data['첫 영성체 교리반 인도'] || field_data.교리반인도 || field_data.catechism_guide || 0,
-                group_join: field_data['협조단원 모집'] || field_data.기타 || field_data.단체가입 || field_data.group_join || 0,
-                meeting_head: field_data.회두 || field_data.meeting_head || 0,
-                resolution: field_data['혼인장애 해소'] || field_data.해소 || field_data.resolution || 0,
-                sacrament: field_data.판공 || field_data.병자성사 || field_data.성사 || field_data.sacrament || 0,
-                confirmation: field_data.견진 || field_data.confirmation || 0,
-                baptism: field_data['세례자 () 명'] || field_data.세례자 || field_data.영세자 || field_data['유아세례 외 영세'] || field_data.유아세례 || field_data.세례 || field_data.baptism || 0,
+                count: field_data['활동 회수'] || field_data.활동횟수 || field_data.횟수 || field_data.면담 || field_data.count || 0,
+                catechism_guide: field_data['교리반 인도'] || field_data['성경 쓰기'] || field_data['첫 영성체 교리반 인도'] || field_data.교리반인도 || field_data.catechism_guide || 0,
+                group_join: field_data['단체 가입'] || field_data['협조단원 입단'] || field_data['협조단원 모집'] || field_data.기타 || field_data.단체가입 || field_data.group_join || 0,
+                meeting_head: field_data['쉬는 교우 회두'] || field_data.회두 || field_data.meeting_head || 0,
+                resolution: field_data['혼인 장애 해소'] || field_data['혼인장애 해소'] || field_data.해소 || field_data.resolution || 0,
+                sacrament: field_data['판공 성사'] || field_data.판공 || field_data.병자성사 || field_data.성사 || field_data.sacrament || 0,
+                confirmation: field_data['견진 성사'] || field_data.견진 || field_data.confirmation || 0,
+                baptism: field_data['세례자 () 명'] || field_data.세례자 || field_data.영세자 || field_data['유아세례 외 영세'] || field_data['유아 세례'] || field_data.유아세례 || field_data.세례 || field_data.baptism || 0,
                 first_communion: field_data.봉성체 || field_data.병자영성체 || field_data.첫영성체 || field_data.first_communion || 0,
                 year_count: field_data['성경 통독'] || field_data.위령기도 || field_data.연도 || field_data.year_count || 0,
-                funeral_mass: field_data.장례미사 || field_data.funeral_mass || 0,
-                funeral_attendance: field_data.상가방문 || field_data.장지참석 || field_data.funeral_attendance || 0,
+                funeral_mass: field_data['장례미사(고별식)'] || field_data.장례미사 || field_data.funeral_mass || 0,
+                funeral_attendance: field_data['기타 상가 활동'] || field_data.상가방문 || field_data.장지참석 || field_data.funeral_attendance || 0,
                 inout_count: field_data.장지수행 || field_data.입출관 || field_data.inout_count || 0,
-                conditional_baptism: field_data.대세자 || field_data.대세 || field_data.conditional_baptism || 0,
-                conditional_communion: field_data.보례자 || field_data.보례 || field_data.conditional_communion || 0,
-                membership: field_data['행동단원 모집'] || field_data['피정참가 () 명'] || field_data.피정참가 || field_data.입단 || field_data.membership || 0,
-                establishment: field_data['묵주 기도'] || field_data.묵주기도 || field_data['병원 및 복지시설'] || field_data['교육참가 () 명'] || field_data.교육참가 || field_data.설립 || field_data.establishment || 0,
+                conditional_baptism: field_data['죽을 위험 중의 세례'] || field_data.대세자 || field_data.대세 || field_data.conditional_baptism || 0,
+                conditional_communion: field_data.세례보충예식 || field_data.보례자 || field_data.보례 || field_data.conditional_communion || 0,
+                membership: field_data['행동단원 입단'] || field_data['행동단원 모집'] || field_data['피정참가 () 명'] || field_data.피정참가 || field_data.입단 || field_data.membership || 0,
+                establishment: field_data['자기 소개서'] || field_data['묵주 기도'] || field_data.묵주기도 || field_data['병원 및 복지시설'] || field_data['교육참가 () 명'] || field_data.교육참가 || field_data.설립 || field_data.establishment || 0,
                 memorial_mass: field_data.추모미사 || field_data.memorial_mass || 0,
                 note: field_data.note || note || null,
                 activity_date: processedDate

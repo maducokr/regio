@@ -775,8 +775,12 @@
             color: #15803d;
             font-weight: 700;
         }
+        .personal-report-table .cell-subcategory.is-new-category-blue {
+            color: #1d4ed8;
+            font-weight: 700;
+        }
         .daegu-senatus-legend {
-            margin: 0 0 10px;
+            margin: 0 0 6px;
             font-size: 12px;
             line-height: 1.45;
             color: #15803d;
@@ -789,6 +793,22 @@
             margin-right: 0.35em;
             border-radius: 2px;
             background: #16a34a;
+            vertical-align: middle;
+        }
+        .gwangju-senatus-legend {
+            margin: 0 0 10px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+        .gwangju-senatus-legend span {
+            display: inline-block;
+            width: 0.65em;
+            height: 0.65em;
+            margin-right: 0.35em;
+            border-radius: 2px;
+            background: #2563eb;
             vertical-align: middle;
         }
 
@@ -1159,6 +1179,15 @@
                 color: #16a34a;
             }
 
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-subcategory.is-new-category-blue {
+                background: linear-gradient(135deg, #eff6ff, #dbeafe);
+                color: #1d4ed8;
+            }
+
+            body.report-page:not(.report-scope-secretary) .personal-report-table .cell-subcategory.is-new-category-blue::before {
+                color: #2563eb;
+            }
+
             body.report-page:not(.report-scope-secretary) .personal-report-table .cell-subcategory::before {
                 color: #357ABD;
             }
@@ -1477,6 +1506,7 @@
 
     <script src="date-wheel-picker.js"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
+    <script src="gwangju-senatus-categories.js?v=20260820h"></script>
     <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -2546,7 +2576,7 @@
             return label;
         }
 
-        /** 대구 세나뚜스 종목 — 개인활동기록표 라벨 녹색 */
+        /** 대구(녹색) / 광주(파란) 세나뚜스 종목 — 개인활동기록표 */
         function isNewGreenCategory(categoryName) {
             if (typeof window.isDaeguSenatusCategory === 'function') {
                 return window.isDaeguSenatusCategory(categoryName);
@@ -2557,10 +2587,20 @@
             return groups.some((g) => name === g || name.startsWith(`${g}-`));
         }
 
+        function isNewBlueCategory(categoryName) {
+            if (typeof window.isGwangjuSenatusCategory === 'function') {
+                return window.isGwangjuSenatusCategory(categoryName);
+            }
+            const list = window.GWANGJU_SENATUS_CATEGORIES || [];
+            const name = String(categoryName || '').trim();
+            if (!name) return false;
+            return list.some((c) => name === c || name.startsWith(`${c}-`));
+        }
+
         function subcategoryCellClass(categoryName) {
-            return isNewGreenCategory(categoryName)
-                ? 'cell-subcategory is-new-category-green'
-                : 'cell-subcategory';
+            if (isNewGreenCategory(categoryName)) return 'cell-subcategory is-new-category-green';
+            if (isNewBlueCategory(categoryName)) return 'cell-subcategory is-new-category-blue';
+            return 'cell-subcategory';
         }
 
         function formatReportCount(fieldDisplay, value) {
@@ -4108,6 +4148,7 @@
             );
 
             let html = '<p class="daegu-senatus-legend"><span></span>녹색 종목-세목 = 대구 세나뚜스</p>';
+            html += '<p class="gwangju-senatus-legend"><span></span>파란색 종목-세목 = 광주 세나뚜스</p>';
             html += '<table class="report-table personal-report-table">';
             html += `
                 <thead>
@@ -4219,6 +4260,12 @@
             '기도생활-소성무일도': ['횟수'],
             '기도생활-성체조배': ['횟수'],
             '기도생활-기타': ['횟수'],
+            '영성생활-평일 미사': ['횟수(회,단,회,분)'],
+            '영성생활-묵주 기도': ['횟수(회,단,회,분)'],
+            '영성생활-십자가의 길': ['횟수(회,단,회,분)'],
+            '영성생활-성경 봉독, 쓰기': ['횟수(회,단,회,분)'],
+            '영성생활-소성무일도': ['횟수(회,단,회,분)'],
+            '영성생활-기타': ['횟수(회,단,회,분)'],
             '가정성화활동-가족이함께기도하기': ['횟수'],
             '가정성화활동-성경봉독 및 묵상': ['횟수'],
             '가정성화활동-미사참례': ['횟수'],
@@ -4231,9 +4278,14 @@
             '지구와함께-재생하기': ['횟수'],
             '복음선교-외인 입교권면': ['횟수', '교리반인도'],
             '복음선교-개종권면': ['횟수', '교리반인도'],
-            '복음선교-교리 중단자 권면': ['횟수', '교리반인도'],
+            '복음선교-교리 중단자 권면': ['교리반 인도', '세례자', '자기 소개서'],
             '복음선교-방문선교': ['횟수', '교리반인도'],
-            '복음선교-가두선교': ['횟수', '교리반인도'],
+            '복음선교-가두선교': ['교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-비신자 입교 권면': ['교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-교리반 인도 예비자': ['교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-통신교리자': ['교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-타인이 인도한 예비자': ['교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-교리반 봉사 및 협조': ['교리반 인도', '세례자', '자기 소개서'],
             '이웃에 가톨릭 알리기활동-이웃에 신앙전하기': ['횟수', '교리반인도'],
             '이웃에 가톨릭 알리기활동-교리반수강권유': ['횟수', '교리반인도'],
             '이웃에 가톨릭 알리기활동-통신교리수강권유': ['횟수', '교리반인도'],
@@ -4268,8 +4320,15 @@
             '교우돌봄-판공성사 권면': ['횟수', '성사'],
             '교우돌봄-전입교우돌봄(방문)': ['횟수', '단체가입'],
             '교우돌봄-견진성사권면': ['횟수', '견진'],
-            '교우돌봄-유아 세례 권면': ['횟수', '세례'],
+            '교우돌봄-유아 세례 권면': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
             '교우돌봄-첫영성체': ['횟수', '첫영성체'],
+            '교우돌봄-신 세례자 방문': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
+            '교우돌봄-쉬는 교우 방문': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
+            '교우돌봄-교우 가정 방문': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
+            '교우돌봄-혼인 장애자 방문': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
+            '교우돌봄-성사 권면': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
+            '교우돌봄-전입 교우 방문': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
+            '교우돌봄-첫 영성체': ['단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
             '가정을 위한 활동, 교우 돌봄-가족일상기도': ['횟수', '단체가입'],
             '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독': ['횟수', '단체가입'],
             '가정을 위한 활동, 교우 돌봄-외짝교우 부부기도': ['횟수', '단체가입'],
@@ -4365,6 +4424,28 @@
             '기타 활동-기타활동': ['횟수'],
             '교우돌봄-군인선원돌봄': ['횟수', '첫영성체'],
             '교우돌봄-청소년 돌봄': ['횟수'],
+            '교우돌봄-교우 상가 방문 및 돌봄': ['연도', '장례미사(고별식)', '기타 상가 활동', '횟수'],
+            '교우돌봄-교우 환자 방문 및 돌봄': ['연도', '장례미사(고별식)', '기타 상가 활동', '횟수'],
+            '이웃돌봄-비신자 환자 방문 및 돌봄': ['죽을 위험 중의 세례', '세례보충예식'],
+            '이웃돌봄-비신자 상가방문 및 돌봄': ['죽을 위험 중의 세례', '세례보충예식'],
+            '이웃돌봄-병원 방문 및 활동': ['죽을 위험 중의 세례', '세례보충예식'],
+            '이웃돌봄-복지시설 노력 봉사': ['죽을 위험 중의 세례', '세례보충예식'],
+            '이웃돌봄-재해 및 사고 피해자': ['죽을 위험 중의 세례', '세례보충예식'],
+            '확장-행동단원 모집': ['행동단원 입단', '협조단원 입단'],
+            '확장-협조단원 모집': ['행동단원 입단', '협조단원 입단'],
+            '확장-소년 레지오 설립을 위한 활동': ['행동단원 입단', '협조단원 입단'],
+            '확장-소년 레지오 돌봄': ['행동단원 입단', '협조단원 입단'],
+            '본당협조-행사 준비 및 협조': ['면담', '기타'],
+            '본당협조-본당 교세 조사(호별방문)': ['면담', '기타'],
+            '본당협조-주일학교 돌봄': ['면담', '기타'],
+            '본당협조-전례 협조': ['면담', '기타'],
+            '본당협조-청소 미화': ['면담', '기타'],
+            '본당협조-차량 봉사 및 교통정리': ['면담', '기타'],
+            '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)': ['면담', '기타'],
+            '기타-출판물 보급': ['횟수'],
+            '기타-생태 환경보호 활동': ['횟수'],
+            '기타-생명존중 활동': ['횟수'],
+            '기타-가정성화 활동(가족단위)': ['횟수'],
             '어려운자돌봄-교우 상가 방문 및 돌봄': ['횟수', '연도', '장지참석', '장례미사', '추모미사', '입출관'],
             '어려운자돌봄-교우 환자 방문 및 돌봄': ['병자성사', '병자영성체'],
             '어려운자돌봄-외인환자 방문 및 돌봄': ['횟수', '대세', '보례'],
@@ -4430,6 +4511,13 @@
             '기도생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '기도생활-성체조배': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '기도생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+            // 영성생활 (광주 세나뚜스)
+            '영성생활-평일 미사': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-묵주 기도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-십자가의 길': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-성경 봉독, 쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
 
             // 가정성화활동
             '가정성화활동-가족이함께기도하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -4726,6 +4814,48 @@
             '레지오활동-결석단원돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '레지오활동-교본공부': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '레지오활동-평의회업무협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+
+            // 본당협조 (광주 세나뚜스)
+            '본당협조-행사 준비 및 협조': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '본당협조-본당 교세 조사(호별방문)': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '본당협조-주일학교 돌봄': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '본당협조-전례 협조': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '본당협조-청소 미화': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '본당협조-차량 봉사 및 교통정리': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)': [
+                { field_name: 'count', field_display_name: '면담', is_required: false },
+                { field_name: 'group_join', field_display_name: '기타', is_required: false }
+            ],
+            '기타-출판물 보급': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
+            ],
+            '기타-생태 환경보호 활동': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
+            ],
+            '기타-생명존중 활동': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
+            ],
+            '기타-가정성화 활동(가족단위)': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
+            ],
             
             // 본당교회협조
             '본당교회협조-호구방문': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -4838,6 +4968,7 @@
             const summaryRows = buildSummaryRows(dailyData);
 
             let html = '<p class="daegu-senatus-legend"><span></span>녹색 종목-세목 = 대구 세나뚜스</p>';
+            html += '<p class="gwangju-senatus-legend"><span></span>파란색 종목-세목 = 광주 세나뚜스</p>';
             html += '<table class="report-table personal-report-table">';
             html += `
                 <thead>
