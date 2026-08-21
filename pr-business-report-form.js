@@ -2270,6 +2270,9 @@
         const secretary = officerName(officers, '서기');
         const treasurer = officerName(officers, '회계');
         const memberAtt = ratioBlank(att.members_present, att.members_total);
+        const officerAtt = ratioBlank(att.officers_present, att.officers_total);
+        const councilAtt = ratioBlank();
+        const memberAttCombined = `${memberAtt} / ${officerAtt} / ${councilAtt}`;
 
         const events = m.events || [];
         const fixedRows = FIXED_EVENTS.map((def) => {
