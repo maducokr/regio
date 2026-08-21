@@ -1252,12 +1252,6 @@
                 margin: 8px 0 4px;
                 font-size: 12px;
             }
-            .pr-biz-form.pr-biz-seoul .seoul-form-id {
-                text-align: right;
-                font-size: 11px;
-                margin-top: 12px;
-                color: #333;
-            }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table {
                 table-layout: fixed;
                 width: 100%;
@@ -1267,34 +1261,27 @@
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table td {
                 text-align: center;
                 vertical-align: middle;
-                padding: 4px 3px;
+                padding: 5px 3px;
                 font-size: 11px;
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .row-label {
                 text-align: center;
                 font-weight: 600;
                 white-space: nowrap;
-                width: 7.5em;
-            }
-            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-officer-side {
-                writing-mode: vertical-rl;
-                text-orientation: upright;
-                letter-spacing: 0.35em;
-                font-weight: 700;
-                width: 1.6em;
-                padding: 6px 2px;
+                width: 7.2em;
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-member-att-head {
-                writing-mode: vertical-rl;
-                text-orientation: upright;
-                letter-spacing: 0.2em;
+                letter-spacing: 0.15em;
                 font-weight: 700;
-                width: 2.2em;
+                width: 3.2em;
+                white-space: normal;
+                line-height: 1.25;
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-diag {
                 position: relative;
-                min-width: 4.8em;
-                height: 2.6em;
+                width: 5.2em;
+                min-width: 5.2em;
+                height: 2.8em;
                 padding: 0;
                 background:
                     linear-gradient(
@@ -1306,26 +1293,26 @@
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-diag .diag-tr {
                 position: absolute;
-                top: 2px;
-                right: 4px;
+                top: 3px;
+                right: 5px;
                 font-size: 10px;
                 font-weight: 700;
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-diag .diag-bl {
                 position: absolute;
-                bottom: 2px;
-                left: 4px;
+                bottom: 3px;
+                left: 5px;
                 font-size: 10px;
                 font-weight: 700;
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .slash-cell,
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-member-att-cell {
-                font-size: 16px;
+                font-size: 15px;
                 font-weight: 600;
                 line-height: 1;
             }
             .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-member-att-cell {
-                font-size: 20px;
+                font-size: 18px;
             }
             .pr-biz-form .biz-scroll {
                 width: 100%;
