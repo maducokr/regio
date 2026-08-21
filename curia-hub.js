@@ -947,13 +947,21 @@
                 </div>
 
                 <div class="sec">
-                    <div class="sec-title">9. 주요 활동 내역</div>
-                    ${lineBoxHtml(data.major_activities, '72px')}
+                    <div class="sec-title">9. 기타(질의 및 건의)</div>
+                    ${lineBoxHtml(data.inquiries, '48px')}
                 </div>
 
-                <div class="sec">
-                    <div class="sec-title">10. 기타(질의 및 건의)</div>
-                    ${lineBoxHtml(data.inquiries, '48px')}
+                <div class="sec seoul-curia-sign" style="display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-top:20px; flex-wrap:wrap;">
+                    <div style="line-height:1.9;">
+                        ${blank('', 'w16')} (평의회)
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        직속
+                    </div>
+                    <div style="text-align:right; line-height:1.9; min-width:14em;">
+                        ${escapeHtml(label)} 단장
+                        ${blank(data.president_name || (officers.find((o) => o.role === '단장') || {}).name, 'w10')}
+                        (서명)
+                    </div>
                 </div>
 
                 <p class="note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>
