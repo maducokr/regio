@@ -2417,19 +2417,17 @@
                             <td>${blank(vp, 'w8')}</td>
                             <td>${blank(secretary, 'w8')}</td>
                             <td>${blank(treasurer, 'w8')}</td>
-                            <td>${memberAtt}</td>
+                            <td rowspan="3">${memberAttCombined}</td>
                         </tr>
                         <tr>
                             <td class="row-label">출석상황</td>
                             <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
                             <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
-                            <td>${ratioBlank(att.officers_present, att.officers_total)}</td>
                         </tr>
                         <tr>
                             <td class="row-label">평의회출석</td>
                             <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
                             <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
-                            <td>${ratioBlank()}</td>
                         </tr>
                         <tr>
                             <td class="row-label">간부이동</td>
