@@ -1873,7 +1873,7 @@
                     </div>
                 </div>
 
-                <p class="biz-note">※ 대구 세나뚜스 사업보고서 · 활동 회수·결과(인원)는 DB 종목·세목과 유사한 항목을 합산합니다. 모범활동사항·건의사항은 직접 입력합니다. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).</p>
+                <p class="biz-note">※ 공식 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
             </div>
         `;
     }
@@ -2451,11 +2451,11 @@
                     </tr>
                 </table>
 
+                <div class="biz-sec-title">간부</div>
                 <div class="biz-scroll">
                 <table class="biz-table seoul-officer-table">
                     <thead>
                         <tr>
-                            <th rowspan="5" class="seoul-officer-side">간부</th>
                             <th class="seoul-diag"><span class="diag-tr">직책</span><span class="diag-bl">구분</span></th>
                             <th>영적지도자</th>
                             <th>대리자</th>
@@ -2573,7 +2573,7 @@
                     </div>
                 </div>
                 ${useSeoulForm ? buildSeoulActivitySectionHtml(m.activity_totals) : ''}
-                ${useSeoulForm ? '' : '<p class="biz-note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>'}
+                <p class="biz-note">※ 공식 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
             </div>
         `;
     }
