@@ -2812,7 +2812,7 @@
             <div class="curia-comp-form" id="curiaComprehensiveFormPrint">
                 <div class="form-title">꾸리아 제 ${blank(m.report_seq, 'w4')} 차 종합보고서</div>
                 <ol class="info-list">
-                    <li>승인(설립)일자: ${blank(m.approved_y || m.founded_y, 'w4')} 년 ${blank(m.approved_m || m.founded_m, 'w3')} 월 ${blank(m.approved_d || m.founded_d, 'w3')} 일</li>
+                    <li>설립및 승인: 설립 ${blank(m.founded_y, 'w4')} 년 ${blank(m.founded_m, 'w3')} 월 ${blank(m.founded_d, 'w3')} 일  승인: ${blank(m.approved_y, 'w4')} 년 ${blank(m.approved_m, 'w3')} 월 ${blank(m.approved_d, 'w3')} 일</li>
                     <li>보고기간:
                         ${blank(start?.y, 'w4')} 년 ${blank(start?.m, 'w3')} 월 (${blank(m.meeting_from, 'w3')}차)
                         ~
@@ -2865,7 +2865,7 @@
                                 <th>남</th><th>여</th><th>계</th>
                                 <th>남</th><th>여</th><th>계</th>
                                 <th>남</th><th>여</th><th>계</th>
-                                <th>남</th><th>여</th><th>계</th>
+                                <th>증가</th><th>감소</th><th>계</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3351,6 +3351,7 @@
                 <div class="sub-title" style="font-weight:600;">다) 방문</div>
                 <ol class="ops-list">
                     <li>(1) 쁘레시디움: ${blank(o.visit_pr, 'w10')}</li>
+                    <li>(2) 기타: ${blank(o.visit_other, 'w20')}</li>
                 </ol>
             </div>
 
