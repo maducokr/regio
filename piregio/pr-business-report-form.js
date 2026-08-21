@@ -811,7 +811,6 @@
             ${lineBoxHtml('', '120px')}
             <div class="seoul-ops-label">운영상 애로 사항</div>
             ${lineBoxHtml('', '72px')}
-            <div class="seoul-form-id">서울 무염시태 세나뚜스 양식 제7호(2024년 12월)</div>
         `;
     }
 
@@ -1259,6 +1258,75 @@
                 margin-top: 12px;
                 color: #333;
             }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table {
+                table-layout: fixed;
+                width: 100%;
+                min-width: 640px;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table th,
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table td {
+                text-align: center;
+                vertical-align: middle;
+                padding: 4px 3px;
+                font-size: 11px;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .row-label {
+                text-align: center;
+                font-weight: 600;
+                white-space: nowrap;
+                width: 7.5em;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-officer-side {
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+                letter-spacing: 0.35em;
+                font-weight: 700;
+                width: 1.6em;
+                padding: 6px 2px;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-member-att-head {
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+                letter-spacing: 0.2em;
+                font-weight: 700;
+                width: 2.2em;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-diag {
+                position: relative;
+                min-width: 4.8em;
+                height: 2.6em;
+                padding: 0;
+                background:
+                    linear-gradient(
+                        to top right,
+                        transparent calc(50% - 0.6px),
+                        #333 50%,
+                        transparent calc(50% + 0.6px)
+                    );
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-diag .diag-tr {
+                position: absolute;
+                top: 2px;
+                right: 4px;
+                font-size: 10px;
+                font-weight: 700;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-diag .diag-bl {
+                position: absolute;
+                bottom: 2px;
+                left: 4px;
+                font-size: 10px;
+                font-weight: 700;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .slash-cell,
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-member-att-cell {
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 1;
+            }
+            .pr-biz-form.pr-biz-seoul table.seoul-officer-table .seoul-member-att-cell {
+                font-size: 20px;
+            }
             .pr-biz-form .biz-scroll {
                 width: 100%;
                 max-width: 100%;
@@ -1298,7 +1366,7 @@
             .pr-biz-form .biz-two-col table td:nth-child(3) { width: 18%; min-width: 2.5em; }
             .pr-biz-form .finance-grid {
                 display: grid;
-                grid-template-columns: 1fr 1.2fr auto;
+                grid-template-columns: 1fr 1fr 1fr;
                 border: 1px solid #333;
                 margin-bottom: 10px;
                 max-width: 100%;
@@ -1321,9 +1389,15 @@
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                padding: 8px;
-                min-width: 72px;
+                gap: 8px;
+                padding: 12px 8px;
                 font-weight: 700;
+                min-width: 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .pr-biz-form .finance-balance .blank-editable {
+                min-width: 4.5em;
             }
             .pr-biz-form .biz-note { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.45; }
             .pr-biz-form.pr-biz-pdf-export .biz-note { display: none !important; }
@@ -2258,7 +2332,6 @@
         const curr = mem.current || {};
         const inc = mem.increase || {};
         const dec = mem.decrease || {};
-        const att = m.attendance || {};
         const meeting = m.meeting || {};
         const fin = m.finance || {};
         const start = parseYmd(m.start_date);
@@ -2269,10 +2342,8 @@
         const vp = officerName(officers, '부단장');
         const secretary = officerName(officers, '서기');
         const treasurer = officerName(officers, '회계');
-        const memberAtt = ratioBlank(att.members_present, att.members_total);
-        const officerAtt = ratioBlank(att.officers_present, att.officers_total);
-        const councilAtt = ratioBlank();
-        const memberAttCombined = `${memberAtt} / ${officerAtt} / ${councilAtt}`;
+        const slashCell = '<td class="slash-cell">/</td>';
+        const emptyAttCell = '<td></td>';
 
         const events = m.events || [];
         const fixedRows = FIXED_EVENTS.map((def) => {
@@ -2393,19 +2464,19 @@
                     </tr>
                 </table>
 
-                <div class="biz-sec-title">간부</div>
                 <div class="biz-scroll">
-                <table class="biz-table">
+                <table class="biz-table seoul-officer-table">
                     <thead>
                         <tr>
-                            <th>구분/성명(세례명)</th>
+                            <th rowspan="5" class="seoul-officer-side">간부</th>
+                            <th class="seoul-diag"><span class="diag-tr">직책</span><span class="diag-bl">구분</span></th>
                             <th>영적지도자</th>
                             <th>대리자</th>
                             <th>단장</th>
                             <th>부단장</th>
                             <th>서기</th>
                             <th>회계</th>
-                            <th>단원출석</th>
+                            <th class="seoul-member-att-head">단원출석</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2417,17 +2488,15 @@
                             <td>${blank(vp, 'w8')}</td>
                             <td>${blank(secretary, 'w8')}</td>
                             <td>${blank(treasurer, 'w8')}</td>
-                            <td rowspan="3">${memberAttCombined}</td>
+                            <td rowspan="3" class="seoul-member-att-cell">/</td>
                         </tr>
                         <tr>
                             <td class="row-label">출석상황</td>
-                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
-                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
+                            ${emptyAttCell}${emptyAttCell}${slashCell}${slashCell}${slashCell}${slashCell}
                         </tr>
                         <tr>
                             <td class="row-label">평의회출석</td>
-                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
-                            <td>${ratioBlank()}</td><td>${ratioBlank()}</td><td>${ratioBlank()}</td>
+                            ${emptyAttCell}${emptyAttCell}${slashCell}${slashCell}${slashCell}${slashCell}
                         </tr>
                         <tr>
                             <td class="row-label">간부이동</td>
@@ -2517,9 +2586,7 @@
                     </div>
                 </div>
                 ${useSeoulForm ? buildSeoulActivitySectionHtml(m.activity_totals) : ''}
-                <p class="biz-note">${useSeoulForm
-                    ? '※ 서울 무염시태 세나뚜스 양식(해외 세나뚜스 포함) · 활동 횟수·세목은 DB 합계(소속 Pr 기준)입니다. DB에 없는 항목·운영 상황은 직접 입력합니다. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).'
-                    : '※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.'}</p>
+                ${useSeoulForm ? '' : '<p class="biz-note">※ DB에서 불러온 값은 파란색, 직접 입력할 빈칸은 빨간색으로 깜박입니다. 출력물 내용은 PDF 전에 모두 수정할 수 있으며(저장 없음), PDF에는 수정한 내용이 포함됩니다.</p>'}
             </div>
         `;
     }
