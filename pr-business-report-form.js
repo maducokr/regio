@@ -663,7 +663,10 @@
         return `
             <div class="daegu-act-block">
                 <div class="daegu-act-title">${escapeHtml(String(num))}. ${escapeHtml(title)}</div>
-                <div class="daegu-act-ex"><strong>활동 예시:</strong> ${escapeHtml(examples)}</div>
+                <div class="daegu-act-ex">
+                    <strong>활동 예시:</strong>
+                    ${lineBoxHtml(examples, '36px')}
+                </div>
                 <div class="daegu-act-count">활동 회수: ${blank(count, 'w4')} 회</div>
                 ${resultsHtml ? `<div class="daegu-act-result"><strong>활동 결과:</strong> ${resultsHtml}</div>` : ''}
             </div>
@@ -835,7 +838,7 @@
             <td>${blank(ev ? String(ev.organizer || '').trim() : '', 'w6')}</td>
             <td>${blank(ev ? String(ev.datetime || ev.date || '').trim() : '', 'w6')}</td>
             <td>${blank(ev ? String(ev.place || '').trim() : '', 'w6')}</td>
-            <td>${blank(ev ? String(ev.attendance || ev.attendees || '').trim() : '', 'w4')}</td>
+            <td>${blank(ev ? String(ev.attendance || ev.attendees || '').trim() : '', 'w4')} / ${blank('', 'w3')}</td>
         </tr>`;
     }
 
@@ -1466,6 +1469,11 @@
                 color: #333;
                 margin-bottom: 6px;
             }
+            .pr-biz-form.pr-biz-daegu .daegu-act-ex .line-box {
+                margin-top: 4px;
+                font-size: 11px;
+                line-height: 1.45;
+            }
             .pr-biz-form.pr-biz-daegu .daegu-act-count,
             .pr-biz-form.pr-biz-daegu .daegu-act-result {
                 margin-top: 4px;
@@ -1692,6 +1700,9 @@
                     퇴단·전출 ${blank('', 'w4')}
                     &nbsp; 출석률 ${blank(att.rate, 'w4')} %
                     <br>
+                    정단원: ${blank(curr.active_t, 'w4')} 명
+                    &nbsp;&nbsp; 예비단원: ${blank('', 'w4')} 명
+                    <br>
                     단원 구성의 특성: ${blank('', 'w12')}
                 </div>
 
@@ -1709,8 +1720,8 @@
                             <tr><td class="left">비밀헌금</td><td>${blank(fin.secret_bag, 'w6')}</td></tr>
                             <tr><td class="left">이자</td><td>${blank(fin.interest, 'w6')}</td></tr>
                             <tr><td class="left">${blank(fin.income_other_label, 'w8')}</td><td>${blank(fin.income_other, 'w6')}</td></tr>
+                            <tr><td class="left">${blank('', 'w8')}</td><td>${blank('', 'w6')}</td></tr>
                             <tr><td class="left"><strong>수입계</strong></td><td>${blank(fin.income_total, 'w6')}</td></tr>
-                            <tr><td class="left"><strong>잔액</strong></td><td>${blank(fin.balance, 'w6')}</td></tr>
                         </table>
                     </div>
                     <div>
