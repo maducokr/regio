@@ -2823,11 +2823,6 @@
                     formData.pr_founded_on = null;
                     formData.pr_approved_on = null;
                 }
-                if (formData.curia_name && /\d/.test(formData.curia_name)) {
-                    alert('꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.');
-                    document.getElementById('regCuriaName')?.focus();
-                    return;
-                }
                 if (!formData.password || !/^[!@#$%^&*][a-zA-Z]{3}\d{4}$/.test(formData.password)) {
                     alert('비밀번호는 특수문자+영문3자+숫자4자 형식이어야 합니다. (예: @abc1234)');
                     return;

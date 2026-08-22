@@ -171,7 +171,7 @@
     function buildCuriaHtml() {
         return `
             <div id="regCuriaNameWrap" class="reg-curia-comitia-row">
-                <input type="text" placeholder="[  ]꾸리아 (정식명칭 숫자X)" id="regCuriaName">
+                <input type="text" placeholder="[  ]꾸리아" id="regCuriaName">
             </div>
             <div id="regSenatusWrap" class="reg-senatus-row">
                 <label class="reg-senatus-label" for="regSenatus">세나뚜스</label>
@@ -623,9 +623,6 @@
                     // 협조단원도 세나뚜스는 선택
                 }
                 const curia = modal.querySelector('#regCuriaName')?.value.trim() || '';
-                if (code !== '6' && curia && /\d/.test(curia)) {
-                    return { ok: false, message: '꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.' };
-                }
                 const senatus = getSenatusSelectValue(modal);
                 if (!senatus) {
                     return { ok: false, message: `세나뚜스(${SENATUS_OPTIONS_LABEL})를 선택해주세요.` };

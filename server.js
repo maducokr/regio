@@ -5053,9 +5053,6 @@ function resolveCouncilOfficerPayload(body) {
     if (!councilName) {
         return { error: '꾸리아 이름을 입력해주세요.' };
     }
-    if (/\d/.test(councilName)) {
-        return { error: '꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.' };
-    }
 
     return {
         councilType: resolvedType,
@@ -6322,10 +6319,6 @@ app.put('/api/user/:id', async (req, res) => {
             return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
         }
 
-        if (church_name !== undefined && String(curia_name || '').trim() && /\d/.test(String(curia_name))) {
-            return res.status(400).json({ error: '꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.' });
-        }
-
         // 중복 확인 (다른 사용자와 동일한 성명인지)
         const duplicateName = await pool.query(
             'SELECT id, name FROM member WHERE name = $1 AND id != $2',
@@ -6595,10 +6588,6 @@ app.post('/api/register', async (req, res) => {
 
         if (!isValidPassno(password)) {
             return res.status(400).json({ error: '비밀번호는 특수문자+영문3자+숫자4자 형식이어야 합니다. (예: @abc1234)' });
-        }
-
-        if (String(curia_name || '').trim() && /\d/.test(String(curia_name))) {
-            return res.status(400).json({ error: '꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.' });
         }
 
         const normalizedGender = String(gender || '').trim();

@@ -1496,7 +1496,7 @@
                         <input type="text" placeholder="세례명" id="regBaptismName">
                         <input type="text" placeholder="[  ]성당" id="regChurchName" required>
                         <div id="regCuriaNameWrap">
-                            <input type="text" placeholder="[  ]꾸리아 (정식명칭:숫자안됨)" id="regCuriaName">
+                            <input type="text" placeholder="[  ]꾸리아" id="regCuriaName">
                         </div>
                         <input type="text" placeholder="[  ]Pr" id="regPrName" required>
                         <input type="text" placeholder="비밀번호 (특수문자+영문3자+숫자4자)" id="regPassword" maxlength="8" required>
@@ -1566,10 +1566,6 @@
                 }
                 if (!formData.pr_name) {
                     alert('Pr 호도를 입력해주세요.');
-                    return;
-                }
-                if (formData.curia_name && /\d/.test(formData.curia_name)) {
-                    alert('꾸리아 정식명칭에는 숫자를 입력할 수 없습니다.');
                     return;
                 }
                 if (!formData.password || !/^[!@#$%^&*][a-zA-Z]{3}\d{4}$/.test(formData.password)) {
