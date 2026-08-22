@@ -1421,6 +1421,7 @@
     <script src="sample-annual-activity.js"></script>
     <script src="test-export-view.js"></script>
     <script src="sensitive-action-auth.js"></script>
+    <script src="activity-field-labels.js?v=20260822a"></script>
     <script src="date-wheel-picker.js"></script>
     <script src="member-form-fields.js?v=20260819q"></script>
     <script src="profile-modal.js?v=20260730b"></script>
@@ -2890,31 +2891,36 @@
             };
         }
 
-        const ACTIVITY_FIELD_LABELS = {
-            count: '횟수',
-            catechism_guide: '교리반인도',
-            group_join: '단체가입',
-            meeting_head: '회두',
-            resolution: '해소',
-            sacrament: '성사',
-            confirmation: '견진',
-            baptism: '세례',
-            first_communion: '첫영성체',
-            year_count: '연도',
-            funeral_mass: '장례미사',
-            memorial_mass: '추모미사',
-            funeral_attendance: '장지참석',
-            inout_count: '입출관',
-            conditional_baptism: '대세',
-            conditional_communion: '보례',
-            membership: '입단',
-            establishment: '설립',
-            target: '대상'
-        };
+        const ACTIVITY_FIELD_LABELS = window.RegioActivityFieldLabels
+            ? RegioActivityFieldLabels.ACTIVITY_FIELD_LABELS
+            : {
+                count: '횟수',
+                catechism_guide: '교리반인도',
+                group_join: '단체가입',
+                meeting_head: '회두',
+                resolution: '해소',
+                sacrament: '성사',
+                confirmation: '견진',
+                baptism: '세례',
+                first_communion: '첫영성체',
+                year_count: '연도',
+                funeral_mass: '장례미사',
+                memorial_mass: '추모미사',
+                funeral_attendance: '장지참석',
+                inout_count: '입출관',
+                conditional_baptism: '대세',
+                conditional_communion: '보례',
+                membership: '입단',
+                establishment: '설립',
+                target: '대상'
+            };
 
         const ACTIVITY_NUMERIC_FIELDS = Object.keys(ACTIVITY_FIELD_LABELS);
 
         function getFieldLabel(categoryName, fieldName, fieldMappingByCategory) {
+            if (window.RegioActivityFieldLabels) {
+                return RegioActivityFieldLabels.getFieldDisplayName(categoryName, fieldName, fieldMappingByCategory);
+            }
             const mappings = fieldMappingByCategory[categoryName];
             if (mappings) {
                 const found = mappings.find(m => m.field_name === fieldName);
@@ -2950,6 +2956,9 @@
         }
 
         async function loadFieldMappingByCategory() {
+            if (window.RegioActivityFieldLabels) {
+                return RegioActivityFieldLabels.loadFieldMappingByCategory({});
+            }
             const fieldMappingByCategory = {};
             try {
                 const response = await fetch('/api/activity-field-mapping');
