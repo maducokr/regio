@@ -1395,7 +1395,11 @@
                 .pr-biz-form {
                     padding: 10px 8px 14px;
                     overflow-x: visible;
+                    font-size: 11px;
                 }
+                .pr-biz-form .biz-titles .org,
+                .pr-biz-form .biz-titles .doc-title { font-size: 11px; }
+                .pr-biz-form .biz-affil { font-size: 11px; }
                 .pr-biz-form .biz-two-col,
                 .pr-biz-form .finance-grid { grid-template-columns: 1fr; }
                 .pr-biz-form .biz-two-col > div:first-child,
@@ -1403,15 +1407,35 @@
                 .pr-biz-form .biz-two-col > div:last-child,
                 .pr-biz-form .finance-grid > div:last-child { border-bottom: none; }
                 .pr-biz-form .biz-head { grid-template-columns: 48px 1fr; }
-                .pr-biz-form .biz-submit { grid-column: 1 / -1; text-align: left; white-space: normal; }
+                .pr-biz-form .biz-submit { grid-column: 1 / -1; text-align: left; white-space: normal; font-size: 10px; }
                 .pr-biz-form .biz-two-col table th:nth-child(1),
                 .pr-biz-form .biz-two-col table td:nth-child(1) { width: 42%; }
                 .pr-biz-form .biz-two-col table th:nth-child(2),
                 .pr-biz-form .biz-two-col table td:nth-child(2) { width: 40%; }
                 .pr-biz-form .biz-two-col table th:nth-child(3),
                 .pr-biz-form .biz-two-col table td:nth-child(3) { width: 18%; min-width: 2.8em; }
+                .pr-biz-form table.biz-table { font-size: 10px; }
                 .pr-biz-form table.biz-table th,
-                .pr-biz-form table.biz-table td { padding: 5px 4px; }
+                .pr-biz-form table.biz-table td { padding: 3px 3px; }
+                .pr-biz-form .biz-scroll table.biz-table { min-width: 480px; }
+                .pr-biz-form .biz-sec-title { font-size: 11px; margin: 6px 0 3px; }
+                .pr-biz-form .finance-grid h4 { font-size: 11px; padding: 5px 4px; }
+                .pr-biz-form .finance-grid table { font-size: 10px; }
+                .pr-biz-form .finance-grid td { padding: 3px 4px; }
+                .pr-biz-form .finance-balance { font-size: 10px; padding: 5px 8px; }
+                .pr-biz-form .line-box { min-height: 40px; padding: 5px 6px; }
+                .pr-biz-form.pr-biz-daegu .daegu-act-ex,
+                .pr-biz-form.pr-biz-gwangju .daegu-act-ex { font-size: 10px; }
+                .pr-biz-form.pr-biz-daegu .daegu-model-title { font-size: 13px; }
+                .pr-biz-form.pr-biz-daegu .daegu-act-block { padding: 6px 8px; margin-bottom: 6px; }
+                .pr-biz-form.pr-biz-daegu .daegu-act-result { font-size: 10px; word-break: break-word; }
+                .pr-biz-form.pr-biz-daegu .biz-scroll table.biz-table { min-width: 680px; }
+                .pr-biz-form.pr-biz-gwangju .biz-scroll table.biz-table { min-width: 680px; }
+                .pr-biz-form.pr-biz-gwangju .biz-scroll table.gj-act-table { min-width: 720px; }
+                .pr-biz-form.pr-biz-gwangju .gj-act-table td.left { font-size: 10px; }
+                .pr-biz-form.pr-biz-gwangju .gj-special-title { font-size: 12px; }
+                .pr-biz-form.pr-biz-seoul .seoul-act-hint { font-size: 10px; }
+                .pr-biz-form.pr-biz-seoul table.seoul-act-table td.left { font-size: 10px; }
                 .pr-biz-form .blank.w8,
                 .pr-biz-form .blank.w12 { min-width: 4em; max-width: 100%; }
             }
@@ -1610,6 +1634,7 @@
                     ${blank(m.council_name || m.curia_name, 'w12')}
                 </div>
 
+                <div class="biz-scroll">
                 <table class="biz-table">
                     <tr>
                         <th style="width:14%">설립일</th>
@@ -1635,6 +1660,7 @@
                         </td>
                     </tr>
                 </table>
+                </div>
 
                 <div class="biz-sec-title">간부</div>
                 <div class="biz-scroll">
@@ -2001,6 +2027,7 @@
                     </div>
                 </div>
 
+                <div class="biz-scroll">
                 <table class="biz-table">
                     <tr>
                         <th style="width:14%">설립일</th>
@@ -2026,6 +2053,7 @@
                         </td>
                     </tr>
                 </table>
+                </div>
 
                 <div class="biz-sec-title">간부</div>
                 <div class="biz-scroll">
@@ -2127,6 +2155,7 @@
                     &nbsp; 아쥬또리움 단원 ${mf(curr, 'adjutorian')} 명
                 </div>
 
+                <div class="biz-scroll">
                 <table class="biz-table">
                     <tr>
                         <th style="width:12%">출석률</th>
@@ -2146,6 +2175,7 @@
                         </td>
                     </tr>
                 </table>
+                </div>
 
                 <div class="biz-sec-title">회계 보고 (단위: 원)</div>
                 <div class="finance-grid">
@@ -2863,12 +2893,14 @@
         formEl.classList.add('pr-biz-pdf-export');
         try {
             await withFrozenBlanks(formEl, async () => {
-                const canvas = await global.html2canvas(formEl, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    logging: false
-                });
+                const canvas = global.RegioPdfShare && typeof global.RegioPdfShare.captureFormToCanvas === 'function'
+                    ? await global.RegioPdfShare.captureFormToCanvas(formEl)
+                    : await global.html2canvas(formEl, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
 
                 const { jsPDF } = global.jspdf;
                 const pdf = new jsPDF('portrait', 'mm', 'a4');

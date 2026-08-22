@@ -447,6 +447,10 @@ button.login-button,
     min-width: 520px;
 }
 
+.table-scroll-wrap .secretary-report-table {
+    min-width: 720px;
+}
+
 .report-table th,
 .report-table td,
 .detail-table th,
@@ -761,6 +765,14 @@ button.login-button,
     .event-entry-table,
     .personal-report-table {
         font-size: 12px;
+    }
+
+    body.report-scope-secretary .table-scroll-wrap .secretary-report-table {
+        min-width: 0 !important;
+    }
+
+    body.report-scope-secretary .secretary-report-scroll {
+        overflow-x: visible !important;
     }
 
     .filter-controls,

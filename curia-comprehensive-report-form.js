@@ -475,10 +475,63 @@
                 text-align: center;
                 font-weight: 600;
             }
-            @media (max-width: 700px) {
-                .curia-comp-form { font-size: 11px; padding: 12px 10px; }
-                .curia-comp-form .form-title { font-size: 12px; }
-                .curia-comp-form table.form-table { font-size: 10px; }
+            .curia-comp-form .org-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                max-width: 100%;
+                margin-bottom: 8px;
+            }
+            @media (max-width: 720px) {
+                .curia-comp-form {
+                    font-size: 11px;
+                    padding: 10px 8px 14px;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                }
+                .curia-comp-form .form-title { font-size: 11px; margin-bottom: 10px; }
+                .curia-comp-form .sec-title,
+                .curia-comp-form .sub-title { font-size: 11px; margin: 10px 0 4px; }
+                .curia-comp-form .info-list { font-size: 10.5px; }
+                .curia-comp-form table.form-table { font-size: 9.5px; min-width: 520px; }
+                .curia-comp-form table.form-table th,
+                .curia-comp-form table.form-table td { padding: 3px 2px; }
+                .curia-comp-form table.act-matters-table th,
+                .curia-comp-form table.act-matters-table td { font-size: 9px; padding: 2px 2px; }
+                .curia-comp-form table.eval-table th,
+                .curia-comp-form table.eval-table td { font-size: 8.5px; padding: 2px 1px; }
+                .curia-comp-form table.roster-table th,
+                .curia-comp-form table.roster-table td { font-size: 9px; padding: 3px 2px; }
+                .curia-comp-form table.prayer-life-table th,
+                .curia-comp-form table.prayer-life-table td { font-size: 9.5px; padding: 4px 3px; }
+                .curia-comp-form table.form-table.seoul-act1-table th,
+                .curia-comp-form table.form-table.seoul-act1-table td { font-size: 9.5px; padding: 4px 3px; }
+                .curia-comp-form table.form-table.seoul-finance-table th,
+                .curia-comp-form table.form-table.seoul-finance-table td { font-size: 9px; padding: 2px 2px; }
+                .curia-comp-form table.form-table.edu-table th,
+                .curia-comp-form table.form-table.edu-table td { font-size: 9.5px; padding: 3px 2px; }
+                .curia-comp-form .finance-hint,
+                .curia-comp-form .seoul-act-instr,
+                .curia-comp-form .special-hint { font-size: 10px; }
+                .curia-comp-form .seoul-finance-balance {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 4px;
+                    font-size: 11px;
+                }
+                .curia-comp-form .seoul-finance-balance .blank {
+                    max-width: none;
+                    text-align: left;
+                }
+                .curia-comp-form .line-box { min-height: 44px; padding: 6px 8px; font-size: 10px; }
+                .curia-comp-form .seoul-act2-box,
+                .curia-comp-form .seoul-ops13-box { padding: 8px 8px 10px; min-height: 0; }
+                .curia-comp-form.curia-comp-daegu .org-table-wrap .form-table { min-width: 880px; }
+                .curia-comp-form.curia-comp-daegu .org-table-wrap .form-table.daegu-finance-summary { min-width: 420px; }
+                .curia-comp-form.curia-comp-gwangju .org-table-wrap .form-table { min-width: 880px; }
+                .curia-comp-form.curia-comp-gwangju .org-table-wrap .form-table.gwangju-finance-table { min-width: 520px; }
+                .curia-comp-form.curia-comp-gwangju .org-table-wrap .form-table.gwangju-event-table { min-width: 480px; }
             }
         `;
         document.head.appendChild(style);
@@ -1817,7 +1870,7 @@
         return `
             <div class="sub-title" style="font-weight:600;">${escapeHtml(title)}</div>
             <div class="org-table-wrap">
-                <table class="form-table">
+                <table class="form-table gwangju-event-table">
                     <thead>
                         <tr>
                             <th>${escapeHtml(dateHeader)}</th>
@@ -2085,7 +2138,7 @@
 
                 <div class="sec-title">7. 회계 보고 (단위: 원)</div>
                 <div class="org-table-wrap">
-                    <table class="form-table">
+                    <table class="form-table gwangju-finance-table">
                         <thead>
                             <tr>
                                 <th colspan="2">수입</th>
@@ -2570,7 +2623,7 @@
 
                 <div class="sec-title">6. 회계보고 (단위: 원)</div>
                 <div class="org-table-wrap">
-                    <table class="form-table">
+                    <table class="form-table daegu-finance-summary">
                         <thead>
                             <tr><th>수입</th><th>지출</th><th>잔액</th></tr>
                         </thead>
@@ -3810,12 +3863,14 @@
         ensureStyles();
 
         await withFrozenBlanks(formEl, async () => {
-            const canvas = await global.html2canvas(formEl, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false
-            });
+            const canvas = global.RegioPdfShare && typeof global.RegioPdfShare.captureFormToCanvas === 'function'
+                ? await global.RegioPdfShare.captureFormToCanvas(formEl)
+                : await global.html2canvas(formEl, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
 
             const { jsPDF } = global.jspdf;
             const pdf = new jsPDF('portrait', 'mm', 'a4');

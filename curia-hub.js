@@ -400,9 +400,49 @@
             .curia-monthly-form .finance-col tr:last-child td { border-bottom:none; }
             .curia-monthly-form .finance-balance { border:1px solid #333; border-top:none; padding:6px 10px; text-align:right; }
             .curia-monthly-form .note { margin-top:8px; font-size:11px; color:#666; }
-            @media (max-width: 700px) {
-                .curia-monthly-form .finance-wrap { grid-template-columns:1fr; }
-                .curia-monthly-form .finance-col { border-right:none; border-bottom:1px solid #333; }
+            .curia-monthly-form .org-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                max-width: 100%;
+            }
+            @media (max-width: 720px) {
+                .curia-monthly-form {
+                    padding: 10px 8px 14px;
+                    font-size: 11px;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                }
+                .curia-monthly-form .form-head .org-ko { font-size: 11px; }
+                .curia-monthly-form .form-title { font-size: 11px; }
+                .curia-monthly-form .form-asof,
+                .curia-monthly-form .form-curia-name { font-size: 11px; }
+                .curia-monthly-form .sec { margin: 8px 0; }
+                .curia-monthly-form .sec-title { font-size: 11px; }
+                .curia-monthly-form table.form-table { font-size: 10px; }
+                .curia-monthly-form table.form-table th,
+                .curia-monthly-form table.form-table td { padding: 3px 2px; }
+                .curia-monthly-form .org-table-wrap table.form-table { min-width: 480px; }
+                .curia-monthly-form .finance-wrap { grid-template-columns: 1fr; }
+                .curia-monthly-form .finance-col { border-right: none; border-bottom: 1px solid #333; }
+                .curia-monthly-form .finance-col:last-child { border-bottom: none; }
+                .curia-monthly-form .finance-col h4 { font-size: 11px; padding: 5px 4px; }
+                .curia-monthly-form .finance-col table { font-size: 10px; }
+                .curia-monthly-form .finance-col td { padding: 4px 5px; }
+                .curia-monthly-form .finance-balance { padding: 5px 8px; font-size: 10px; }
+                .curia-monthly-form .line-box { min-height: 36px; padding: 5px 6px; }
+                .curia-monthly-form.pr-monthly-daegu .daegu-act-table td,
+                .curia-monthly-form.council-monthly-daegu .daegu-act-table td { font-size: 9px; }
+                .curia-monthly-form.pr-monthly-daegu .daegu-act-table th,
+                .curia-monthly-form.council-monthly-daegu .daegu-act-table th { font-size: 10px; }
+                .curia-monthly-form.council-monthly-daegu .daegu-council-mem,
+                .curia-monthly-form.council-monthly-gwangju .gj-council-status { font-size: 9px; }
+                .curia-monthly-form.pr-monthly-daegu .org-table-wrap .form-table { min-width: 620px; }
+                .curia-monthly-form.council-monthly-daegu .org-table-wrap .daegu-council-mem { min-width: 920px; }
+                .curia-monthly-form.pr-monthly-gwangju .org-table-wrap .form-table { min-width: 680px; }
+                .curia-monthly-form.council-monthly-gwangju .org-table-wrap .gj-council-status { min-width: 980px; }
+                .curia-monthly-form.council-monthly-gwangju .org-table-wrap .form-table:not(.gj-council-status) { min-width: 640px; }
             }
         `;
     }
@@ -464,12 +504,14 @@
 
         try {
             await withFrozenBlanks(formEl, async () => {
-                const canvas = await global.html2canvas(formEl, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    logging: false
-                });
+                const canvas = global.RegioPdfShare && typeof global.RegioPdfShare.captureFormToCanvas === 'function'
+                    ? await global.RegioPdfShare.captureFormToCanvas(formEl)
+                    : await global.html2canvas(formEl, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
 
                 const { jsPDF } = global.jspdf;
                 const pdf = new jsPDF('portrait', 'mm', 'a4');

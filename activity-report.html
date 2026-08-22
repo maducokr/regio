@@ -1215,13 +1215,97 @@
                 padding-bottom: 14px;
             }
 
+            /* 서기회의록: 테이블 → 카드 목록 */
+            body.report-scope-secretary .secretary-report-scroll {
+                overflow-x: visible;
+            }
+
+            body.report-scope-secretary .secretary-report-table {
+                min-width: 0 !important;
+                margin-top: 8px;
+                background: transparent;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            body.report-scope-secretary .secretary-report-table thead {
+                display: none;
+            }
+
+            body.report-scope-secretary .secretary-report-table tbody tr {
+                display: block;
+                background: #fff;
+                border: 1px solid #e3eaf2;
+                border-radius: 12px;
+                margin-bottom: 10px;
+                padding: 0;
+                box-shadow: 0 1px 4px rgba(74, 144, 226, 0.08);
+            }
+
+            body.report-scope-secretary .secretary-report-table tbody tr:hover {
+                background: #fff;
+            }
+
+            body.report-scope-secretary .secretary-report-table td {
+                display: block;
+                padding: 10px 14px;
+                border: none;
+                border-bottom: 1px solid #f0f4f8;
+                font-size: 12px;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            body.report-scope-secretary .secretary-report-table td:last-child {
+                border-bottom: none;
+            }
+
+            body.report-scope-secretary .secretary-report-table td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                color: #4A90E2;
+                margin-bottom: 4px;
+                letter-spacing: 0.02em;
+            }
+
+            body.report-scope-secretary .secretary-report-table .col-name {
+                background: linear-gradient(135deg, #eef5fc, #f8fbff);
+                font-size: 12px;
+                font-weight: 700;
+                color: #2c5282;
+                border-radius: 12px 12px 0 0;
+            }
+
+            body.report-scope-secretary .secretary-report-table .col-name::before {
+                color: #357ABD;
+            }
+
+            body.report-scope-secretary .secretary-report-table .col-report {
+                font-size: 12px;
+                line-height: 1.55;
+                white-space: pre-wrap;
+            }
+
             #detailedSummary,
             #dailyActivitiesTable {
                 overflow-x: visible;
                 max-width: 100%;
             }
 
-            #prBusinessReportContainer,
+            #prBusinessReportContainer {
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #curiaComprehensiveReportContainer {
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             #prBusinessReportSection .section {
                 max-width: 100%;
                 overflow-x: hidden;
@@ -1513,7 +1597,7 @@
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
-    <script src="pdf-share.js?v=20260816g"></script>
+    <script src="pdf-share.js?v=20260822a"></script>
     <script src="curia-hub.js?v=20260819o"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
@@ -5091,19 +5175,19 @@
                     return;
                 }
 
-                let html = '<table class="report-table secretary-report-table"><thead><tr>';
+                let html = '<div class="table-scroll-wrap secretary-report-scroll"><table class="report-table secretary-report-table"><thead><tr>';
                 html += '<th class="col-no">조별</th><th class="col-name">단원명</th><th class="col-assignment">활동배당내용</th><th class="col-target">활동대상</th><th class="col-report">보고내용</th>';
                 html += '</tr></thead><tbody>';
                 lastSecretaryRows.forEach(row => {
                     html += `<tr>
-                        <td class="col-no">${row.rowNo}</td>
-                        <td class="col-name">${escapeHtml(row.memberName)}</td>
-                        <td class="col-assignment">${escapeHtml(row.assignmentActivity)}</td>
-                        <td class="col-target">${escapeHtml(row.assignmentTarget)}</td>
-                        <td class="col-report">${escapeHtml(row.reportContent)}</td>
+                        <td class="col-no" data-label="조별">${row.rowNo}</td>
+                        <td class="col-name" data-label="단원명">${escapeHtml(row.memberName)}</td>
+                        <td class="col-assignment" data-label="활동배당내용">${escapeHtml(row.assignmentActivity)}</td>
+                        <td class="col-target" data-label="활동대상">${escapeHtml(row.assignmentTarget)}</td>
+                        <td class="col-report" data-label="보고내용">${escapeHtml(row.reportContent)}</td>
                     </tr>`;
                 });
-                html += '</tbody></table>';
+                html += '</tbody></table></div>';
                 container.innerHTML = html;
                 return;
             }
