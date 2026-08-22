@@ -24,7 +24,7 @@ const {
     verifyPurchaseWithGoogle,
     saveVerifiedPurchase
 } = require('./lib/google-play-billing');
-const { patchActivityReportHtml, getActivityFieldLabelsSource } = require('./lib/patch-activity-report-html');
+const { patchActivityReportHtml, getActivityFieldLabelsSource, applyStartupActivityReportPatch } = require('./lib/patch-activity-report-html');
 const { ensureCoreSchema } = require('./lib/ensure-core-schema');
 const {
     purgeOldActivityRecords,
@@ -43,6 +43,8 @@ try {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+applyStartupActivityReportPatch(__dirname);
 
 // 미들웨어 설정
 app.use(cors());
