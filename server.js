@@ -399,7 +399,6 @@ function rejectSampleToolsInDeploy(req, res) {
     return true;
 }
 
-/** 프론트: 로컬 모의 vs Deploy 모드 확인 */
 app.get('/api/health', async (req, res) => {
     const target = describeDbTarget();
     let dbOk = false;
@@ -422,12 +421,18 @@ app.get('/api/health', async (req, res) => {
     });
 });
 
+/** Render Blueprint healthCheckPath (/health) */
+app.get('/health', (req, res) => {
+    res.redirect(307, '/api/health');
+});
+
 app.get('/api/runtime-mode', async (req, res) => {
     const sampleTools = allowSampleTools(req);
     const production = process.env.NODE_ENV === 'production';
     res.json({
         success: true,
         mode: sampleTools ? 'local' : 'deploy',
+        build: '20260822-label-fix',
         sampleToolsAllowed: sampleTools,
         nodeEnv: process.env.NODE_ENV || 'development',
         production,

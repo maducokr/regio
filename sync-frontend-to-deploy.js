@@ -98,7 +98,6 @@ const PIREGIO_SHARED_FILES = [
     'privacy-consent.html'
 ];
 
-const DEPLOY_MODE_JS = "/** Deploy(실서비스) 패키지 표시 — 로컬 모의 배너/TEST 메뉴 비활성 */\nwindow.REGIO_APP_MODE = 'deploy';\n";
 
 /** Deploy 대상 HTML: deploy-mode → app-mode → webview-android → admin-menu 순서 보장 */
 function ensureDeployModeScripts(html) {
@@ -135,7 +134,8 @@ function copyFile(src, dest) {
 
 function writeDeployModeJs(dir) {
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'deploy-mode.js'), DEPLOY_MODE_JS, 'utf8');
+    const src = path.join(SOURCE, 'deploy-mode.js');
+    fs.copyFileSync(src, path.join(dir, 'deploy-mode.js'));
 }
 
 function patchHtmlForDeploy(dir) {
