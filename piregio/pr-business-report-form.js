@@ -1469,6 +1469,11 @@
                 color: #333;
                 margin-bottom: 6px;
             }
+            .pr-biz-form.pr-biz-daegu .daegu-act-ex .line-box {
+                margin-top: 4px;
+                font-size: 11px;
+                line-height: 1.45;
+            }
             .pr-biz-form.pr-biz-daegu .daegu-act-count,
             .pr-biz-form.pr-biz-daegu .daegu-act-result {
                 margin-top: 4px;
@@ -1499,6 +1504,12 @@
                 text-align: left;
                 font-size: 11px;
                 line-height: 1.45;
+            }
+            .pr-biz-form.pr-biz-gwangju .gj-act-table .line-box {
+                margin: 0;
+                font-size: 11px;
+                line-height: 1.45;
+                min-height: 2.2em;
             }
             .pr-biz-form.pr-biz-gwangju .gj-act-table .gj-cat {
                 font-weight: 700;
