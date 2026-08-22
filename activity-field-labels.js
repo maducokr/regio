@@ -88,20 +88,43 @@
         return KOREAN_FIELD_TO_ENGLISH[key] || key;
     }
 
+    function isEnglishLikeLabel(label, fieldName) {
+        const text = String(label || '').trim();
+        if (!text) return true;
+        const englishField = normalizeFieldName(fieldName);
+        if (text === englishField || text === String(fieldName || '').trim()) return true;
+        if (ENGLISH_FIELD_NAMES.has(text)) return true;
+        if (/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/i.test(text) && !/[가-힣]/.test(text)) return true;
+        return false;
+    }
+
+    function fallbackFieldLabel(fieldName) {
+        const englishField = normalizeFieldName(fieldName);
+        return ACTIVITY_FIELD_LABELS[englishField] || ACTIVITY_FIELD_LABELS[fieldName] || fieldName;
+    }
+
+    function sanitizeDisplayLabel(label, fieldName) {
+        if (!label || isEnglishLikeLabel(label, fieldName)) {
+            return fallbackFieldLabel(fieldName);
+        }
+        return label;
+    }
+
     function findMappingLabel(mappings, fieldName) {
         if (!mappings || !mappings.length) return '';
         const englishField = normalizeFieldName(fieldName);
         const found = mappings.find(
-            (f) => f.field_name === englishField || f.field_name === fieldName
+            (f) => normalizeFieldName(f.field_name) === englishField || f.field_name === fieldName
         );
-        return found ? found.field_display_name : '';
+        if (!found) return '';
+        const display = found.field_display_name;
+        return isEnglishLikeLabel(display, fieldName) ? '' : display;
     }
 
     function getFieldDisplayName(categoryName, fieldName, fieldMappingByCategory) {
-        const englishField = normalizeFieldName(fieldName);
         const label = findMappingLabel(fieldMappingByCategory?.[categoryName], fieldName);
         if (label) return label;
-        return ACTIVITY_FIELD_LABELS[englishField] || ACTIVITY_FIELD_LABELS[fieldName] || fieldName;
+        return fallbackFieldLabel(fieldName);
     }
 
     function mergeApiFieldMappings(fieldMappingByCategory, mappings) {
@@ -112,16 +135,39 @@
                 fieldMappingByCategory[category] = [];
             }
             const englishField = normalizeFieldName(mapping.field_name);
-            const entry = {
-                field_name: englishField,
-                field_display_name: mapping.field_display_name,
-                is_required: mapping.is_required
-            };
+            const rawDisplay = String(mapping.field_display_name || '').trim();
+            const incomingIsEnglish = isEnglishLikeLabel(rawDisplay, englishField);
             const idx = fieldMappingByCategory[category].findIndex(
                 (f) => normalizeFieldName(f.field_name) === englishField
             );
-            if (idx >= 0) fieldMappingByCategory[category][idx] = entry;
-            else fieldMappingByCategory[category].push(entry);
+            if (idx >= 0) {
+                const existing = fieldMappingByCategory[category][idx];
+                const existingGood = existing.field_display_name
+                    && !isEnglishLikeLabel(existing.field_display_name, englishField);
+                if (existingGood && incomingIsEnglish) {
+                    if (mapping.is_required !== undefined) {
+                        existing.is_required = mapping.is_required;
+                    }
+                    return;
+                }
+                fieldMappingByCategory[category][idx] = {
+                    field_name: englishField,
+                    field_display_name: incomingIsEnglish
+                        ? (existingGood ? existing.field_display_name : fallbackFieldLabel(englishField))
+                        : rawDisplay,
+                    is_required: mapping.is_required !== undefined
+                        ? mapping.is_required
+                        : existing.is_required
+                };
+            } else {
+                fieldMappingByCategory[category].push({
+                    field_name: englishField,
+                    field_display_name: incomingIsEnglish
+                        ? fallbackFieldLabel(englishField)
+                        : rawDisplay,
+                    is_required: mapping.is_required
+                });
+            }
         });
         return fieldMappingByCategory;
     }
@@ -145,6 +191,8 @@
         KOREAN_FIELD_TO_ENGLISH,
         ENGLISH_FIELD_NAMES,
         normalizeFieldName,
+        isEnglishLikeLabel,
+        fallbackFieldLabel,
         getFieldDisplayName,
         mergeApiFieldMappings,
         loadFieldMappingByCategory

@@ -1588,7 +1588,7 @@
     
 
 
-    <script src="activity-field-labels.js?v=20260822a"></script>
+    <script src="activity-field-labels.js?v=20260822b"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260820h"></script>
     <script src="auth-ui.js?v=20260819i"></script>
@@ -2815,9 +2815,6 @@
                 }
             }
             initReportScope();
-            if (window.RegioActivityFieldLabels) {
-                await RegioActivityFieldLabels.loadFieldMappingByCategory(fieldMapping);
-            }
             const scope = getReportScope();
             if (scope === 'secretary') {
                 loadChurchPrs();
@@ -3497,6 +3494,7 @@
 
         // 보고서 로드
         async function loadReport() {
+            await ensureFieldMappingLoaded();
             const scope = getReportScope();
             const user = getLoggedInUser();
             let startDate = document.getElementById('startDate').value;
@@ -5251,11 +5249,59 @@
             '기타활동-기타교구행사참석': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }]
         };
 
+        const INLINE_ACTIVITY_FIELD_LABELS = {
+            count: '횟수(회,단,시간,명)',
+            catechism_guide: '교리반인도',
+            group_join: '단체가입',
+            meeting_head: '회두',
+            resolution: '해소',
+            sacrament: '성사',
+            confirmation: '견진',
+            baptism: '세례',
+            first_communion: '첫영성체',
+            year_count: '연도',
+            funeral_mass: '장례미사',
+            memorial_mass: '추모미사',
+            funeral_attendance: '장지참석',
+            inout_count: '입출관',
+            conditional_baptism: '대세',
+            conditional_communion: '보례',
+            membership: '입단',
+            establishment: '설립',
+            target: '대상'
+        };
+
+        let fieldMappingLoadPromise = null;
+
+        function ensureFieldMappingLoaded() {
+            if (!fieldMappingLoadPromise) {
+                if (window.RegioActivityFieldLabels) {
+                    fieldMappingLoadPromise = RegioActivityFieldLabels.loadFieldMappingByCategory(fieldMapping);
+                } else {
+                    fieldMappingLoadPromise = Promise.resolve(fieldMapping);
+                }
+            }
+            return fieldMappingLoadPromise;
+        }
+
         function getFieldDisplayName(categoryName, fieldName) {
             if (window.RegioActivityFieldLabels) {
                 return RegioActivityFieldLabels.getFieldDisplayName(categoryName, fieldName, fieldMapping);
             }
-            return fieldName;
+            const mappings = fieldMapping[categoryName];
+            if (mappings && mappings.length) {
+                const found = mappings.find((m) => m.field_name === fieldName);
+                if (found && found.field_display_name && /[가-힣]/.test(found.field_display_name)) {
+                    return found.field_display_name;
+                }
+            }
+            return INLINE_ACTIVITY_FIELD_LABELS[fieldName] || fieldName;
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => { void ensureFieldMappingLoaded(); });
+        } else {
+            void ensureFieldMappingLoaded();
         }
 
         // 세부 요약 표시
