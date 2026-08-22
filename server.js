@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
@@ -23,6 +24,7 @@ const {
     verifyPurchaseWithGoogle,
     saveVerifiedPurchase
 } = require('./lib/google-play-billing');
+const { patchActivityReportHtml, getActivityFieldLabelsSource } = require('./lib/patch-activity-report-html');
 const { ensureCoreSchema } = require('./lib/ensure-core-schema');
 const {
     purgeOldActivityRecords,
@@ -45,6 +47,30 @@ const PORT = process.env.PORT || 3000;
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json({ limit: '8mb' }));
+
+// 활동집계: 구버전 HTML도 한글 필드명 표시 (Render 정적 캐시·구배포 대응)
+app.get('/activity-report.html', (req, res) => {
+    try {
+        const filePath = path.join(__dirname, 'activity-report.html');
+        const html = patchActivityReportHtml(fs.readFileSync(filePath, 'utf8'));
+        res.set('Cache-Control', 'no-store');
+        res.type('html').send(html);
+    } catch (err) {
+        console.error('activity-report.html 패치 실패:', err);
+        res.sendFile(path.join(__dirname, 'activity-report.html'));
+    }
+});
+
+app.get('/activity-field-labels.js', (req, res) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.type('application/javascript').send(getActivityFieldLabelsSource());
+    } catch (err) {
+        console.error('activity-field-labels.js 로드 실패:', err);
+        res.status(404).send('// not found');
+    }
+});
+
 app.use(express.static('.'));
 
 // PostgreSQL 연결 설정 (Render / 로컬 모두 지원)
