@@ -1624,6 +1624,8 @@
         let lastPrMembers = [];
         let lastAssignments = [];
         let lastReportPeriodType = '';
+        /** DB activity_field_mapping 캐시 (페이지 로드 시 API에서 채움) */
+        let apiFieldMappingByCategory = null;
         /** 기간 버튼 기준(오늘/1일/1주/한달/1년) — 종료일 수정 시 시작일 역산에 사용 */
         let lastPeriodButtonType = 'today';
 
@@ -2815,6 +2817,7 @@
                 }
             }
             initReportScope();
+            await loadApiFieldMapping();
             const scope = getReportScope();
             if (scope === 'secretary') {
                 loadChurchPrs();
@@ -4890,6 +4893,19 @@
                 { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
             ],
             '교우돌봄-청소년 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+            // 교우돌봄 (광주 세나뚜스)
+            '교우돌봄-교우 상가 방문 및 돌봄': [
+                { field_name: 'year_count', field_display_name: '연도', is_required: false },
+                { field_name: 'funeral_mass', field_display_name: '장례미사(고별식)', is_required: false },
+                { field_name: 'funeral_attendance', field_display_name: '기타 상가 활동', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '교우돌봄-교우 환자 방문 및 돌봄': [
+                { field_name: 'year_count', field_display_name: '연도', is_required: false },
+                { field_name: 'funeral_mass', field_display_name: '장례미사(고별식)', is_required: false },
+                { field_name: 'funeral_attendance', field_display_name: '기타 상가 활동', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
             '이웃돌봄-비신자 환자 방문 및 돌봄': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
                 { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
@@ -5026,6 +5042,93 @@
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
             ],
+
+            // 레지오의 발전을 위한 활동
+            '레지오의 발전을 위한 활동-소년 Pr. 설립 권유': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-소년 Pr. 설립 지도': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-행동 단원 가입 권유': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-행동 단원 모집': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-협조단원 가입 권유': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-협조단원 모집': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-활동소홀 단원 돌보기': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-Pr.설립 권유': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정참석': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-레지오 교육▪행사▪피정 봉사': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-Pr.주회 순방': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-평의회 순방': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-평의회 참석': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-교본공부': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정에 차량봉사': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-레지오 행사▪교육▪피정 교통정리': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
+            '레지오의 발전을 위한 활동-기타': [
+                { field_name: 'membership', field_display_name: '행동단원 모집', is_required: false },
+                { field_name: 'group_join', field_display_name: '협조단원 모집', is_required: false },
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }
+            ],
             
             // 레지오활동
             '레지오활동-소년 레지오 지도': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -5148,15 +5251,99 @@
             '기타활동-기타교구행사참석': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }]
         };
 
+        /** DB·입력폼 한글 필드명 → activity_records 영문 컬럼 */
+        const KOREAN_FIELD_TO_ENGLISH = {
+            '횟수': 'count',
+            '연도': 'year_count',
+            '면담': 'year_count',
+            '장지참석': 'funeral_attendance',
+            '장례미사': 'funeral_mass',
+            '장례미사(고별식)': 'funeral_mass',
+            '기타 상가 활동': 'funeral_attendance',
+            '추모미사': 'memorial_mass',
+            '입출관': 'inout_count',
+            '교리반인도': 'catechism_guide',
+            '교리반 인도': 'catechism_guide',
+            '단체가입': 'group_join',
+            '단체 가입': 'group_join',
+            '회두': 'meeting_head',
+            '해소': 'resolution',
+            '성사': 'sacrament',
+            '견진': 'confirmation',
+            '세례': 'baptism',
+            '세례자': 'baptism',
+            '첫영성체': 'first_communion',
+            '대세': 'conditional_baptism',
+            '보례': 'conditional_communion',
+            '입단': 'membership',
+            '행동단원 모집': 'membership',
+            '협조단원 모집': 'group_join',
+            '설립': 'establishment',
+            '자기 소개서': 'establishment'
+        };
+
+        function normalizeFieldName(fieldName) {
+            const key = String(fieldName || '').trim();
+            return KOREAN_FIELD_TO_ENGLISH[key] || key;
+        }
+
+        async function loadApiFieldMapping() {
+            try {
+                const response = await fetch('/api/activity-field-mapping');
+                if (!response.ok) return;
+                const data = await response.json();
+                const byCategory = {};
+                (data.mappings || []).forEach(mapping => {
+                    const category = mapping.category_name;
+                    if (!category) return;
+                    if (!byCategory[category]) byCategory[category] = [];
+                    byCategory[category].push({
+                        field_name: normalizeFieldName(mapping.field_name),
+                        field_display_name: mapping.field_display_name
+                    });
+                });
+                apiFieldMappingByCategory = byCategory;
+            } catch (error) {
+                console.warn('필드 매핑 API 로드 실패, 정적 매핑 사용:', error);
+            }
+        }
+
+        /** DB 필드명 → 기본 한글 라벨 (세목별 매핑 없을 때 활동요약 폴백) */
+        const ACTIVITY_FIELD_LABELS = {
+            count: '횟수(회,단,시간,명)',
+            catechism_guide: '교리반인도',
+            group_join: '단체가입',
+            meeting_head: '회두',
+            resolution: '해소',
+            sacrament: '성사',
+            confirmation: '견진',
+            baptism: '세례',
+            first_communion: '첫영성체',
+            year_count: '연도',
+            funeral_mass: '장례미사',
+            memorial_mass: '추모미사',
+            funeral_attendance: '장지참석',
+            inout_count: '입출관',
+            conditional_baptism: '대세',
+            conditional_communion: '보례',
+            membership: '입단',
+            establishment: '설립',
+            target: '대상'
+        };
+
         // 필드명을 한글로 변환하는 함수
         function getFieldDisplayName(categoryName, fieldName) {
-            if (fieldMapping[categoryName]) {
-                const field = fieldMapping[categoryName].find(f => f.field_name === fieldName);
+            const englishField = normalizeFieldName(fieldName);
+            const mappingSources = [
+                fieldMapping[categoryName],
+                apiFieldMappingByCategory?.[categoryName]
+            ];
+            for (const mappings of mappingSources) {
+                if (!mappings) continue;
+                const field = mappings.find(f => f.field_name === englishField || f.field_name === fieldName);
                 if (field) return field.field_display_name;
             }
-            if (fieldName === 'count') return '횟수(회,단,시간,명)';
-            if (fieldName === 'membership') return '입단';
-            return fieldName;
+            return ACTIVITY_FIELD_LABELS[englishField] || ACTIVITY_FIELD_LABELS[fieldName] || fieldName;
         }
 
         // 세부 요약 표시
