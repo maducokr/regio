@@ -1987,7 +1987,7 @@
                         ${escapeHtml(label)} · ${blank(data.church_name, 'w10')} · ${blank(data.council_name, 'w10')}
                     </div>
                 </div>
-                <p class="note">※ 광주 세나뚜스 평의회 양식 · 산하 회원 DB로 현황·간부·행사·활동횟수 자동 기입. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).</p>
+                <p class="note">※ 산하 회원 DB로 현황·간부·행사·활동횟수 자동 기입. DB 값은 파란색, 빈칸은 빨간색으로 깜박입니다. PDF 전 수정 가능(저장 없음).</p>
             </div>
         `;
     }

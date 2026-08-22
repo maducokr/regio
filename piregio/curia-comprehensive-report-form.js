@@ -2138,7 +2138,7 @@
                             <tr>
                                 <td>복음선교</td>
                                 <td>${blank(a.evangelism, 'w4')}</td>
-                                <td class="left">외인 입교권면, 교리중단자 권면, 가두선교, 교리반 인도, 통신교리, 교리반 봉사</td>
+                                <td class="left">외인 입교권면, 교리중단자 권면, 가두선교, 교리반 인도, 통신교리, 타인이 인도한 예비자, 교리반 봉사</td>
                                 <td class="left">
                                     ${gwangjuResult('교리반 인도', a.catechismLead, '명')}<br>
                                     ${gwangjuResult('영세자', a.baptized, '명')}<br>
@@ -2148,7 +2148,7 @@
                             <tr>
                                 <td>교우 돌봄</td>
                                 <td>${blank(a.believerCare, 'w4')}</td>
-                                <td class="left">새영세자·냉담자·교우가정·혼인장애 방문, 성사권유, 상가·병자 돌봄</td>
+                                <td class="left">새영세자·냉담자·교우가정·혼인장애 방문, 성사권유, 전입 교우 방문, 첫 영성체, 유아 세례 권면, 상가·병자 돌봄</td>
                                 <td class="left">
                                     ${gwangjuResult('단체 가입', a.groupJoin, '명')}<br>
                                     ${gwangjuResult('회두', a.conversion, '명')}<br>
@@ -2164,7 +2164,7 @@
                             <tr>
                                 <td>이웃 돌봄</td>
                                 <td>${blank(a.neighborCare, 'w4')}</td>
-                                <td class="left">비신자 병자·상가 방문, 병원·복지시설, 재난·사고 피해자 돌봄</td>
+                                <td class="left">비신자 병자·상가 방문, 병원 방문 및 활동, 복지시설 노력 봉사, 재난·사고 피해자 돌봄</td>
                                 <td class="left">
                                     ${gwangjuResult('대세자', a.conditionalBaptism, '명')}<br>
                                     ${gwangjuResult('보례자', a.baptismComplete, '명')}
@@ -2182,7 +2182,7 @@
                             <tr>
                                 <td>본당 협조</td>
                                 <td>${blank(a.parishOps, 'w4')}</td>
-                                <td class="left">행사 협조, 호구조사, 주일학교·전례, 청소, 차량, 소공동체</td>
+                                <td class="left">행사 준비 및 협조, 본당 교세 조사(호별방문), 주일학교 돌봄, 전례 협조, 청소 미화, 차량 봉사 및 교통정리, 소공동체 활동(구역·반장 교육 및 참석, 참석 권유), 기타</td>
                                 <td class="left">${gwangjuResult('면담', a.parishVisit, '호')}</td>
                             </tr>
                             <tr>

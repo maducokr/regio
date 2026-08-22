@@ -2210,7 +2210,7 @@
                             <tr>
                                 <td class="gj-cat">복음선교</td>
                                 <td class="gj-count">${blank(a.evangelism, 'w4')}</td>
-                                <td class="left">외인 입교권면, 교리중단자 권면, 가두선교, 교리반 인도, 통신교리, 타인인도 예비자, 교리반 봉사·협조</td>
+                                <td class="left">${lineBoxHtml('외인 입교권면, 교리중단자 권면, 가두선교, 교리반 인도, 통신교리, 타인인도 예비자, 교리반 봉사·협조', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('교리반 인도', a.catechismLead, '명')}<br>
                                     ${resultCell('영세자', a.baptized, '명')}<br>
@@ -2220,7 +2220,7 @@
                             <tr>
                                 <td class="gj-cat">교우 돌봄</td>
                                 <td class="gj-count">${blank(a.believerCare, 'w4')}</td>
-                                <td class="left">새영세자·냉담자·교우가정·혼인장애자 방문, 성사권유, 이사온 교우, 첫영성체·유아세례 권유, 교우 상가·병자 방문·돌봄</td>
+                                <td class="left">${lineBoxHtml('새영세자·냉담자·교우가정·혼인장애자 방문, 성사권유, 이사온 교우, 첫영성체·유아세례 권유, 교우 상가·병자 방문·돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('단체 가입', a.groupJoin, '명')}<br>
                                     ${resultCell('회두', a.conversion, '명')}<br>
@@ -2236,7 +2236,7 @@
                             <tr>
                                 <td class="gj-cat">이웃 돌봄</td>
                                 <td class="gj-count">${blank(a.neighborCare, 'w4')}</td>
-                                <td class="left">비신자 병자·상가 방문·돌봄, 병원 방문·활동, 복지시설 봉사, 재난·사고 피해자 돌봄</td>
+                                <td class="left">${lineBoxHtml('비신자 병자·상가 방문·돌봄, 병원 방문·활동, 복지시설 봉사, 재난·사고 피해자 돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('대세자', a.conditionalBaptism, '명')}<br>
                                     ${resultCell('보례자', a.baptismComplete, '명')}
@@ -2245,7 +2245,7 @@
                             <tr>
                                 <td class="gj-cat">확장</td>
                                 <td class="gj-count">${blank(a.expansion, 'w4')}</td>
-                                <td class="left">행동단원·협조단원 모집, 유년단 설립 활동, 유년단 돌봄</td>
+                                <td class="left">${lineBoxHtml('행동단원·협조단원 모집, 유년단 설립 활동, 유년단 돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('행동단원 입단', a.activeRecruit, '명')}<br>
                                     ${resultCell('협조단원 입단', a.auxRecruit, '명')}
@@ -2254,13 +2254,13 @@
                             <tr>
                                 <td class="gj-cat">본당 협조</td>
                                 <td class="gj-count">${blank(a.parishOps, 'w4')}</td>
-                                <td class="left">행사 준비·협조, 호구조사, 주일학교 돌봄, 전례 협조, 청소·미화, 차량·교통정리, 소공동체 활동 등</td>
+                                <td class="left">${lineBoxHtml('행사 준비·협조, 호구조사, 주일학교 돌봄, 전례 협조, 청소·미화, 차량·교통정리, 소공동체 활동 등', '28px')}</td>
                                 <td class="left">${resultCell('면담', a.parishVisit, '호')}</td>
                             </tr>
                             <tr>
                                 <td class="gj-cat">기타</td>
                                 <td class="gj-count">${blank(a.otherAct, 'w4')}</td>
-                                <td class="left">간행물 배포, 생태·환경보호, 생명존중, 가정성화(가정단위) 활동</td>
+                                <td class="left">${lineBoxHtml('간행물 배포, 생태·환경보호, 생명존중, 가정성화(가정단위) 활동', '28px')}</td>
                                 <td class="left">${blank('', 'w8')}</td>
                             </tr>
                         </tbody>
