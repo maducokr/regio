@@ -1875,7 +1875,6 @@
 
         /** PDF·Excel·한글 출력용: 내용/주요활동/질의 + 행사및교육 (화면과 동일 소스) */
         function getExportMemoBlocks(data) {
-            if (getReportScope() === 'secretary') return [];
             const payload = collectMemoAndEventDisplays(Array.isArray(data) ? data : []);
             const blocks = [];
             const append = (title, items) => {
@@ -1893,7 +1892,6 @@
         }
 
         function getExportEventGroups(data) {
-            if (getReportScope() === 'secretary') return new Map();
             if (shouldOmitEventReportSection()) return new Map();
             // 화면에 이미 렌더된 행사 표가 있으면 DOM 기준으로 (평의회 주관 API 반영)
             const section = document.getElementById('eventReportSection');
@@ -2400,12 +2398,6 @@
         }
 
         async function updateMemoEventDisplays(data, options = {}) {
-            if (getReportScope() === 'secretary') {
-                renderMemoSection({ memos: [], majors: [], inquiries: [] });
-                renderEventReportSection(new Map());
-                return;
-            }
-
             const {
                 memos,
                 majors,
@@ -2447,7 +2439,7 @@
             const scope = getReportScope();
             if (scope === 'secretary') {
                 dailySection.style.display = 'none';
-                void updateMemoEventDisplays([]);
+                void updateMemoEventDisplays(lastReportData);
                 return;
             }
             if (scopeUsesDailyDetailCheckbox(scope)) {
@@ -3771,6 +3763,7 @@
                     lastSecretaryRows = buildSecretarySummaryRows(lastPrMembers, lastAssignments, lastReportData);
 
                     displayDetailedSummary(lastReportData);
+                    await updateMemoEventDisplays(lastReportData, { startDate, endDate });
                     setExportButtonsVisible(lastSecretaryRows.length > 0);
                     return;
                 }
