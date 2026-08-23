@@ -1536,6 +1536,7 @@
                     count: 0,
                     catechism_guide: 0,
                     group_join: 0,
+                    meeting_head: 0,
                     resolution: 0,
                     sacrament: 0,
                     confirmation: 0,
@@ -1547,6 +1548,7 @@
                     conditional_baptism: 0,
                     conditional_communion: 0,
                     membership: 0,
+                    establishment: 0,
                     year_count: 0,
                     inout_count: 0
                 });
@@ -1554,10 +1556,10 @@
             const row = map.get(name);
             row.count += Number(rec.count) || 0;
             [
-                'catechism_guide', 'group_join', 'resolution', 'sacrament', 'confirmation',
+                'catechism_guide', 'group_join', 'meeting_head', 'resolution', 'sacrament', 'confirmation',
                 'baptism', 'first_communion', 'funeral_attendance', 'funeral_mass',
                 'memorial_mass', 'conditional_baptism', 'conditional_communion', 'membership',
-                'year_count', 'inout_count'
+                'establishment', 'year_count', 'inout_count'
             ].forEach((k) => {
                 row[k] += Number(rec[k]) || 0;
             });
@@ -1577,56 +1579,150 @@
         return sum > 0 ? sum : '';
     }
 
+    /** 활동요약(buildSummaryRows)과 동일 — 종목·세목별 count·결과 필드 합계 */
+    function sumCategoryField(totals, categoryMatcher, field) {
+        let sum = 0;
+        for (const row of totals || []) {
+            const name = String(row.category_name || '');
+            if (categoryMatcher(name)) {
+                sum += Number(row[field]) || 0;
+            }
+        }
+        return sum > 0 ? sum : '';
+    }
+
+    /** 광주 11.활동상황 — 종목-세목을 대분류로 묶음 (활동요약 행과 1:1 대응) */
+    function gwangjuCategoryGroup(categoryName) {
+        const n = String(categoryName || '').trim();
+        if (!n) return null;
+        if (n.startsWith('복음선교-')) return 'evangelism';
+        if (n.startsWith('교우돌봄-')) return 'believerCare';
+        if (n.startsWith('이웃돌봄-') || n.startsWith('어려운자돌봄-')) return 'neighborCare';
+        if (n.startsWith('확장-') || /^레지오활동-(행동단원|협조단원|Pr설립|소년\s*레지오)/.test(n)) {
+            return 'expansion';
+        }
+        if (n.startsWith('본당협조-') || n.startsWith('본당교회협조-') || n.startsWith('본당협조활동-')) {
+            return 'parishOps';
+        }
+        if (n.startsWith('기타-') || n.startsWith('기타활동-')) return 'otherAct';
+        if (n.startsWith('영성생활-') || n.startsWith('기도생활-')) return 'spiritual';
+        if (/복음선교|입교권면|외인|가두선교|교리\s*중단|방문선교|통신교리|예비신자/.test(n)
+            && !/교우|성사권유|상가|병자/.test(n)) {
+            return 'evangelism';
+        }
+        if (/교우\s*돌봄|교우돌봄/.test(n)) return 'believerCare';
+        if (/이웃\s*돌봄|이웃돌봄|비신자|병원|복지|재난|사고/.test(n)) return 'neighborCare';
+        if (/행동단원|협조단원|확장|입단권면|Pr설립|회원모집/.test(n)) return 'expansion';
+        if (/본당|주일학교|전례|호구/.test(n)) return 'parishOps';
+        if (/간행물|출판물|생태|환경|기타활동|기타사목/.test(n)) return 'otherAct';
+        if (/기도|묵주|미사|성경|십자가|성무|영성/.test(n)) return 'spiritual';
+        return null;
+    }
+
+    function sumGwangjuGroup(totals, group, field) {
+        return sumCategoryField(totals, (n) => gwangjuCategoryGroup(n) === group, field);
+    }
+
     function gwangjuResult(label, value, unit) {
         return `${escapeHtml(label)} ${blank(value, 'w4')}${unit ? ` ${escapeHtml(unit)}` : ''}`;
     }
 
+    /**
+     * 광주 11.활동상황 — 활동요약과 동일하게 종목·세목별 count/결과 필드를 먼저 합산한 뒤
+     * 대분류(복음선교·교우돌봄 등)별로 합계.
+     */
     function computeGwangjuCompActivity(records) {
         const totals = recordsToActivityTotals(records);
+        const inGroup = (group) => (n) => gwangjuCategoryGroup(n) === group;
+
+        const believerFuneralOther = (() => {
+            let sum = 0;
+            for (const row of totals) {
+                if (!inGroup('believerCare')(row.category_name)) continue;
+                sum += Number(row.funeral_attendance) || 0;
+                sum += Number(row.inout_count) || 0;
+                if (/상가|장지|장례/.test(row.category_name)) {
+                    sum += Number(row.count) || 0;
+                }
+            }
+            return sum > 0 ? sum : '';
+        })();
+
+        const careBeliever = Number(sumGwangjuGroup(totals, 'believerCare', 'count') || 0);
+        const careNeighbor = Number(sumGwangjuGroup(totals, 'neighborCare', 'count') || 0);
+
         return {
-            evangelism: sumTotals(totals, (n) => /복음선교|입교권면|외인|가두선교|교리반|통신교리|예비/.test(n) && !/교우|성사권유|상가|병자/.test(n)),
-            catechismLead: sumTotals(totals, (n) => /교리반/.test(n), 'catechism_guide')
-                || sumTotals(totals, (n) => /교리반\s*인도|교리반인도/.test(n)),
-            baptized: sumTotals(totals, (n) => /예비신자|예비자|세례|영세/.test(n), 'baptism')
-                || sumTotals(totals, (n) => /세례자|영세/.test(n)),
-            selfIntro: sumTotals(totals, (n) => /자기소개서|소개서/.test(n)),
-            believerCare: sumTotals(totals, (n) =>
-                /교우\s*돌봄|교우방문|냉담|성사권유|혼인장애|회두|판공|견진|유아세례|상가|병자|영세자\s*방문|첫\s*영성체/.test(n)),
-            groupJoin: sumTotals(totals, (n) => /단체\s*가입|단체가입/.test(n), 'group_join')
-                || sumTotals(totals, (n) => /단체\s*가입|단체가입/.test(n)),
-            conversion: sumTotals(totals, (n) => /회두|개종/.test(n)),
-            marriageFix: sumTotals(totals, (n) => /혼인장애/.test(n), 'resolution')
-                || sumTotals(totals, (n) => /혼인장애/.test(n)),
-            confession: sumTotals(totals, (n) => /판공|고해/.test(n), 'sacrament')
-                || sumTotals(totals, (n) => /판공|고해/.test(n)),
-            confirmation: sumTotals(totals, (n) => /견진/.test(n), 'confirmation')
-                || sumTotals(totals, (n) => /견진/.test(n)),
-            infantBaptism: sumTotals(totals, (n) => /유아세례/.test(n), 'baptism')
-                || sumTotals(totals, (n) => /유아세례/.test(n)),
-            yeondo: sumTotals(totals, (n) => /연도|위령기도/.test(n)),
-            funeralMass: sumTotals(totals, (n) => /장례미사|고별식/.test(n), 'funeral_mass')
-                || sumTotals(totals, (n) => /장례미사|고별식/.test(n)),
-            funeralOther: sumTotals(totals, (n) => /상가|장례수행|장지/.test(n)),
-            neighborCare: sumTotals(totals, (n) => /이웃\s*돌봄|비신자|병원|복지|재난|사고/.test(n)),
-            conditionalBaptism: sumTotals(totals, (n) => /대세/.test(n), 'conditional_baptism')
-                || sumTotals(totals, (n) => /대세/.test(n)),
-            baptismComplete: sumTotals(totals, (n) => /보례/.test(n)),
-            expansion: sumTotals(totals, (n) => /행동단원\s*모집|협조단원\s*모집|유년|확장|입단권면|회원모집|Pr설립/.test(n)),
-            activeRecruit: sumTotals(totals, (n) => /행동단원\s*모집|입단권면/.test(n), 'membership')
-                || sumTotals(totals, (n) => /행동단원\s*모집|입단권면/.test(n)),
-            auxRecruit: sumTotals(totals, (n) => /협조단원\s*모집/.test(n), 'membership')
-                || sumTotals(totals, (n) => /협조단원\s*모집/.test(n)),
-            parishOps: sumTotals(totals, (n) => /본당|주일학교|전례|호구조사|청소|차량|교통|소공동체/.test(n)),
-            parishVisit: sumTotals(totals, (n) => /호구조사|면담|방문조사/.test(n)),
-            otherAct: sumTotals(totals, (n) => /간행물|배포|생태|환경|자연보호|생명존중|가정성화|기타활동|기타사목/.test(n)),
-            weekdayMass: sumTotals(totals, (n) => /평일미사/.test(n)),
-            rosary: sumTotals(totals, (n) => /묵주기도/.test(n)),
-            stations: sumTotals(totals, (n) => /십자가의\s*길|십자가의길/.test(n)),
-            bible: sumTotals(totals, (n) => /성경|봉독|필사|통독/.test(n)),
-            littleOffice: sumTotals(totals, (n) => /소성무일도|성무일도/.test(n)),
-            spiritualOther: sumTotals(totals, (n) => /프랭크|더프|시복|지향기도/.test(n)),
-            prayerSpirit: sumTotals(totals, (n) => /기도|묵주|미사|성경|십자가|성무/.test(n)),
-            careCombo: sumTotals(totals, (n) => /교우|이웃|돌봄|상가|병자|병원/.test(n))
+            evangelism: sumGwangjuGroup(totals, 'evangelism', 'count'),
+            catechismLead: sumGwangjuGroup(totals, 'evangelism', 'catechism_guide'),
+            baptized: sumGwangjuGroup(totals, 'evangelism', 'baptism'),
+            selfIntro: sumGwangjuGroup(totals, 'evangelism', 'establishment'),
+            believerCare: sumGwangjuGroup(totals, 'believerCare', 'count'),
+            groupJoin: sumGwangjuGroup(totals, 'believerCare', 'group_join'),
+            conversion: sumGwangjuGroup(totals, 'believerCare', 'meeting_head'),
+            marriageFix: sumGwangjuGroup(totals, 'believerCare', 'resolution'),
+            confession: sumGwangjuGroup(totals, 'believerCare', 'sacrament'),
+            confirmation: sumGwangjuGroup(totals, 'believerCare', 'confirmation'),
+            infantBaptism: sumCategoryField(
+                totals,
+                (n) => inGroup('believerCare')(n) && /유아\s*세례|유아세례/.test(n),
+                'baptism'
+            ),
+            yeondo: sumGwangjuGroup(totals, 'believerCare', 'year_count'),
+            funeralMass: sumGwangjuGroup(totals, 'believerCare', 'funeral_mass'),
+            funeralOther: believerFuneralOther,
+            neighborCare: sumGwangjuGroup(totals, 'neighborCare', 'count'),
+            conditionalBaptism: sumGwangjuGroup(totals, 'neighborCare', 'conditional_baptism'),
+            baptismComplete: sumGwangjuGroup(totals, 'neighborCare', 'conditional_communion'),
+            expansion: sumGwangjuGroup(totals, 'expansion', 'count'),
+            activeRecruit: sumCategoryField(
+                totals,
+                (n) => inGroup('expansion')(n) && /행동단원/.test(n),
+                'membership'
+            ),
+            auxRecruit: sumCategoryField(
+                totals,
+                (n) => inGroup('expansion')(n) && /협조단원/.test(n),
+                'membership'
+            ),
+            parishOps: sumGwangjuGroup(totals, 'parishOps', 'count'),
+            parishVisit: sumCategoryField(
+                totals,
+                (n) => inGroup('parishOps')(n) && /호구|교세|면담|방문조사/.test(n),
+                'count'
+            ),
+            otherAct: sumGwangjuGroup(totals, 'otherAct', 'count'),
+            weekdayMass: sumCategoryField(
+                totals,
+                (n) => inGroup('spiritual')(n) && /평일\s*미사|평일미사/.test(n),
+                'count'
+            ),
+            rosary: sumCategoryField(
+                totals,
+                (n) => inGroup('spiritual')(n) && /묵주\s*기도|묵주기도/.test(n),
+                'count'
+            ),
+            stations: sumCategoryField(
+                totals,
+                (n) => inGroup('spiritual')(n) && /십자가의\s*길|십자가의길/.test(n),
+                'count'
+            ),
+            bible: sumCategoryField(
+                totals,
+                (n) => inGroup('spiritual')(n) && /성경|봉독|필사|통독/.test(n),
+                'count'
+            ),
+            littleOffice: sumCategoryField(
+                totals,
+                (n) => inGroup('spiritual')(n) && /소성무일도|성무일도/.test(n),
+                'count'
+            ),
+            spiritualOther: sumCategoryField(
+                totals,
+                (n) => inGroup('spiritual')(n) && (/영성생활-기타|기도생활-기타/.test(n) || /프랭크|더프|시복/.test(n)),
+                'count'
+            ),
+            prayerSpirit: sumGwangjuGroup(totals, 'spiritual', 'count'),
+            careCombo: (careBeliever + careNeighbor) > 0 ? careBeliever + careNeighbor : ''
         };
     }
 
@@ -2180,7 +2276,7 @@
                 ${buildGwangjuEducationTablesHtml(m.events)}
 
                 <div class="sec-title">11. 활동 상황
-                    <span style="font-weight:400;font-size:11px;">(대표 예시 · 수정·추가 가능 · 산하 회원 집계)</span>
+                    <span style="font-weight:400;font-size:11px;">(활동요약과 동일 집계 · 산하 회원 DB · 수정 가능)</span>
                 </div>
                 <div class="org-table-wrap">
                     <table class="form-table">
