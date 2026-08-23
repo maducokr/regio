@@ -1873,6 +1873,103 @@
             });
         }
 
+        /** PDF·Excel·한글 출력용: 내용/주요활동/질의 + 행사및교육 (화면과 동일 소스) */
+        function getExportMemoBlocks(data) {
+            if (getReportScope() === 'secretary') return [];
+            const payload = collectMemoAndEventDisplays(Array.isArray(data) ? data : []);
+            const blocks = [];
+            const append = (title, items) => {
+                if (!items.length) return;
+                const lines = items.map((item) => {
+                    const meta = [item.date, item.who].filter(Boolean).join(' ');
+                    return meta ? `${meta}\n${item.text}` : item.text;
+                }).join('\n\n');
+                blocks.push({ title, lines });
+            };
+            append('내용', payload.memos || []);
+            append('주요 활동 내역', payload.majors || []);
+            append('기타(질의 및 건의)', payload.inquiries || []);
+            return blocks;
+        }
+
+        function getExportEventGroups(data) {
+            if (getReportScope() === 'secretary') return new Map();
+            if (shouldOmitEventReportSection()) return new Map();
+            // 화면에 이미 렌더된 행사 표가 있으면 DOM 기준으로 (평의회 주관 API 반영)
+            const section = document.getElementById('eventReportSection');
+            const container = document.getElementById('eventReportContainer');
+            if (section && section.style.display !== 'none' && container && container.querySelector('.event-report-block')) {
+                const groups = new Map();
+                container.querySelectorAll('.event-report-block').forEach((block) => {
+                    const label = block.querySelector('.event-report-org-label')?.textContent?.trim() || '행사';
+                    const rows = Array.from(block.querySelectorAll('tbody tr')).map((tr) => {
+                        const cells = tr.querySelectorAll('td');
+                        return {
+                            kind: cells[1]?.textContent?.trim() || '',
+                            title: cells[2]?.textContent?.trim() || '',
+                            host: cells[3]?.textContent?.trim() || '',
+                            date: cells[4]?.textContent?.trim() || '',
+                            place: cells[5]?.textContent?.trim() || '',
+                            content: cells[6]?.textContent?.trim() || '',
+                            attendees: cells[7]?.textContent?.trim() || ''
+                        };
+                    }).filter((row) => row.kind || row.title || row.date || row.place || row.content || row.attendees);
+                    if (rows.length) groups.set(label, rows);
+                });
+                if (groups.size) return groups;
+            }
+            return collectMemoAndEventDisplays(Array.isArray(data) ? data : []).eventGroups || new Map();
+        }
+
+        function buildExportMemoHtml(blocks) {
+            if (!blocks.length) return '';
+            return blocks.map((block) => `
+                <div style="margin-top:14px;padding:12px;background:#fff8e6;border:1px solid #f0d9a0;border-radius:6px;">
+                    <div style="font-weight:700;color:#8a5a00;margin-bottom:6px;font-size:12px;">${escapeHtml(block.title)}</div>
+                    <div style="white-space:pre-wrap;font-size:12px;line-height:1.45;">${escapeHtml(block.lines)}</div>
+                </div>
+            `).join('');
+        }
+
+        function buildExportEventHtml(eventGroups) {
+            if (!eventGroups || !eventGroups.size) return '';
+            let html = `<h2 style="font-size:12px;margin:22px 0 10px;">행사 및 교육</h2>`;
+            eventGroups.forEach((rows, label) => {
+                const filled = dedupeEventRows((rows || []).filter((row) =>
+                    row.kind || row.title || row.date || row.place || row.content || row.attendees
+                ).map((row) => normalizeEventDisplayRow(row, label)));
+                if (!filled.length) return;
+                html += `<div style="margin-bottom:14px;">`;
+                html += `<div style="font-weight:600;font-size:12px;margin-bottom:6px;">${escapeHtml(label)}</div>`;
+                html += `<table style="width:100%;border-collapse:collapse;font-size:11px;">`;
+                html += `<thead><tr style="background:#4A90E2;color:#fff;">`;
+                ['', '구분', '제목', '주관', '일자', '장소', '내용', '참석인원'].forEach((h) => {
+                    html += `<th style="padding:6px;border:1px solid #ccc;">${escapeHtml(h)}</th>`;
+                });
+                html += `</tr></thead><tbody>`;
+                filled.forEach((row, idx) => {
+                    html += `<tr>
+                        <td style="padding:6px;border:1px solid #ccc;text-align:center;">${idx + 1}</td>
+                        <td style="padding:6px;border:1px solid #ccc;">${escapeHtml(row.kind || '')}</td>
+                        <td style="padding:6px;border:1px solid #ccc;text-align:left;">${escapeHtml(row.title || '')}</td>
+                        <td style="padding:6px;border:1px solid #ccc;">${escapeHtml(row.host || '')}</td>
+                        <td style="padding:6px;border:1px solid #ccc;">${escapeHtml(row.date || '')}</td>
+                        <td style="padding:6px;border:1px solid #ccc;text-align:left;">${escapeHtml(row.place || '')}</td>
+                        <td style="padding:6px;border:1px solid #ccc;text-align:left;">${escapeHtml(row.content || '')}</td>
+                        <td style="padding:6px;border:1px solid #ccc;text-align:center;">${escapeHtml(row.attendees || '')}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+            });
+            return html.includes('<tbody>') ? html : '';
+        }
+
+        function getExportExtraSectionsHtml() {
+            const memoHtml = buildExportMemoHtml(getExportMemoBlocks(lastReportData));
+            const eventHtml = buildExportEventHtml(getExportEventGroups(lastReportData));
+            return memoHtml + eventHtml;
+        }
+
         async function exportSummaryToPDF() {
             const rows = ensureSummaryDataAvailable();
             if (!rows) return;
@@ -1885,6 +1982,7 @@
                 const headerHtml = table.headers.map(h =>
                     `<th style="padding:8px;border:1px solid #ccc;">${escapeHtml(h)}</th>`
                 ).join('');
+                const extraHtml = getExportExtraSectionsHtml();
 
                 const tempContainer = document.createElement('div');
                 tempContainer.style.position = 'absolute';
@@ -1905,6 +2003,7 @@
                         </thead>
                         <tbody>${table.body}</tbody>
                     </table>
+                    ${extraHtml}
                 `;
                 document.body.appendChild(tempContainer);
 
@@ -1982,10 +2081,42 @@
                     ]));
                 }
 
+                const memoBlocks = getExportMemoBlocks(lastReportData);
+                memoBlocks.forEach((block) => {
+                    sheetData.push([]);
+                    sheetData.push([block.title]);
+                    sheetData.push([block.lines]);
+                });
+
+                const eventGroups = getExportEventGroups(lastReportData);
+                if (eventGroups.size) {
+                    sheetData.push([]);
+                    sheetData.push(['행사 및 교육']);
+                    sheetData.push(['구분', '제목', '주관', '일자', '장소', '내용', '참석인원']);
+                    eventGroups.forEach((rowsInGroup, label) => {
+                        const filled = dedupeEventRows((rowsInGroup || []).filter((row) =>
+                            row.kind || row.title || row.date || row.place || row.content || row.attendees
+                        ).map((row) => normalizeEventDisplayRow(row, label)));
+                        if (!filled.length) return;
+                        sheetData.push([label]);
+                        filled.forEach((row) => {
+                            sheetData.push([
+                                row.kind || '',
+                                row.title || '',
+                                row.host || '',
+                                row.date || '',
+                                row.place || '',
+                                row.content || '',
+                                row.attendees || ''
+                            ]);
+                        });
+                    });
+                }
+
                 const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
                 worksheet['!cols'] = getReportScope() === 'secretary'
                     ? [{ wch: 6 }, { wch: 14 }, { wch: 24 }, { wch: 14 }, { wch: 48 }]
-                    : [{ wch: 28 }, { wch: 32 }, { wch: 24 }, { wch: 12 }];
+                    : [{ wch: 28 }, { wch: 32 }, { wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 20 }, { wch: 10 }];
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, '활동요약');
                 XLSX.writeFile(workbook, `Regio_활동요약_${meta.timestamp}.xlsx`);
@@ -2007,6 +2138,7 @@
             try {
                 const table = getExportTableHtml(rows);
                 const headerHtml = table.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('');
+                const extraHtml = getExportExtraSectionsHtml();
 
                 const html = `<!DOCTYPE html>
 <html lang="ko">
@@ -2017,6 +2149,7 @@
     <style>
         body { font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; padding: 24px; }
         h1 { font-size: 12px; margin-bottom: 8px; }
+        h2 { font-size: 12px; margin: 20px 0 10px; }
         p { margin: 4px 0; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #333; padding: 8px; font-size: 12px; }
@@ -2029,13 +2162,14 @@
     <h1>Regio ${escapeHtml(meta.title)}</h1>
     <p>대상: ${escapeHtml(meta.subjectLabel)}</p>
     <p>조회기간: ${escapeHtml(meta.startDate)} ~ ${escapeHtml(meta.endDate)}</p>
-    ${getReportScope() === 'secretary' ? `<h2>${escapeHtml(SECRETARY_SUMMARY_TITLE)}</h2>` : ''}
+    ${getReportScope() === 'secretary' ? `<h2>${escapeHtml(SECRETARY_SUMMARY_TITLE)}</h2>` : '<h2>활동 요약</h2>'}
     <table>
         <thead>
             <tr>${headerHtml}</tr>
         </thead>
         <tbody>${table.body}</tbody>
     </table>
+    ${extraHtml}
 </body>
 </html>`;
 
