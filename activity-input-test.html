@@ -890,6 +890,7 @@
     </div>
 
     <script src="date-wheel-picker.js"></script>
+    <script src="activity-field-labels.js?v=20260823a"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260820h"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
@@ -2247,17 +2248,21 @@
                     const mappingData = await mappingResponse.json();
                     const mappings = mappingData.mappings || [];
                     
-                    // 카테고리별로 필드 그룹화
-                    mappings.forEach(mapping => {
-                        if (!fieldMapping[mapping.category_name]) {
-                            fieldMapping[mapping.category_name] = [];
-                        }
-                        fieldMapping[mapping.category_name].push({
-                            field_name: mapping.field_name,
-                            field_display_name: mapping.field_display_name,
-                            is_required: mapping.is_required
+                    // 카테고리별로 필드 그룹화 (교리반 인도/교리반인도 등 동일 필드 중복 제거)
+                    if (window.RegioActivityFieldLabels?.mergeApiFieldMappings) {
+                        window.RegioActivityFieldLabels.mergeApiFieldMappings(fieldMapping, mappings);
+                    } else {
+                        mappings.forEach(mapping => {
+                            if (!fieldMapping[mapping.category_name]) {
+                                fieldMapping[mapping.category_name] = [];
+                            }
+                            fieldMapping[mapping.category_name].push({
+                                field_name: mapping.field_name,
+                                field_display_name: mapping.field_display_name,
+                                is_required: mapping.is_required
+                            });
                         });
-                    });
+                    }
                 }
             } catch (mappingError) {
                 console.error('필드 매핑 로드 실패:', mappingError);
