@@ -2368,6 +2368,7 @@
         const dec = mem.decrease || {};
         const meeting = m.meeting || {};
         const fin = m.finance || {};
+        const att = m.attendance || {};
         const start = parseYmd(m.start_date);
         const end = parseYmd(m.end_date);
         const today = parseYmd(m.submit_date) || parseYmd(new Date().toISOString().slice(0, 10));
@@ -2522,7 +2523,7 @@
                             <td>${blank(vp, 'w8')}</td>
                             <td>${blank(secretary, 'w8')}</td>
                             <td>${blank(treasurer, 'w8')}</td>
-                            <td rowspan="3" class="seoul-member-att-cell">/</td>
+                            <td rowspan="3" class="seoul-member-att-cell">${blank(att.members_present, 'w3')} / ${blank(att.members_total, 'w3')}</td>
                         </tr>
                         <tr>
                             <td class="row-label">출석상황</td>

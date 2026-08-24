@@ -2063,6 +2063,8 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             adjutorian: 0
         };
         const curiaCounts = new Map();
+        const g5MemberIds = [];
+        const officerMemberIds = [];
         let prType = '';
 
         for (const row of membersResult.rows) {
@@ -2075,6 +2077,12 @@ app.get('/api/pr-monthly-report', async (req, res) => {
 
             if (code >= 1 && code <= 4 && !officersByCode.has(code)) {
                 officersByCode.set(code, row);
+                if (row.id != null) officerMemberIds.push(row.id);
+            }
+
+            // 단원출석 분모: G5(행동단원)만 — 간부 G1~G4·협조·쁘레·아듀 제외
+            if (code === 5 && row.id != null) {
+                g5MemberIds.push(row.id);
             }
 
             if (code === 7) {
@@ -2317,6 +2325,32 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             delta: membershipDelta
         };
 
+        // 출석: 단원 = 출석한 G5 / Pr 전체 G5
+        // (주회 출석부 없음 → 해당 월 활동기록이 있는 회원을 출석으로 산정)
+        let g5Present = 0;
+        let officersPresent = 0;
+        try {
+            const attendIds = [...new Set([...g5MemberIds, ...officerMemberIds])];
+            if (attendIds.length) {
+                const presentResult = await pool.query(
+                    `SELECT DISTINCT ar.member_id
+                     FROM activity_records ar
+                     WHERE ar.member_id = ANY($1::int[])
+                       AND ar.activity_date::date BETWEEN $2::date AND $3::date`,
+                    [attendIds, monthStart, monthEnd]
+                );
+                const presentSet = new Set(presentResult.rows.map((r) => Number(r.member_id)));
+                g5Present = g5MemberIds.filter((id) => presentSet.has(Number(id))).length;
+                officersPresent = officerMemberIds.filter((id) => presentSet.has(Number(id))).length;
+            }
+        } catch (attError) {
+            console.warn('Pr 월례 출석 산정 생략:', attError.message);
+        }
+
+        const g5Total = g5MemberIds.length;
+        const officersTotal = officers.filter((o) => o.name).length;
+        const memberRate = g5Total > 0 ? Math.round((g5Present / g5Total) * 100) : '';
+
         res.json({
             success: true,
             form_title: '레지오 마리애 쁘레시디움 월례 보고서',
@@ -2332,13 +2366,13 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             pr_founded_on: prDatesInfo.founded_on,
             pr_approved_on: prDatesInfo.approved_on,
             attendance: {
-                officers_present: '',
-                officers_total: officers.filter((o) => o.name).length || '',
-                members_present: '',
-                members_total: membership.active_t || '',
+                officers_present: officersTotal ? officersPresent : '',
+                officers_total: officersTotal || '',
+                members_present: g5Total ? g5Present : '',
+                members_total: g5Total || '',
                 duty_days: '',
                 attended_days: '',
-                rate: ''
+                rate: memberRate
             },
             spiritual_director: '',
             officers,
@@ -3546,10 +3580,27 @@ function formatMemoNoteLines(rows, displayNameFn) {
         }
     }
 
+    const dedupeLines = (lines) => {
+        const seen = new Set();
+        const out = [];
+        for (const line of lines || []) {
+            const text = String(line || '').trim();
+            if (!text) continue;
+            // 본문(날짜·이름 제외) 기준 중복 제거 — 종목 note + 메모 종목 이중 저장 대응
+            const parts = text.split(/\n/);
+            const body = parts.length > 1 ? parts.slice(1).join('\n').trim() : text;
+            const key = (body || text).replace(/\s+/g, ' ').trim().toLowerCase();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            out.push(text);
+        }
+        return out;
+    };
+
     return {
-        memo: memos.join('\n\n'),
-        major_activities: majors.join('\n\n'),
-        inquiries: inquiries.join('\n\n')
+        memo: dedupeLines(memos).join('\n\n'),
+        major_activities: dedupeLines(majors).join('\n\n'),
+        inquiries: dedupeLines(inquiries).join('\n\n')
     };
 }
 
@@ -3562,7 +3613,8 @@ async function fetchFormattedMemoPad({ memberWhereSql, memberParams, monthStart,
     const startIdx = memberParams.length + 1;
     const endIdx = memberParams.length + 2;
     const memoRows = await pool.query(
-        `SELECT ar.activity_date::text AS activity_date, ar.note, m.name
+        `SELECT DISTINCT ON (m.id, ar.activity_date, md5(COALESCE(ar.note, '')))
+                ar.activity_date::text AS activity_date, ar.note, m.name
          FROM activity_records ar
          INNER JOIN activity_categories ac ON ar.category_id = ac.id
          INNER JOIN member m ON ar.member_id = m.id
@@ -3573,7 +3625,7 @@ async function fetchFormattedMemoPad({ memberWhereSql, memberParams, monthStart,
                 ac.category_name = '메모및 행사-메모'
                 OR ar.note ~* '\\[(메모|주요활동내역|질의|건의|질의및건의)\\]'
            )
-         ORDER BY ar.activity_date, m.id`,
+         ORDER BY m.id, ar.activity_date, md5(COALESCE(ar.note, '')), ar.id`,
         [...memberParams, monthStart, monthEnd]
     );
     return formatMemoNoteLines(memoRows.rows, displayNameFn);

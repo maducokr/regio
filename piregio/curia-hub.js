@@ -126,13 +126,39 @@
     }
 
     function lineBoxHtml(text, minHeight) {
-        const t = String(text || '').trim();
+        const t = dedupeReportBlockText(String(text || '').trim());
         const styleParts = [];
         if (minHeight) styleParts.push(`min-height:${minHeight}`);
         styleParts.push('white-space:pre-wrap');
         const styleAttr = ` style="${styleParts.join(';')}"`;
         const has = t ? ' has-value' : '';
         return `<div class="line-box blank-editable${has}"${styleAttr} contenteditable="true" data-placeholder="입력">${escapeHtml(t)}</div>`;
+    }
+
+    /** 월례 주요활동·질의 블록 중복 제거 (같은 본문이 두 번 이어진 경우) */
+    function dedupeReportBlockText(text) {
+        const raw = String(text || '').trim();
+        if (!raw) return '';
+        const blocks = raw.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+        if (blocks.length < 2) return raw;
+        const seen = new Set();
+        const out = [];
+        for (const block of blocks) {
+            const parts = block.split(/\n/);
+            const body = parts.length > 1 ? parts.slice(1).join('\n').trim() : block;
+            const key = (body || block).replace(/\s+/g, ' ').trim().toLowerCase();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            out.push(block);
+        }
+        // 전체 문자열이 앞뒤로 두 번 이어 붙여진 경우 (A+A)
+        if (out.length >= 2 && out.length % 2 === 0) {
+            const half = out.length / 2;
+            const a = out.slice(0, half).join('\n\n');
+            const b = out.slice(half).join('\n\n');
+            if (a === b) return a;
+        }
+        return out.join('\n\n');
     }
 
     function fitBlankInputWidth(inp) {
@@ -520,20 +546,32 @@
                 const margin = 8;
                 const usableWidth = pageWidth - margin * 2;
                 const usableHeight = pageHeight - margin * 2;
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
                 const imgWidth = usableWidth;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let heightLeft = imgHeight;
-                let position = margin;
-
-                pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-                heightLeft -= usableHeight;
-
-                while (heightLeft > 0) {
-                    position = margin - (imgHeight - heightLeft);
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-                    heightLeft -= usableHeight;
+                // 캔버스를 페이지 높이만큼 잘라 넣어 페이지 경계에서 내용이 겹쳐 보이지 않게 함
+                const pxPerMm = canvas.width / imgWidth;
+                const pageSlicePx = Math.max(1, Math.floor(usableHeight * pxPerMm));
+                let srcY = 0;
+                let pageIndex = 0;
+                while (srcY < canvas.height) {
+                    const slicePx = Math.min(pageSlicePx, canvas.height - srcY);
+                    const sliceCanvas = document.createElement('canvas');
+                    sliceCanvas.width = canvas.width;
+                    sliceCanvas.height = slicePx;
+                    const ctx = sliceCanvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+                    ctx.drawImage(
+                        canvas,
+                        0, srcY, canvas.width, slicePx,
+                        0, 0, canvas.width, slicePx
+                    );
+                    const sliceMm = slicePx / pxPerMm;
+                    const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+                    if (pageIndex > 0) pdf.addPage();
+                    pdf.addImage(sliceData, 'JPEG', margin, margin, imgWidth, sliceMm);
+                    srcY += slicePx;
+                    pageIndex += 1;
+                    if (pageIndex > 40) break;
                 }
 
                 const stamp = new Date().toISOString().slice(0, 10);

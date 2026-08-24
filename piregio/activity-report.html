@@ -1591,17 +1591,17 @@
     <script src="activity-field-labels.js?v=20260823a"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260820h"></script>
-    <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
+    <script src="auth-ui.js?v=20260819i"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
     <script src="pdf-share.js?v=20260822a"></script>
-    <script src="curia-hub.js?v=20260819o"></script>
+    <script src="curia-hub.js?v=20260825a"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260820k"></script>
+    <script src="pr-business-report-form.js?v=20260825b"></script>
     <script src="curia-comprehensive-report-form.js?v=20260823a"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
@@ -4229,7 +4229,28 @@
                 eventGroups.set(label, dedupeEventRows(rows));
             });
 
-            return { memos, majors, inquiries, eventGroups };
+            // 동일 내용(날짜·작성자·본문) 중복 제거
+            // (활동 종목 note +「메모및 행사-메모」에 같은「내용」이 이중 저장된 경우)
+            const dedupeMemoItems = (items) => {
+                const seen = new Set();
+                return (items || []).filter((item) => {
+                    const key = [
+                        String(item?.date || '').trim(),
+                        String(item?.who || '').trim(),
+                        String(item?.text || '').trim()
+                    ].join('\u0001');
+                    if (!key.replace(/\u0001/g, '') || seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            };
+
+            return {
+                memos: dedupeMemoItems(memos),
+                majors: dedupeMemoItems(majors),
+                inquiries: dedupeMemoItems(inquiries),
+                eventGroups
+            };
         }
 
         function renderMemoLines(box, items, emptyTitle) {

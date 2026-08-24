@@ -894,7 +894,7 @@
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260820h"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
-    <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
+    <script src="auth-ui.js?v=20260819i"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
@@ -1390,12 +1390,15 @@
             }, 0);
         }
 
-        function buildMemoNoteText() {
-            const free = (
-                document.getElementById('activityMemoContent')?.value
-                || document.getElementById('memoFreeInput')?.value
-                || ''
-            ).trim();
+        function buildMemoNoteText(options = {}) {
+            const omitFree = !!options.omitFree;
+            const free = omitFree
+                ? ''
+                : (
+                    document.getElementById('activityMemoContent')?.value
+                    || document.getElementById('memoFreeInput')?.value
+                    || ''
+                ).trim();
             const major = (document.getElementById('memoMajorInput')?.value || '').trim();
             const inquiry = (document.getElementById('memoInquiryInput')?.value || '').trim();
             const suggest = (document.getElementById('memoSuggestInput')?.value || '').trim();
@@ -3676,9 +3679,22 @@
                     });
                 }
 
-                // 내용·주요활동·질의/건의는 항상「메모및 행사-메모」로 별도 저장
+                // 주요활동·질의/건의는「메모및 행사-메모」로 별도 저장.
+                // 「내용」은 이미 활동 종목 note에 넣었으면 메모 종목에 다시 넣지 않음(집계 이중 표시 방지).
                 syncMemoNoteFromInputs();
-                const memoNoteToSave = (memoPadText || document.getElementById('note')?.value || '').trim();
+                const freeAlreadyOnActivity = !!(activityNote && freeContent)
+                    && activities.some((a) => {
+                        const cat = String(a.category_name || '');
+                        return cat
+                            && cat !== `${MEMO_EVENT_GROUP}-메모`
+                            && !cat.startsWith(`${MEMO_EVENT_GROUP}-`)
+                            && String(a.note || '').includes('[메모]');
+                    });
+                const memoNoteToSave = (
+                    freeAlreadyOnActivity
+                        ? buildMemoNoteText({ omitFree: true })
+                        : (memoPadText || document.getElementById('note')?.value || '')
+                ).trim();
                 if (memoNoteToSave) {
                     const alreadyMemo = activities.some((a) =>
                         String(a.category_name || '') === `${MEMO_EVENT_GROUP}-메모`
