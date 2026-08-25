@@ -1155,6 +1155,7 @@
             .pr-biz-form .blank.w6 { min-width: 4.5em; }
             .pr-biz-form .blank.w8 { min-width: 6em; }
             .pr-biz-form .blank.w12 { min-width: 9em; }
+            .pr-biz-form .blank.w20 { min-width: 14em; }
             @keyframes pr-biz-blank-blink {
                 0%, 100% { border-bottom-color: #dc2626; box-shadow: 0 2px 0 rgba(220, 38, 38, 0.55); }
                 50% { border-bottom-color: #fca5a5; box-shadow: 0 2px 0 rgba(252, 165, 165, 0.35); }
@@ -1183,7 +1184,8 @@
             .pr-biz-form input.blank.w4.blank-editable,
             .pr-biz-form input.blank.w6.blank-editable,
             .pr-biz-form input.blank.w8.blank-editable,
-            .pr-biz-form input.blank.w12.blank-editable {
+            .pr-biz-form input.blank.w12.blank-editable,
+            .pr-biz-form input.blank.w20.blank-editable {
                 min-width: 2mm !important;
             }
             .pr-biz-form input.blank.blank-editable:placeholder-shown {
@@ -2377,8 +2379,9 @@
         const vp = officerName(officers, '부단장');
         const secretary = officerName(officers, '서기');
         const treasurer = officerName(officers, '회계');
-        const slashCell = '<td class="slash-cell">/</td>';
-        const emptyAttCell = '<td></td>';
+        // 출석상황·평의회출석: PDF 전 편집 가능 (출석 / 의무)
+        const attEditCell = `<td class="slash-cell">${ratioBlank('', '')}</td>`;
+        const officerAttRow = Array(6).fill(attEditCell).join('');
 
         const events = m.events || [];
         const fixedRows = FIXED_EVENTS.map((def) => {
@@ -2527,15 +2530,15 @@
                         </tr>
                         <tr>
                             <td class="row-label">출석상황</td>
-                            ${emptyAttCell}${emptyAttCell}${slashCell}${slashCell}${slashCell}${slashCell}
+                            ${officerAttRow}
                         </tr>
                         <tr>
                             <td class="row-label">평의회출석</td>
-                            ${emptyAttCell}${emptyAttCell}${slashCell}${slashCell}${slashCell}${slashCell}
+                            ${officerAttRow}
                         </tr>
                         <tr>
                             <td class="row-label">간부이동</td>
-                            <td colspan="7" class="left">${blank(m.officer_change, 'w12')}</td>
+                            <td colspan="7" class="left">${blank(m.officer_change, 'w20')}</td>
                         </tr>
                     </tbody>
                 </table>
