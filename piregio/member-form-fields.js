@@ -1056,7 +1056,34 @@
             .modal-content .reg-curia-comitia-row > input,
             .modal-content .reg-regia-senatus-row > input,
             .modal-content .reg-regia-senatus-row > select { flex: 1; min-width: 0; }
-            .modal-content .reg-choice-tabs { display: flex; flex-shrink: 0; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+            .modal-content .reg-choice-tabs { display: flex; flex-shrink: 1; min-width: 0; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+            @media (max-width: 767.98px) {
+                .modal-content .reg-baptism-gender-row,
+                .modal-content .reg-pr-type-row,
+                .modal-content .reg-curia-comitia-row,
+                .modal-content .reg-regia-senatus-row,
+                .modal-content .reg-pr-dates-row,
+                .modal-content .reg-pr-meeting-row {
+                    flex-wrap: wrap;
+                }
+                .modal-content .reg-choice-tabs {
+                    flex: 1 1 100%;
+                    width: 100%;
+                }
+                .modal-content .reg-choice-tab span {
+                    flex: 1;
+                    min-width: 0;
+                    padding: 0 6px;
+                }
+                .modal-content .reg-pr-date-item,
+                .modal-content .reg-pr-meeting-row > select {
+                    flex: 1 1 100%;
+                    min-width: 0;
+                }
+                .modal-content .reg-pr-meeting-row > select {
+                    flex: 1 1 calc(33.33% - 8px);
+                }
+            }
             .modal-content .reg-choice-tab { display: flex; margin: 0; cursor: pointer; }
             .modal-content .reg-choice-tab input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
             .modal-content .reg-choice-tab span { display: flex; align-items: center; justify-content: center; padding: 0 10px; min-width: 36px; height: 100%; min-height: 42px; font-size: 12px; color: #666; background: #fff; border-right: 1px solid #ddd; }

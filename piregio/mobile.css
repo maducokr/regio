@@ -464,13 +464,31 @@ button.login-button,
 }
 
 .modal-content .profile-field-row {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
-.modal-content .profile-field-row .field-confirm-btn,
-.modal-content .id-input-box .field-confirm-btn {
-    min-width: 56px;
-    min-height: var(--touch-min);
+@media (max-width: 767.98px) {
+    .profile-edit-modal .profile-field-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .profile-edit-modal .profile-field-actions {
+        flex-direction: row;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .profile-edit-modal .field-confirm-btn,
+    .profile-edit-modal .field-save-btn,
+    .modal-content .profile-field-row .field-confirm-btn,
+    .modal-content .id-input-box .field-confirm-btn {
+        flex: 1 1 0;
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: var(--touch-min);
+    }
 }
 
 .modal-content .form-actions {

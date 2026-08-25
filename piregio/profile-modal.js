@@ -33,7 +33,28 @@
                     margin: 8px auto 16px !important;
                     padding: 16px 14px !important;
                     max-height: calc(100dvh - 24px);
+                    overflow-x: hidden;
                     overflow-y: auto;
+                }
+                .profile-edit-modal .profile-field-row,
+                .profile-edit-modal .modal-content .profile-field-row[data-field="officerAppointed"].is-visible,
+                .profile-edit-modal .modal-content .profile-field-row[data-field="prDates"].is-visible {
+                    flex-direction: column;
+                    align-items: stretch;
+                    flex-wrap: nowrap;
+                    gap: 8px;
+                }
+                .profile-edit-modal .profile-field-actions {
+                    flex-direction: row;
+                    width: 100%;
+                    gap: 8px;
+                }
+                .profile-edit-modal .field-confirm-btn,
+                .profile-edit-modal .field-save-btn {
+                    flex: 1 1 0;
+                    width: auto !important;
+                    min-width: 0 !important;
+                    min-height: 40px;
                 }
             }
             .profile-edit-modal .modal-content .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; right: 20px; top: 15px; cursor: pointer; }
@@ -59,7 +80,7 @@
             .profile-edit-modal .position-picker .pos-code { display: inline-block; width: 32px; font-weight: bold; color: #4A90E2; }
             .profile-edit-modal .selected-position-text { display: block; margin-bottom: 6px; font-size: 12px; color: #4A90E2; font-weight: 600; }
             .profile-edit-modal .selected-position-text.empty { color: #999; font-weight: normal; }
-            .profile-edit-modal .profile-field-row { display: flex; align-items: stretch; gap: 6px; margin-bottom: 14px; }
+            .profile-edit-modal .profile-field-row { display: flex; flex-direction: row; align-items: stretch; gap: 6px; margin-bottom: 14px; }
             .profile-edit-modal .profile-field-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
             .profile-edit-modal .profile-field-main > input,
             .profile-edit-modal .profile-field-main > select { margin: 0; }
