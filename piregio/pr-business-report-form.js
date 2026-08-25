@@ -556,9 +556,10 @@
         const sundaySchool = one((n) => /주일학교/.test(n));
         const cleaning = one((n) => /청소|미화/.test(n));
         const massGuide = one((n) => /미사\s*안내|전례\s*협조|미사안내/.test(n));
-        const parishOther = one((n) => /기타\s*본당|본당\s*협조/.test(n) && !/행사|주일|청소|미사/.test(n));
-        const parishCount = sumParenCounts(eventHelp, sundaySchool, cleaning, massGuide, parishOther)
-            || one((n) => /본당|주일학교|전례|청소|미사안내/.test(n) && !/첫\s*영성체/.test(n));
+        const householdSurvey = one((n) => /호구조사|호별방문|교세\s*조사|호구/.test(n));
+        const parishOther = one((n) => /기타\s*본당|본당\s*협조/.test(n) && !/행사|주일|청소|미사|호구|호별|교세/.test(n));
+        const parishCount = sumParenCounts(eventHelp, sundaySchool, cleaning, massGuide, householdSurvey, parishOther)
+            || one((n) => /본당|주일학교|전례|청소|미사안내|호구|호별|교세/.test(n) && !/첫\s*영성체/.test(n));
 
         const smallMeet = one((n) => /소공동체와\s*함께하는\s*활동|소공동체\s*모임|소공동체\s*참석|소공동체\s*회의|소공동체\s*교육/.test(n));
         const zoneEdu = one((n) => /구역|반장\s*교육|반장교육/.test(n));
@@ -584,10 +585,11 @@
         const loveHospital = one((n) => /요양원|병원.*요양|요양.*병원/.test(n))
             || one((n) => /병원\s*방문|병원방문/.test(n) && /증언|사랑|요양/.test(n));
         const loveOther = one((n) => /사랑의\s*증언/.test(n) && /기타/.test(n));
+        const vehicleCoop = one((n) => /기타활동.*차량|기타.*차량봉사|차량봉사및교통|차량봉사및협조|차량\s*봉사.*교통/.test(n));
         const otherCount = sumParenCounts(
             nature, publication, rosary, weekdayMass, bibleReadWrite, dailyMassMeditate,
-            loveWelfare, loveHospital, loveOther
-        ) || one((n) => /기타\s*활동|기타활동|자연보호|출판물|묵주|평일미사|성경|매일미사|사랑의\s*증언/.test(n));
+            loveWelfare, loveHospital, loveOther, vehicleCoop
+        ) || one((n) => /기타\s*활동|기타활동|자연보호|출판물|묵주|평일미사|성경|매일미사|사랑의\s*증언|차량봉사|차량\s*봉사/.test(n));
 
         const dioceseOrder = one((n) => /교구\s*지시|세나뚜스\s*지시|상급.*지시/.test(n));
         const parishMinistryHelp = one((n) => /본당사목의\s*모든\s*협조/.test(n))
@@ -626,6 +628,8 @@
             infantBaptism,
             firstCommunion,
             homeVisit,
+            massWayBlessInvite,
+            retreatLectureInvite,
             hardshipCount,
             believerSick,
             nonbelieverSick,
@@ -651,6 +655,7 @@
             sundaySchool,
             cleaning,
             massGuide,
+            householdSurvey,
             parishOther,
             smallCount,
             smallMeet,
@@ -671,7 +676,8 @@
             dailyMassMeditate,
             loveWelfare,
             loveHospital,
-            loveOther
+            loveOther,
+            vehicleCoop
         };
     }
 
@@ -792,7 +798,9 @@
                             seoulParenPlain('성사 권면', a.sacramentInvite),
                             seoulParenPlain('유아 세례 권면', a.infantBaptism),
                             seoulParenPlain('첫 영성체', a.firstCommunion),
-                            seoulParenPlain('교우 가정 방문', a.homeVisit)
+                            seoulParenPlain('교우 가정 방문', a.homeVisit),
+                            seoulParenPlain('미사/십자가의 길/성체강복 참례권유', a.massWayBlessInvite),
+                            seoulParenPlain('피정/특강 참석권유', a.retreatLectureInvite)
                         ])}
                     </tr>
                     <tr>
@@ -838,6 +846,7 @@
                             seoulParenPlain('주일학교 돌봄', a.sundaySchool),
                             seoulParenPlain('청소 미화', a.cleaning),
                             seoulParenPlain('미사안내 봉사', a.massGuide),
+                            seoulParenPlain('호구조사(호별방문)', a.householdSurvey),
                             seoulParenPlain('기타 본당 협조', a.parishOther)
                         ])}
                     </tr>
@@ -867,6 +876,7 @@
                         ${seoulActContentCell([
                             seoulParenPlain('자연보호 활동', a.nature),
                             seoulParenPlain('출판물 보급', a.publication),
+                            seoulParenPlain('차량봉사및협조', a.vehicleCoop),
                             `기도및 신심행위: ${[
                                 seoulParenPlain('묵주기도', a.rosary),
                                 seoulParenPlain('평일미사참례', a.weekdayMass),
@@ -2468,6 +2478,8 @@
         const vp = officerName(officers, '부단장');
         const secretary = officerName(officers, '서기');
         const treasurer = officerName(officers, '회계');
+        const officerApprovedCell = (role) =>
+            blank(formatAppointedOn(officerField(officers, role, 'appointed_on')), 'w6');
         // 출석상황·평의회출석: PDF 전 편집 가능 (출석 / 의무)
         const attEditCell = `<td class="slash-cell">${ratioBlank('', '')}</td>`;
         const officerAttRow = Array(6).fill(attEditCell).join('');
@@ -2615,7 +2627,7 @@
                             <td>${blank(vp, 'w8')}</td>
                             <td>${blank(secretary, 'w8')}</td>
                             <td>${blank(treasurer, 'w8')}</td>
-                            <td rowspan="3" class="seoul-member-att-cell">${blank(att.members_present, 'w3')} / ${blank(att.members_total, 'w3')}</td>
+                            <td rowspan="4" class="seoul-member-att-cell">${blank(att.members_present, 'w3')} / ${blank(att.members_total, 'w3')}</td>
                         </tr>
                         <tr>
                             <td class="row-label">출석상황</td>
@@ -2624,6 +2636,15 @@
                         <tr>
                             <td class="row-label">평의회출석</td>
                             ${officerAttRow}
+                        </tr>
+                        <tr>
+                            <td class="row-label">승인일</td>
+                            <td></td>
+                            <td></td>
+                            <td>${officerApprovedCell('단장')}</td>
+                            <td>${officerApprovedCell('부단장')}</td>
+                            <td>${officerApprovedCell('서기')}</td>
+                            <td>${officerApprovedCell('회계')}</td>
                         </tr>
                         <tr>
                             <td class="row-label">간부이동</td>
