@@ -457,16 +457,7 @@
         }
 
         .field-item select.field-select-baptism {
-            width: 7.5em;
-            flex-shrink: 0;
-            box-sizing: border-box;
-            padding: 0.45em 0.55em;
-            font-size: 1em;
-            border: 1px solid #dbe3ee;
-            border-radius: 8px;
-            background: #f8fafc;
-            min-height: var(--form-control-h);
-            height: var(--form-control-h);
+            display: none;
         }
 
         .field-number-wrap {
@@ -3763,28 +3754,32 @@
             displayActivityFields(fields);
         });
 
-        function isBaptizedPersonField(field) {
-            const key = `${field.field_name || ''}|${field.field_display_name || ''}`;
-            // 세례자 () 명, 피정참가 () 명, 교육참가 () 명 등 인원 선택
-            return /세례자|영세자|유아세례|유아\s*세례|첫\s*영성체\s*교리반\s*인도|교리반\s*인도|자기\s*소개서|행동단원\s*모집|행동단원\s*입단|협조단원\s*모집|협조단원\s*입단|단체\s*가입|단체가입|쉬는\s*교우\s*회두|회두|판공|견진|혼인\s*장애\s*해소|혼인장애\s*해소|병자성사|봉성체|대세자|보례자|연도|장례미사\(고별식\)|기타\s*상가\s*활동|죽을\s*위험\s*중의\s*세례|세례보충예식|baptism|confirmation|meeting_head|sacrament|resolution|first_communion|conditional_baptism|conditional_communion|catechism_guide|membership|group_join|establishment|^세례(\||$)|피정참가|교육참가|\(\)\s*명/i.test(key);
-        }
-
-        function baptizedPersonSelectHtml(field) {
+        /** 인원·횟수 공통: 모바일 숫자 스테퍼 (네이티브 N명 라디오 목록 대신) */
+        function numberFieldHtml(field) {
             const id = `field_${field.field_name}`;
-            const options = ['<option value="0">0명</option>'];
-            for (let n = 1; n <= 20; n += 1) {
-                options.push(`<option value="${n}">${n}명</option>`);
-            }
             return `
                 <div class="field-item">
                     <label for="${id}">
                         ${field.field_display_name}
                         ${field.is_required ? '<span class="required">*</span>' : ''}
                     </label>
-                    <select id="${id}" name="${field.field_name}" class="field-select-baptism"
-                        ${field.is_required ? 'required' : ''}>
-                        ${options.join('')}
-                    </select>
+                    <div class="field-number-wrap">
+                        <input
+                            type="number"
+                            id="${id}"
+                            name="${field.field_name}"
+                            min="0"
+                            value="0"
+                            inputmode="numeric"
+                            ${field.is_required ? 'required' : ''}
+                            placeholder="0"
+                            aria-label="${field.field_display_name}"
+                        >
+                        <div class="field-stepper">
+                            <button type="button" class="field-step-btn minus" data-target="${id}" aria-label="감소">▾</button>
+                            <button type="button" class="field-step-btn plus" data-target="${id}" aria-label="증가">▴</button>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -3800,34 +3795,7 @@
 
             let html = '<div class="activity-fields">';
             fields.forEach(field => {
-                if (isBaptizedPersonField(field)) {
-                    html += baptizedPersonSelectHtml(field);
-                    return;
-                }
-                html += `
-                    <div class="field-item">
-                        <label for="field_${field.field_name}">
-                            ${field.field_display_name}
-                            ${field.is_required ? '<span class="required">*</span>' : ''}
-                        </label>
-                        <div class="field-number-wrap">
-                            <input 
-                                type="number" 
-                                id="field_${field.field_name}" 
-                                name="${field.field_name}"
-                                min="0" 
-                                value="0"
-                                inputmode="numeric"
-                                ${field.is_required ? 'required' : ''}
-                                placeholder="0"
-                            >
-                            <div class="field-stepper">
-                                <button type="button" class="field-step-btn minus" data-target="field_${field.field_name}" aria-label="감소">▾</button>
-                                <button type="button" class="field-step-btn plus" data-target="field_${field.field_name}" aria-label="증가">▴</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                html += numberFieldHtml(field);
             });
             html += '</div>';
             
@@ -3908,9 +3876,9 @@
             submitBtn.textContent = '💾 저장 중...';
 
             try {
-                // 각 필드의 값을 수집 (숫자 입력 + 세례자 선택)
+                // 각 필드의 값을 수집 (숫자 입력)
                 const fieldInputs = document.querySelectorAll(
-                    '#activityFields input[type="number"], #activityFields select.field-select-baptism'
+                    '#activityFields input[type="number"]'
                 );
                 const activities = [];
 
