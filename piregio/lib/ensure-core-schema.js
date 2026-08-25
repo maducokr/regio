@@ -126,6 +126,23 @@ async function ensureCoreSchema(pool) {
         )
     `);
 
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS member_meeting_attendance (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+            kind VARCHAR(20) NOT NULL,
+            meeting_key VARCHAR(20) NOT NULL,
+            attended BOOLEAN NOT NULL DEFAULT false,
+            observer BOOLEAN NOT NULL DEFAULT false,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE (member_id, kind, meeting_key)
+        )
+    `);
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_member_meeting_attendance_member
+        ON member_meeting_attendance (member_id)
+    `);
+
     const check = await pool.query(`
         SELECT to_regclass('public.member') IS NOT NULL AS member_ok
     `);

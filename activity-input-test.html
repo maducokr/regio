@@ -278,6 +278,81 @@
             text-align: center;
         }
 
+        .attendance-panel .att-section {
+            padding: 0.55em 1em 0.75em;
+            border-top: 1px solid #eef2f7;
+        }
+        .attendance-panel .att-section:first-of-type { border-top: none; }
+        .attendance-panel .att-label {
+            display: block;
+            font-size: 0.92em;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.45em;
+        }
+        .attendance-panel .att-hint {
+            font-size: 0.85em;
+            color: #94a3b8;
+            margin: 0 0 0.45em;
+            line-height: 1.35;
+        }
+        .attendance-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45em;
+        }
+        .attendance-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35em;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            border-radius: 999px;
+            padding: 0.38em 0.75em;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .attendance-chip input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+        }
+        .attendance-chip.is-on {
+            border-color: #2563eb;
+            background: rgba(37, 99, 235, 0.1);
+            color: #1d4ed8;
+        }
+        .attendance-chip.is-observer.is-on {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.1);
+            color: #6d28d9;
+        }
+        .attendance-council-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45em;
+            margin-bottom: 0.45em;
+        }
+        .attendance-council-row .att-month {
+            min-width: 5.5em;
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #475569;
+        }
+        .attendance-status {
+            font-size: 0.82em;
+            color: #64748b;
+            padding: 0 1em 0.55em;
+            min-height: 1.2em;
+        }
+
         .activity-fields {
             display: flex;
             flex-direction: column;
@@ -798,6 +873,21 @@
             </div>
         </div>
 
+        <div class="panel attendance-panel" id="meetingAttendancePanel">
+            <div class="panel-title">출석 체크</div>
+            <div class="att-section">
+                <span class="att-label">Pr 주회 출석 (지난 4주)</span>
+                <p class="att-hint" id="prAttendanceHint">로그인 회원 주회합 요일·선택 일자 기준으로 지난 4회를 표시합니다.</p>
+                <div class="attendance-chips" id="prAttendanceChips"></div>
+            </div>
+            <div class="att-section">
+                <span class="att-label">평의회 출석 · 참관</span>
+                <p class="att-hint">선택 일자 기준 이번 달·지난 달입니다.</p>
+                <div id="councilAttendanceRows"></div>
+            </div>
+            <div class="attendance-status" id="attendanceSaveStatus" aria-live="polite"></div>
+        </div>
+
         <div class="panel" id="memoEventPanel">
             <div class="panel-title memo-event-title" id="memoEventTitle" role="button" tabindex="0" aria-expanded="false">
                 <span>메모및 행사</span>
@@ -947,6 +1037,265 @@
                 return raw ? JSON.parse(raw) : null;
             } catch (e) {
                 return null;
+            }
+        }
+
+        const WEEKDAY_KO_TO_JS = { '일': 0, '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6 };
+        const WEEKDAY_JS_TO_KO = ['일', '월', '화', '수', '목', '금', '토'];
+        let meetingAttendanceState = { pr: {}, council: {} };
+        let attendanceSaveTimer = null;
+
+        function parseYmdLocal(ymd) {
+            const m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!m) return null;
+            return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        }
+
+        function formatYmdLocal(date) {
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatMdKo(ymd) {
+            const d = parseYmdLocal(ymd);
+            if (!d) return ymd;
+            return `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAY_JS_TO_KO[d.getDay()]})`;
+        }
+
+        function formatYmKo(ym) {
+            const m = String(ym || '').match(/^(\d{4})-(\d{2})$/);
+            if (!m) return ym;
+            return `${Number(m[1])}년 ${Number(m[2])}월`;
+        }
+
+        function previousYearMonthKey(ym) {
+            const m = String(ym || '').match(/^(\d{4})-(\d{2})$/);
+            if (!m) return '';
+            let y = Number(m[1]);
+            let mo = Number(m[2]) - 1;
+            if (mo < 1) {
+                mo = 12;
+                y -= 1;
+            }
+            return `${y}-${String(mo).padStart(2, '0')}`;
+        }
+
+        /** 기준일 포함 이전으로 해당 요일 주회일 4개 (최신→과거) */
+        function lastFourPrMeetingDates(asOfYmd, weekdayKo) {
+            const target = WEEKDAY_KO_TO_JS[String(weekdayKo || '').trim()];
+            const base = parseYmdLocal(asOfYmd);
+            if (target == null || !base) return [];
+            const d = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+            let guard = 0;
+            while (d.getDay() !== target && guard < 8) {
+                d.setDate(d.getDate() - 1);
+                guard += 1;
+            }
+            const out = [];
+            for (let i = 0; i < 4; i += 1) {
+                out.push(formatYmdLocal(d));
+                d.setDate(d.getDate() - 7);
+            }
+            return out;
+        }
+
+        function setAttendanceStatus(msg, isError) {
+            const el = document.getElementById('attendanceSaveStatus');
+            if (!el) return;
+            el.textContent = msg || '';
+            el.style.color = isError ? '#b91c1c' : '#64748b';
+        }
+
+        function getAttendanceMemberId() {
+            const select = document.getElementById('memberSelect');
+            const raw = select?.value || '';
+            const n = parseInt(raw, 10);
+            if (Number.isFinite(n) && n > 0) return n;
+            const user = getLoggedInUserSafe();
+            const uid = parseInt(user?.id, 10);
+            return Number.isFinite(uid) && uid > 0 ? uid : null;
+        }
+
+        function getAttendanceAsOfDate() {
+            const fromInput = document.getElementById('activityDate')?.value;
+            if (fromInput) return fromInput;
+            return formatYmdLocal(new Date());
+        }
+
+        function resolvePrWeekday() {
+            const user = getLoggedInUserSafe() || {};
+            const wd = String(user.pr_meeting_weekday || '').trim();
+            if (WEEKDAY_KO_TO_JS[wd] != null) return wd;
+            return '';
+        }
+
+        async function loadMeetingAttendanceRows(memberId) {
+            const res = await fetch(`/api/member-meeting-attendance?member_id=${encodeURIComponent(memberId)}`);
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || '출석 자료를 불러오지 못했습니다.');
+            }
+            const next = { pr: {}, council: {} };
+            for (const row of data.rows || []) {
+                const kind = String(row.kind || '');
+                const key = String(row.meeting_key || '');
+                if (!key || !next[kind]) continue;
+                next[kind][key] = {
+                    attended: !!row.attended,
+                    observer: !!row.observer
+                };
+            }
+            meetingAttendanceState = next;
+        }
+
+        function scheduleSaveMeetingAttendance(item) {
+            if (attendanceSaveTimer) clearTimeout(attendanceSaveTimer);
+            attendanceSaveTimer = setTimeout(() => {
+                saveMeetingAttendanceItem(item).catch(() => {});
+            }, 180);
+        }
+
+        async function saveMeetingAttendanceItem(item) {
+            const memberId = getAttendanceMemberId();
+            if (!memberId || !item) return;
+            setAttendanceStatus('저장 중…');
+            try {
+                const res = await fetch('/api/member-meeting-attendance', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ member_id: memberId, items: [item] })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error || '출석 저장 실패');
+                }
+                setAttendanceStatus('출석 저장됨');
+                setTimeout(() => setAttendanceStatus(''), 1600);
+            } catch (err) {
+                console.error(err);
+                setAttendanceStatus(err.message || '출석 저장 실패', true);
+            }
+        }
+
+        function bindAttendanceChip(labelEl, onChange) {
+            labelEl.addEventListener('click', (e) => {
+                e.preventDefault();
+                const input = labelEl.querySelector('input');
+                if (!input) return;
+                input.checked = !input.checked;
+                labelEl.classList.toggle('is-on', input.checked);
+                onChange(!!input.checked);
+            });
+        }
+
+        function renderMeetingAttendancePanel() {
+            const prWrap = document.getElementById('prAttendanceChips');
+            const councilWrap = document.getElementById('councilAttendanceRows');
+            const hint = document.getElementById('prAttendanceHint');
+            if (!prWrap || !councilWrap) return;
+
+            const asOf = getAttendanceAsOfDate();
+            const weekday = resolvePrWeekday();
+            const prDates = weekday ? lastFourPrMeetingDates(asOf, weekday) : [];
+
+            if (hint) {
+                hint.textContent = weekday
+                    ? `주회합 요일: ${weekday}요일 · 기준일 ${asOf}`
+                    : '회원정보에 주회합 요일이 없습니다. 프로필에서 요일을 등록해 주세요.';
+            }
+
+            prWrap.innerHTML = '';
+            if (!prDates.length) {
+                prWrap.innerHTML = '<span class="att-hint">표시할 Pr 출석일이 없습니다.</span>';
+            } else {
+                prDates.forEach((ymd) => {
+                    const checked = !!meetingAttendanceState.pr[ymd]?.attended;
+                    const lab = document.createElement('label');
+                    lab.className = `attendance-chip${checked ? ' is-on' : ''}`;
+                    lab.innerHTML = `<input type="checkbox" data-kind="pr" data-key="${ymd}" ${checked ? 'checked' : ''}><span>${formatMdKo(ymd)}</span>`;
+                    bindAttendanceChip(lab, (isOn) => {
+                        meetingAttendanceState.pr[ymd] = {
+                            attended: isOn,
+                            observer: false
+                        };
+                        scheduleSaveMeetingAttendance({
+                            kind: 'pr',
+                            meeting_key: ymd,
+                            attended: isOn,
+                            observer: false
+                        });
+                    });
+                    prWrap.appendChild(lab);
+                });
+            }
+
+            const asOfDate = parseYmdLocal(asOf) || new Date();
+            const curYm = `${asOfDate.getFullYear()}-${String(asOfDate.getMonth() + 1).padStart(2, '0')}`;
+            const prevYm = previousYearMonthKey(curYm);
+            councilWrap.innerHTML = '';
+            [curYm, prevYm].forEach((ym, idx) => {
+                const st = meetingAttendanceState.council[ym] || { attended: false, observer: false };
+                const row = document.createElement('div');
+                row.className = 'attendance-council-row';
+                const monthLabel = idx === 0 ? `이번 달 (${formatYmKo(ym)})` : `지난 달 (${formatYmKo(ym)})`;
+
+                const attLab = document.createElement('label');
+                attLab.className = `attendance-chip${st.attended ? ' is-on' : ''}`;
+                attLab.innerHTML = `<input type="checkbox" ${st.attended ? 'checked' : ''}><span>출석</span>`;
+                bindAttendanceChip(attLab, (isOn) => {
+                    const cur = meetingAttendanceState.council[ym] || { attended: false, observer: false };
+                    cur.attended = isOn;
+                    meetingAttendanceState.council[ym] = cur;
+                    scheduleSaveMeetingAttendance({
+                        kind: 'council',
+                        meeting_key: ym,
+                        attended: cur.attended,
+                        observer: cur.observer
+                    });
+                });
+
+                const obsLab = document.createElement('label');
+                obsLab.className = `attendance-chip is-observer${st.observer ? ' is-on' : ''}`;
+                obsLab.innerHTML = `<input type="checkbox" ${st.observer ? 'checked' : ''}><span>참관</span>`;
+                bindAttendanceChip(obsLab, (isOn) => {
+                    const cur = meetingAttendanceState.council[ym] || { attended: false, observer: false };
+                    cur.observer = isOn;
+                    meetingAttendanceState.council[ym] = cur;
+                    scheduleSaveMeetingAttendance({
+                        kind: 'council',
+                        meeting_key: ym,
+                        attended: cur.attended,
+                        observer: cur.observer
+                    });
+                });
+
+                row.innerHTML = `<span class="att-month">${monthLabel}</span>`;
+                row.appendChild(attLab);
+                row.appendChild(obsLab);
+                councilWrap.appendChild(row);
+            });
+        }
+
+        async function refreshMeetingAttendancePanel() {
+            const memberId = getAttendanceMemberId();
+            if (!memberId) {
+                meetingAttendanceState = { pr: {}, council: {} };
+                renderMeetingAttendancePanel();
+                setAttendanceStatus('회원을 선택하면 출석을 기록할 수 있습니다.');
+                return;
+            }
+            try {
+                await loadMeetingAttendanceRows(memberId);
+                renderMeetingAttendancePanel();
+                setAttendanceStatus('');
+            } catch (err) {
+                console.warn(err);
+                meetingAttendanceState = { pr: {}, council: {} };
+                renderMeetingAttendancePanel();
+                setAttendanceStatus(err.message || '출석 조회 실패', true);
             }
         }
 
@@ -1601,9 +1950,9 @@
             if (!checkLoginStatus()) {
                 return;
             }
-            loadMembers();
             loadCategories();
             setDefaultDate();
+            loadMembers();
             initMemoEventPanel();
         });
 
@@ -1790,6 +2139,7 @@
                 
                 // 폼 유효성 검사 업데이트
                 validateForm();
+                refreshMeetingAttendancePanel();
                 
             } catch (error) {
                 console.error('회원 목록 로드 실패:', error);
@@ -3831,11 +4181,15 @@
         }
 
         // 폼 변경 이벤트 리스너
-        document.getElementById('memberSelect').addEventListener('change', validateForm);
+        document.getElementById('memberSelect').addEventListener('change', () => {
+            validateForm();
+            refreshMeetingAttendancePanel();
+        });
         document.getElementById('categorySelect').addEventListener('change', validateForm);
         document.getElementById('activityDate').addEventListener('change', function() {
             validateForm();
             updateKoreanDate();
+            refreshMeetingAttendancePanel();
         });
         document.getElementById('note')?.addEventListener('input', validateForm);
         ['activityMemoContent', 'memoFreeInput', 'memoMajorInput', 'memoInquiryInput', 'memoSuggestInput'].forEach((id) => {

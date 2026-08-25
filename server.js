@@ -6063,6 +6063,90 @@ app.post('/api/community-activities', async (req, res) => {
     }
 });
 
+let memberMeetingAttendanceReady = false;
+async function ensureMemberMeetingAttendanceTable() {
+    if (memberMeetingAttendanceReady) return;
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS member_meeting_attendance (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+            kind VARCHAR(20) NOT NULL,
+            meeting_key VARCHAR(20) NOT NULL,
+            attended BOOLEAN NOT NULL DEFAULT false,
+            observer BOOLEAN NOT NULL DEFAULT false,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE (member_id, kind, meeting_key)
+        )
+    `);
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_member_meeting_attendance_member
+        ON member_meeting_attendance (member_id)
+    `);
+    memberMeetingAttendanceReady = true;
+}
+
+/** 개인활동: Pr 주회·평의회 출석/참관 조회 */
+app.get('/api/member-meeting-attendance', async (req, res) => {
+    try {
+        const memberId = parseInt(req.query.member_id, 10);
+        if (!Number.isFinite(memberId) || memberId <= 0) {
+            return res.status(400).json({ success: false, error: '회원 ID가 필요합니다.' });
+        }
+        await ensureMemberMeetingAttendanceTable();
+        const result = await pool.query(
+            `SELECT kind, meeting_key, attended, observer
+             FROM member_meeting_attendance
+             WHERE member_id = $1
+             ORDER BY kind, meeting_key DESC`,
+            [memberId]
+        );
+        res.json({ success: true, rows: result.rows || [] });
+    } catch (err) {
+        console.error('출석 조회 오류:', err);
+        res.status(500).json({ success: false, error: '출석 조회 중 오류가 발생했습니다.' });
+    }
+});
+
+/** 개인활동: Pr 주회·평의회 출석/참관 저장(부분 갱신) */
+app.put('/api/member-meeting-attendance', async (req, res) => {
+    try {
+        const memberId = parseInt(req.body?.member_id, 10);
+        const items = Array.isArray(req.body?.items) ? req.body.items : [];
+        if (!Number.isFinite(memberId) || memberId <= 0) {
+            return res.status(400).json({ success: false, error: '회원 ID가 필요합니다.' });
+        }
+        if (!items.length) {
+            return res.json({ success: true, saved: 0 });
+        }
+        await ensureMemberMeetingAttendanceTable();
+        let saved = 0;
+        for (const raw of items) {
+            const kind = String(raw?.kind || '').trim();
+            const meetingKey = String(raw?.meeting_key || '').trim();
+            if (!['pr', 'council'].includes(kind)) continue;
+            if (!meetingKey || meetingKey.length > 20) continue;
+            const attended = !!raw?.attended;
+            const observer = !!raw?.observer;
+            await pool.query(
+                `INSERT INTO member_meeting_attendance
+                    (member_id, kind, meeting_key, attended, observer, updated_at)
+                 VALUES ($1, $2, $3, $4, $5, NOW())
+                 ON CONFLICT (member_id, kind, meeting_key)
+                 DO UPDATE SET
+                    attended = EXCLUDED.attended,
+                    observer = EXCLUDED.observer,
+                    updated_at = NOW()`,
+                [memberId, kind, meetingKey, attended, observer]
+            );
+            saved += 1;
+        }
+        res.json({ success: true, saved });
+    } catch (err) {
+        console.error('출석 저장 오류:', err);
+        res.status(500).json({ success: false, error: '출석 저장 중 오류가 발생했습니다.' });
+    }
+});
+
 // 11. 개인정보 조회 API
 app.get('/api/user/:id', async (req, res) => {
     try {
