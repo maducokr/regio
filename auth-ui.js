@@ -88,6 +88,7 @@
                 comitia_name: row.comitia_name != null ? row.comitia_name : user.comitia_name,
                 regia_name: row.regia_name != null ? row.regia_name : user.regia_name,
                 senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
+                diocese_name: row.diocese_name != null ? row.diocese_name : user.diocese_name,
                 pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
                 pr_type: row.pr_type != null ? row.pr_type : user.pr_type,
                 position: row.position != null ? row.position : user.position,

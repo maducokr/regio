@@ -26,6 +26,7 @@
 
     const GENDER_OPTIONS = ['남', '여'];
     const PR_TYPE_OPTIONS = ['성인', '직속', '청년', '소년'];
+    const DIOCESE_OPTIONS = ['부산', '제주', '광주(전주)', '마산'];
     const SENATUS_OPTIONS = [
         '서울', '광주', '대구',
         'LA', '뉴욕', '필라델피아', '세계',
@@ -48,7 +49,7 @@
         email: '이메일',
         baptism: '세례명/성별',
         church: '성당',
-        curia: '꾸리아',
+        curia: '꾸리아/세나뚜스',
         password: '비밀번호',
         prDates: 'Pr 설립일·승인일',
         pr: 'Pr/구분',
@@ -179,7 +180,23 @@
                     ${buildSelectOptions(SENATUS_OPTIONS, '세나뚜스 선택')}
                 </select>
             </div>
+            <div id="regDioceseWrap" class="reg-senatus-row" style="display:none;">
+                <label class="reg-senatus-label" for="regDiocese">교구</label>
+                <select id="regDiocese" name="regDiocese" aria-label="교구">
+                    ${buildSelectOptions(DIOCESE_OPTIONS, '교구 선택(부산·제주·광주(전주)·마산)')}
+                </select>
+            </div>
         `;
+    }
+
+    function syncDioceseWrapVisibility(modal) {
+        const wrap = modal && modal.querySelector('#regDioceseWrap');
+        const select = modal && modal.querySelector('#regDiocese');
+        if (!wrap) return;
+        const senatus = getSenatusSelectValue(modal);
+        const show = senatus === '광주';
+        wrap.style.display = show ? '' : 'none';
+        if (!show && select) select.value = '';
     }
 
     function buildPrTypeHtml() {
@@ -421,6 +438,7 @@
         }
         if (prFoundedInput) prFoundedInput.disabled = !showOfficer;
         if (prApprovedInput) prApprovedInput.disabled = !showOfficer;
+        syncDioceseWrapVisibility(modal);
         const officerRow = modal.querySelector('.profile-field-row[data-field="officerAppointed"]');
         if (officerRow) {
             officerRow.classList.toggle('is-visible', showOfficer);
@@ -446,6 +464,13 @@
         const positionChangeBtn = modal.querySelector('#regPositionChangeBtn');
         let regSelectedPositionCode = '';
         let regSelectedPositionTPrefix = '';
+
+        const senatusEl = modal.querySelector('#regSenatus');
+        if (senatusEl && !senatusEl._dioceseBound) {
+            senatusEl._dioceseBound = true;
+            senatusEl.addEventListener('change', () => syncDioceseWrapVisibility(modal));
+        }
+        syncDioceseWrapVisibility(modal);
 
         function showRegPositionPicker() {
             if (regPositionPicker) regPositionPicker.classList.add('open');
@@ -582,6 +607,12 @@
         const el = modal && modal.querySelector('#regSenatus');
         const value = el ? String(el.value || '').trim() : '';
         return SENATUS_OPTIONS.includes(value) ? value : '';
+    }
+
+    function getDioceseSelectValue(modal) {
+        const el = modal && modal.querySelector('#regDiocese');
+        const value = el ? String(el.value || '').trim() : '';
+        return DIOCESE_OPTIONS.includes(value) ? value : '';
     }
 
     function validateField(fieldKey, modal, idField, mode) {
@@ -750,6 +781,16 @@
             const senatusSelect = modal.querySelector('#regSenatus');
             if (senatusSelect) senatusSelect.value = u.senatus_name;
         }
+        syncDioceseWrapVisibility(modal);
+        if (u.diocese_name && DIOCESE_OPTIONS.includes(u.diocese_name) && getSenatusSelectValue(modal) === '광주') {
+            const dioceseSelect = modal.querySelector('#regDiocese');
+            if (dioceseSelect) dioceseSelect.value = u.diocese_name;
+        }
+        const senatusEl = modal.querySelector('#regSenatus');
+        if (senatusEl && !senatusEl._dioceseBound) {
+            senatusEl._dioceseBound = true;
+            senatusEl.addEventListener('change', () => syncDioceseWrapVisibility(modal));
+        }
 
         let appointed = u.officer_appointed_on || '';
         if (appointed && typeof appointed === 'string' && appointed.includes('T')) {
@@ -851,6 +892,7 @@
         const selectedGender = modal.querySelector('input[name="regGender"]:checked');
         const selectedPrType = modal.querySelector('input[name="regPrType"]:checked');
         const selectedSenatus = getSenatusSelectValue(modal);
+        const selectedDiocese = getDioceseSelectValue(modal);
 
         const formData = {
             name,
@@ -858,10 +900,11 @@
             gender: (profileUser && profileUser.gender) || null,
             church_name: (profileUser && profileUser.church_name) || '',
             curia_name: isCooperator ? null : ((profileUser && profileUser.curia_name) || null),
-            // 꼬미시움·레지아는 입력란 제거 — 기존 값 유지. 세나뚜스는 등록/수정 시 선택
+            // 꼬미시움·레지아는 입력란 제거 — 기존 값 유지. 세나뚜스·교구는 등록/수정 시 선택
             comitia_name: (profileUser && profileUser.comitia_name) || null,
             regia_name: (profileUser && profileUser.regia_name) || null,
             senatus_name: (profileUser && profileUser.senatus_name) || null,
+            diocese_name: (profileUser && profileUser.diocese_name) || null,
             officer_appointed_on: isG1toG4
                 ? ((profileUser && profileUser.officer_appointed_on) || null)
                 : null,
@@ -941,6 +984,7 @@
             formData.church_name = modal.querySelector('#regChurchName').value.trim();
             formData.curia_name = isCooperator ? null : (modal.querySelector('#regCuriaName').value.trim() || null);
             formData.senatus_name = selectedSenatus || null;
+            formData.diocese_name = selectedDiocese || null;
             formData.officer_appointed_on = isG1toG4 ? readAppointedOn() : null;
             Object.assign(formData, readPrDates());
             Object.assign(formData, readPrMeeting());
@@ -963,6 +1007,7 @@
         } else if (onlyFieldKey === 'curia') {
             formData.curia_name = isCooperator ? null : (modal.querySelector('#regCuriaName').value.trim() || null);
             formData.senatus_name = getSenatusSelectValue(modal) || null;
+            formData.diocese_name = getDioceseSelectValue(modal) || null;
         } else if (onlyFieldKey === 'officerAppointed') {
             formData.officer_appointed_on = isG1toG4 ? readAppointedOn() : null;
         } else if (onlyFieldKey === 'prDates') {
@@ -1158,6 +1203,7 @@
         POSITION_LABELS,
         GENDER_OPTIONS,
         PR_TYPE_OPTIONS,
+        DIOCESE_OPTIONS,
         SENATUS_OPTIONS,
         WEEKDAY_OPTIONS,
         HOUR_OPTIONS,

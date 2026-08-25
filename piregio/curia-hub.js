@@ -7,6 +7,49 @@
         { key: 'regia', label: '레지아', nameField: 'regia_name', activityScope: 'regia' }
     ];
 
+    /** Pr 보고 교구(지역) 4분류 */
+    const PR_DIOCESE_OPTIONS = ['부산', '제주', '광주(전주)', '마산'];
+    const PR_REPORT_DIOCESE_KEY = 'prReportDiocese';
+
+    function normalizePrDiocese(value) {
+        const s = String(value == null ? '' : value).trim();
+        if (!s) return '';
+        if (PR_DIOCESE_OPTIONS.includes(s)) return s;
+        if (/제주/.test(s)) return '제주';
+        if (/마산/.test(s)) return '마산';
+        if (/광주|전주/.test(s)) return '광주(전주)';
+        if (/부산/.test(s)) return '부산';
+        return '';
+    }
+
+    function getSelectedPrDiocese() {
+        try {
+            return normalizePrDiocese(sessionStorage.getItem(PR_REPORT_DIOCESE_KEY) || '');
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function setSelectedPrDiocese(value) {
+        const name = normalizePrDiocese(value);
+        try {
+            if (name) sessionStorage.setItem(PR_REPORT_DIOCESE_KEY, name);
+            else sessionStorage.removeItem(PR_REPORT_DIOCESE_KEY);
+        } catch (e) { /* ignore */ }
+        return name;
+    }
+
+    async function fetchDiocesePrs(dioceseName) {
+        const name = normalizePrDiocese(dioceseName);
+        if (!name) return [];
+        const response = await fetch(`/api/diocese-prs?diocese_name=${encodeURIComponent(name)}`);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.success === false) {
+            throw new Error(data.error || '교구별 Pr 목록 조회에 실패했습니다.');
+        }
+        return Array.isArray(data.prs) ? data.prs : [];
+    }
+
     function getLoggedInUser() {
         if (global.RegioAdminMenu && typeof RegioAdminMenu.getLoggedInUser === 'function') {
             return RegioAdminMenu.getLoggedInUser();
@@ -38,6 +81,7 @@
                 comitia_name: row.comitia_name != null ? row.comitia_name : user.comitia_name,
                 regia_name: row.regia_name != null ? row.regia_name : user.regia_name,
                 senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
+                diocese_name: row.diocese_name != null ? row.diocese_name : user.diocese_name,
                 pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
                 position: row.position != null ? row.position : user.position
             };
@@ -80,6 +124,11 @@
         const s = resolveSenatusName(name);
         if (s === '대구' || s === '광주') return s;
         return '서울';
+    }
+
+    /** Pr 보고 4분류(부산·제주·광주(전주)·마산)는 광주 세나뚜스만 */
+    function isGwangjuSenatusUser(user) {
+        return resolveSenatusName(user?.senatus_name) === '광주';
     }
 
     /** DB에서 확인된 로그인 회원 세나뚜스로 세션을 맞춘다(잘못된 옛 값 덮어씀). */
@@ -2442,22 +2491,35 @@
         return data;
     }
 
-    function showPrMonthlyReportView(modal) {
+    function showPrMonthlyReportView(modal, dioceseName) {
         ensureStyles();
         const user = getLoggedInUser();
-        const initialChurch = String(user?.church_name || '').trim();
-        const initialPr = String(user?.pr_name || '').trim();
+        const useDiocese = isGwangjuSenatusUser(user);
+        const diocese = useDiocese ? (normalizePrDiocese(dioceseName) || getSelectedPrDiocese()) : '';
+        if (useDiocese && !diocese) {
+            showPrDioceseChooser(modal);
+            return;
+        }
+        if (useDiocese) setSelectedPrDiocese(diocese);
+        const userDiocese = normalizePrDiocese(user?.diocese_name);
+        const sameDiocese = !useDiocese || !userDiocese || userDiocese === diocese;
+        const initialChurch = sameDiocese ? String(user?.church_name || '').trim() : '';
+        const initialPr = sameDiocese ? String(user?.pr_name || '').trim() : '';
         const now = new Date();
         const defaultYear = now.getFullYear();
         const defaultMonth = now.getMonth() + 1;
+        const dioceseLabel = useDiocese ? `${escapeHtml(diocese)} · ` : '';
 
         const content = modal.querySelector('.modal-content');
         content.classList.add('wide');
         content.innerHTML = `
             <span class="close">&times;</span>
             <h2>Pr 월례보고</h2>
-            <p class="hub-sub">쁘레시디움 월례 보고서 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
+            <p class="hub-sub">${dioceseLabel}쁘레시디움 월례 보고서 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
             <div class="org-toolbar">
+                ${useDiocese ? `<select id="prMonthlyPrSelect" aria-label="교구 Pr 선택">
+                    <option value="">${escapeHtml(diocese)} Pr 선택</option>
+                </select>` : ''}
                 <input type="text" id="prMonthlyChurchInput" placeholder="성당 명칭" value="${escapeHtml(initialChurch)}">
                 <input type="text" id="prMonthlyNameInput" placeholder="Pr 명칭" value="${escapeHtml(initialPr)}">
                 <select id="prMonthlyYear"></select>
@@ -2470,12 +2532,13 @@
             <p class="org-meta" id="prMonthlyMeta">조회 버튼을 눌러주세요.</p>
             <div id="prMonthlyResult"><div class="empty">성당·Pr 명칭을 입력하고 조회하세요.</div></div>
             <div class="back-row">
-                <button type="button" id="prMonthlyBackBtn">← Pr 보고 선택</button>
+                <button type="button" id="prMonthlyBackBtn">← 보고 종류 선택</button>
             </div>
         `;
 
         const churchInput = content.querySelector('#prMonthlyChurchInput');
         const nameInput = content.querySelector('#prMonthlyNameInput');
+        const prSelect = content.querySelector('#prMonthlyPrSelect');
         const metaEl = content.querySelector('#prMonthlyMeta');
         const resultEl = content.querySelector('#prMonthlyResult');
         const yearSelect = content.querySelector('#prMonthlyYear');
@@ -2484,6 +2547,53 @@
         const excelBtn = content.querySelector('#prMonthlyExcelBtn');
         const hwpBtn = content.querySelector('#prMonthlyHwpBtn');
         let lastReportMeta = null;
+        let diocesePrList = [];
+
+        function encodePrOption(church, pr) {
+            return `${church}\u0001${pr}`;
+        }
+
+        function applyPrSelection(church, pr) {
+            churchInput.value = church || '';
+            nameInput.value = pr || '';
+        }
+
+        async function loadDiocesePrOptions() {
+            if (!useDiocese || !prSelect) return;
+            try {
+                diocesePrList = await fetchDiocesePrs(diocese);
+            } catch (error) {
+                console.warn(error);
+                diocesePrList = [];
+            }
+            while (prSelect.options.length > 1) prSelect.remove(1);
+            diocesePrList.forEach((row) => {
+                const church = String(row.church_name || '').trim();
+                const pr = String(row.pr_name || '').trim();
+                if (!church || !pr) return;
+                const opt = document.createElement('option');
+                opt.value = encodePrOption(church, pr);
+                opt.textContent = `${church} · ${pr}`;
+                if (church === initialChurch && pr === initialPr) opt.selected = true;
+                prSelect.appendChild(opt);
+            });
+            if (!prSelect.value && initialChurch && initialPr) {
+                const opt = document.createElement('option');
+                opt.value = encodePrOption(initialChurch, initialPr);
+                opt.textContent = `${initialChurch} · ${initialPr}`;
+                opt.selected = true;
+                prSelect.appendChild(opt);
+            }
+        }
+
+        if (prSelect) {
+            prSelect.addEventListener('change', () => {
+                const raw = prSelect.value || '';
+                if (!raw) return;
+                const parts = raw.split('\u0001');
+                applyPrSelection(parts[0] || '', parts[1] || '');
+            });
+        }
 
         function setExportEnabled(on) {
             pdfBtn.disabled = !on;
@@ -2530,7 +2640,7 @@
                     monthSelect.value
                 );
                 const liveUser = await refreshLoggedInUser();
-                metaEl.textContent = `${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${(liveUser?.senatus_name || data.senatus_name) ? ` · ${liveUser?.senatus_name || data.senatus_name}세나뚜스` : ''}`;
+                metaEl.textContent = `${useDiocese ? diocese + ' · ' : ''}${data.church_name} · ${data.pr_name} · ${data.year}년 ${data.month}월 · 회원 ${data.total_members}명${(liveUser?.senatus_name || data.senatus_name) ? ` · ${liveUser?.senatus_name || data.senatus_name}세나뚜스` : ''}`;
                 const senatus = resolveSenatusName(
                     liveUser?.senatus_name,
                     data.senatus_name,
@@ -2615,7 +2725,7 @@
         }
 
         content.querySelector('.close').onclick = () => closeModal(modal);
-        content.querySelector('#prMonthlyBackBtn').onclick = () => showPrReportTypeChooser(modal);
+        content.querySelector('#prMonthlyBackBtn').onclick = () => showPrReportTypeChooser(modal, useDiocese ? diocese : '');
         content.querySelector('#prMonthlySearchBtn').onclick = runSearch;
         pdfBtn.onclick = runPdfExport;
         excelBtn.onclick = runExcelExport;
@@ -2629,26 +2739,74 @@
             });
         });
 
-        if (initialChurch && initialPr) runSearch();
+        const afterReady = () => {
+            if (initialChurch && initialPr) runSearch();
+        };
+        if (useDiocese) loadDiocesePrOptions().then(afterReady);
+        else afterReady();
     }
 
-    function showPrReportTypeChooser(modal) {
+    function showPrReportTypeChooser(modal, dioceseName) {
+        const user = getLoggedInUser();
+        const useDiocese = isGwangjuSenatusUser(user);
+        const diocese = useDiocese ? (normalizePrDiocese(dioceseName) || getSelectedPrDiocese()) : '';
+        if (useDiocese && !diocese) {
+            showPrDioceseChooser(modal);
+            return;
+        }
+        if (useDiocese) setSelectedPrDiocese(diocese);
         const content = modal.querySelector('.modal-content');
         content.classList.remove('wide');
         content.innerHTML = `
             <span class="close">&times;</span>
             <h2>Pr 보고</h2>
-            <p class="hub-sub">보고 종류를 선택하세요.</p>
+            <p class="hub-sub">${useDiocese ? escapeHtml(diocese) + ' · ' : ''}보고 종류를 선택하세요.</p>
             <div class="hub-actions">
                 <button type="button" class="hub-btn" id="prMonthlyBtn">월례보고</button>
                 <button type="button" class="hub-btn primary" id="prSummaryBtn">사업보고</button>
             </div>
+            ${useDiocese ? `<div class="back-row">
+                <button type="button" id="prTypeBackBtn">← 교구 선택</button>
+            </div>` : ''}
         `;
         content.querySelector('.close').onclick = () => closeModal(modal);
-        content.querySelector('#prMonthlyBtn').onclick = () => showPrMonthlyReportView(modal);
+        const backBtn = content.querySelector('#prTypeBackBtn');
+        if (backBtn) backBtn.onclick = () => showPrDioceseChooser(modal);
+        content.querySelector('#prMonthlyBtn').onclick = () => showPrMonthlyReportView(modal, diocese);
         content.querySelector('#prSummaryBtn').onclick = () => {
-            window.location.href = 'activity-report.html?scope=pr';
+            const qs = useDiocese
+                ? `activity-report.html?scope=pr&diocese=${encodeURIComponent(diocese)}`
+                : 'activity-report.html?scope=pr';
+            window.location.href = qs;
         };
+    }
+
+    function showPrDioceseChooser(modal) {
+        const user = getLoggedInUser();
+        if (!isGwangjuSenatusUser(user)) {
+            showPrReportTypeChooser(modal, '');
+            return;
+        }
+        const preferred = normalizePrDiocese(user?.diocese_name) || getSelectedPrDiocese();
+        const content = modal.querySelector('.modal-content');
+        content.classList.remove('wide');
+        content.innerHTML = `
+            <span class="close">&times;</span>
+            <h2>Pr 보고</h2>
+            <p class="hub-sub">광주 세나뚜스 · 교구(지역)를 선택하세요.</p>
+            <div class="hub-actions">
+                ${PR_DIOCESE_OPTIONS.map((name) => `
+                    <button type="button" class="hub-btn${preferred === name ? ' primary' : ''}" data-diocese="${escapeHtml(name)}">${escapeHtml(name)}</button>
+                `).join('')}
+            </div>
+        `;
+        content.querySelector('.close').onclick = () => closeModal(modal);
+        content.querySelectorAll('[data-diocese]').forEach((btn) => {
+            btn.onclick = () => {
+                const diocese = setSelectedPrDiocese(btn.getAttribute('data-diocese'));
+                showPrReportTypeChooser(modal, diocese);
+            };
+        });
     }
 
     function showPrReportHubModal() {
@@ -2658,19 +2816,33 @@
             alert('로그인이 필요합니다.');
             return;
         }
-        refreshLoggedInUser().catch(() => {});
+        refreshLoggedInUser().then((live) => {
+            const existing = document.querySelector('.council-hub-modal');
+            if (existing) closeModal(existing);
 
-        const existing = document.querySelector('.council-hub-modal');
-        if (existing) closeModal(existing);
+            const modal = document.createElement('div');
+            modal.className = 'modal council-hub-modal';
+            modal.innerHTML = '<div class="modal-content"></div>';
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+            if (isGwangjuSenatusUser(live || user)) showPrDioceseChooser(modal);
+            else showPrReportTypeChooser(modal, '');
+        }).catch(() => {
+            const existing = document.querySelector('.council-hub-modal');
+            if (existing) closeModal(existing);
 
-        const modal = document.createElement('div');
-        modal.className = 'modal council-hub-modal';
-        modal.innerHTML = '<div class="modal-content"></div>';
-        document.body.appendChild(modal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal(modal);
+            const modal = document.createElement('div');
+            modal.className = 'modal council-hub-modal';
+            modal.innerHTML = '<div class="modal-content"></div>';
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+            if (isGwangjuSenatusUser(user)) showPrDioceseChooser(modal);
+            else showPrReportTypeChooser(modal, '');
         });
-        showPrReportTypeChooser(modal);
     }
 
     global.showCouncilReportHubModal = showCouncilReportHubModal;

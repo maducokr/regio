@@ -2760,6 +2760,39 @@ app.post('/api/activity-assignment', async (req, res) => {
     }
 });
 
+// 교구(지역)별 Pr 목록 — Pr 보고 4분류(부산·제주·광주(전주)·마산)
+app.get('/api/diocese-prs', async (req, res) => {
+    try {
+        const ALLOWED = new Set(['부산', '제주', '광주(전주)', '마산']);
+        const dioceseName = String(req.query.diocese_name || '').trim();
+        if (!ALLOWED.has(dioceseName)) {
+            return res.status(400).json({ success: false, error: '교구는 부산·제주·광주(전주)·마산 중 하나여야 합니다.' });
+        }
+
+        const result = await pool.query(
+            `SELECT DISTINCT church_name, pr_name
+             FROM member
+             WHERE diocese_name = $1
+               AND church_name IS NOT NULL AND TRIM(church_name) <> ''
+               AND pr_name IS NOT NULL AND TRIM(pr_name) <> ''
+             ORDER BY church_name, pr_name`,
+            [dioceseName]
+        );
+
+        res.json({
+            success: true,
+            diocese_name: dioceseName,
+            prs: result.rows.map((r) => ({
+                church_name: r.church_name,
+                pr_name: r.pr_name
+            }))
+        });
+    } catch (err) {
+        console.error('교구별 Pr 목록 조회 오류:', err);
+        res.status(500).json({ success: false, error: '교구별 Pr 목록 조회 중 오류가 발생했습니다.' });
+    }
+});
+
 // 로그인 회원 성당의 Pr 목록
 app.get('/api/church-prs', async (req, res) => {
     try {
@@ -5105,6 +5138,7 @@ function buildLoginUserResponse(user) {
         comitia_name: user.comitia_name || null,
         regia_name: user.regia_name || null,
         senatus_name: user.senatus_name || null,
+        diocese_name: user.diocese_name || null,
         gender: user.gender || null,
         pr_name: user.pr_name,
         pr_type: user.pr_type || null,
@@ -6347,6 +6381,7 @@ app.put('/api/user/:id', async (req, res) => {
             comitia_name,
             regia_name,
             senatus_name,
+            diocese_name,
             pr_name,
             pr_type,
             position,
@@ -6522,6 +6557,11 @@ app.put('/api/user/:id', async (req, res) => {
             return res.status(400).json({ error: '세나뚜스는 서울·광주·대구·LA·뉴욕·필라델피아·세계·토론토·몬트리올·브라질·아르헨·파리·마드리드·바르셀로나·빌바오 중 하나여야 합니다.' });
         }
 
+        if (diocese_name !== undefined && diocese_name !== null && String(diocese_name).trim() !== ''
+            && !['부산', '제주', '광주(전주)', '마산'].includes(String(diocese_name).trim())) {
+            return res.status(400).json({ error: '교구는 부산·제주·광주(전주)·마산 중 하나여야 합니다.' });
+        }
+
         // 사용자 존재 확인
         const existingUser = await pool.query(
             'SELECT id, name, curia_name FROM member WHERE id = $1',
@@ -6566,6 +6606,9 @@ app.put('/api/user/:id', async (req, res) => {
         const normalizedSenatus = senatus_name === undefined || senatus_name === null || String(senatus_name).trim() === ''
             ? null
             : String(senatus_name).trim();
+        const normalizedDiocese = diocese_name === undefined || diocese_name === null || String(diocese_name).trim() === ''
+            ? null
+            : String(diocese_name).trim();
 
         const positionCode = inferPositionCode(position, name);
         let normalizedAppointed = null;
@@ -6640,6 +6683,7 @@ app.put('/api/user/:id', async (req, res) => {
             comitia_name || null,
             regia_name || null,
             normalizedSenatus,
+            normalizedDiocese,
             pr_name || null,
             normalizedPrType,
             position || null,
@@ -6653,7 +6697,7 @@ app.put('/api/user/:id', async (req, res) => {
             normalizedMinute,
             normalizedPlace
         ];
-        let nextParam = 21;
+        let nextParam = 22;
         let prDatesSql = '';
         if (updatePrDates) {
             prDatesSql = `, pr_founded_on = $${nextParam++}, pr_approved_on = $${nextParam++}`;
@@ -6671,16 +6715,17 @@ app.put('/api/user/:id', async (req, res) => {
         const result = await pool.query(
             `UPDATE member 
              SET name = $1, baptism_name = $2, gender = $3, church_name = $4, curia_name = $5,
-                 comitia_name = $6, regia_name = $7, senatus_name = $8, pr_name = $9, pr_type = $10,
-                 position = $11, phone_last4 = $12, resident_id_front6 = $13, 
-                 phone_full = $14, resident_id_full = $15, officer_appointed_on = $16,
-                 pr_meeting_weekday = COALESCE($17, pr_meeting_weekday),
-                 pr_meeting_hour = COALESCE($18, pr_meeting_hour),
-                 pr_meeting_minute = COALESCE($19, pr_meeting_minute),
-                 pr_meeting_place = COALESCE($20, pr_meeting_place)${prDatesSql}${passwordSql}
+                 comitia_name = $6, regia_name = $7, senatus_name = $8, diocese_name = $9,
+                 pr_name = $10, pr_type = $11,
+                 position = $12, phone_last4 = $13, resident_id_front6 = $14, 
+                 phone_full = $15, resident_id_full = $16, officer_appointed_on = $17,
+                 pr_meeting_weekday = COALESCE($18, pr_meeting_weekday),
+                 pr_meeting_hour = COALESCE($19, pr_meeting_hour),
+                 pr_meeting_minute = COALESCE($20, pr_meeting_minute),
+                 pr_meeting_place = COALESCE($21, pr_meeting_place)${prDatesSql}${passwordSql}
              WHERE id = $${idParam}
              RETURNING id, name, baptism_name, gender, church_name, curia_name, curia_officer,
-                       comitia_name, regia_name, senatus_name, pr_name, pr_type, position, 
+                       comitia_name, regia_name, senatus_name, diocese_name, pr_name, pr_type, position, 
                        phone_last4, resident_id_front6, phone_full, resident_id_full, email,
                        officer_appointed_on, pr_meeting_weekday, pr_meeting_hour, pr_meeting_minute, pr_meeting_place,
                        pr_founded_on, pr_approved_on`,
@@ -6750,6 +6795,7 @@ app.post('/api/register', async (req, res) => {
             comitia_name,
             regia_name,
             senatus_name,
+            diocese_name,
             pr_name,
             pr_type,
             position,
@@ -6824,6 +6870,12 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ error: `세나뚜스(${allowedSenatus.join('·')})를 선택해주세요.` });
         }
         const senatusToSave = senatusRaw;
+        const dioceseRaw = String(diocese_name || '').trim();
+        const allowedDiocese = ['부산', '제주', '광주(전주)', '마산'];
+        if (dioceseRaw && !allowedDiocese.includes(dioceseRaw)) {
+            return res.status(400).json({ error: `교구(${allowedDiocese.join('·')})를 선택해주세요.` });
+        }
+        const dioceseToSave = dioceseRaw || null;
 
         let officerAppointedToSave = null;
         let prFoundedToSave = null;
@@ -6910,14 +6962,14 @@ app.post('/api/register', async (req, res) => {
         // 새 회원 추가
         const result = await pool.query(
             `INSERT INTO member 
-             (name, baptism_name, gender, church_name, curia_name, comitia_name, regia_name, senatus_name, pr_name, pr_type, position, phone_last4, 
+             (name, baptism_name, gender, church_name, curia_name, comitia_name, regia_name, senatus_name, diocese_name, pr_name, pr_type, position, phone_last4, 
               resident_id_front6, phone_full, resident_id_full, passno, zipcode, email, email_verified, officer_appointed_on,
               pr_founded_on, pr_approved_on)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
-             RETURNING id, name, baptism_name, gender, church_name, curia_name, comitia_name, regia_name, senatus_name, pr_name, pr_type, position, 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+             RETURNING id, name, baptism_name, gender, church_name, curia_name, comitia_name, regia_name, senatus_name, diocese_name, pr_name, pr_type, position, 
                        phone_last4, resident_id_front6, phone_full, resident_id_full, passno, zipcode, email, officer_appointed_on,
                        pr_founded_on, pr_approved_on`,
-            [name, baptism_name || null, normalizedGender, church_name, curia_name || null, comitiaToSave, regiaToSave, senatusToSave, pr_name, normalizedPrType, position || null, 
+            [name, baptism_name || null, normalizedGender, church_name, curia_name || null, comitiaToSave, regiaToSave, senatusToSave, dioceseToSave, pr_name, normalizedPrType, position || null, 
              phoneLast4, residentFront6, phone_full || null, resident_id_full || null, passno, zipcode || null,
              emailToSave, emailVerified, officerAppointedToSave, prFoundedToSave, prApprovedToSave]
         );
@@ -8121,7 +8173,8 @@ async function ensureMemberExtraColumns(appPool) {
         `ALTER TABLE member ADD COLUMN IF NOT EXISTS pr_returned_on DATE`,
         `ALTER TABLE member ADD COLUMN IF NOT EXISTS curia_approved_on DATE`,
         `ALTER TABLE member ADD COLUMN IF NOT EXISTS curia_meeting_on DATE`,
-        `ALTER TABLE member ADD COLUMN IF NOT EXISTS curia_meeting_place VARCHAR(100)`
+        `ALTER TABLE member ADD COLUMN IF NOT EXISTS curia_meeting_place VARCHAR(100)`,
+        `ALTER TABLE member ADD COLUMN IF NOT EXISTS diocese_name VARCHAR(50)`
     ];
 
     async function runAlters(targetPool) {

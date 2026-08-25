@@ -1395,8 +1395,26 @@
                         <option value="">Pr를 선택해주세요</option>
                     </select>
                 </div>
+                <div class="filter-group" id="prDioceseFilterGroup" style="display:none;">
+                    <label for="prDioceseSelect">교구:</label>
+                    <select id="prDioceseSelect">
+                        <option value="">교구 선택</option>
+                        <option value="부산">부산</option>
+                        <option value="제주">제주</option>
+                        <option value="광주(전주)">광주(전주)</option>
+                        <option value="마산">마산</option>
+                    </select>
+                </div>
+                <div class="filter-group" id="prSelectByDioceseGroup" style="display:none;">
+                    <label for="prDiocesePrSelect">Pr 선택:</label>
+                    <select id="prDiocesePrSelect">
+                        <option value="">교구 Pr 선택</option>
+                    </select>
+                </div>
                 <div class="filter-group" id="prFilterGroup" style="display:none;">
-                    <label for="prNameInput">Pr 명칭:</label>
+                    <label for="prChurchInput">성당:</label>
+                    <input type="text" id="prChurchInput" placeholder="성당 명칭">
+                    <label for="prNameInput" style="margin-top:8px;">Pr 명칭:</label>
                     <input type="text" id="prNameInput" placeholder="Pr 명칭을 입력하세요">
                 </div>
                 <div class="filter-group" id="curiaFilterGroup" style="display:none;">
@@ -1591,23 +1609,110 @@
     <script src="activity-field-labels.js?v=20260823a"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260820h"></script>
-    <script src="auth-ui.js?v=20260819i"></script>
+    <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
     <script src="pdf-share.js?v=20260822a"></script>
-    <script src="curia-hub.js?v=20260825a"></script>
+    <script src="curia-hub.js?v=20260825f"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
     <script src="pr-business-report-form.js?v=20260825c"></script>
     <script src="curia-comprehensive-report-form.js?v=20260823a"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
-    <script src="member-form-fields.js?v=20260825d"></script>
+    <script src="member-form-fields.js?v=20260825e"></script>
     <script src="profile-modal.js?v=20260825d"></script>
     <script>
+        const PR_DIOCESE_OPTIONS = ['부산', '제주', '광주(전주)', '마산'];
+        const PR_REPORT_DIOCESE_KEY = 'prReportDiocese';
+
+        function isGwangjuSenatusUser(user) {
+            const s = String(user?.senatus_name == null ? '' : user.senatus_name).trim();
+            return /광주/.test(s);
+        }
+
+        function normalizePrDiocese(value) {
+            const s = String(value == null ? '' : value).trim();
+            if (!s) return '';
+            if (PR_DIOCESE_OPTIONS.includes(s)) return s;
+            if (/제주/.test(s)) return '제주';
+            if (/마산/.test(s)) return '마산';
+            if (/광주|전주/.test(s)) return '광주(전주)';
+            if (/부산/.test(s)) return '부산';
+            return '';
+        }
+
+        function getPrReportDiocese() {
+            const fromUrl = normalizePrDiocese(new URLSearchParams(window.location.search).get('diocese'));
+            if (fromUrl) {
+                try { sessionStorage.setItem(PR_REPORT_DIOCESE_KEY, fromUrl); } catch (e) { /* ignore */ }
+                return fromUrl;
+            }
+            try {
+                return normalizePrDiocese(sessionStorage.getItem(PR_REPORT_DIOCESE_KEY) || '');
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function setPrReportDiocese(value) {
+            const name = normalizePrDiocese(value);
+            try {
+                if (name) sessionStorage.setItem(PR_REPORT_DIOCESE_KEY, name);
+                else sessionStorage.removeItem(PR_REPORT_DIOCESE_KEY);
+            } catch (e) { /* ignore */ }
+            return name;
+        }
+
+        function encodeDiocesePrOption(church, pr) {
+            return `${church}\u0001${pr}`;
+        }
+
+        function getSelectedPrChurchAndName() {
+            const user = typeof getLoggedInUser === 'function' ? getLoggedInUser() : null;
+            const churchEl = document.getElementById('prChurchInput');
+            const prEl = document.getElementById('prNameInput');
+            let church = churchEl?.value?.trim() || '';
+            const pr = prEl?.value?.trim() || '';
+            if (!church && user?.church_name) church = String(user.church_name).trim();
+            return { church, pr };
+        }
+
+        async function loadDiocesePrSelectOptions(dioceseName, preferredChurch, preferredPr) {
+            const select = document.getElementById('prDiocesePrSelect');
+            if (!select) return;
+            while (select.options.length > 1) select.remove(1);
+            const diocese = normalizePrDiocese(dioceseName);
+            if (!diocese) return;
+            try {
+                const response = await fetch(`/api/diocese-prs?diocese_name=${encodeURIComponent(diocese)}`);
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || data.success === false) throw new Error(data.error || '교구 Pr 목록 실패');
+                (data.prs || []).forEach((row) => {
+                    const church = String(row.church_name || '').trim();
+                    const pr = String(row.pr_name || '').trim();
+                    if (!church || !pr) return;
+                    const opt = document.createElement('option');
+                    opt.value = encodeDiocesePrOption(church, pr);
+                    opt.textContent = `${church} · ${pr}`;
+                    if (church === preferredChurch && pr === preferredPr) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            } catch (error) {
+                console.warn(error);
+            }
+            if (preferredChurch && preferredPr && !select.value) {
+                const opt = document.createElement('option');
+                opt.value = encodeDiocesePrOption(preferredChurch, preferredPr);
+                opt.textContent = `${preferredChurch} · ${preferredPr}`;
+                opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
         const REPORT_SCOPE_TITLES = {
             personal: '개인활동집계',
             secretary: '서기회의록 집계',
@@ -1674,7 +1779,11 @@
                     ? `Pr: ${selectedPr}`
                     : (user?.pr_name || '');
             } else if (scope === 'pr') {
-                subjectLabel = `Pr: ${document.getElementById('prNameInput').value.trim() || user?.pr_name || ''}`;
+                const { church, pr } = getSelectedPrChurchAndName();
+                const diocese = isGwangjuSenatusUser(user)
+                    ? (normalizePrDiocese(document.getElementById('prDioceseSelect')?.value) || getPrReportDiocese())
+                    : '';
+                subjectLabel = `${diocese ? diocese + ' · ' : ''}Pr: ${church ? church + ' / ' : ''}${pr || user?.pr_name || ''}`;
             } else if (scope === 'curia') {
                 subjectLabel = `꾸리아: ${document.getElementById('curiaNameInput').value.trim() || user?.curia_name || ''}`;
             } else if (scope === 'comitia') {
@@ -2224,6 +2333,8 @@
 
             const memberGroup = document.getElementById('memberFilterGroup');
             const prSelectGroup = document.getElementById('prSelectFilterGroup');
+            const prDioceseGroup = document.getElementById('prDioceseFilterGroup');
+            const prDiocesePrGroup = document.getElementById('prSelectByDioceseGroup');
             const prGroup = document.getElementById('prFilterGroup');
             const curiaGroup = document.getElementById('curiaFilterGroup');
             const comitiaGroup = document.getElementById('comitiaFilterGroup');
@@ -2236,6 +2347,9 @@
             const regiaSearch = document.getElementById('regiaSearchGroup');
             const senatusSearch = document.getElementById('senatusSearchGroup');
             const prInput = document.getElementById('prNameInput');
+            const prChurchInput = document.getElementById('prChurchInput');
+            const prDioceseSelect = document.getElementById('prDioceseSelect');
+            const prDiocesePrSelect = document.getElementById('prDiocesePrSelect');
             const curiaInput = document.getElementById('curiaNameInput');
             const dailySection = document.getElementById('dailyActivitiesSection');
             const comitiaDisplay = document.getElementById('comitiaNameDisplay');
@@ -2244,7 +2358,17 @@
 
             memberGroup.style.display = scope === 'personal' ? '' : 'none';
             prSelectGroup.style.display = scope === 'secretary' ? '' : 'none';
+            if (prDioceseGroup) prDioceseGroup.style.display = (scope === 'pr' && isGwangjuSenatusUser(user)) ? '' : 'none';
+            if (prDiocesePrGroup) prDiocesePrGroup.style.display = (scope === 'pr' && isGwangjuSenatusUser(user)) ? '' : 'none';
             prGroup.style.display = scope === 'pr' ? '' : 'none';
+            if (scope === 'pr' && prChurchInput) {
+                // 광주만 성당 입력란 노출(교구 Pr 선택용). 그 외는 로그인 성당 사용
+                prChurchInput.style.display = isGwangjuSenatusUser(user) ? '' : 'none';
+                const churchLabel = prChurchInput.previousElementSibling;
+                if (churchLabel && churchLabel.tagName === 'LABEL') {
+                    churchLabel.style.display = isGwangjuSenatusUser(user) ? '' : 'none';
+                }
+            }
             curiaGroup.style.display = scope === 'curia' ? '' : 'none';
             if (comitiaGroup) comitiaGroup.style.display = scope === 'comitia' ? '' : 'none';
             if (regiaGroup) regiaGroup.style.display = scope === 'regia' ? '' : 'none';
@@ -2276,8 +2400,50 @@
                 showDailyCheck.checked = false;
             }
 
-            if (scope === 'pr' && prInput) {
-                prInput.value = user?.pr_name || '';
+            if (scope === 'pr') {
+                const gwangju = isGwangjuSenatusUser(user);
+                if (gwangju) {
+                    const diocese = getPrReportDiocese() || normalizePrDiocese(user?.diocese_name);
+                    if (prDioceseSelect && diocese) prDioceseSelect.value = diocese;
+                    const sameDiocese = !user?.diocese_name || normalizePrDiocese(user.diocese_name) === diocese;
+                    if (prChurchInput) prChurchInput.value = sameDiocese ? (user?.church_name || '') : '';
+                    if (prInput) prInput.value = sameDiocese ? (user?.pr_name || '') : '';
+                    if (diocese) {
+                        setPrReportDiocese(diocese);
+                        loadDiocesePrSelectOptions(diocese, prChurchInput?.value?.trim() || '', prInput?.value?.trim() || '');
+                    }
+                    if (prDioceseSelect && !prDioceseSelect._bound) {
+                        prDioceseSelect._bound = true;
+                        prDioceseSelect.addEventListener('change', () => {
+                            const next = setPrReportDiocese(prDioceseSelect.value);
+                            if (prChurchInput) prChurchInput.value = '';
+                            if (prInput) prInput.value = '';
+                            loadDiocesePrSelectOptions(next, '', '');
+                            const params = new URLSearchParams(window.location.search);
+                            params.set('scope', 'pr');
+                            if (next) params.set('diocese', next);
+                            else params.delete('diocese');
+                            history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+                        });
+                    }
+                    if (prDiocesePrSelect && !prDiocesePrSelect._bound) {
+                        prDiocesePrSelect._bound = true;
+                        prDiocesePrSelect.addEventListener('change', () => {
+                            const raw = prDiocesePrSelect.value || '';
+                            if (!raw) return;
+                            const parts = raw.split('\u0001');
+                            if (prChurchInput) prChurchInput.value = parts[0] || '';
+                            if (prInput) prInput.value = parts[1] || '';
+                        });
+                    }
+                    if (diocese) {
+                        document.querySelector('.logo p').textContent = `Pr 사업보고 (${diocese})`;
+                        document.getElementById('reportSectionTitle').textContent = `📊 Pr 사업보고 · ${diocese}`;
+                    }
+                } else {
+                    if (prChurchInput) prChurchInput.value = user?.church_name || '';
+                    if (prInput) prInput.value = user?.pr_name || '';
+                }
             }
             if (scope === 'curia' && curiaInput) {
                 curiaInput.value = user?.curia_name || '';
@@ -3496,8 +3662,8 @@
             const user = (window.RegioAuth && typeof RegioAuth.refreshLoggedInUserFromServer === 'function')
                 ? (await RegioAuth.refreshLoggedInUserFromServer()) || getLoggedInUser()
                 : getLoggedInUser();
-            const prName = document.getElementById('prNameInput')?.value?.trim() || '';
-            if (!user?.church_name || !prName) {
+            const { church, pr: prName } = getSelectedPrChurchAndName();
+            if (!church || !prName) {
                 section.style.display = 'none';
                 ['prBusinessPdfBtn', 'prBusinessExcelBtn', 'prBusinessHwpBtn'].forEach((id) => {
                     const btn = document.getElementById(id);
@@ -3517,11 +3683,11 @@
             if (excelBtn) excelBtn.disabled = true;
             if (hwpBtn) hwpBtn.disabled = true;
             await RegioPrBusinessReportForm.render({
-                churchName: user.church_name,
+                churchName: church,
                 prName,
                 startDate,
                 endDate,
-                senatusName: user.senatus_name || '',
+                senatusName: user?.senatus_name || '',
                 container
             });
             const ready = !!container.querySelector('#prBusinessFormPrint');
@@ -3531,10 +3697,10 @@
         }
 
         function getPrBusinessExportMeta() {
-            const user = getLoggedInUser();
+            const { church, pr } = getSelectedPrChurchAndName();
             return {
-                churchName: user?.church_name || '',
-                prName: document.getElementById('prNameInput')?.value?.trim() || '',
+                churchName: church,
+                prName: pr,
                 startDate: document.getElementById('startDate')?.value || '',
                 endDate: document.getElementById('endDate')?.value || ''
             };
@@ -3648,12 +3814,24 @@
                 }
             }
             if (scope === 'pr') {
-                const prName = document.getElementById('prNameInput').value.trim();
-                if (!user?.church_name) {
-                    alert('성당 정보가 없습니다. 로그인 정보를 확인해주세요.');
+                const { church, pr } = getSelectedPrChurchAndName();
+                if (isGwangjuSenatusUser(user)) {
+                    const diocese = normalizePrDiocese(document.getElementById('prDioceseSelect')?.value)
+                        || getPrReportDiocese();
+                    if (!diocese) {
+                        alert('교구(부산·제주·광주(전주)·마산)를 선택해주세요.');
+                        document.getElementById('prDioceseSelect')?.focus();
+                        return;
+                    }
+                }
+                if (!church) {
+                    alert(isGwangjuSenatusUser(user)
+                        ? '성당 명칭을 입력하거나 교구 Pr을 선택해주세요.'
+                        : '성당 정보가 없습니다. 로그인 정보를 확인해주세요.');
+                    document.getElementById('prChurchInput')?.focus();
                     return;
                 }
-                if (!prName) {
+                if (!pr) {
                     alert('Pr 명칭을 입력해주세요.');
                     document.getElementById('prNameInput').focus();
                     return;
@@ -3776,8 +3954,8 @@
                         url += `&member_id=${memberId}`;
                     }
                 } else if (scope === 'pr') {
-                    const prName = document.getElementById('prNameInput').value.trim();
-                    url += `&church_name=${encodeURIComponent(user.church_name)}&pr_name=${encodeURIComponent(prName)}`;
+                    const { church, pr } = getSelectedPrChurchAndName();
+                    url += `&church_name=${encodeURIComponent(church)}&pr_name=${encodeURIComponent(pr)}`;
                 } else if (scope === 'curia') {
                     const curiaName = document.getElementById('curiaNameInput').value.trim();
                     url += `&church_name=${encodeURIComponent(user.church_name)}&curia_name=${encodeURIComponent(curiaName)}`;
