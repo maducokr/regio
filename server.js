@@ -2179,29 +2179,33 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             console.warn('Pr 월례 메모 조회 생략:', memoError.message);
         }
 
-        // 단원현황: 금월(해당 월) 스냅샷 + 전월 자료가 있으면 전월/증/감 표시
+        // 단원현황: 보고월 조회 시 스냅샷 저장 + 전월 자료가 있으면 전월/증/감 표시
         let membershipCurrent = { ...membership };
         let membershipPrevious = blankMembershipRow();
         let membershipIncrease = blankMembershipRow();
         let membershipDecrease = blankMembershipRow();
         try {
             const today = new Date();
-            const isReportMonthCurrent =
-                year === today.getFullYear() && month === (today.getMonth() + 1);
+            const todayY = today.getFullYear();
+            const todayM = today.getMonth() + 1;
+            const isReportMonthCurrent = year === todayY && month === todayM;
+            const isReportMonthFuture = year > todayY || (year === todayY && month > todayM);
 
-            // 이번 달 보고서 조회 시에만 금월 스냅샷 갱신 (과거 월 덮어쓰기 방지)
-            if (isReportMonthCurrent) {
+            // 미래 월 제외: 이번 달은 갱신, 과거·이번 보고월은 조회 시 저장
+            // (과거 달은 기존 스냅샷이 있으면 덮어쓰지 않음)
+            if (!isReportMonthFuture) {
                 await saveMonthlyOrgSnapshot({
                     scopeType: 'pr',
                     churchName,
                     orgName: prName,
                     year,
                     month,
-                    stats: membership
+                    stats: membership,
+                    onlyIfAbsent: !isReportMonthCurrent
                 });
             }
 
-            // 과거 월이면 저장된 금월 스냅샷 우선
+            // 과거 월이면 저장된 보고월 스냅샷 우선
             if (!isReportMonthCurrent) {
                 const monthSnap = await loadMonthlyOrgSnapshot({
                     scopeType: 'pr',
@@ -2220,6 +2224,21 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             }
 
             const prevYm = previousYearMonth(year, month);
+            const prevIsFuture = prevYm.year > todayY
+                || (prevYm.year === todayY && prevYm.month > todayM);
+            // 전월 스냅샷이 없으면 조회 시점에 현재 인원으로 한 번만 시드(기존 값 덮어쓰지 않음)
+            if (!prevIsFuture) {
+                await saveMonthlyOrgSnapshot({
+                    scopeType: 'pr',
+                    churchName,
+                    orgName: prName,
+                    year: prevYm.year,
+                    month: prevYm.month,
+                    stats: membership,
+                    onlyIfAbsent: true
+                });
+            }
+
             const prevStats = await loadMonthlyOrgSnapshot({
                 scopeType: 'pr',
                 churchName,
@@ -3691,8 +3710,33 @@ function buildMembershipChangeRows(current, previous, keys = PR_MEMBERSHIP_KEYS)
     return { increase, decrease };
 }
 
-async function saveMonthlyOrgSnapshot({ scopeType, churchName = '', orgName, year, month, stats }) {
+async function saveMonthlyOrgSnapshot({
+    scopeType,
+    churchName = '',
+    orgName,
+    year,
+    month,
+    stats,
+    onlyIfAbsent = false
+}) {
     await ensureMonthlyOrgSnapshotTable();
+    if (onlyIfAbsent) {
+        await pool.query(
+            `INSERT INTO monthly_org_snapshot (scope_type, church_name, org_name, year, month, stats, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6::jsonb, NOW())
+             ON CONFLICT (scope_type, church_name, org_name, year, month)
+             DO NOTHING`,
+            [
+                String(scopeType || '').trim(),
+                String(churchName || '').trim(),
+                String(orgName || '').trim(),
+                Number(year),
+                Number(month),
+                JSON.stringify(stats || {})
+            ]
+        );
+        return;
+    }
     await pool.query(
         `INSERT INTO monthly_org_snapshot (scope_type, church_name, org_name, year, month, stats, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6::jsonb, NOW())
