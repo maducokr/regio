@@ -251,6 +251,10 @@
         return resolveFormReportDiocese(m) === '부산';
     }
 
+    function isMasanReportContext(m) {
+        return resolveFormReportDiocese(m) === '마산';
+    }
+
     /** Pr 사업보고 양식 분기용 교구 — model·URL·sessionStorage 통합 */
     function resolveFormReportDiocese(m) {
         const fromModel = normalizeReportDiocese(m && m.report_diocese);
@@ -1129,6 +1133,38 @@
         };
     }
 
+    /** 마산 교구 Pr 사업보고 — 활동 세목 집계 */
+    function computeMasanActivityCounts(totals) {
+        const j = computeJejuActivityCounts(totals);
+        const one = (matcher, field) => sumActivityTotals(totals, matcher, field);
+        const convertInvite = one((n) => /개종|개종자|개종\s*권면/.test(n) && !/회두/.test(n));
+        const catechumen = one((n) => /예비자|예비신자/.test(n) && !/타인|교리반\s*인도/.test(n));
+        const marriageDivorceMass = one((n) => /혼인\s*장애|이혼|미사\s*참례|조당/.test(n));
+        const firstInfantInvite = sumParenCounts(j.firstCommunionInvite, j.infantBaptismInvite)
+            || one((n) => /첫\s*영성체|유아\s*세례|유아세례/.test(n));
+        const believerSickFuneral = sumParenCounts(j.believerSick, j.believerFuneral)
+            || one((n) => /교우\s*환자|교우\s*상가|병자|상가/.test(n) && !/외인|비신자/.test(n));
+        const neighborSickFuneral = sumParenCounts(j.nonbelieverSick, j.nonbelieverFuneral)
+            || one((n) => /비신자\s*환자|비신자\s*상가|외인\s*환자|외인\s*상가/.test(n));
+        const nature = one((n) => /자연\s*보호|자연보호|생태|환경/.test(n) && !/지구/.test(n));
+        const legionActivity = j.legionPromo
+            || one((n) => /레지오\s*관련|레지오홍보|Pr\s*설립|교본\s*공부/.test(n) && !/행동|협조|소년/.test(n));
+        const masanOtherCount = sumParenCounts(j.publication, nature, j.vehicle, j.proLife, j.familySanct)
+            || j.otherCount;
+
+        return Object.assign({}, j, {
+            convertInvite,
+            catechumen,
+            marriageDivorceMass,
+            firstInfantInvite,
+            believerSickFuneral,
+            neighborSickFuneral,
+            nature,
+            legionActivity,
+            otherCount: masanOtherCount
+        });
+    }
+
     function buildJejuActivitySpiritualSectionHtml(a) {
         const joinCases = (parts) => parts.filter(Boolean).join(', ');
         return `
@@ -1310,6 +1346,175 @@
                                 <th>기타기도</th>
                                 <td class="left">묘지순례, 선종단원지향, 단장지시기도, 모바일성경쓰기 등</td>
                                 <td>${blank(a.otherPray, 'w4')} 회</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+        `;
+    }
+
+    /** 마산 교구 Pr 사업보고 — 활동상황·영성생활 */
+    function buildMasanActivitySpiritualSectionHtml(a) {
+        const joinCases = (parts) => parts.filter(Boolean).join(', ');
+        return `
+                <div class="daegu-page-break">
+                    <div class="biz-sec-title" style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+                        <span>활동상황</span>
+                        <span style="border:1px dashed #666;padding:3px 8px;font-size:10px;font-weight:400;line-height:1.4;max-width:420px;">
+                            아래의 활동은 대표적인 예시이며 이외의 다른 활동을 추가할 수 있다.
+                        </span>
+                    </div>
+                    <div class="biz-scroll">
+                    <table class="biz-table gj-act-table jeju-act-table masan-act-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">종목</th>
+                                <th colspan="2">활동</th>
+                                <th rowspan="2">활동 사례 예</th>
+                                <th rowspan="2">결과</th>
+                            </tr>
+                            <tr>
+                                <th>대상</th>
+                                <th>횟수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="gj-cat">복음선교</td>
+                                ${targetCountCells(a.evangelismTarget, a.evangelismCount)}
+                                <td class="gj-cases">${joinCases([
+                                    caseParen('비신자', a.nonbelieverInvite),
+                                    caseParen('개종자', a.convertInvite),
+                                    caseParen('교리중단자', a.catechismRestart),
+                                    caseParen('예비자', a.catechumen),
+                                    caseParen('가두선교', a.streetMission),
+                                    caseParen('교리반인도 예비자 돌봄', a.catechismCare),
+                                    caseParen('타인이 인도한 예비자 돌봄', a.otherIntroduced),
+                                    caseParen('교리반 봉사 및 협조', a.catechismHelp)
+                                ])}</td>
+                                <td class="gj-result">
+                                    ${resultCell('교리반인도', a.catechismLead, '명')}<br>
+                                    ${resultCell('영세자', a.baptized, '명')}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="gj-cat">교우돌봄</td>
+                                ${targetCountCells(a.believerTarget, a.believerCount)}
+                                <td class="gj-cases">${joinCases([
+                                    caseParen('신영세자 방문·돌봄(전례·기도지도)', a.newBaptized),
+                                    caseParen('교우가정방문(종교활동 권장)', a.homeVisit),
+                                    caseParen('쉬는교우 방문', a.coldCare),
+                                    caseParen('혼인장애·이혼·미사참례 권면', a.marriageDivorceMass),
+                                    caseParen('성사권면', a.sacramentInvite),
+                                    caseParen('전입교우 방문(친목·단체가입)', a.transferIn),
+                                    caseParen('첫영성체·유아세례 권면', a.firstInfantInvite),
+                                    caseParen('교우환자·상가 방문', a.believerSickFuneral)
+                                ])}</td>
+                                <td class="gj-result">
+                                    ${resultCell('단체가입', a.groupJoin, '명')}<br>
+                                    ${resultCell('회두', a.conversion, '명')}<br>
+                                    ${resultCell('해소', a.marriageFix, '명')}<br>
+                                    ${resultCell('판공', a.confession, '명')}<br>
+                                    ${resultCell('견진', a.confirmation, '명')}<br>
+                                    ${resultCell('첫 영성체', a.firstCommunion, '명')}<br>
+                                    ${resultCell('유아세례', a.infantBaptism, '명')}<br>
+                                    ${resultCell('장례미사', a.funeralMass, '명')}<br>
+                                    ${resultCell('연도', a.yeondo, '명')}<br>
+                                    ${resultCell('기타상가활동', a.funeralOther, '명')}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="gj-cat">이웃돌봄</td>
+                                ${targetCountCells(a.neighborTarget, a.neighborCount)}
+                                <td class="gj-cases">${joinCases([
+                                    caseParen('비신자환자·상가 방문', a.neighborSickFuneral),
+                                    caseParen('병원활동', a.hospital),
+                                    caseParen('복지시설 봉사', a.welfare),
+                                    caseParen('재해·사고 피해자', a.disaster)
+                                ])}</td>
+                                <td class="gj-result">
+                                    ${resultCell('대세', a.conditionalBaptism, '명')}<br>
+                                    ${resultCell('보례', a.baptismComplete, '명')}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="gj-cat">레지오확장</td>
+                                ${targetCountCells(a.expansionTarget, a.expansionCount)}
+                                <td class="gj-cases">${joinCases([
+                                    caseParen('소년레지오 지도', a.juniorLegion),
+                                    caseParen('행동단원 모집', a.activeRecruit),
+                                    caseParen('협조단원 모집·돌봄', a.auxRecruit),
+                                    caseParen('레지오 관련 활동', a.legionActivity)
+                                ])}</td>
+                                <td class="gj-result">
+                                    ${resultCell('행동 입단', a.activeRecruit, '명')}<br>
+                                    ${resultCell('협조 입단', a.auxRecruit, '명')}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="gj-cat">본당활동</td>
+                                ${targetCountCells(a.parishTarget, a.parishCount)}
+                                <td class="gj-cases">${joinCases([
+                                    caseParen('본당행사 준비·협조', a.eventHelp),
+                                    caseParen('교세조사(호별방문)', a.householdSurvey),
+                                    caseParen('주일학교', a.sundaySchool),
+                                    caseParen('전례봉사', a.liturgy),
+                                    caseParen('청소·미화', a.cleaning),
+                                    caseParen('소공동체활동', a.smallCommunity)
+                                ])}</td>
+                                <td class="gj-result">${resultCell('면담', a.parishVisit, '세대')}</td>
+                            </tr>
+                            <tr>
+                                <td class="gj-cat">기타</td>
+                                ${targetCountCells(a.otherTarget, a.otherCount)}
+                                <td class="gj-cases">${joinCases([
+                                    caseParen('출판물 보급', a.publication),
+                                    caseParen('자연보호', a.nature),
+                                    caseParen('차량봉사·교통정리', a.vehicle),
+                                    caseParen('생명존중', a.proLife),
+                                    caseParen('가정성화(가정단위)', a.familySanct)
+                                ])}</td>
+                                <td class="gj-result">${blank('', 'w8')}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <div class="biz-sec-title" style="margin-top:12px;">영성 생활</div>
+                    <div class="biz-scroll">
+                    <table class="biz-table masan-spirit-table">
+                        <tbody>
+                            <tr>
+                                <td class="masan-spirit-label" rowspan="6">영<br>성<br>생<br>활</td>
+                                <th>평일미사</th>
+                                <td>${blank(a.weekdayMass, 'w4')}</td>
+                                <td class="left">평일미사 참여 횟수</td>
+                            </tr>
+                            <tr>
+                                <th>묵주기도</th>
+                                <td>${blank(a.rosary, 'w4')}</td>
+                                <td class="left">묵주기도 봉헌 단수</td>
+                            </tr>
+                            <tr>
+                                <th>성체조배</th>
+                                <td>${blank(a.eucharistAdoration, 'w4')}</td>
+                                <td class="left">합산 횟수</td>
+                            </tr>
+                            <tr>
+                                <th>성경 봉독, 쓰기</th>
+                                <td>${blank(a.bible, 'w4')}</td>
+                                <td class="left">성경읽기, 쓰기 합산 시간</td>
+                            </tr>
+                            <tr>
+                                <th>소성무일도</th>
+                                <td>${blank(a.littleOffice, 'w4')}</td>
+                                <td class="left">1회-아침/저녁/끝 기도 이상을 바친 경우</td>
+                            </tr>
+                            <tr>
+                                <th>기타 기도</th>
+                                <td>${blank(a.otherPray, 'w4')}</td>
+                                <td class="left">${blank('', 'w8')}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2564,6 +2769,32 @@
             .pr-biz-form.pr-biz-busan .bs-focus-plan {
                 border-top: none;
             }
+            .pr-biz-form.pr-biz-masan .masan-spirit-table th,
+            .pr-biz-form.pr-biz-masan .masan-spirit-table td {
+                border: 1px solid #333;
+                padding: 5px 8px;
+                font-size: 11px;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-masan .masan-spirit-label {
+                width: 6%;
+                text-align: center;
+                font-weight: 700;
+                line-height: 1.5;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-masan .masan-spirit-table th {
+                width: 18%;
+                font-weight: 700;
+                text-align: center;
+            }
+            .pr-biz-form.pr-biz-masan .masan-spirit-table td:nth-child(3) {
+                width: 12%;
+                text-align: center;
+            }
+            .pr-biz-form.pr-biz-masan .masan-spirit-table td.left {
+                text-align: left;
+            }
         `;
     }
 
@@ -3101,11 +3332,14 @@
         const formDiocese = resolveFormReportDiocese(m);
         const isJejuReport = formDiocese === '제주';
         const isBusanReport = formDiocese === '부산';
+        const isMasanReport = formDiocese === '마산';
         const a = isJejuReport
             ? computeJejuActivityCounts(m.activity_totals || [])
             : isBusanReport
                 ? computeBusanActivityCounts(m.activity_totals || [])
-                : computeGwangjuActivityCounts(m.activity_totals || []);
+                : isMasanReport
+                    ? computeMasanActivityCounts(m.activity_totals || [])
+                    : computeGwangjuActivityCounts(m.activity_totals || []);
         const mf = (bucket, key) => blank(memVal(bucket, key), 'w3');
 
         const officerRoles = [
@@ -3190,19 +3424,24 @@
             ? buildJejuActivitySpiritualSectionHtml(a)
             : isBusanReport
                 ? buildBusanActivitySectionHtml(a) + buildBusanActivityPage2Html(a)
-                : buildGwangjuActivitySpiritualSectionHtml(a);
+                : isMasanReport
+                    ? buildMasanActivitySpiritualSectionHtml(a)
+                    : buildGwangjuActivitySpiritualSectionHtml(a);
         if (isJejuReport) {
             console.info('[Pr사업보고] 제주 양식 적용: 활동상황·영성생활 교체');
         }
         if (isBusanReport) {
             console.info('[Pr사업보고] 부산 양식 적용: 활동상황·중점활동 교체');
         }
+        if (isMasanReport) {
+            console.info('[Pr사업보고] 마산 양식 적용: 활동상황·영성생활 교체');
+        }
 
         const specialSectionHtml = isBusanReport
             ? buildBusanFocusSectionHtml(officers)
             : `
                 <div class="daegu-page-break">
-                    <div class="gj-special-title">특기사항(중점활동)</div>
+                    <div class="gj-special-title">모범활동사례</div>
                     ${lineBoxHtml('', '260px')}
                     <div class="gj-special-guide">
                         (1) 육하원칙 (누가, 언제, 어디서, 어떻게, 무엇을, 왜)에 의해 작성하며, 가명을 사용합니다.<br>
@@ -3214,9 +3453,10 @@
                 </div>`;
 
         return `
-            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(formDiocese || m.report_diocese || ''))}" data-form-diocese="${escapeHtml(String(formDiocese || ''))}">
+            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}${isMasanReport ? ' pr-biz-masan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(formDiocese || m.report_diocese || ''))}" data-form-diocese="${escapeHtml(String(formDiocese || ''))}">
                 ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 활동상황·영성생활</div>' : ''}
                 ${isBusanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">부산 교구 Pr 사업보고 양식 · 활동상황·중점활동</div>' : ''}
+                ${isMasanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">마산 교구 Pr 사업보고 양식 · 활동상황·영성생활</div>' : ''}
                 <div class="biz-titles" style="text-align:center; margin-bottom:8px;">
                     <div class="doc-title">제 ${blank(m.report_seq, 'w4')} 차 사업 보고서</div>
                     <div style="margin-top:4px; font-size:12px;">
@@ -3805,7 +4045,8 @@
             diocese: reportDiocese || '(none)',
             formDiocese: resolveFormReportDiocese({ report_diocese: reportDiocese }),
             jejuForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '제주',
-            busanForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '부산'
+            busanForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '부산',
+            masanForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '마산'
         });
 
         if (isDaegu || isGwangju || useSeoulForm) {
