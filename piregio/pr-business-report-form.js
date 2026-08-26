@@ -877,7 +877,7 @@
         const eventHelp = one((n) => /행사\s*준비|행사\s*협조|본당\s*행사/.test(n));
         const householdSurvey = one((n) => /호구조사|호별방문|교세\s*조사|호구/.test(n));
         const sundaySchool = one((n) => /주일학교/.test(n));
-        const liturgy = one((n) => /전례|복사|성가|미사\s*안내/.test(n));
+        const liturgy = one((n) => /전례|복사|성가|미사\s*안내|미사안내|주보\s*접기|주보접기|준비\s*및\s*협조/.test(n));
         const cleaning = one((n) => /청소|미화/.test(n));
         const smallCommunity = one((n) => /소공동체|구역|반장|반모임/.test(n));
         const parishCount = sumParenCounts(eventHelp, householdSurvey, sundaySchool, liturgy, cleaning, smallCommunity)
@@ -1723,6 +1723,7 @@
                 animation: pr-biz-blank-blink 1.1s ease-in-out infinite;
                 field-sizing: content;
             }
+            .pr-biz-form input.blank.w2.blank-editable,
             .pr-biz-form input.blank.w3.blank-editable,
             .pr-biz-form input.blank.w4.blank-editable,
             .pr-biz-form input.blank.w6.blank-editable,
