@@ -1134,7 +1134,7 @@
         return `
                 <div class="daegu-page-break">
                     <div class="biz-sec-title" style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;">
-                        <span>11. 활동상황</span>
+                        <span>활동상황</span>
                         <span style="border:1px dashed #666;padding:3px 8px;font-size:10px;font-weight:400;line-height:1.4;max-width:420px;">
                             아래의 활동은 대표적인 예시이며 이외의 다른 유사한 활동도 횟수에 추가할 수 있다.
                         </span>
@@ -1341,7 +1341,7 @@
     function buildBusanActivitySectionHtml(a) {
         return `
                 <div class="daegu-page-break">
-                    <div class="biz-sec-title">11. 활동상황</div>
+                    <div class="biz-sec-title">활동상황</div>
                     <div class="biz-scroll">
                     <table class="biz-table gj-act-table busan-act-table">
                         <thead>
@@ -3192,10 +3192,10 @@
                 ? buildBusanActivitySectionHtml(a) + buildBusanActivityPage2Html(a)
                 : buildGwangjuActivitySpiritualSectionHtml(a);
         if (isJejuReport) {
-            console.info('[Pr사업보고] 제주 양식 적용: 11.활동상황·영성생활 교체');
+            console.info('[Pr사업보고] 제주 양식 적용: 활동상황·영성생활 교체');
         }
         if (isBusanReport) {
-            console.info('[Pr사업보고] 부산 양식 적용: 11.활동상황·중점활동 교체');
+            console.info('[Pr사업보고] 부산 양식 적용: 활동상황·중점활동 교체');
         }
 
         const specialSectionHtml = isBusanReport
@@ -3215,8 +3215,8 @@
 
         return `
             <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(formDiocese || m.report_diocese || ''))}" data-form-diocese="${escapeHtml(String(formDiocese || ''))}">
-                ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 11.활동상황·영성생활</div>' : ''}
-                ${isBusanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">부산 교구 Pr 사업보고 양식 · 11.활동상황·중점활동</div>' : ''}
+                ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 활동상황·영성생활</div>' : ''}
+                ${isBusanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">부산 교구 Pr 사업보고 양식 · 활동상황·중점활동</div>' : ''}
                 <div class="biz-titles" style="text-align:center; margin-bottom:8px;">
                     <div class="doc-title">제 ${blank(m.report_seq, 'w4')} 차 사업 보고서</div>
                     <div style="margin-top:4px; font-size:12px;">
