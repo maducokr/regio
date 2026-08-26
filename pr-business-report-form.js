@@ -2766,7 +2766,8 @@
         }
 
         return `
-            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}" id="prBusinessFormPrint">
+            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(m.report_diocese || ''))}">
+                ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 11.활동상황·영성생활</div>' : ''}
                 <div class="biz-titles" style="text-align:center; margin-bottom:8px;">
                     <div class="doc-title">제 ${blank(m.report_seq, 'w4')} 차 사업 보고서</div>
                     <div style="margin-top:4px; font-size:12px;">
