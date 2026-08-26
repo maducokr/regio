@@ -794,7 +794,7 @@
     }
 
     function targetCountCells(targetVal, countVal) {
-        return `<td class="gj-act-split">${blank(targetVal, 'w3')}</td><td class="gj-act-split">${blank(countVal, 'w3')}</td>`;
+        return `<td class="gj-act-split">${blank(targetVal, 'w2')}</td><td class="gj-act-split">${blank(countVal, 'w2')}</td>`;
     }
 
     /** 제주 교구 Pr 사업보고 — 활동 세목 집계 */
@@ -1692,6 +1692,7 @@
                 padding: 0 3px;
                 min-height: 1.1em;
             }
+            .pr-biz-form .blank.w2 { min-width: 1.6em; }
             .pr-biz-form .blank.w3 { min-width: 2.4em; }
             .pr-biz-form .blank.w4 { min-width: 3.2em; }
             .pr-biz-form .blank.w6 { min-width: 4.5em; }
@@ -2115,20 +2116,27 @@
                 width: 9%;
             }
             .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-act-split {
-                width: 12%;
+                width: 6%;
+                max-width: 3.2em;
                 text-align: center;
                 vertical-align: middle;
                 white-space: nowrap;
+                padding-left: 2px;
+                padding-right: 2px;
+            }
+            .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-act-split .blank {
+                min-width: 1.6em;
+                max-width: 2.4em;
             }
             .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-cases {
                 text-align: left;
                 line-height: 1.55;
-                width: 48%;
+                width: 54%;
             }
             .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-result {
                 text-align: left;
                 line-height: 1.55;
-                width: 22%;
+                width: 25%;
             }
             .pr-biz-form.pr-biz-gwangju .gj-special-title {
                 font-weight: 700;
