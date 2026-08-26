@@ -257,6 +257,20 @@
         return /제주/.test(parts.map(function (v) { return String(v == null ? '' : v); }).join(' '));
     }
 
+    function isBusanReportContext(m) {
+        const parts = [
+            m && m.report_diocese,
+            m && m.diocese_name,
+            (typeof location !== 'undefined' && location.search)
+                ? new URLSearchParams(location.search).get('diocese')
+                : '',
+            (function () {
+                try { return sessionStorage.getItem('prReportDiocese'); } catch (e) { return ''; }
+            })()
+        ];
+        return /부산/.test(parts.map(function (v) { return String(v == null ? '' : v); }).join(' '));
+    }
+
     function formatAppointedOn(raw) {
         if (raw == null || raw === '') return '';
         const s = String(raw).trim();
@@ -533,6 +547,133 @@
             familyPray: sumActivityTotals(totals, (n) => /가족이\s*함께\s*기도|가족기도|가정\s*기도/.test(n)),
             legionDiary: sumActivityTotals(totals, (n) => /성모님의\s*군단|군단일기|빛\s*잡지|빛잡지/.test(n)),
             spiritualOther: sumActivityTotals(totals, (n) => /프랭크|더프|시복|지향기도/.test(n))
+        };
+    }
+
+    /** 부산 교구 Pr 사업보고 — 활동 세목 집계 (11.활동상황) */
+    function computeBusanActivityCounts(totals) {
+        const one = (matcher, field) => sumActivityTotals(totals, matcher, field);
+
+        const nonbelieverInvite = one((n) => /비신자\s*입교|외인\s*입교|입교\s*권면/.test(n) && !/중단|재권면/.test(n));
+        const catechismRestart = one((n) => /교리\s*중단|재권면|중단자/.test(n));
+        const visitStreetMission = one((n) => /방문\s*선교|방문선교|가두\s*선교|가두선교|접촉활동|접촉\s*활동/.test(n));
+        const catechumenCare = one((n) => /예비자\s*돌보|예비신자\s*돌보|교리반\s*인도|타인\s*인도|타인인도/.test(n) && !/통신/.test(n))
+            || one((n) => /교리반/.test(n), 'catechism_guide');
+        const correspondence = one((n) => /통신\s*교리|통신교리/.test(n));
+        const catechismHelp = one((n) => /교리반\s*봉사|교리반\s*협조|교리\s*봉사/.test(n));
+        const catechismLead = one((n) => /교리반\s*인도|교리반인도/.test(n), 'catechism_guide')
+            || one((n) => /교리반\s*인도|교리반인도/.test(n));
+        const baptized = one((n) => /예비신자|예비자|세례|영세/.test(n), 'baptism')
+            || one((n) => /세례자|영세/.test(n));
+
+        const homeVisit = one((n) => /교우\s*방문|교우방문|교우\s*가정|가정\s*방문/.test(n));
+        const coldCare = one((n) => /쉬는\s*교우|냉담/.test(n));
+        const marriageGuide = one((n) => /혼인\s*장애|혼인장애|조당/.test(n));
+        const sacramentInvite = one((n) => /판공|견진|성사\s*권면|성사권유|회두/.test(n));
+        const believerSick = one((n) => /교우\s*환자|교우환자|병자/.test(n) && !/외인|비신자/.test(n));
+        const believerFuneral = one((n) => /교우\s*상가|교우상가/.test(n))
+            || one((n) => /상가/.test(n) && !/외인|비신자/.test(n), 'funeral_attendance');
+        const infantBaptismInvite = one((n) => /유아\s*세례|유아세례/.test(n) && !/세례\s*자/.test(n));
+        const youthCare = one((n) => /청소년\s*돌봄|청소년돌봄/.test(n));
+        const groupJoin = one((n) => /단체\s*가입|단체가입/.test(n), 'group_join')
+            || one((n) => /단체\s*가입|단체가입/.test(n));
+        const conversion = one((n) => /회두|개종/.test(n));
+        const marriageFix = one((n) => /혼인\s*장애|혼인장애|조당/.test(n), 'resolution')
+            || one((n) => /혼인\s*장애|혼인장애|조당/.test(n));
+        const confession = one((n) => /판공|고해/.test(n), 'sacrament')
+            || one((n) => /판공|고해/.test(n));
+        const confirmation = one((n) => /견진/.test(n), 'confirmation')
+            || one((n) => /견진/.test(n));
+        const sickCommunion = one((n) => /봉성체|병자\s*영성체|병자영성체/.test(n), 'first_communion')
+            || one((n) => /봉성체|병자\s*영성체|병자영성체/.test(n), 'conditional_communion')
+            || one((n) => /봉성체|병자\s*영성체|병자영성체/.test(n));
+        const yeondo = one((n) => /연도|위령기도|위령미사|보미사/.test(n), 'memorial_mass')
+            || one((n) => /연도|위령기도|위령미사|보미사/.test(n));
+        const funeralMass = one((n) => /장례미사|고별식/.test(n), 'funeral_mass')
+            || one((n) => /장례미사|고별식/.test(n));
+        const burialEscort = one((n) => /장지수행|장지\s*수행/.test(n))
+            || one((n) => /장지/.test(n) && !/장례미사|고별식|상가|연도/.test(n));
+        const infantBaptism = one((n) => /유아\s*세례|유아세례/.test(n), 'baptism')
+            || one((n) => /유아\s*세례|유아세례/.test(n));
+        const firstCommunion = one((n) => /첫\s*영성체|첫영성체/.test(n), 'first_communion')
+            || one((n) => /첫\s*영성체|첫영성체/.test(n));
+
+        const nonbelieverSick = one((n) => /비신자\s*환자|외인\s*환자|비신자환자|외인환자/.test(n));
+        const nonbelieverFuneral = one((n) => /비신자\s*상가|외인\s*상가/.test(n));
+        const disaster = one((n) => /이재|재해|재난|사고\s*피해|어려움/.test(n));
+        const multicultural = one((n) => /다문화/.test(n));
+        const hospitalWelfare = one((n) => /병원|복지시설|복지\s*봉사/.test(n) && !/가정성화/.test(n));
+        const dangerBaptismCare = one((n) => /죽을\s*위험|대세자\s*돌봄/.test(n));
+        const conditionalBaptism = one((n) => /대세|죽을\s*위험/.test(n), 'conditional_baptism')
+            || one((n) => /대세/.test(n));
+        const baptismComplete = one((n) => /보례|세례\s*보충/.test(n), 'conditional_communion')
+            || one((n) => /보례|세례\s*보충/.test(n));
+
+        const juniorLegion = one((n) => /소년\s*쁘레시디움|소년\s*Pr|소년\s*레지오|유년/.test(n));
+        const activeRecruitCare = one((n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'membership')
+            || one((n) => /행동\s*단원\s*모집|행동단원\s*모집|입단권면/.test(n), 'membership')
+            || one((n) => /행동\s*단원\s*모집|행동단원\s*모집|입단권면/.test(n));
+        const auxRecruitCare = one((n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'group_join')
+            || one((n) => /협조\s*단원\s*모집|협조단원\s*모집/.test(n), 'membership')
+            || one((n) => /협조\s*단원\s*모집|협조단원\s*모집/.test(n));
+        const prEstablishInvite = one((n) => /Pr\s*설립|Pr\.\s*설립|쁘레시디움\s*설립|설립\s*권면/.test(n));
+        const handbookStudy = one((n) => /교본\s*공부|교본공부/.test(n));
+        const councilCoop = one((n) => /평의회\s*업무|평의회업무/.test(n));
+        const juniorJoin = one((n) => /소년\s*쁘레시디움|소년\s*Pr|소년\s*레지오|유년/.test(n), 'membership')
+            || one((n) => /소년/.test(n), 'membership');
+        const activeJoin = activeRecruitCare;
+        const auxJoin = auxRecruitCare;
+        const foundedPr = one((n) => /Pr\s*설립|Pr\.\s*설립|쁘레시디움\s*설립/.test(n), 'establishment')
+            || one((n) => /Pr\s*설립|Pr\.\s*설립|쁘레시디움\s*설립/.test(n));
+
+        const smallCommunity = one((n) => /소공동체/.test(n));
+        const businessCoop = one((n) => /업무\s*협조|업무협조|사무협조/.test(n));
+        const sundaySenior = one((n) => /주일학교|노인대학/.test(n));
+        const eduRetreat = one((n) => /교육.*피정|피정|연수/.test(n) && /본당|교회|협조/.test(n))
+            || one((n) => /교육및피정|교육\s*및\s*피정/.test(n));
+        const liturgy = one((n) => /전례\s*봉사|전례\s*협조|미사\s*안내|미사안내|성가/.test(n));
+        const parishEvent = one((n) => /본당\s*행사|제\s*단체|제단체|행사\s*준비|행사\s*협조/.test(n));
+        const shrineFacility = one((n) => /성지|교구.*시설/.test(n));
+
+        const publication = one((n) => /출판물|간행물|보급|배포/.test(n) && !/선교책자|선교지/.test(n));
+        const vehicle = one((n) => /차량\s*봉사|차량봉사/.test(n));
+        const nature = one((n) => /자연\s*보호|자연보호|생태|환경/.test(n) && !/지구/.test(n));
+
+        const rosary = one((n) => /묵주기도|묵주\s*기도|상급평의회가\s*지시한\s*활동/.test(n), 'establishment')
+            || one((n) => /묵주기도|묵주\s*기도/.test(n));
+        const weekdayMass = one((n) => /평일\s*미사|평일미사/.test(n));
+        const stations = one((n) => /십자가의\s*길|십자가의길/.test(n));
+        const bibleRead = one((n) => /성경\s*읽기|성경읽기|봉독|통독/.test(n));
+        const bibleWrite = one((n) => /성경\s*쓰기|성경쓰기|필사/.test(n));
+        const littleOffice = one((n) => /소성무일도|성무일도/.test(n));
+        const eucharistAdoration = one((n) => /성체\s*조배|성체조배/.test(n));
+        const familyPray = one((n) => /가족\s*기도|가족기도|가정\s*기도/.test(n));
+        const legionRead = one((n) => /성모님의\s*군단|군단일기|빛\s*잡지|빛잡지/.test(n));
+
+        const earthRefuse = one((n) => /거절하기|지구와함께-거절/.test(n));
+        const earthSave = one((n) => /아껴쓰기|지구와함께-아껴/.test(n));
+        const earthReuse = one((n) => /다시쓰기|지구와함께-다시/.test(n));
+        const earthRepair = one((n) => /고쳐쓰기|지구와함께-고쳐/.test(n));
+        const earthRethink = one((n) => /재고하기|지구와함께-재고/.test(n));
+        const earthRecycle = one((n) => /재생하기|지구와함께-재생/.test(n));
+
+        return {
+            nonbelieverInvite, catechismRestart, visitStreetMission, catechumenCare,
+            correspondence, catechismHelp, catechismLead, baptized,
+            homeVisit, coldCare, marriageGuide, sacramentInvite, believerSick,
+            believerFuneral, infantBaptismInvite, youthCare,
+            groupJoin, conversion, marriageFix, confession, confirmation,
+            sickCommunion, yeondo, funeralMass, burialEscort, infantBaptism, firstCommunion,
+            nonbelieverSick, nonbelieverFuneral, disaster, multicultural,
+            hospitalWelfare, dangerBaptismCare, conditionalBaptism, baptismComplete,
+            juniorLegion, activeRecruitCare, auxRecruitCare, prEstablishInvite,
+            handbookStudy, councilCoop, juniorJoin, activeJoin, auxJoin, foundedPr,
+            smallCommunity, businessCoop, sundaySenior, eduRetreat, liturgy,
+            parishEvent, shrineFacility,
+            publication, vehicle, nature,
+            rosary, weekdayMass, stations, bibleRead, bibleWrite, littleOffice,
+            eucharistAdoration, familyPray, legionRead,
+            earthRefuse, earthSave, earthReuse, earthRepair, earthRethink, earthRecycle
         };
     }
 
@@ -977,6 +1118,7 @@
             liturgy,
             cleaning,
             smallCommunity,
+            parishOther,
             parishVisit,
             envTarget: '',
             envCount,
@@ -1112,7 +1254,8 @@
                                     caseParen('주일학교 돌봄', a.sundaySchool),
                                     caseParen('전례봉사/준비및협조(미사안내,주보접기,성가대)', a.liturgy),
                                     caseParen('청소', a.cleaning),
-                                    caseParen('소공동체 활동', a.smallCommunity)
+                                    caseParen('소공동체활동(구역,반장교육및참석,참석권유)', a.smallCommunity),
+                                    caseParen('기타', a.parishOther)
                                 ])}</td>
                                 <td class="gj-result">${resultCell('면담', a.parishVisit, '세대')}</td>
                             </tr>
@@ -1183,6 +1326,207 @@
                             </tr>
                         </tbody>
                     </table>
+                    </div>
+                </div>
+        `;
+    }
+
+    function busanActCategoryRows(categoryLabel, rows, resultHtml) {
+        const n = rows.length;
+        const hasResult = resultHtml != null && String(resultHtml).trim() !== '';
+        return rows.map(function (row, i) {
+            const catCell = i === 0
+                ? `<td class="gj-cat" rowspan="${n}">${categoryLabel}</td>`
+                : '';
+            const resCell = (hasResult && i === 0)
+                ? `<td class="gj-result" rowspan="${n}">${resultHtml}</td>`
+                : '';
+            const label = row.label ? escapeHtml(row.label) : '&nbsp;';
+            return `<tr>${catCell}<td class="left bs-act-content">${label}</td><td class="bs-count">${blank(row.count, 'w3')}</td>${resCell}</tr>`;
+        }).join('');
+    }
+
+    function busanGridCell(label, value, unit) {
+        return `<td class="bs-grid-cell"><div class="bs-grid-label">${escapeHtml(label)}</div><div class="bs-grid-val">${blank(value, 'w3')} ${escapeHtml(unit)}</div></td>`;
+    }
+
+    /** 부산 교구 Pr 사업보고 — 11.활동상황 (1페이지) */
+    function buildBusanActivitySectionHtml(a) {
+        return `
+                <div class="daegu-page-break">
+                    <div class="biz-sec-title">11. 활동상황</div>
+                    <div class="biz-scroll">
+                    <table class="biz-table gj-act-table busan-act-table">
+                        <thead>
+                            <tr>
+                                <th>종목</th>
+                                <th>활동내용</th>
+                                <th>활동횟수</th>
+                                <th>활동결과</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${busanActCategoryRows('복음선교', [
+                                { label: '비신자 입교 권면', count: a.nonbelieverInvite },
+                                { label: '교리 중단자 권면', count: a.catechismRestart },
+                                { label: '방문 및 가두 선교 (참여단원수 = 횟수)', count: a.visitStreetMission },
+                                { label: '예비자 돌보기 (직접, 타인 인도)', count: a.catechumenCare },
+                                { label: '통신 교리자 돌봄', count: a.correspondence },
+                                { label: '교리반 봉사 및 협조', count: a.catechismHelp }
+                            ], `
+                                ${resultCell('교리반 인도', a.catechismLead, '명')}<br>
+                                ${resultCell('세례자', a.baptized, '명')}
+                            `)}
+                            ${busanActCategoryRows('교우돌봄', [
+                                { label: '교우 방문 및 돌봄', count: a.homeVisit },
+                                { label: '쉬는 (냉담) 교우 돌봄', count: a.coldCare },
+                                { label: '혼인 장애자 돌봄', count: a.marriageGuide },
+                                { label: '판공성사 및 견진성사 권면', count: a.sacramentInvite },
+                                { label: '교우 환자 방문 및 돌봄', count: a.believerSick },
+                                { label: '교우 상가 방문 및 돌봄', count: a.believerFuneral },
+                                { label: '유아 세례 권면', count: a.infantBaptismInvite },
+                                { label: '청소년 돌봄', count: a.youthCare }
+                            ], `
+                                ${resultCell('단체가입', a.groupJoin, '명')}<br>
+                                ${resultCell('회두', a.conversion, '명')}<br>
+                                ${resultCell('해소', a.marriageFix, '명')}<br>
+                                ${resultCell('판공', a.confession, '명')} / ${resultCell('견진', a.confirmation, '명')}<br>
+                                ${resultCell('병자영성체', a.sickCommunion, '명')}<br>
+                                ${resultCell('연도', a.yeondo, '회')}, ${resultCell('장례미사', a.funeralMass, '회')}, ${resultCell('장지수행', a.burialEscort, '명')}<br>
+                                ${resultCell('유아세례', a.infantBaptism, '명')}<br>
+                                ${resultCell('첫영성체', a.firstCommunion, '명')}
+                            `)}
+                            ${busanActCategoryRows('이웃돌봄', [
+                                { label: '비신자 환자 방문 및 기도', count: a.nonbelieverSick },
+                                { label: '비신자 상가 방문 및 기도', count: a.nonbelieverFuneral },
+                                { label: '이재 및 어려움을 겪는 자 돌봄', count: a.disaster },
+                                { label: '다문화 가족 돌봄', count: a.multicultural },
+                                { label: '병원 및 복지시설 봉사', count: a.hospitalWelfare },
+                                { label: '죽을 위험 중의 세례자 돌봄', count: a.dangerBaptismCare }
+                            ], `
+                                ${resultCell('죽을 위험 중의 세례', a.conditionalBaptism, '명')}<br>
+                                ${resultCell('세례 보충 예식', a.baptismComplete, '명')}
+                            `)}
+                            ${busanActCategoryRows('레지오확장', [
+                                { label: '소년 쁘레시디움 지도', count: a.juniorLegion },
+                                { label: '행동 단원 모집 및 돌봄', count: a.activeRecruitCare },
+                                { label: '협조 단원 모집 및 돌봄', count: a.auxRecruitCare },
+                                { label: '쁘레시디움 설립 권면', count: a.prEstablishInvite },
+                                { label: '교본 공부', count: a.handbookStudy },
+                                { label: '평의회 업무 협조', count: a.councilCoop }
+                            ], `
+                                ${resultCell('입단', a.juniorJoin, '명')}<br>
+                                ${resultCell('입단', a.activeJoin, '명')}<br>
+                                ${resultCell('입단', a.auxJoin, '명')}<br>
+                                ${resultCell('설립', a.foundedPr, 'Pr.')}
+                            `)}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+        `;
+    }
+
+    /** 부산 교구 Pr 사업보고 — 11.활동상황 (2페이지: 본당협조·영성생활·지구살리기) */
+    function buildBusanActivityPage2Html(a) {
+        return `
+                <div class="daegu-page-break">
+                    <div class="biz-scroll">
+                    <table class="biz-table gj-act-table busan-act-table">
+                        <thead>
+                            <tr>
+                                <th>종목</th>
+                                <th>활동내용</th>
+                                <th>활동횟수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${busanActCategoryRows('본당 및<br>교회 협조', [
+                                { label: '소공동체 활동', count: a.smallCommunity },
+                                { label: '업무 협조', count: a.businessCoop },
+                                { label: '주일학교 및 노인대학 봉사', count: a.sundaySenior },
+                                { label: '교육 및 피정', count: a.eduRetreat },
+                                { label: '전례 봉사', count: a.liturgy },
+                                { label: '본당 행사 및 제 단체 봉사', count: a.parishEvent },
+                                { label: '성지 및 교구 관련 시설 봉사', count: a.shrineFacility }
+                            ], '')}
+                            ${busanActCategoryRows('레지아 지시사항', [
+                                { label: '', count: '' },
+                                { label: '', count: '' }
+                            ], '')}
+                            ${busanActCategoryRows('기타', [
+                                { label: '출판물 보급', count: a.publication },
+                                { label: '차량 봉사', count: a.vehicle },
+                                { label: '자연 보호', count: a.nature }
+                            ], '')}
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <div class="biz-sec-title" style="margin-top:12px;">영성생활</div>
+                    <table class="biz-table bs-grid-table">
+                        <tbody>
+                            <tr>
+                                ${busanGridCell('묵주기도', a.rosary, '단')}
+                                ${busanGridCell('평일 미사', a.weekdayMass, '회')}
+                                ${busanGridCell('십자가의 길', a.stations, '회')}
+                            </tr>
+                            <tr>
+                                ${busanGridCell('성경 읽기', a.bibleRead, '시간')}
+                                ${busanGridCell('성경 쓰기', a.bibleWrite, '시간')}
+                                ${busanGridCell('소성무일도', a.littleOffice, '회')}
+                            </tr>
+                            <tr>
+                                ${busanGridCell('성체 조배', a.eucharistAdoration, '회')}
+                                ${busanGridCell('가족 기도', a.familyPray, '회')}
+                                ${busanGridCell('성모님의 군단 읽기', a.legionRead, '시간')}
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="biz-sec-title" style="margin-top:12px;">지구 살리기</div>
+                    <table class="biz-table bs-grid-table">
+                        <tbody>
+                            <tr>
+                                ${busanGridCell('거절하기', a.earthRefuse, '회')}
+                                ${busanGridCell('아껴쓰기', a.earthSave, '회')}
+                                ${busanGridCell('다시쓰기', a.earthReuse, '회')}
+                            </tr>
+                            <tr>
+                                ${busanGridCell('고쳐쓰기', a.earthRepair, '회')}
+                                ${busanGridCell('재고하기', a.earthRethink, '회')}
+                                ${busanGridCell('재생하기', a.earthRecycle, '회')}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        `;
+    }
+
+    /** 부산 교구 Pr 사업보고 — 중점 활동 (특기사항 대체) */
+    function buildBusanFocusSectionHtml(officers) {
+        return `
+                <div class="daegu-page-break">
+                    <table class="biz-table bs-focus-table">
+                        <tr>
+                            <td class="bs-focus-label" rowspan="2">중점<br>활동</td>
+                            <td class="bs-focus-body">
+                                <div class="bs-focus-hint">
+                                    복음 선교 ("종목" 기재)<br>
+                                    소제목 (예: 하느님의 사랑을 실천한 결실)
+                                </div>
+                                ${lineBoxHtml('', '200px')}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="bs-focus-plan">
+                                (내년도 계획)<br>
+                                ${lineBoxHtml('', '48px')}
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="daegu-sign" style="margin-top:16px; text-align:right;">
+                        Pr. 단장 ${blank(officerField(officers, '단장', 'name'), 'w8')} (인)
                     </div>
                 </div>
         `;
@@ -2157,6 +2501,82 @@
                 margin-top: 10px;
                 line-height: 1.5;
             }
+            .pr-biz-form.pr-biz-busan .busan-act-table th,
+            .pr-biz-form.pr-biz-busan .busan-act-table td {
+                font-size: 10px;
+                padding: 3px 4px;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-busan .busan-act-table .gj-cat {
+                width: 12%;
+                text-align: center;
+                font-weight: 700;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-busan .busan-act-table .bs-act-content {
+                width: 52%;
+                text-align: left;
+                line-height: 1.45;
+            }
+            .pr-biz-form.pr-biz-busan .busan-act-table .bs-count {
+                width: 10%;
+                text-align: center;
+            }
+            .pr-biz-form.pr-biz-busan .busan-act-table .gj-result {
+                width: 26%;
+                text-align: left;
+                line-height: 1.5;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-busan .bs-grid-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 4px;
+            }
+            .pr-biz-form.pr-biz-busan .bs-grid-cell {
+                border: 1px solid #333;
+                padding: 6px 8px;
+                text-align: center;
+                width: 33.33%;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-busan .bs-grid-label {
+                font-weight: 700;
+                margin-bottom: 4px;
+                font-size: 11px;
+            }
+            .pr-biz-form.pr-biz-busan .bs-grid-val {
+                font-size: 11px;
+            }
+            .pr-biz-form.pr-biz-busan .bs-focus-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .pr-biz-form.pr-biz-busan .bs-focus-label {
+                width: 8%;
+                border: 1px solid #333;
+                text-align: center;
+                font-weight: 700;
+                vertical-align: middle;
+                writing-mode: vertical-rl;
+                letter-spacing: 2px;
+                padding: 8px 4px;
+            }
+            .pr-biz-form.pr-biz-busan .bs-focus-body,
+            .pr-biz-form.pr-biz-busan .bs-focus-plan {
+                border: 1px solid #333;
+                padding: 8px 10px;
+                vertical-align: top;
+            }
+            .pr-biz-form.pr-biz-busan .bs-focus-hint {
+                color: #b91c1c;
+                font-size: 11px;
+                line-height: 1.5;
+                margin-bottom: 6px;
+            }
+            .pr-biz-form.pr-biz-busan .bs-focus-plan {
+                border-top: none;
+            }
         `;
     }
 
@@ -2692,9 +3112,12 @@
         const end = parseYmd(m.end_date);
         const events = m.events || [];
         const isJejuReport = isJejuReportContext(m);
+        const isBusanReport = isBusanReportContext(m);
         const a = isJejuReport
             ? computeJejuActivityCounts(m.activity_totals || [])
-            : computeGwangjuActivityCounts(m.activity_totals || []);
+            : isBusanReport
+                ? computeBusanActivityCounts(m.activity_totals || [])
+                : computeGwangjuActivityCounts(m.activity_totals || []);
         const mf = (bucket, key) => blank(memVal(bucket, key), 'w3');
 
         const officerRoles = [
@@ -2777,14 +3200,35 @@
         const overallPct = att.rate || '';
         const activitySpiritualSectionHtml = isJejuReport
             ? buildJejuActivitySpiritualSectionHtml(a)
-            : buildGwangjuActivitySpiritualSectionHtml(a);
+            : isBusanReport
+                ? buildBusanActivitySectionHtml(a) + buildBusanActivityPage2Html(a)
+                : buildGwangjuActivitySpiritualSectionHtml(a);
         if (isJejuReport) {
             console.info('[Pr사업보고] 제주 양식 적용: 11.활동상황·영성생활 교체');
         }
+        if (isBusanReport) {
+            console.info('[Pr사업보고] 부산 양식 적용: 11.활동상황·중점활동 교체');
+        }
+
+        const specialSectionHtml = isBusanReport
+            ? buildBusanFocusSectionHtml(officers)
+            : `
+                <div class="daegu-page-break">
+                    <div class="gj-special-title">특기사항(중점활동)</div>
+                    ${lineBoxHtml('', '260px')}
+                    <div class="gj-special-guide">
+                        (1) 육하원칙 (누가, 언제, 어디서, 어떻게, 무엇을, 왜)에 의해 작성하며, 가명을 사용합니다.<br>
+                        (2) 물질적 구제 활동을 금지합니다. (교본 제39장 10절)
+                    </div>
+                    <div class="daegu-sign" style="margin-top:16px; text-align:right;">
+                        Pr. 단장 ${blank(officerField(officers, '단장', 'name'), 'w8')} (인)
+                    </div>
+                </div>`;
 
         return `
-            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(m.report_diocese || ''))}">
+            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(m.report_diocese || ''))}">
                 ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 11.활동상황·영성생활</div>' : ''}
+                ${isBusanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">부산 교구 Pr 사업보고 양식 · 11.활동상황·중점활동</div>' : ''}
                 <div class="biz-titles" style="text-align:center; margin-bottom:8px;">
                     <div class="doc-title">제 ${blank(m.report_seq, 'w4')} 차 사업 보고서</div>
                     <div style="margin-top:4px; font-size:12px;">
@@ -2989,17 +3433,7 @@
 
                 ${activitySpiritualSectionHtml}
 
-                <div class="daegu-page-break">
-                    <div class="gj-special-title">특기사항(중점활동)</div>
-                    ${lineBoxHtml('', '260px')}
-                    <div class="gj-special-guide">
-                        (1) 육하원칙 (누가, 언제, 어디서, 어떻게, 무엇을, 왜)에 의해 작성하며, 가명을 사용합니다.<br>
-                        (2) 물질적 구제 활동을 금지합니다. (교본 제39장 10절)
-                    </div>
-                    <div class="daegu-sign" style="margin-top:16px; text-align:right;">
-                        Pr. 단장 ${blank(officerField(officers, '단장', 'name'), 'w8')} (인)
-                    </div>
-                </div>
+                ${specialSectionHtml}
 
                 <p class="biz-note">※ 공식 양식에 DB 보유 항목만 자동 기입합니다. (대구·광주 전용 양식, 그 외 세나뚜스는 서울 양식 · 집계는 소속 세나뚜스 기준)</p>
             </div>
