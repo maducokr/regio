@@ -744,6 +744,10 @@
         return `${escapeHtml(label)} ${blank(value, 'w4')}${unit ? ` ${escapeHtml(unit)}` : ''}`;
     }
 
+    function countWithTarget(countVal) {
+        return `${blank(countVal, 'w4')}<br>대상(${blank('', 'w3')})`;
+    }
+
     function daeguActBlock(num, title, examples, count, resultsHtml) {
         return `
             <div class="daegu-act-block">
