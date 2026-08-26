@@ -217,12 +217,39 @@
         return v == null || v === '' ? '' : String(v);
     }
 
+    function normalizeReportDiocese(value) {
+        const s = String(value == null ? '' : value).trim();
+        if (!s) return '';
+        if (/제주/.test(s)) return '제주';
+        if (/마산/.test(s)) return '마산';
+        if (/광주|전주/.test(s)) return '광주(전주)';
+        if (/부산/.test(s)) return '부산';
+        return s;
+    }
+
+    function resolveReportDiocese(opts) {
+        const fromOpts = normalizeReportDiocese(opts?.dioceseName || opts?.reportDiocese || '');
+        if (fromOpts) return fromOpts;
+        try {
+            const fromUrl = normalizeReportDiocese(
+                new URLSearchParams(window.location.search).get('diocese')
+            );
+            if (fromUrl) return fromUrl;
+        } catch (e) { /* ignore */ }
+        try {
+            return normalizeReportDiocese(sessionStorage.getItem('prReportDiocese') || '');
+        } catch (e2) {
+            return '';
+        }
+    }
+
     function formatAppointedOn(raw) {
         if (raw == null || raw === '') return '';
         const s = String(raw).trim();
         if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
         return s;
     }
+
 
     const ACTIVITY_TOTAL_KEYS = [
         'count', 'catechism_guide', 'group_join', 'resolution', 'sacrament',
@@ -2479,6 +2506,9 @@
         const end = parseYmd(m.end_date);
         const events = m.events || [];
         const isJejuReport = /제주/.test(String(m.report_diocese || m.diocese_name || ''));
+        if (isJejuReport) {
+            console.info('[Pr사업보고] 제주 양식 적용: 11.활동상황·영성생활 교체');
+        }
         const a = isJejuReport
             ? computeJejuActivityCounts(m.activity_totals || [])
             : computeGwangjuActivityCounts(m.activity_totals || []);
@@ -3303,11 +3333,14 @@
         const isDaegu = formSenatus === '대구';
         const isGwangju = formSenatus === '광주';
         const useSeoulForm = formSenatus === '서울';
+        const reportDiocese = resolveReportDiocese(opts);
         console.info('[Pr사업보고] senatus=', senatusName, {
             user: user?.senatus_name,
             monthly: monthly?.senatus_name,
             opts: opts.senatusName,
-            form: formSenatus
+            form: formSenatus,
+            diocese: reportDiocese || '(none)',
+            jejuForm: /제주/.test(reportDiocese)
         });
 
         if (isDaegu || isGwangju || useSeoulForm) {
@@ -3339,7 +3372,7 @@
             council_name: monthly?.council_name || '',
             curia_name: monthly?.council_name || '',
             senatus_name: senatusName,
-            report_diocese: String(opts.dioceseName || opts.reportDiocese || '').trim(),
+            report_diocese: reportDiocese,
             officers: monthly?.officers || [],
             membership: monthly?.membership || {},
             attendance: monthly?.attendance || {},
