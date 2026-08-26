@@ -2493,7 +2493,7 @@
                 </div>
 
                 <div class="daegu-page-break">
-                    <div class="gj-special-title">특기 사항</div>
+                    <div class="gj-special-title">특기사항(중점활동)</div>
                     ${lineBoxHtml('', '260px')}
                     <div class="gj-special-guide">
                         (1) 육하원칙 (누가, 언제, 어디서, 어떻게, 무엇을, 왜)에 의해 작성하며, 가명을 사용합니다.<br>
