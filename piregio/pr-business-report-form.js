@@ -879,9 +879,17 @@
         const sundaySchool = one((n) => /주일학교/.test(n));
         const liturgy = one((n) => /전례|복사|성가|미사\s*안내|미사안내|주보\s*접기|주보접기|준비\s*및\s*협조/.test(n));
         const cleaning = one((n) => /청소|미화/.test(n));
-        const smallCommunity = one((n) => /소공동체|구역|반장|반모임/.test(n));
-        const parishCount = sumParenCounts(eventHelp, householdSurvey, sundaySchool, liturgy, cleaning, smallCommunity)
-            || one((n) => /본당|주일학교|전례|호구|청소|소공동체/.test(n) && !/첫\s*영성체/.test(n));
+        const smallCommunity = one((n) =>
+            /소공동체|구역|반장\s*교육|반장교육|반모임|참석\s*권유/.test(n)
+        );
+        const parishOther = one((n) =>
+            (/본당.*기타|기타\s*본당|본당협조.*기타|본당활동.*기타/.test(n)
+                || (/본당/.test(n) && /기타/.test(n)))
+            && !/행사|호구|주일|전례|청소|소공동체|구역|반장|미사|성가|주보/.test(n)
+        );
+        const parishCount = sumParenCounts(
+            eventHelp, householdSurvey, sundaySchool, liturgy, cleaning, smallCommunity, parishOther
+        ) || one((n) => /본당|주일학교|전례|호구|청소|소공동체/.test(n) && !/첫\s*영성체/.test(n));
         const parishVisit = one((n) => /호구조사|면담|방문조사/.test(n));
 
         const envPersonal = one((n) => /개인\s*실천|지구와함께|거절하기|아껴쓰기|고쳐쓰기|재고하기|다시쓰기|재생하기/.test(n));
@@ -1102,7 +1110,7 @@
                                     caseParen('본당 행사 준비 및 협조', a.eventHelp),
                                     caseParen('교세조사(호별방문)', a.householdSurvey),
                                     caseParen('주일학교 돌봄', a.sundaySchool),
-                                    caseParen('전례봉사(복사,성가대 등)', a.liturgy),
+                                    caseParen('전례봉사/준비및협조(미사안내,주보접기,성가대)', a.liturgy),
                                     caseParen('청소', a.cleaning),
                                     caseParen('소공동체 활동', a.smallCommunity)
                                 ])}</td>
