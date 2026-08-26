@@ -244,31 +244,18 @@
     }
 
     function isJejuReportContext(m) {
-        const parts = [
-            m && m.report_diocese,
-            m && m.diocese_name,
-            (typeof location !== 'undefined' && location.search)
-                ? new URLSearchParams(location.search).get('diocese')
-                : '',
-            (function () {
-                try { return sessionStorage.getItem('prReportDiocese'); } catch (e) { return ''; }
-            })()
-        ];
-        return /제주/.test(parts.map(function (v) { return String(v == null ? '' : v); }).join(' '));
+        return resolveFormReportDiocese(m) === '제주';
     }
 
     function isBusanReportContext(m) {
-        const parts = [
-            m && m.report_diocese,
-            m && m.diocese_name,
-            (typeof location !== 'undefined' && location.search)
-                ? new URLSearchParams(location.search).get('diocese')
-                : '',
-            (function () {
-                try { return sessionStorage.getItem('prReportDiocese'); } catch (e) { return ''; }
-            })()
-        ];
-        return /부산/.test(parts.map(function (v) { return String(v == null ? '' : v); }).join(' '));
+        return resolveFormReportDiocese(m) === '부산';
+    }
+
+    /** Pr 사업보고 양식 분기용 교구 — model·URL·sessionStorage 통합 */
+    function resolveFormReportDiocese(m) {
+        const fromModel = normalizeReportDiocese(m && m.report_diocese);
+        if (fromModel) return fromModel;
+        return normalizeReportDiocese(resolveReportDiocese({}));
     }
 
     function formatAppointedOn(raw) {
@@ -3111,8 +3098,9 @@
         const start = parseYmd(m.start_date);
         const end = parseYmd(m.end_date);
         const events = m.events || [];
-        const isJejuReport = isJejuReportContext(m);
-        const isBusanReport = isBusanReportContext(m);
+        const formDiocese = resolveFormReportDiocese(m);
+        const isJejuReport = formDiocese === '제주';
+        const isBusanReport = formDiocese === '부산';
         const a = isJejuReport
             ? computeJejuActivityCounts(m.activity_totals || [])
             : isBusanReport
@@ -3226,7 +3214,7 @@
                 </div>`;
 
         return `
-            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(m.report_diocese || ''))}">
+            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(formDiocese || m.report_diocese || ''))}" data-form-diocese="${escapeHtml(String(formDiocese || ''))}">
                 ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 11.활동상황·영성생활</div>' : ''}
                 ${isBusanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">부산 교구 Pr 사업보고 양식 · 11.활동상황·중점활동</div>' : ''}
                 <div class="biz-titles" style="text-align:center; margin-bottom:8px;">
@@ -3815,7 +3803,9 @@
             opts: opts.senatusName,
             form: formSenatus,
             diocese: reportDiocese || '(none)',
-            jejuForm: /제주/.test(reportDiocese)
+            formDiocese: resolveFormReportDiocese({ report_diocese: reportDiocese }),
+            jejuForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '제주',
+            busanForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '부산'
         });
 
         if (isDaegu || isGwangju || useSeoulForm) {
