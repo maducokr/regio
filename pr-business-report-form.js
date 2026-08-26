@@ -415,7 +415,7 @@
     function computeGwangjuActivityCounts(totals) {
         return {
             evangelism: sumActivityTotals(totals, (n) =>
-                /복음선교|입교권면|외인|가두선교|교리반|통신교리|예비/.test(n) && !/교우|성사권유|상가|병자/.test(n)),
+                /복음선교|입교권면|외인|가두선교|방문선교|교리반|통신교리|예비|타인인도/.test(n) && !/교우|성사권유|상가|병자/.test(n)),
             catechismLead: sumActivityTotals(totals, (n) => /교리반\s*인도|교리반인도/.test(n))
                 || sumActivityTotals(totals, (n) => /교리반/.test(n), 'catechism_guide'),
             baptized: sumActivityTotals(totals, (n) => /예비신자|예비자|세례|영세/.test(n), 'baptism')
@@ -423,7 +423,7 @@
             selfIntro: sumActivityTotals(totals, (n) => /자기소개서|소개서/.test(n)),
 
             believerCare: sumActivityTotals(totals, (n) =>
-                /교우\s*돌봄|교우방문|냉담|성사권유|혼인장애|회두|판공|견진|유아세례|상가|병자|영세자\s*방문|첫\s*영성체/.test(n)
+                /교우\s*돌봄|교우방문|냉담|성사권유|혼인장애|회두|판공|견진|유아세례|상가|병자|영세자\s*방문|첫\s*영성체|청소년\s*돌봄/.test(n)
                 && !/비신자|외인\s*병|외인\s*상가/.test(n)),
             groupJoin: sumActivityTotals(totals, (n) => /단체\s*가입|단체가입/.test(n), 'group_join')
                 || sumActivityTotals(totals, (n) => /단체\s*가입|단체가입/.test(n)),
@@ -436,33 +436,51 @@
                 || sumActivityTotals(totals, (n) => /견진/.test(n)),
             infantBaptism: sumActivityTotals(totals, (n) => /유아세례/.test(n), 'baptism')
                 || sumActivityTotals(totals, (n) => /유아세례/.test(n)),
+            firstCommunion: sumActivityTotals(totals, (n) => /첫\s*영성체|첫영성체/.test(n), 'first_communion')
+                || sumActivityTotals(totals, (n) => /첫\s*영성체|첫영성체/.test(n)),
             yeondo: sumActivityTotals(totals, (n) => /연도|위령기도/.test(n)),
             funeralMass: sumActivityTotals(totals, (n) => /장례미사|고별식/.test(n), 'funeral_mass')
                 || sumActivityTotals(totals, (n) => /장례미사|고별식/.test(n)),
-            funeralOther: sumActivityTotals(totals, (n) => /상가|장례수행|장지/.test(n))
+            burialEscort: sumActivityTotals(totals, (n) => /장지수행|장지\s*수행/.test(n))
+                || sumActivityTotals(totals, (n) => /장지/.test(n) && !/장례미사|고별식|상가|연도/.test(n)),
+            funeralOther: sumActivityTotals(totals, (n) => /상가|장례수행/.test(n) && !/장지/.test(n))
                 || sumActivityTotals(totals, (n) => /상가/.test(n), 'funeral_attendance'),
 
             neighborCare: sumActivityTotals(totals, (n) =>
-                /이웃\s*돌봄|비신자|병원|복지|재난|사고/.test(n) || (/병자|상가/.test(n) && /외인|비신자/.test(n))),
+                /이웃\s*돌봄|비신자|병원|복지|재난|사고|다문화|죽을\s*위험|대세자\s*돌봄/.test(n)
+                || (/병자|상가/.test(n) && /외인|비신자/.test(n))),
             conditionalBaptism: sumActivityTotals(totals, (n) => /대세/.test(n), 'conditional_baptism')
                 || sumActivityTotals(totals, (n) => /대세/.test(n)),
             baptismComplete: sumActivityTotals(totals, (n) => /보례/.test(n)),
 
             expansion: sumActivityTotals(totals, (n) =>
-                /레지오의\s*발전을\s*위한\s*활동|행동단원\s*모집|협조단원\s*모집|유년|확장|입단권면|회원모집|Pr설립|Pr\.\s*설립|소년\s*Pr/.test(n)),
+                /레지오의\s*발전을\s*위한\s*활동|행동단원\s*모집|협조단원\s*모집|유년|확장|입단권면|회원모집|Pr설립|Pr\.\s*설립|소년\s*Pr|교본공부|평의회\s*업무|평의회업무/.test(n)),
             activeRecruit: sumActivityTotals(totals, (n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'membership')
                 || sumActivityTotals(totals, (n) => /행동단원\s*모집|행동\s*단원\s*모집|입단권면/.test(n), 'membership')
                 || sumActivityTotals(totals, (n) => /행동단원\s*모집|행동\s*단원\s*모집|입단권면/.test(n)),
             auxRecruit: sumActivityTotals(totals, (n) => /레지오의\s*발전을\s*위한\s*활동/.test(n), 'group_join')
                 || sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n), 'membership')
                 || sumActivityTotals(totals, (n) => /협조단원\s*모집/.test(n)),
+            foundedPr: sumActivityTotals(totals, (n) => /Pr설립|Pr\.\s*설립|쁘레시디움\s*설립/.test(n), 'establishment')
+                || sumActivityTotals(totals, (n) => /Pr설립|Pr\.\s*설립|쁘레시디움\s*설립/.test(n)),
 
             parishOps: sumActivityTotals(totals, (n) =>
-                /본당|주일학교|전례|호구조사|청소|차량|교통|소공동체/.test(n) && !/첫\s*영성체/.test(n)),
+                /본당|주일학교|전례|호구조사|청소|차량|교통|소공동체|교육.*피정|피정|제단체|사무협조|업무협조|성지|교구.*시설/.test(n)
+                && !/첫\s*영성체|평의회업무|기타활동/.test(n)),
             parishVisit: sumActivityTotals(totals, (n) => /호구조사|면담|방문조사/.test(n)),
 
             otherAct: sumActivityTotals(totals, (n) =>
-                /간행물|배포|생태|환경|자연보호|생명존중|가정성화|기타활동|기타사목/.test(n)),
+                /간행물|배포|생태|환경|자연보호|생명존중|가정성화|기타활동|기타사목|차량봉사및교통|기타.*차량/.test(n)
+                && !/지구와함께|거절하기|아껴쓰기|고쳐쓰기|재고하기|다시쓰기|재생하기/.test(n)),
+
+            earthRefuse: sumActivityTotals(totals, (n) => /거절하기|지구와함께-거절/.test(n)),
+            earthSave: sumActivityTotals(totals, (n) => /아껴쓰기|지구와함께-아껴/.test(n)),
+            earthReuse: sumActivityTotals(totals, (n) => /다시쓰기|지구와함께-다시/.test(n)),
+            earthRepair: sumActivityTotals(totals, (n) => /고쳐쓰기|지구와함께-고쳐/.test(n)),
+            earthRethink: sumActivityTotals(totals, (n) => /재고하기|지구와함께-재고/.test(n)),
+            earthRecycle: sumActivityTotals(totals, (n) => /재생하기|지구와함께-재생/.test(n)),
+            earthCount: sumActivityTotals(totals, (n) =>
+                /지구와함께|거절하기|아껴쓰기|고쳐쓰기|재고하기|다시쓰기|재생하기/.test(n)),
 
             weekdayMass: sumActivityTotals(totals, (n) => /평일미사/.test(n)),
             rosary: sumActivityTotals(totals, (n) => /상급평의회가\s*지시한\s*활동/.test(n), 'establishment')
@@ -470,6 +488,9 @@
             stations: sumActivityTotals(totals, (n) => /십자가의\s*길|십자가의길/.test(n)),
             bible: sumActivityTotals(totals, (n) => /성경|봉독|필사|통독/.test(n)),
             littleOffice: sumActivityTotals(totals, (n) => /소성무일도|성무일도/.test(n)),
+            eucharistAdoration: sumActivityTotals(totals, (n) => /성체조배/.test(n)),
+            familyPray: sumActivityTotals(totals, (n) => /가족이\s*함께\s*기도|가족기도|가정\s*기도/.test(n)),
+            legionDiary: sumActivityTotals(totals, (n) => /성모님의\s*군단|군단일기|빛\s*잡지|빛잡지/.test(n)),
             spiritualOther: sumActivityTotals(totals, (n) => /프랭크|더프|시복|지향기도/.test(n))
         };
     }
@@ -2341,7 +2362,7 @@
                             <tr>
                                 <td class="gj-cat">복음선교</td>
                                 <td class="gj-count">${blank(a.evangelism, 'w4')}</td>
-                                <td class="left">${lineBoxHtml('외인 입교권면, 교리중단자 권면, 가두선교, 교리반 인도, 통신교리, 타인인도 예비자, 교리반 봉사·협조', '28px')}</td>
+                                <td class="left">${lineBoxHtml('외인 입교권면, 교리중단자 권면, 가두선교, 방문선교, 교리반 인도, 통신교리+자돌봄, 타인인도예비자+돌보기, 교리반 봉사·협조', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('교리반 인도', a.catechismLead, '명')}<br>
                                     ${resultCell('영세자', a.baptized, '명')}<br>
@@ -2351,7 +2372,7 @@
                             <tr>
                                 <td class="gj-cat">교우 돌봄</td>
                                 <td class="gj-count">${blank(a.believerCare, 'w4')}</td>
-                                <td class="left">${lineBoxHtml('새영세자·냉담자·교우가정·혼인장애자 방문, 성사권유, 이사온 교우, 첫영성체·유아세례 권유, 교우 상가·병자 방문·돌봄', '28px')}</td>
+                                <td class="left">${lineBoxHtml('새영세자·냉담자·교우가정·혼인장애자 방문, 성사권유, 이사온 교우, 첫영성체·유아세례 권유, 청소년 돌봄, 교우 상가·병자 방문·돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('단체 가입', a.groupJoin, '명')}<br>
                                     ${resultCell('회두', a.conversion, '명')}<br>
@@ -2359,15 +2380,17 @@
                                     ${resultCell('판공', a.confession, '명')}<br>
                                     ${resultCell('견진', a.confirmation, '명')}<br>
                                     ${resultCell('유아세례', a.infantBaptism, '명')}<br>
+                                    ${resultCell('첫영성체', a.firstCommunion, '명')}<br>
                                     ${resultCell('연도', a.yeondo, '명')}<br>
                                     ${resultCell('장례미사·고별식', a.funeralMass, '명')}<br>
+                                    ${resultCell('장지수행', a.burialEscort, '명')}<br>
                                     ${resultCell('기타 장례', a.funeralOther, '명')}
                                 </td>
                             </tr>
                             <tr>
                                 <td class="gj-cat">이웃 돌봄</td>
                                 <td class="gj-count">${blank(a.neighborCare, 'w4')}</td>
-                                <td class="left">${lineBoxHtml('비신자 병자·상가 방문·돌봄, 병원 방문·활동, 복지시설 봉사, 재난·사고 피해자 돌봄', '28px')}</td>
+                                <td class="left">${lineBoxHtml('비신자 병자·상가 방문·돌봄, 병원 방문·활동, 복지시설 봉사, 재난·사고 피해자 돌봄, 다문화가족돌봄, 죽을위험중의 세례자돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('대세자', a.conditionalBaptism, '명')}<br>
                                     ${resultCell('보례자', a.baptismComplete, '명')}
@@ -2376,22 +2399,36 @@
                             <tr>
                                 <td class="gj-cat">확장</td>
                                 <td class="gj-count">${blank(a.expansion, 'w4')}</td>
-                                <td class="left">${lineBoxHtml('행동단원·협조단원 모집, 유년단 설립 활동, 유년단 돌봄', '28px')}</td>
+                                <td class="left">${lineBoxHtml('행동단원·협조단원 모집, 유년단 설립 활동, 유년단 돌봄, Pr설립권면, 교본공부, 평의회업무협조', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('행동단원 입단', a.activeRecruit, '명')}<br>
-                                    ${resultCell('협조단원 입단', a.auxRecruit, '명')}
+                                    ${resultCell('협조단원 입단', a.auxRecruit, '명')}<br>
+                                    ${resultCell('설립Pr', a.foundedPr, '개')}
                                 </td>
                             </tr>
                             <tr>
                                 <td class="gj-cat">본당 협조</td>
                                 <td class="gj-count">${blank(a.parishOps, 'w4')}</td>
-                                <td class="left">${lineBoxHtml('행사 준비·협조, 호구조사, 주일학교 돌봄, 전례 협조, 청소·미화, 차량·교통정리, 소공동체 활동 등', '28px')}</td>
+                                <td class="left">${lineBoxHtml('행사 준비·협조, 호구조사, 주일학교 돌봄, 전례 협조, 청소·미화, 차량·교통정리, 소공동체 활동, 교육및피정, 제단체봉사, 업무협조, 성지및교구관련시설봉사 등', '28px')}</td>
                                 <td class="left">${resultCell('면담', a.parishVisit, '호')}</td>
+                            </tr>
+                            <tr>
+                                <td class="gj-cat">지구 살리기</td>
+                                <td class="gj-count">${blank(a.earthCount, 'w4')}</td>
+                                <td class="left">${lineBoxHtml('거절하기, 아껴쓰기, 다시쓰기, 고쳐쓰기, 재고하기, 재생하기', '28px')}</td>
+                                <td class="left">
+                                    ${resultCell('거절하기', a.earthRefuse, '회')}<br>
+                                    ${resultCell('아껴쓰기', a.earthSave, '회')}<br>
+                                    ${resultCell('다시쓰기', a.earthReuse, '회')}<br>
+                                    ${resultCell('고쳐쓰기', a.earthRepair, '회')}<br>
+                                    ${resultCell('재고하기', a.earthRethink, '회')}<br>
+                                    ${resultCell('재생하기', a.earthRecycle, '회')}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="gj-cat">기타</td>
                                 <td class="gj-count">${blank(a.otherAct, 'w4')}</td>
-                                <td class="left">${lineBoxHtml('간행물 배포, 생태·환경보호, 생명존중, 가정성화(가정단위) 활동', '28px')}</td>
+                                <td class="left">${lineBoxHtml('간행물 배포, 생태·환경보호, 생명존중, 가정성화(가정단위) 활동, 차량봉사', '28px')}</td>
                                 <td class="left">${blank('', 'w8')}</td>
                             </tr>
                         </tbody>
@@ -2429,6 +2466,21 @@
                                 <th>소성무일도</th>
                                 <td class="left">소성무일도 봉헌 횟수</td>
                                 <td>${blank(a.littleOffice, 'w4')} 회</td>
+                            </tr>
+                            <tr>
+                                <th>성체조배</th>
+                                <td class="left">성체조배</td>
+                                <td>${blank(a.eucharistAdoration, 'w4')} 회</td>
+                            </tr>
+                            <tr>
+                                <th>가족기도</th>
+                                <td class="left">가족이 함께 기도하기</td>
+                                <td>${blank(a.familyPray, 'w4')} 회</td>
+                            </tr>
+                            <tr>
+                                <th>성모님의 군단일기</th>
+                                <td class="left">성모님의 군단 및 빛 잡지 읽기</td>
+                                <td>${blank(a.legionDiary, 'w4')} 회</td>
                             </tr>
                             <tr>
                                 <th>기타</th>
