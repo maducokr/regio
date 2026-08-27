@@ -929,6 +929,11 @@
         return `<td class="gj-act-split">${blank(targetVal, 'w2')}</td><td class="gj-act-split">${blank(countVal, 'w2')}</td>`;
     }
 
+    /** 대상 칸 해당없음(대각선) + 횟수 */
+    function targetSlashCountCells(countVal) {
+        return `<td class="gj-act-split gj-act-slash" title="해당없음" aria-label="해당없음"></td><td class="gj-act-split">${blank(countVal, 'w2')}</td>`;
+    }
+
     /** 제주 교구 Pr 사업보고 — 활동 세목 집계 */
     function computeJejuActivityCounts(totals) {
         const one = (matcher, field) => sumActivityTotals(totals, matcher, field);
@@ -965,9 +970,13 @@
         const believerSick = one((n) => /교우\s*환자|교우환자|병자/.test(n) && !/외인|비신자/.test(n));
         const believerFuneral = one((n) => /교우\s*상가|교우상가/.test(n))
             || one((n) => /상가/.test(n) && !/외인|비신자/.test(n), 'funeral_attendance');
+        const believerContact = one((n) =>
+            /교우.*접촉|접촉.*교우|교우돌봄.*접촉|접촉활동.*교우/.test(n)
+            || (/접촉활동|접촉\s*활동/.test(n) && /교우|돌봄/.test(n) && !/복음|가두|방문\s*선교/.test(n))
+        );
         const believerCount = sumParenCounts(
             coldCare, marriageGuide, newBaptized, homeVisit, sacramentInvite,
-            transferIn, firstCommunionInvite, infantBaptismInvite, believerSick, believerFuneral
+            transferIn, firstCommunionInvite, infantBaptismInvite, believerSick, believerFuneral, believerContact
         ) || one((n) => /교우\s*돌봄|교우방문|냉담|성사|혼인|영세자|전입|첫\s*영성체|유아세례|상가|병자/.test(n)
             && !/비신자|외인/.test(n));
         const conversion = one((n) => /회두/.test(n));
@@ -1033,9 +1042,14 @@
         const publication = one((n) => /출판물|간행물|보급|배포/.test(n));
         const shrine = one((n) => /성지\s*미화|성지미화|성지/.test(n));
         const vehicle = one((n) => /차량봉사|차량\s*봉사|교통정리/.test(n));
-        const proLife = one((n) => /생명존중|헌혈|낙태|장기기증/.test(n));
+        const proLife = one((n) => /생명존중|헌혈|낙태|장기기증|자살\s*예방|자살예방/.test(n));
         const familySanct = one((n) => /가정성화|가족이\s*함께|가정\s*단위/.test(n));
-        const otherCount = sumParenCounts(publication, shrine, vehicle, proLife, familySanct)
+        const otherExtra = one((n) =>
+            /기타활동.*추가|추가활동|기타\s*활동.*기타|기타활동-기타/.test(n)
+            || (/기타활동|기타\s*활동/.test(n) && /추가|기타$/.test(n)
+                && !/출판물|성지|차량|생명|가정성화|헌혈|낙태|장기|자살/.test(n))
+        );
+        const otherCount = sumParenCounts(publication, shrine, vehicle, proLife, familySanct, otherExtra)
             || one((n) => /기타\s*활동|기타활동|출판물|성지|차량|생명존중|가정성화/.test(n));
 
         const weekdayMass = one((n) => /평일미사|평일\s*미사/.test(n));
@@ -1075,6 +1089,7 @@
             infantBaptismInvite,
             believerSick,
             believerFuneral,
+            believerContact,
             conversion,
             marriageFix,
             groupJoin,
@@ -1123,6 +1138,7 @@
             vehicle,
             proLife,
             familySanct,
+            otherExtra,
             weekdayMass,
             rosary,
             stations,
@@ -1224,7 +1240,8 @@
                                     caseParen('첫 영성체 권면', a.firstCommunionInvite),
                                     caseParen('유아 세례 권면', a.infantBaptismInvite),
                                     caseParen('교우 환자 방문 및 돌봄', a.believerSick),
-                                    caseParen('교우 상가 방문 및 돌봄', a.believerFuneral)
+                                    caseParen('교우 상가 방문 및 돌봄', a.believerFuneral),
+                                    caseParen('접촉활동', a.believerContact)
                                 ])}</td>
                                 <td class="gj-result">
                                     ${resultCell('회두', a.conversion, '명')}<br>
@@ -1270,7 +1287,7 @@
                             </tr>
                             <tr>
                                 <td class="gj-cat">본당활동</td>
-                                ${targetCountCells(a.parishTarget, a.parishCount)}
+                                ${targetSlashCountCells(a.parishCount)}
                                 <td class="gj-cases">${joinCases([
                                     caseParen('본당 행사 준비 및 협조', a.eventHelp),
                                     caseParen('교세조사(호별방문)', a.householdSurvey),
@@ -1284,7 +1301,7 @@
                             </tr>
                             <tr>
                                 <td class="gj-cat">환경보호</td>
-                                ${targetCountCells(a.envTarget, a.envCount)}
+                                ${targetSlashCountCells(a.envCount)}
                                 <td class="gj-cases">${joinCases([
                                     caseParen('개인실천', a.envPersonal),
                                     caseParen('공동체 활동', a.envCommunity),
@@ -1294,13 +1311,14 @@
                             </tr>
                             <tr>
                                 <td class="gj-cat">기타활동</td>
-                                ${targetCountCells(a.otherTarget, a.otherCount)}
+                                ${targetSlashCountCells(a.otherCount)}
                                 <td class="gj-cases">${joinCases([
                                     caseParen('출판물보급', a.publication),
                                     caseParen('성지미화', a.shrine),
                                     caseParen('차량봉사및 교통정리', a.vehicle),
-                                    caseParen('생명존중 활동(헌혈 등)', a.proLife),
-                                    caseParen('가정성화 활동', a.familySanct)
+                                    caseParen('생명존중 활동(헌혈, 장기기증, 자살예방, 낙태반대 등)', a.proLife),
+                                    caseParen('가정성화 활동', a.familySanct),
+                                    caseParen('추가', a.otherExtra)
                                 ])}</td>
                                 <td class="gj-result">${blank('', 'w8')}</td>
                             </tr>
@@ -2673,6 +2691,16 @@
             .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-act-split .blank {
                 min-width: 1.6em;
                 max-width: 2.4em;
+            }
+            .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-act-slash {
+                background:
+                    linear-gradient(
+                        to top right,
+                        transparent calc(50% - 0.6px),
+                        #333 50%,
+                        transparent calc(50% + 0.6px)
+                    );
+                min-height: 1.6em;
             }
             .pr-biz-form.pr-biz-gwangju .gj-act-table.jeju-act-table .gj-cases {
                 text-align: left;
