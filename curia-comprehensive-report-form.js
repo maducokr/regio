@@ -1729,7 +1729,7 @@
             ),
             spiritualOther: sumCategoryField(
                 totals,
-                (n) => inGroup('spiritual')(n) && (/영성생활-기타|기도생활-기타/.test(n) || /프랭크|더프|시복/.test(n)),
+                (n) => inGroup('spiritual')(n) && (/영성생활-기타기도|영성생활-기타|기도생활-기타|묘지참배|단장이\s*지시|모바일\s*성경/.test(n) || /프랭크|더프|시복/.test(n)),
                 'count'
             ),
             prayerSpirit: sumGwangjuGroup(totals, 'spiritual', 'count'),

@@ -1079,7 +1079,9 @@
         const eucharistAdoration = one((n) => /성체조배/.test(n));
         const bible = one((n) => /성경|봉독|필사|통독|쓰기/.test(n));
         const littleOffice = one((n) => /소성무일도|성무일도/.test(n));
-        const otherPray = one((n) => /기타기도|묘지|선종|단장지시|모바일성경|지향기도|프랭크|더프/.test(n));
+        const otherPray = one((n) =>
+            /기타기도|묘지참배|묘지순례|묘지|선종|단장이\s*지시|단장지시|모바일\s*성경|모바일성경|지향기도|프랭크|더프|영성생활-기타/.test(n)
+        );
 
         return {
             evangelismTarget: '',
@@ -1392,7 +1394,7 @@
                             </tr>
                             <tr>
                                 <th>기타기도</th>
-                                <td class="left">묘지순례, 선종단원지향, 단장지시기도, 모바일성경쓰기 등</td>
+                                <td class="left">묘지참배/선종단원 위한기도, 단장이 지시한 모든기도, 모바일 성경쓰기등</td>
                                 <td>${blank(a.otherPray, 'w4')} 회</td>
                             </tr>
                         </tbody>
