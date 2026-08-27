@@ -755,12 +755,12 @@
         const parishCount = sumParenCounts(eventHelp, sundaySchool, cleaning, massGuide, householdSurvey, parishOther)
             || one((n) => /본당|주일학교|전례|청소|미사안내|호구|호별|교세/.test(n) && !/첫\s*영성체/.test(n));
 
-        const smallMeet = one((n) => /소공동체와\s*함께하는\s*활동|소공동체\s*모임|소공동체\s*참석|소공동체\s*회의|소공동체\s*교육/.test(n));
-        const zoneEdu = one((n) => /구역|반장\s*교육|반장교육/.test(n));
-        const banInvite = one((n) => /반모임|반\s*모임/.test(n));
-        const smallOther = one((n) => /소공동체/.test(n) && !/모임|회의|교육|구역|반장|반모임|권유/.test(n));
+        const smallMeet = one((n) => /소공동체\s*모임\s*참석|소공동체\s*활동.*소공동체\s*모임|소공동체와\s*함께하는\s*활동/.test(n));
+        const zoneEdu = one((n) => /구역·반장교육\s*참석|구역.*반장.*교육/.test(n));
+        const banInvite = one((n) => /반모임\s*참석\s*권유|반\s*모임.*권유/.test(n));
+        const smallOther = one((n) => /소공동체\s*활동.*기타/.test(n));
         const smallCount = sumParenCounts(smallMeet, zoneEdu, banInvite, smallOther)
-            || one((n) => /소공동체와\s*함께하는\s*활동|소공동체|구역|반모임|반장/.test(n));
+            || one((n) => /소공동체\s*활동\s*\(본당과\s*직장\)/.test(n));
 
         const familyPray = one((n) => /가족이\s*함께\s*기도|가정\s*기도|가족기도/.test(n));
         const familyBible = one((n) => /성경\s*봉독|성경\s*묵상|가정.*성경/.test(n));

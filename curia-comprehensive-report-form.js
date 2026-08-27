@@ -634,12 +634,10 @@
                 {
                     label: '4. 소공동체 활동',
                     categories: [
-                        '본당교회협조-소공동체모임참석',
-                        '본당교회협조-반모임 참석권유',
-                        '본당교회협조-반모임참석',
-                        '본당교회협조-구역반장교육및모임참석',
-                        '본당교회협조-직장공동체활동',
-                        '본당교회협조-구역반장교육참석'
+                        '소공동체 활동 (본당과 직장)-소공동체 모임 참석',
+                        '소공동체 활동 (본당과 직장)-구역·반장교육 참석',
+                        '소공동체 활동 (본당과 직장)-반모임 참석 권유',
+                        '소공동체 활동 (본당과 직장)-기타'
                     ],
                     remarks: []
                 },
@@ -3164,14 +3162,14 @@
             && !/행사|주일|청소|미사|호구/.test(n));
         const parishCount = sumParenCounts(eventHelp, sundaySchool, cleaning, massGuide, parishOther)
             || one((n) => /본당교회협조|본당|주일학교|전례|청소|미사안내/.test(n)
-                && !/첫\s*영성체|호구/.test(n));
+                && !/첫\s*영성체|호구|소공동체\s*활동/.test(n));
 
-        const smallMeet = one((n) => /소공동체\s*모임|소공동체모임참석|소공동체\s*참석/.test(n));
-        const zoneEdu = one((n) => /구역|반장\s*교육|반장교육/.test(n));
-        const banInvite = one((n) => /반모임|반\s*모임/.test(n));
-        const smallOther = one((n) => /소공동체|직장공동체/.test(n) && !/모임|구역|반장|반모임/.test(n));
+        const smallMeet = one((n) => /소공동체\s*모임\s*참석|소공동체\s*활동.*소공동체\s*모임/.test(n));
+        const zoneEdu = one((n) => /구역·반장교육\s*참석|구역.*반장.*교육/.test(n));
+        const banInvite = one((n) => /반모임\s*참석\s*권유|반\s*모임.*권유/.test(n));
+        const smallOther = one((n) => /소공동체\s*활동.*기타/.test(n));
         const smallCount = sumParenCounts(smallMeet, zoneEdu, banInvite, smallOther)
-            || one((n) => /소공동체|구역|반모임|반장|직장공동체/.test(n));
+            || one((n) => /소공동체\s*활동\s*\(본당과\s*직장\)/.test(n));
 
         const familyPray = one((n) => /가정성화.*기도|가족이\s*함께\s*기도|가족기도/.test(n))
             || one((n) => /기도하기/.test(n) && /가정성화|가족/.test(n));
