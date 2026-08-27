@@ -973,7 +973,7 @@
     <script src="date-wheel-picker.js"></script>
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827u"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827v"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260825e"></script>
     <script src="app-mode.js"></script>
@@ -2187,7 +2187,7 @@
                         '지구와함께-재고하기', '지구와함께-다시쓰기', '지구와함께-재생하기',
                         
                         // 입교권면 (검은색)
-                        '입교권면-외인 입교권면', '입교권면-방문선교',
+                        '입교권면-외인 입교권면', '입교권면-방문선교', '입교권면-교리중단자재권면', '입교권면-가두선교',
                         '입교권면-예비신자관리돌봄', '입교권면-통신교리자 돌봄', '입교권면-교리반협조', '입교권면-교리반 인도', '입교권면-교리반인도예비자',
                         // 복음선교 (광주 세나뚜스)
                         '복음선교-비신자 입교 권면', '복음선교-개종권면', '복음선교-교리 중단자 권면', '복음선교-가두선교',
@@ -2394,7 +2394,7 @@
                     '지구와함께-재고하기', '지구와함께-다시쓰기', '지구와함께-재생하기',
                     
                     // 입교권면 (검은색)
-                    '입교권면-외인 입교권면', '입교권면-방문선교',
+                    '입교권면-외인 입교권면', '입교권면-방문선교', '입교권면-교리중단자재권면', '입교권면-가두선교',
                     '입교권면-예비신자관리돌봄', '입교권면-통신교리자 돌봄', '입교권면-교리반협조', '입교권면-교리반 인도', '입교권면-교리반인도예비자',
                     // 복음선교 (광주 세나뚜스)
                     '복음선교-비신자 입교 권면', '복음선교-개종권면', '복음선교-교리 중단자 권면', '복음선교-가두선교',
@@ -2689,6 +2689,14 @@
                     
                                         // 복음선교
                     '입교권면-외인 입교권면': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '입교권면-교리중단자재권면': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                        { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                    ],
+                    '입교권면-가두선교': [
                         { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                         { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
                     ],

@@ -544,9 +544,9 @@
             rows: [
                 { label: '1. 외인권면', categories: ['입교권면-외인 입교권면', '복음선교-외인 입교권면', '복음선교-비신자 입교 권면'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
                 { label: '2. 개종권면', categories: ['복음선교-개종권면'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
-                { label: '3. 교리중단자권면', categories: ['복음선교-교리 중단자 권면'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
+                { label: '3. 교리중단자권면', categories: ['복음선교-교리 중단자 권면', '입교권면-교리중단자재권면'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
                 { label: '4. 방문선교', categories: ['입교권면-방문선교', '복음선교-방문선교'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
-                { label: '5. 가두선교', categories: ['복음선교-가두선교'], remarks: [{ label: '자기소개서', field: 'catechism_guide', unit: '건' }] },
+                { label: '5. 가두선교', categories: ['복음선교-가두선교', '입교권면-가두선교'], remarks: [{ label: '자기소개서', field: 'catechism_guide', unit: '건' }] },
                 { label: '6. 교리반봉사', categories: ['예비신자 돌봄-교리반 봉사', '입교권면-교리반 인도', '복음선교-교리반 인도', '입교권면-교리반인도예비자', '복음선교-교리반인도예비자', '복음선교-교리반 인도 예비신자 돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
                 { label: '7. 예비신자돌봄', categories: ['예비신자 돌봄-예비신자 돌봄', '입교권면-예비신자관리돌봄', '복음선교-예비신자관리돌봄', '복음선교-타인이 인도한 예비신자 돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
                 { label: '8. 통신교리자돌봄', categories: ['예비신자 돌봄-통신교리자 돌봄', '입교권면-통신교리자 돌봄', '복음선교-통신교리자 돌봄', '복음선교-통신교리자돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
@@ -908,8 +908,8 @@
                     label: '교리반인도',
                     unit: '명',
                     categories: [
-                        '입교권면-외인 입교권면', '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면',
-                        '입교권면-방문선교', '복음선교-방문선교', '복음선교-가두선교'
+                        '입교권면-외인 입교권면', '복음선교-외인 입교권면', '복음선교-개종권면', '복음선교-교리 중단자 권면', '입교권면-교리중단자재권면',
+                        '입교권면-방문선교', '복음선교-방문선교', '복음선교-가두선교', '입교권면-가두선교'
                     ],
                     resultField: 'catechism_guide'
                 },
