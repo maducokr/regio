@@ -1322,6 +1322,41 @@
             return list.some((c) => name === c || name.startsWith(`${c}-`));
         }
 
+        /** 로그인 회원 세나뚜스 → 우선 색 (blue|green|'') — 보이는 순서만 변경 */
+        function getMemberSenatusColorPreference() {
+            const user = getLoggedInUserSafe();
+            const s = String(user?.senatus_name == null ? '' : user.senatus_name).trim();
+            if (/광주/.test(s)) return 'blue';
+            if (/대구/.test(s)) return 'green';
+            return '';
+        }
+
+        function categoryAccentColor(categoryName) {
+            if (isNewGreenCategory(categoryName)) return 'green';
+            if (isNewBlueCategory(categoryName)) return 'blue';
+            return '';
+        }
+
+        function categorySenatusSortPriority(categoryName, preferred) {
+            if (!preferred) return 0;
+            return categoryAccentColor(categoryName) === preferred ? 2 : 0;
+        }
+
+        /** 소속 세나뚜스 색 종목을 앞에, 그 외는 기존 상대 순서 유지 */
+        function sortCategoryNamesByMemberSenatus(names) {
+            if (!Array.isArray(names) || names.length < 2) return names || [];
+            const preferred = getMemberSenatusColorPreference();
+            if (!preferred) return names.slice();
+            return names
+                .map((name, index) => ({
+                    name,
+                    index,
+                    pri: categorySenatusSortPriority(name, preferred)
+                }))
+                .sort((a, b) => (b.pri - a.pri) || (a.index - b.index))
+                .map((row) => row.name);
+        }
+
         function markCategoryOptionGreen(option, categoryName) {
             if (!option) return;
             option.classList.remove('is-new-category-green', 'is-new-category-blue');
@@ -2143,6 +2178,13 @@
             try {
                 const select = document.getElementById('categorySelect');
                 select.innerHTML = '<option value="">활동 종목을 선택해주세요</option>';
+
+                // 세나뚜스 정보 최신화(정렬용) — 실패해도 로컬 userInfo로 진행
+                try {
+                    if (window.RegioAuth && typeof RegioAuth.refreshLoggedInUserFromServer === 'function') {
+                        await RegioAuth.refreshLoggedInUserFromServer();
+                    }
+                } catch (_) { /* ignore */ }
                 
                 console.log('활동 종목 로드 시작...');
                 
@@ -2340,12 +2382,14 @@
                         '기타활동-차량봉사및교통정리', '기타활동-기타', '기타활동-기타사목활동', '기타활동-기타교구행사참석'
                     ];
                     
-                    defaultCategories.forEach(category => appendCategoryOption(select, category));
+                    sortCategoryNamesByMemberSenatus(defaultCategories)
+                        .forEach(category => appendCategoryOption(select, category));
                     
                     console.log('기본 카테고리 추가 완료');
                 } else {
                     console.log('DB에서 로드한 카테고리를 사용합니다.');
                     // DB에서 로드한 카테고리들을 옵션으로 추가 (메모및 행사는 종목 선택난에서 제외)
+                    const loadedNames = [];
                     categories.forEach(category => {
                         let categoryName = '';
                         if (typeof category === 'object' && category.category_name) {
@@ -2354,6 +2398,9 @@
                             categoryName = category;
                         }
                         if (!categoryName || isMemoEventCategoryName(categoryName)) return;
+                        loadedNames.push(categoryName);
+                    });
+                    sortCategoryNamesByMemberSenatus(loadedNames).forEach(categoryName => {
                         appendCategoryOption(select, categoryName);
                         console.log('카테고리 추가:', categoryName);
                     });
@@ -2548,7 +2595,8 @@
                     '기타활동-차량봉사및교통정리', '기타활동-기타', '기타활동-기타사목활동', '기타활동-기타교구행사참석'
                 ];
                 
-                defaultCategories.forEach(category => appendCategoryOption(select, category));
+                sortCategoryNamesByMemberSenatus(defaultCategories)
+                    .forEach(category => appendCategoryOption(select, category));
                 if (window.RegioSelectPicker) RegioSelectPicker.enhance(select);
                 
                 showResult('활동 종목을 불러오는데 실패했지만, 기본 종목을 표시합니다.', 'error');
