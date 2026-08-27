@@ -8,6 +8,8 @@
  * - 교우돌봄-청소년돌봄
  * - 이웃돌봄-다문화가족돌봄
  * - 이웃돌봄-죽을 위험 중의 세례자 돌봄
+ * - 확장-교본공부
+ * - 확장-평의회업무협조
  *
  * 사용: node add-gwangju-spiritual-believer-extra.js [--render]
  */
@@ -97,6 +99,18 @@ const ITEMS = [
             { name: '죽을위험중의세례', display: '죽을위험중의세례', required: false },
             { name: '세례보충예식', display: '세례보충예식', required: false }
         ]
+    },
+    {
+        group: '확장',
+        item: '교본공부',
+        desc: '교본공부 (광주)',
+        fields: [{ name: '횟수', display: '횟수(회,단,시간,명)', required: false }]
+    },
+    {
+        group: '확장',
+        item: '평의회업무협조',
+        desc: '평의회업무협조 (광주)',
+        fields: [{ name: '횟수', display: '횟수(회,단,시간,명)', required: false }]
     }
 ];
 

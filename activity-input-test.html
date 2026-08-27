@@ -973,7 +973,7 @@
     <script src="date-wheel-picker.js"></script>
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827e"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827f"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260825e"></script>
     <script src="app-mode.js"></script>
@@ -2224,6 +2224,7 @@
                         // 확장 (광주 세나뚜스)
                         '확장-행동단원 모집', '확장-협조단원 모집',
                         '확장-소년 레지오 설립을 위한 활동', '확장-소년 레지오 돌봄',
+                        '확장-교본공부', '확장-평의회업무협조',
                         // 본당협조 (광주 세나뚜스)
                         '본당협조-행사 준비 및 협조', '본당협조-본당 교세 조사(호별방문)',
                         '본당협조-주일학교 돌봄', '본당협조-전례 협조', '본당협조-청소 미화',
@@ -2419,6 +2420,7 @@
                     // 확장 (광주 세나뚜스)
                     '확장-행동단원 모집', '확장-협조단원 모집',
                     '확장-소년 레지오 설립을 위한 활동', '확장-소년 레지오 돌봄',
+                    '확장-교본공부', '확장-평의회업무협조',
                     // 본당협조 (광주 세나뚜스)
                     '본당협조-행사 준비 및 협조', '본당협조-본당 교세 조사(호별방문)',
                     '본당협조-주일학교 돌봄', '본당협조-전례 협조', '본당협조-청소 미화',
@@ -3006,6 +3008,12 @@
                         { field_name: 'count', field_display_name: '횟수', is_required: false },
                         { field_name: 'membership', field_display_name: '행동단원 입단', is_required: false },
                         { field_name: 'group_join', field_display_name: '협조단원 입단', is_required: false }
+                    ],
+                    '확장-교본공부': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
+                    ],
+                    '확장-평의회업무협조': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
                     ],
                     '본당협조-행사 준비 및 협조': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false },

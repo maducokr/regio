@@ -616,8 +616,8 @@
                 { label: '3. 협조단원모집', categories: ['레지오활동-협조단원 모집. 돌봄', '레지오활동-협조단원 모집및  돌봄'], remarks: [{ label: '입단', field: 'membership', unit: '명' }] },
                 { label: '4. 쁘레시디움설립권면', categories: ['레지오활동-Pr설립권면'], remarks: [{ label: '설립', field: 'establishment', unit: 'Pr.' }] },
                 { label: '5. 결석단원방문', categories: ['레지오활동-결석단원돌봄'], remarks: [] },
-                { label: '6. 교본공부', categories: ['레지오활동-교본공부'], remarks: [] },
-                { label: '7. 업무협조', categories: ['레지오활동-평의회업무협조'], remarks: [] }
+                { label: '6. 교본공부', categories: ['레지오활동-교본공부', '확장-교본공부'], remarks: [] },
+                { label: '7. 업무협조', categories: ['레지오활동-평의회업무협조', '확장-평의회업무협조'], remarks: [] }
             ]
         }
     ];

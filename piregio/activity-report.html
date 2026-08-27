@@ -1608,7 +1608,7 @@
 
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827e"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827f"></script>
     <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -4864,6 +4864,8 @@
             '확장-협조단원 모집': ['횟수', '행동단원 입단', '협조단원 입단'],
             '확장-소년 레지오 설립을 위한 활동': ['횟수', '행동단원 입단', '협조단원 입단'],
             '확장-소년 레지오 돌봄': ['횟수', '행동단원 입단', '협조단원 입단'],
+            '확장-교본공부': ['횟수'],
+            '확장-평의회업무협조': ['횟수'],
             '본당협조-행사 준비 및 협조': ['횟수', '면담', '기타'],
             '본당협조-본당 교세 조사(호별방문)': ['횟수', '면담', '기타'],
             '본당협조-주일학교 돌봄': ['횟수', '면담', '기타'],
@@ -5318,6 +5320,12 @@
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
                 { field_name: 'membership', field_display_name: '행동단원 입단', is_required: false },
                 { field_name: 'group_join', field_display_name: '협조단원 입단', is_required: false }
+            ],
+            '확장-교본공부': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
+            ],
+            '확장-평의회업무협조': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
             ],
 
             // 가정을 위한 활동, 교우 돌봄
