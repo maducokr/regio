@@ -973,7 +973,7 @@
     <script src="date-wheel-picker.js"></script>
     <script src="activity-field-labels.js?v=20260823a"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827a"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827c"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260825e"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
@@ -2210,6 +2210,7 @@
                         '교우돌봄-혼인 장애자 돌봄', '교우돌봄-혼인장애자 미사참례권면', '교우돌봄-판공성사 권면',
                         '교우돌봄-전입교우돌봄(방문)', '교우돌봄-전입교우단체가입권유',
                         '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-첫영성체', '교우돌봄-군인선원돌봄', '교우돌봄-청소년 돌봄',
+                        '교우돌봄-청소년돌봄',
                         '교우돌봄-교우 상가 방문 및 돌봄', '교우돌봄-교우 환자 방문 및 돌봄',
                         // 교우돌봄 (광주 세나뚜스 추가)
                         '교우돌봄-신 세례자 방문', '교우돌봄-쉬는 교우 방문', '교우돌봄-교우 가정 방문',
@@ -2218,7 +2219,7 @@
                         // 이웃돌봄 (광주 세나뚜스)
                         '이웃돌봄-비신자 환자 방문 및 돌봄', '이웃돌봄-비신자 상가방문 및 돌봄',
                         '이웃돌봄-병원 방문 및 활동', '이웃돌봄-복지시설 노력 봉사',
-                        '이웃돌봄-재해 및 사고 피해자',
+                        '이웃돌봄-재해 및 사고 피해자', '이웃돌봄-다문화가족돌봄',
                         // 확장 (광주 세나뚜스)
                         '확장-행동단원 모집', '확장-협조단원 모집',
                         '확장-소년 레지오 설립을 위한 활동', '확장-소년 레지오 돌봄',
@@ -2230,7 +2231,6 @@
                         // 기타 (광주 세나뚜스)
                         '기타-출판물 보급', '기타-생태 환경보호 활동',
                         '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
-                        '교우돌봄-청소년 돌봄',
 
                         // 가정을 위한 활동, 교우 돌봄
                         '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
@@ -2404,7 +2404,7 @@
                     '교우돌봄-혼인 장애자 돌봄', '교우돌봄-혼인장애자 미사참례권면', '교우돌봄-판공성사 권면',
                     '교우돌봄-전입교우돌봄(방문)', '교우돌봄-전입교우단체가입권유',
                     '교우돌봄-견진성사권면', '교우돌봄-유아 세례 권면', '교우돌봄-첫영성체', '교우돌봄-군인선원돌봄',
-                    '교우돌봄-청소년 돌봄',
+                    '교우돌봄-청소년 돌봄', '교우돌봄-청소년돌봄',
                     '교우돌봄-교우 상가 방문 및 돌봄', '교우돌봄-교우 환자 방문 및 돌봄',
                     // 교우돌봄 (광주 세나뚜스 추가)
                     '교우돌봄-신 세례자 방문', '교우돌봄-쉬는 교우 방문', '교우돌봄-교우 가정 방문',
@@ -2413,7 +2413,7 @@
                     // 이웃돌봄 (광주 세나뚜스)
                     '이웃돌봄-비신자 환자 방문 및 돌봄', '이웃돌봄-비신자 상가방문 및 돌봄',
                     '이웃돌봄-병원 방문 및 활동', '이웃돌봄-복지시설 노력 봉사',
-                    '이웃돌봄-재해 및 사고 피해자',
+                    '이웃돌봄-재해 및 사고 피해자', '이웃돌봄-다문화가족돌봄',
                     // 확장 (광주 세나뚜스)
                     '확장-행동단원 모집', '확장-협조단원 모집',
                     '확장-소년 레지오 설립을 위한 활동', '확장-소년 레지오 돌봄',
@@ -2936,6 +2936,7 @@
                         { field_name: 'first_communion', field_display_name: '첫영성체', is_required: false }
                     ],
                     '교우돌봄-청소년 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+                    '교우돌봄-청소년돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }],
                     '교우돌봄-교우 상가 방문 및 돌봄': [
                         { field_name: 'year_count', field_display_name: '연도', is_required: false },
                         { field_name: 'funeral_mass', field_display_name: '장례미사(고별식)', is_required: false },
@@ -2973,6 +2974,9 @@
                         { field_name: 'count', field_display_name: '횟수', is_required: false },
                         { field_name: 'conditional_baptism', field_display_name: '죽을 위험 중의 세례', is_required: false },
                         { field_name: 'conditional_communion', field_display_name: '세례보충예식', is_required: false }
+                    ],
+                    '이웃돌봄-다문화가족돌봄': [
+                        { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
                     ],
                     // 확장 (광주 세나뚜스)
                     '확장-행동단원 모집': [

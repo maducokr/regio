@@ -5,6 +5,8 @@
  * - 교우돌봄-교우신심활동권면
  * - 교우돌봄-혼인장애자 미사참례권면
  * - 교우돌봄-전입교우단체가입권유
+ * - 교우돌봄-청소년돌봄
+ * - 이웃돌봄-다문화가족돌봄
  *
  * 사용: node add-gwangju-spiritual-believer-extra.js [--render]
  */
@@ -71,6 +73,18 @@ const ITEMS = [
             { name: '횟수', display: '횟수(회,단,시간,명)', required: false },
             { name: '단체가입', display: '단체가입', required: false }
         ]
+    },
+    {
+        group: '교우돌봄',
+        item: '청소년돌봄',
+        desc: '청소년 돌봄 (광주)',
+        fields: [{ name: '횟수', display: '횟수(회,단,시간,명)', required: false }]
+    },
+    {
+        group: '이웃돌봄',
+        item: '다문화가족돌봄',
+        desc: '다문화가족 돌봄 (광주)',
+        fields: [{ name: '횟수', display: '횟수(회,단,시간,명)', required: false }]
     }
 ];
 

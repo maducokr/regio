@@ -564,9 +564,9 @@
                 { label: '7. 견진성사권면', categories: ['교우돌봄-견진성사권면'], remarks: [{ label: '견진', field: 'confirmation', unit: '명' }] },
                 { label: '8. 유아세례권면', categories: ['교우돌봄-유아 세례 권면'], remarks: [{ label: '유아세례', field: 'baptism', unit: '명' }] },
                 { label: '9. 첫영성체', categories: ['교우돌봄-첫영성체'], remarks: [{ label: '첫영성체', field: 'first_communion', unit: '명' }] },
-                { label: '10. 다문화가족돌봄', categories: ['어려운자돌봄-다문화가족돌봄'], remarks: [] },
+                { label: '10. 다문화가족돌봄', categories: ['어려운자돌봄-다문화가족돌봄', '이웃돌봄-다문화가족돌봄'], remarks: [] },
                 { label: '11. 군인, 선원돌봄', categories: ['교우돌봄-군인선원돌봄'], remarks: [] },
-                { label: '12. 청소년돌봄', categories: ['교우돌봄-청소년 돌봄'], remarks: [] }
+                { label: '12. 청소년돌봄', categories: ['교우돌봄-청소년 돌봄', '교우돌봄-청소년돌봄'], remarks: [] }
             ]
         },
         {
