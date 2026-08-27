@@ -534,7 +534,7 @@
             stations: sumActivityTotals(totals, (n) => /십자가의\s*길|십자가의길/.test(n)),
             bible: sumActivityTotals(totals, (n) => /성경|봉독|필사|통독/.test(n)),
             littleOffice: sumActivityTotals(totals, (n) => /소성무일도|성무일도/.test(n)),
-            eucharistAdoration: sumActivityTotals(totals, (n) => /성체조배/.test(n)),
+            eucharistAdoration: sumActivityTotals(totals, (n) => /성체조배|영성생활-성체조배/.test(n)),
             familyPray: sumActivityTotals(totals, (n) => /가족이\s*함께\s*기도|가족기도|가정\s*기도/.test(n)),
             legionDiary: sumActivityTotals(totals, (n) => /성모님의\s*군단|군단일기|빛\s*잡지|빛잡지/.test(n)),
             spiritualOther: sumActivityTotals(totals, (n) => /프랭크|더프|시복|지향기도/.test(n))

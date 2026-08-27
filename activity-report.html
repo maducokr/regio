@@ -1608,7 +1608,7 @@
 
     <script src="activity-field-labels.js?v=20260823a"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260820h"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827a"></script>
     <script src="auth-ui.js?v=20260819i"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -1619,7 +1619,7 @@
     <script src="curia-hub.js?v=20260825f"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260827j"></script>
+    <script src="pr-business-report-form.js?v=20260827k"></script>
     <script src="curia-comprehensive-report-form.js?v=20260823a"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
@@ -4659,7 +4659,7 @@
         // 세목을 카테고리로 분류하는 함수
         function getCategoryFromSubItem(subItem) {
             const evangelismItems = ['외인 입교권면', '개종권면', '교리 중단자 권면', '방문', '가두선교', '예비신자관리돌봄', '통신교리자 돌봄', '교리반협조', '교리반 인도'];
-            const careItems = ['신영세자돌봄(방문)', '교우 가정방문', '냉담 교우 방문', '냉담교우회두 권면', '혼인 장애자 돌봄', '판공성사 권면', '전입교우돌봄(방문)', '견진성사권면', '유아 세례 권면', '군인선원돌봄', '청소년 돌봄'];
+            const careItems = ['신영세자돌봄(방문)', '신영세자전례기도지도', '교우신심활동권면', '교우 가정방문', '냉담 교우 방문', '냉담교우회두 권면', '혼인 장애자 돌봄', '혼인장애자 미사참례권면', '판공성사 권면', '전입교우돌봄(방문)', '전입교우단체가입권유', '견진성사권면', '유아 세례 권면', '군인선원돌봄', '청소년 돌봄'];
             const needyItems = ['교우 상가 방문 및 돌봄', '교우 환자 방문 및 돌봄', '외인환자 방문 및 돌봄', '외인 상가방문 및 돌봄', '재해 및 사고 피해자', '다문화가족돌봄', '병원봉사', '복지시설방문', '대세자돌봄'];
             const legionItems = ['소년 레지오 지도', '행동단원 모집', '협조단원 모집. 돌봄', 'Pr설립권면', '결석단원돌봄', '교본공부', '평의회업무협조', '호구방문', '제구돌보기', '보미사', '본당사도직활동', '행사 준비 및 협조', '주일학교 돌봄', '소공동체모임참석', '구역반장교육참석', '반모임 참석권유', '사무협조', '회원모집', '전례협조', '피정참가권장'];
             
@@ -4686,6 +4686,7 @@
             '영성생활-십자가의 길': ['횟수(회,단,회,분)'],
             '영성생활-성경 봉독, 쓰기': ['횟수(회,단,회,분)'],
             '영성생활-소성무일도': ['횟수(회,단,회,분)'],
+            '영성생활-성체조배': ['횟수(회,단,회,분)'],
             '영성생활-기타': ['횟수(회,단,회,분)'],
             '가정성화활동-가족이함께기도하기': ['횟수'],
             '가정성화활동-성경봉독 및 묵상': ['횟수'],
@@ -4734,12 +4735,16 @@
             '예비신자와 함께하는 활동-교리 시간에 예비신자의 아기를 돌봄': ['횟수', '영세자'],
             '예비신자와 함께하는 활동-기타': ['횟수', '영세자'],
             '교우돌봄-신영세자돌봄(방문)': ['횟수', '단체가입'],
+            '교우돌봄-신영세자전례기도지도': ['횟수'],
+            '교우돌봄-교우신심활동권면': ['횟수', '단체가입'],
             '교우돌봄-교우 가정방문': ['횟수', '단체가입'],
             '교우돌봄-냉담 교우 방문': ['횟수', '회두'],
             '교우돌봄-냉담교우회두 권면': ['횟수', '회두'],
             '교우돌봄-혼인 장애자 돌봄': ['횟수', '해소'],
+            '교우돌봄-혼인장애자 미사참례권면': ['횟수', '해소'],
             '교우돌봄-판공성사 권면': ['횟수', '성사'],
             '교우돌봄-전입교우돌봄(방문)': ['횟수', '단체가입'],
+            '교우돌봄-전입교우단체가입권유': ['횟수', '단체가입'],
             '교우돌봄-견진성사권면': ['횟수', '견진'],
             '교우돌봄-유아 세례 권면': ['횟수', '단체 가입', '쉬는 교우 회두', '혼인 장애 해소', '판공 성사', '견진 성사', '유아 세례'],
             '교우돌봄-첫영성체': ['횟수', '첫영성체'],
@@ -4938,6 +4943,7 @@
             '영성생활-십자가의 길': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
             '영성생활-성경 봉독, 쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
             '영성생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-성체조배': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
             '영성생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
 
             // 가정성화활동
@@ -5118,6 +5124,13 @@
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
             ],
+            '교우돌봄-신영세자전례기도지도': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
+            ],
+            '교우돌봄-교우신심활동권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false },
+                { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+            ],
             '교우돌봄-교우 가정방문': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
@@ -5134,12 +5147,20 @@
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'resolution', field_display_name: '해소', is_required: false }
             ],
+            '교우돌봄-혼인장애자 미사참례권면': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false },
+                { field_name: 'resolution', field_display_name: '해소', is_required: false }
+            ],
             '교우돌봄-판공성사 권면': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'sacrament', field_display_name: '성사', is_required: false }
             ],
             '교우돌봄-전입교우돌봄(방문)': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
+                { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
+            ],
+            '교우돌봄-전입교우단체가입권유': [
+                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false },
                 { field_name: 'group_join', field_display_name: '단체가입', is_required: false }
             ],
             '교우돌봄-견진성사권면': [
