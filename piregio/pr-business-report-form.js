@@ -1744,15 +1744,36 @@
     }
 
     function daeguActBlock(num, title, examples, count, resultsHtml) {
+        const resultRow = resultsHtml
+            ? `<tr>
+                    <td class="daegu-act-label">활동 결과</td>
+                    <td class="left daegu-act-result-cell">${resultsHtml}</td>
+                </tr>`
+            : '';
         return `
             <div class="daegu-act-block">
                 <div class="daegu-act-title">${escapeHtml(String(num))}. ${escapeHtml(title)}</div>
-                <div class="daegu-act-ex">
-                    <strong>활동 예시:</strong>
-                    ${lineBoxHtml(examples, '36px')}
+                <table class="biz-table daegu-act-inner">
+                    <tr>
+                        <td class="daegu-act-label">활동 예시</td>
+                        <td class="left">${lineBoxHtml(examples, '40px')}</td>
+                    </tr>
+                    <tr>
+                        <td class="daegu-act-label">활동 회수</td>
+                        <td class="left">활동 회수 : ${blank(count, 'w4')} 회</td>
+                    </tr>
+                    ${resultRow}
+                </table>
+            </div>
+        `;
+    }
+
+    function daeguOtherActBlock(count) {
+        return `
+            <div class="daegu-act-block daegu-act-other">
+                <div class="daegu-act-title">
+                    11. 기타 활동 : 활동 회수 : ${blank(count, 'w4')} 회
                 </div>
-                <div class="daegu-act-count">활동 회수: ${blank(count, 'w4')} 회</div>
-                ${resultsHtml ? `<div class="daegu-act-result"><strong>활동 결과:</strong> ${resultsHtml}</div>` : ''}
             </div>
         `;
     }
@@ -2543,10 +2564,10 @@
                 .pr-biz-form .finance-balance { font-size: 10px; padding: 5px 8px; }
                 .pr-biz-form .line-box { min-height: 40px; padding: 5px 6px; }
                 .pr-biz-form.pr-biz-daegu .daegu-act-ex,
-                .pr-biz-form.pr-biz-gwangju .daegu-act-ex { font-size: 10px; }
                 .pr-biz-form.pr-biz-daegu .daegu-model-title { font-size: 13px; }
                 .pr-biz-form.pr-biz-daegu .daegu-act-block { padding: 6px 8px; margin-bottom: 6px; }
-                .pr-biz-form.pr-biz-daegu .daegu-act-result { font-size: 10px; word-break: break-word; }
+                .pr-biz-form.pr-biz-daegu table.daegu-act-inner td { font-size: 10px; padding: 4px 6px; }
+                .pr-biz-form.pr-biz-daegu table.daegu-act-inner .daegu-act-result-cell { font-size: 10px; word-break: break-word; }
                 .pr-biz-form.pr-biz-daegu .biz-scroll table.biz-table { min-width: 680px; }
                 .pr-biz-form.pr-biz-gwangju .biz-scroll table.biz-table { min-width: 680px; }
                 .pr-biz-form.pr-biz-gwangju .biz-scroll table.gj-act-table { min-width: 720px; }
@@ -2610,21 +2631,39 @@
                 font-weight: 700;
                 margin-bottom: 4px;
             }
-            .pr-biz-form.pr-biz-daegu .daegu-act-ex {
+            .pr-biz-form.pr-biz-daegu .daegu-act-other {
+                padding: 10px 12px;
+            }
+            .pr-biz-form.pr-biz-daegu .daegu-act-other .daegu-act-title {
+                margin-bottom: 0;
+            }
+            .pr-biz-form.pr-biz-daegu table.daegu-act-inner {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 2px;
+            }
+            .pr-biz-form.pr-biz-daegu table.daegu-act-inner td {
+                border: 1px solid #333;
+                padding: 5px 8px;
+                vertical-align: top;
+                font-size: 11px;
+                line-height: 1.5;
+            }
+            .pr-biz-form.pr-biz-daegu table.daegu-act-inner .daegu-act-label {
+                width: 14%;
+                text-align: center;
+                font-weight: 700;
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+            .pr-biz-form.pr-biz-daegu table.daegu-act-inner .line-box {
+                margin-top: 0;
+                min-height: 36px;
                 font-size: 11px;
                 line-height: 1.45;
-                color: #333;
-                margin-bottom: 6px;
             }
-            .pr-biz-form.pr-biz-daegu .daegu-act-ex .line-box {
-                margin-top: 4px;
-                font-size: 11px;
-                line-height: 1.45;
-            }
-            .pr-biz-form.pr-biz-daegu .daegu-act-count,
-            .pr-biz-form.pr-biz-daegu .daegu-act-result {
-                margin-top: 4px;
-                line-height: 1.55;
+            .pr-biz-form.pr-biz-daegu table.daegu-act-inner .daegu-act-result-cell {
+                line-height: 1.6;
             }
             .pr-biz-form.pr-biz-daegu .daegu-model-title {
                 text-align: center;
@@ -3066,28 +3105,28 @@
                     ${daeguActBlock(
                         1,
                         '이웃에 가톨릭 알리기 활동',
-                        '이웃·가족에게 가톨릭 신앙 전하기, 교리반 권유(통신교리 포함), 교리반 재등록 권유, 가두선교, 가정방문, 선교지 배포, 기타 예비신자 접촉 활동 등',
+                        '이웃(가족)에게 가톨릭 신앙 전하기, 교리반수강 권유(통신교리 포함), 교리반수강 재권유(중단자), 가톨릭 알리기(가두선교, 주택방문), 가톨릭 선교책자 전달, 기타(선교대상자 접촉활동)',
                         a.neighbor,
                         resultCell('교리반 인도', a.catechismLead, '명')
                     )}
                     ${daeguActBlock(
                         2,
                         '예비신자와 함께하는 활동',
-                        '예비신자와 교리반 동반 참석, 미사 동반·주선, 본당 행사 동반, 본당생활 안내, 기도 등 영적 지도, 출석 확인 등 행정 협조, 교리반 간식 봉사, 예비신자 자녀 돌봄 등',
+                        '교리반에 동반해서 참석하기, 미사 주선 또는 동반하기, 본당행사 함께 참석하기, 본당생활 안내하기, 신앙생활 지도(기도 등), 예비자행정(출석점검 등) 협조하기, 교리반간식 봉사하기, 예비신자의 아기 돌보기(교리시간), 기타',
                         a.catechumen,
                         resultCell('영세자', a.baptized, '명')
                     )}
                     ${daeguActBlock(
                         3,
                         '가정을 위한 활동, 교우 돌봄',
-                        '가정 전례 기도, 부부 성경·기도·미사, 성사권유 후 동반 미사, 가정 봉사, 성인 자녀와 기도·봉사, 세대 간 기도·평일미사, 신심단체 가입 권유 방문, 다문화 가정 돕기, 영세자 가정방문·돌봄, 가정축복 등',
+                        '가정 전례실천을 위한 가족 일상 기도, 외짝 교우의 가정 성경읽기·기도·미사참례, 가족에게 성사권유 후 함께 미사참례하기, 가족이 불우시설 방문·봉사하기, 출가한 성인자녀와 기도·봉사하기, 2대·3대 함께 기도 또는 평일미사 참례하기, 교우가정 방문하여 본당 공인 신심단체 가입 권유하기, 다문화가정 돕기, 신영세자 가정방문·기도·영적대화·돌봄, 가족간 축복하기, 기타',
                         a.familyCare,
                         resultCell('단체 가입', a.groupJoin, '명')
                     )}
                     ${daeguActBlock(
                         4,
                         '성사권유 및 혼인장애자를 위한 활동',
-                        '냉담자 방문·성사·본당행사·영적상담 권유, 판공성사 권유 및 성사표 전달, 견진 권유·대부모 주선, 유아세례 권유·대부모·행정 협조, 혼인장애 해소 방문·지원 등',
+                        '쉬는 교우를 방문하여 성사권유하기, 쉬는 교우에게 본당행사 참석 권유와 신앙상담하기, 판공성사 권유(주일미사 불참자에 대한 접촉활동 포함)와 성사표 전달하기, 견진성사 권유와 대부모 주선하기, 유아세례 대상 부모에게 유아세례 시 권유하기, 유아세례 행정(대부모 주선 등) 협조하기, 혼인장애자를 방문하여 해소하도록 돕기, 기타(쉬는 교우 접촉활동)',
                         a.sacramentInvite,
                         [
                             resultCell('회두', a.conversion, '명'),
@@ -3100,7 +3139,7 @@
                     ${daeguActBlock(
                         5,
                         '어려움을 겪는 이웃과 나눔 활동',
-                        '상가 방문, 위령기도, 장례미사 참석, 장지 수행, 위령미사 참석, 병자성사·봉성체 주선, 병원 봉사·환자 방문, 복지시설 봉사·방문, 재난·사고 피해자 방문, 수용자 돌봄, 급작 위험 돌봄 등',
+                        '상가 방문하기, 위령기도하기, 장례미사 참례하기, 장지 수행하기, 본당 공지 위령미사에 참례하기, 병자성사와 봉성체 주선하기, 병원 봉사하기, 환자 방문하기, 각종 복지시설 봉사 및 방문하기, 재해나 사고 피해자 방문·봉사하기, 재소자 방문·돌보기, 갑작스런 위험(교통사고 등)에 처한 자 돌보기, 기타',
                         a.neighborShare,
                         [
                             resultCell('상가방문, 돌봄', a.funeralVisit, '회'),
@@ -3118,57 +3157,48 @@
                     ${daeguActBlock(
                         6,
                         '본당 운영에 기여(본당협조) 활동',
-                        '본당 행사 준비·협조, 전례 봉사, 성시간 참석, 본당 교육·피정 권유·봉사, 주일학교 봉사, 본당 대청소, 시설 청소·정비, 본당 수리 노력봉사, 본당 호구조사, 차량·교통정리 봉사, 첫영성체 교리반 인도 등',
+                        '본당 행사 준비 및 협조, 전례 봉사, 성시간 참석, 본당 교육 및 피정에 참석권유 및 봉사, 주일학교 봉사, 본당 대청소에 참여, 본당시설의 청소 및 정비, 본당 보수공사에 노력봉사, 본당 교세조사, 본당 행사·교육·피정에 차량봉사 및 교통정리, 어린이를 첫영성체 교리반에 인도, 기타',
                         a.parishOps,
-                        [
-                            resultCell('첫 영성체 교리반 인도', a.firstCommunionLead, '명'),
-                            resultCell('(유아세례 외 영세', a.firstCommunionBaptism, '명)')
-                        ].join(' &nbsp; ')
+                        `${resultCell('첫 영성체 교리반 인도', a.firstCommunionLead, '명')} (유아세례 외 영세 ${blank(a.firstCommunionBaptism, 'w4')} 명)`
                     )}
                     ${daeguActBlock(
                         7,
                         '레지오의 발전을 위한 활동',
-                        '유년 Pr. 설립 권유·지도, 행동단원·협조단원 권유·모집, 휴면 단원 돌봄, Pr. 설립 권유, 레지오 교육·행사·피정 참석·봉사, Pr. 주회·평의회 방문, 간부·방청 출석, 교본 연구, 차량·교통정리 봉사 등',
+                        '소년 Pr. 설립 권유 및 지도, 행동 단원 가입 권유 및 모집, 협조단원 가입 권유 및 모집, 활동소홀 단원 돌보기, Pr.설립 권유, 레지오 교육·행사·피정에 참석 및 봉사, Pr.주회 및 평의회 순방, 간부(혹은 참관자)로서 평의회 참석, 교본공부, 레지오 행사·교육·피정에 차량봉사 및 교통정리, 기타',
                         a.legionGrow,
                         [
                             resultCell('행동단원 모집', a.activeRecruit, '명'),
                             resultCell('협조단원 모집', a.auxRecruit, '명')
-                        ].join(' &nbsp; ')
+                        ].join(', ')
                     )}
                     ${daeguActBlock(
                         8,
                         '소공동체와 함께하는 활동',
-                        '소공동체 모임 참석·권유, 소공동체 사업회의 참석, 소공동체 교육 참석',
+                        '소공동체 모임 참석 및 참석 권유, 소공동체 회의 참석, 소공동체 교육 참석',
                         a.smallCommunity,
                         ''
                     )}
                     ${daeguActBlock(
                         9,
                         '자연보호 및 생명존중 운동에 동참',
-                        '생태환경 운동 실천, 낙태반대 운동 동참, 사후장기기증 운동 동참, 헌혈 및 헌혈 권유',
+                        '전반적인 생태환경 운동 실천, 낙태반대운동 참가, 사후 장기기증운동 동참, 헌혈 및 헌혈권유',
                         a.nature,
                         ''
                     )}
                     ${daeguActBlock(
                         10,
                         '상급평의회가 지시한 활동',
-                        '성경 통독, 성경 쓰기, 주회 전후 미사, 미사 전 독서·복음 묵상, 「성모님의 군단」·「빛」 읽기, 평일미사 참석·권유, 기타 상급평의회 지시 활동',
+                        '성경통독, 성경쓰기, 주회 전후 미사, 미사전 독서·복음 묵상, 성모님의 군단 및 빛 잡지 읽기, 평일미사 참례 및 권유, 기타 상급평의회에서 지시한 활동',
                         a.higherCouncil,
                         [
                             resultCell('성경 통독', a.bibleRead, '장'),
                             resultCell('묵주 기도', a.rosary, '단'),
                             resultCell('성경 쓰기', a.bibleWrite, '장')
-                        ].join(' &nbsp; ')
+                        ].join('<br>')
                     )}
-                    ${daeguActBlock(
-                        11,
-                        '기타 활동',
-                        '위에 해당하지 않는 기타 활동',
-                        a.otherAct,
-                        ''
-                    )}
+                    ${daeguOtherActBlock(a.otherAct)}
 
-                    <div class="biz-sec-title">쁘레시디움 운영 상 상급평의회에 건의 사항</div>
+                    <div class="biz-sec-title">※ 쁘레시디움 운영 상 상급평의회에 건의 사항 :</div>
                     ${lineBoxHtml('', '64px')}
                 </div>
 
