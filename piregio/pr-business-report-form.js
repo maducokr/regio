@@ -1054,17 +1054,24 @@
             || one((n) => /환경보호|자연보호|생태|지구와함께/.test(n));
 
         const publication = one((n) => /출판물|간행물|보급|배포/.test(n));
-        const shrine = one((n) => /성지\s*미화|성지미화|성지/.test(n));
-        const vehicle = one((n) => /차량봉사|차량\s*봉사|교통정리/.test(n));
+        const shrineBeautify = one((n) => /성지\s*미화|성지미화/.test(n) && !/시설봉사|교구관련/.test(n));
+        const unmarkedGrave = one((n) => /무연묘/.test(n));
+        const shrineClean = one((n) => /성지정리|성지\s*정리/.test(n));
+        const shrine = sumParenCounts(shrineBeautify, unmarkedGrave, shrineClean)
+            || one((n) => /성지\s*미화|성지미화|무연묘|성지정리/.test(n));
+        const trafficControl = one((n) => /기타-교통정리|^교통정리$|교통정리/.test(n)
+            && !/차량|본당협조-차량|레지오|교육·피정|교육▪피정/.test(n));
+        const vehicle = one((n) => /차량봉사|차량\s*봉사/.test(n));
         const proLife = one((n) => /생명존중|헌혈|낙태|장기기증|자살\s*예방|자살예방/.test(n));
         const familySanct = one((n) => /가정성화|가족이\s*함께|가정\s*단위/.test(n));
         const otherExtra = one((n) =>
             /기타활동.*추가|추가활동|기타\s*활동.*기타|기타활동-기타/.test(n)
             || (/기타활동|기타\s*활동/.test(n) && /추가|기타$/.test(n)
-                && !/출판물|성지|차량|생명|가정성화|헌혈|낙태|장기|자살/.test(n))
+                && !/출판물|성지|차량|생명|가정성화|헌혈|낙태|장기|자살|무연묘|교통정리/.test(n))
         );
-        const otherCount = sumParenCounts(publication, shrine, vehicle, proLife, familySanct, otherExtra)
-            || one((n) => /기타\s*활동|기타활동|출판물|성지|차량|생명존중|가정성화/.test(n));
+        const otherCount = sumParenCounts(
+            publication, shrineBeautify, unmarkedGrave, shrineClean, trafficControl, vehicle, proLife, familySanct, otherExtra
+        ) || one((n) => /기타\s*활동|기타활동|출판물|성지|차량|생명존중|가정성화|무연묘|교통정리/.test(n));
 
         const weekdayMass = one((n) => /평일미사|평일\s*미사/.test(n));
         const rosary = one((n) => /묵주기도|묵주\s*기도/.test(n));
@@ -1151,6 +1158,10 @@
             otherCount,
             publication,
             shrine,
+            shrineBeautify,
+            unmarkedGrave,
+            shrineClean,
+            trafficControl,
             vehicle,
             proLife,
             familySanct,
@@ -1330,9 +1341,12 @@
                                 ${targetSlashCountCells(a.otherCount)}
                                 <td class="gj-cases">${joinCases([
                                     caseParen('출판물보급', a.publication),
-                                    caseParen('성지미화', a.shrine),
-                                    caseParen('차량봉사및 교통정리', a.vehicle),
-                                    caseParen('생명존중 활동(헌혈, 장기기증, 자살예방, 낙태반대 등)', a.proLife),
+                                    caseParen('성지 미화작업', a.shrineBeautify),
+                                    caseParen('무연묘벌초', a.unmarkedGrave),
+                                    caseParen('성지정리작업', a.shrineClean),
+                                    caseParen('교통정리', a.trafficControl),
+                                    caseParen('차량봉사', a.vehicle),
+                                    caseParen('생명존중활동(헌혈,장기기증,자살예방,낙태반대...)', a.proLife),
                                     caseParen('가정성화 활동', a.familySanct),
                                     caseParen('추가', a.otherExtra)
                                 ])}</td>

@@ -1,7 +1,11 @@
 /**
- * 기타(광주 세나뚜스) 종목·세목 추가
+ * 기타(광주 세나뚜스) 추가 세목
+ * - 기타-성지 미화작업
+ * - 기타-무연묘벌초
+ * - 기타-성지정리작업
+ * - 기타-교통정리
  * 활동요약: 횟수
- * 사용: node add-gwangju-etc-activity.js [--render]
+ * 사용: node add-gwangju-other-shrine-traffic.js [--render]
  */
 require('dotenv').config();
 const { Pool } = require('pg');
@@ -30,10 +34,10 @@ const activePool = useRender && process.env.DATABASE_URL
 const GROUP = '기타';
 
 const ITEMS = [
-    { item: '출판물 보급', desc: '출판물 보급 (광주)' },
-    { item: '생태 환경보호 활동', desc: '생태 환경보호 활동 (광주)' },
-    { item: '생명존중활동(헌혈,장기기증,자살예방,낙태반대...)', desc: '생명존중활동(헌혈,장기기증,자살예방,낙태반대...) (광주)' },
-    { item: '가정성화 활동(가족단위)', desc: '가정성화 활동·가족단위 (광주)' }
+    { item: '성지 미화작업', desc: '성지 미화작업 (광주)' },
+    { item: '무연묘벌초', desc: '무연묘벌초 (광주)' },
+    { item: '성지정리작업', desc: '성지정리작업 (광주)' },
+    { item: '교통정리', desc: '교통정리 (광주)' }
 ];
 
 const FIELDS = [
@@ -84,7 +88,7 @@ async function main() {
         }
 
         await client.query('COMMIT');
-        console.log(`\n✅ ${GROUP}(광주) 세목 ${ITEMS.length}개 반영 완료. (${useRender ? 'Render' : 'local'})`);
+        console.log(`\n✅ ${GROUP}(광주) 추가 세목 ${ITEMS.length}개 반영 완료. (${useRender ? 'Render' : 'local'})`);
 
         for (const { item } of ITEMS) {
             const name = `${GROUP}-${item}`;

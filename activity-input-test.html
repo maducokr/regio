@@ -973,7 +973,7 @@
     <script src="date-wheel-picker.js"></script>
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827q"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827r"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260825e"></script>
     <script src="app-mode.js"></script>
@@ -2241,7 +2241,8 @@
                         '본당협조-제단체봉사', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사',
                         // 기타 (광주 세나뚜스)
                         '기타-출판물 보급', '기타-생태 환경보호 활동',
-                        '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                        '기타-생명존중활동(헌혈,장기기증,자살예방,낙태반대...)', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                        '기타-성지 미화작업', '기타-무연묘벌초', '기타-성지정리작업', '기타-교통정리',
 
                         // 가정을 위한 활동, 교우 돌봄
                         '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
@@ -2303,7 +2304,8 @@
                     '기타 활동-기타활동',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
-                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                    '기타-생명존중활동(헌혈,장기기증,자살예방,낙태반대...)', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                    '기타-성지 미화작업', '기타-무연묘벌초', '기타-성지정리작업', '기타-교통정리',
 
                         
                         // 어려운자돌봄
@@ -2446,7 +2448,8 @@
                     '본당협조-제단체봉사', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
-                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                    '기타-생명존중활동(헌혈,장기기증,자살예방,낙태반대...)', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                    '기타-성지 미화작업', '기타-무연묘벌초', '기타-성지정리작업', '기타-교통정리',
 
                     // 가정을 위한 활동, 교우 돌봄
                     '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
@@ -2510,7 +2513,8 @@
                     '기타 활동-기타활동',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
-                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                    '기타-생명존중활동(헌혈,장기기증,자살예방,낙태반대...)', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
+                    '기타-성지 미화작업', '기타-무연묘벌초', '기타-성지정리작업', '기타-교통정리',
                     
                     // 어려운자돌봄
                     '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
@@ -3130,13 +3134,25 @@
                     '기타-생태 환경보호 활동': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false }
                     ],
-                    '기타-생명존중 활동': [
+                    '기타-생명존중활동(헌혈,장기기증,자살예방,낙태반대...)': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false }
                     ],
                     '기타-가정성화 활동(가족단위)': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false }
                     ],
                     '기타-차량봉사': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-성지 미화작업': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-무연묘벌초': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-성지정리작업': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-교통정리': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false }
                     ],
 
@@ -3745,9 +3761,13 @@
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
                     '기타-생태 환경보호 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
-                    '기타-생명존중 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-생명존중활동(헌혈,장기기증,자살예방,낙태반대...)': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
                     '기타-가정성화 활동(가족단위)': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
                     '기타-차량봉사': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-성지 미화작업': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-무연묘벌초': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-성지정리작업': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-교통정리': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
 
 
 
