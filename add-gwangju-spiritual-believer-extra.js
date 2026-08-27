@@ -7,6 +7,7 @@
  * - 교우돌봄-전입교우단체가입권유
  * - 교우돌봄-청소년돌봄
  * - 이웃돌봄-다문화가족돌봄
+ * - 이웃돌봄-죽을 위험 중의 세례자 돌봄
  *
  * 사용: node add-gwangju-spiritual-believer-extra.js [--render]
  */
@@ -85,6 +86,15 @@ const ITEMS = [
         item: '다문화가족돌봄',
         desc: '다문화가족 돌봄 (광주)',
         fields: [{ name: '횟수', display: '횟수(회,단,시간,명)', required: false }]
+    },
+    {
+        group: '이웃돌봄',
+        item: '죽을 위험 중의 세례자 돌봄',
+        desc: '죽을 위험 중의 세례자 돌봄 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수(회,단,시간,명)', required: false },
+            { name: '교리반인도', display: '교리반인도', required: false }
+        ]
     }
 ];
 
