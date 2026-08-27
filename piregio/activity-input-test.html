@@ -973,7 +973,7 @@
     <script src="date-wheel-picker.js"></script>
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827f"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827g"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260825e"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
@@ -2230,6 +2230,8 @@
                         '본당협조-주일학교 돌봄', '본당협조-전례 협조', '본당협조-청소 미화',
                         '본당협조-차량 봉사 및 교통정리',
                         '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)',
+                        '본당협조-업무협조', '본당협조-노인대학봉사', '본당협조-교육및피정',
+                        '본당협조-제단체봉사', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사',
                         // 기타 (광주 세나뚜스)
                         '기타-출판물 보급', '기타-생태 환경보호 활동',
                         '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
@@ -2426,6 +2428,8 @@
                     '본당협조-주일학교 돌봄', '본당협조-전례 협조', '본당협조-청소 미화',
                     '본당협조-차량 봉사 및 교통정리',
                     '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)',
+                    '본당협조-업무협조', '본당협조-노인대학봉사', '본당협조-교육및피정',
+                    '본당협조-제단체봉사', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
                     '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
@@ -3046,6 +3050,36 @@
                         { field_name: 'group_join', field_display_name: '기타', is_required: false }
                     ],
                     '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false },
+                        { field_name: 'year_count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-업무협조': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false },
+                        { field_name: 'year_count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-노인대학봉사': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false },
+                        { field_name: 'year_count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-교육및피정': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false },
+                        { field_name: 'year_count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-제단체봉사': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false },
+                        { field_name: 'year_count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-성지시설봉사': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false },
+                        { field_name: 'year_count', field_display_name: '면담', is_required: false },
+                        { field_name: 'group_join', field_display_name: '기타', is_required: false }
+                    ],
+                    '본당협조-교구관련시설봉사': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false },
                         { field_name: 'year_count', field_display_name: '면담', is_required: false },
                         { field_name: 'group_join', field_display_name: '기타', is_required: false }

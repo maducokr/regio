@@ -628,8 +628,8 @@
             title: '5. 본당협조',
             rows: [
                 { label: '1. 호구방문', categories: ['본당교회협조-호구방문', '특별활동-호구조사'], remarks: [] },
-                { label: '2. 행사준비 및 협조', categories: ['본당교회협조-행사 준비 및 협조'], remarks: [] },
-                { label: '3. 주일학교 돌봄', categories: ['본당교회협조-주일학교 돌봄'], remarks: [] },
+                { label: '2. 행사준비 및 협조', categories: ['본당교회협조-행사 준비 및 협조', '본당협조-제단체봉사'], remarks: [] },
+                { label: '3. 주일학교 돌봄', categories: ['본당교회협조-주일학교 돌봄', '본당협조-노인대학봉사'], remarks: [] },
                 {
                     label: '4. 소공동체 활동',
                     categories: [
@@ -642,15 +642,15 @@
                     ],
                     remarks: []
                 },
-                { label: '5. 사무협조', categories: ['본당교회협조-사무협조'], remarks: [] },
+                { label: '5. 사무협조', categories: ['본당교회협조-사무협조', '본당협조-업무협조'], remarks: [] },
                 { label: '6. 회원모집(출석독려)', categories: ['본당교회협조-회원모집'], remarks: [] },
-                { label: '7. 본당에서의 사도직활동', categories: ['본당교회협조-본당사도직활동'], remarks: [] },
+                { label: '7. 본당에서의 사도직활동', categories: ['본당교회협조-본당사도직활동', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사'], remarks: [] },
                 { label: '8. 전례협조', categories: ['본당교회협조-전례협조'], remarks: [] },
                 { label: '9. 보미사', categories: ['본당교회협조-보미사', '본당교회협조-미사안내봉사'], remarks: [] },
                 { label: '10. 제구돌보기', categories: ['본당교회협조-제구돌보기'], remarks: [] },
                 {
                     label: '11. 피정참가권장',
-                    categories: ['본당교회협조-피정참가권장'],
+                    categories: ['본당교회협조-피정참가권장', '본당협조-교육및피정'],
                     remarks: [
                         { label: '교육참가', field: 'establishment', unit: '명' },
                         { label: '피정참가', field: 'membership', unit: '명' }

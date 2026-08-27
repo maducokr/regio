@@ -10,6 +10,12 @@
  * - 이웃돌봄-죽을 위험 중의 세례자 돌봄
  * - 확장-교본공부
  * - 확장-평의회업무협조
+ * - 본당협조-업무협조
+ * - 본당협조-노인대학봉사
+ * - 본당협조-교육및피정
+ * - 본당협조-제단체봉사
+ * - 본당협조-성지시설봉사
+ * - 본당협조-교구관련시설봉사
  *
  * 사용: node add-gwangju-spiritual-believer-extra.js [--render]
  */
@@ -111,6 +117,66 @@ const ITEMS = [
         item: '평의회업무협조',
         desc: '평의회업무협조 (광주)',
         fields: [{ name: '횟수', display: '횟수(회,단,시간,명)', required: false }]
+    },
+    {
+        group: '본당협조',
+        item: '업무협조',
+        desc: '업무협조 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수', required: false },
+            { name: '면담', display: '면담', required: false },
+            { name: '기타', display: '기타', required: false }
+        ]
+    },
+    {
+        group: '본당협조',
+        item: '노인대학봉사',
+        desc: '노인대학봉사 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수', required: false },
+            { name: '면담', display: '면담', required: false },
+            { name: '기타', display: '기타', required: false }
+        ]
+    },
+    {
+        group: '본당협조',
+        item: '교육및피정',
+        desc: '교육및피정 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수', required: false },
+            { name: '면담', display: '면담', required: false },
+            { name: '기타', display: '기타', required: false }
+        ]
+    },
+    {
+        group: '본당협조',
+        item: '제단체봉사',
+        desc: '제단체봉사 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수', required: false },
+            { name: '면담', display: '면담', required: false },
+            { name: '기타', display: '기타', required: false }
+        ]
+    },
+    {
+        group: '본당협조',
+        item: '성지시설봉사',
+        desc: '성지시설봉사 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수', required: false },
+            { name: '면담', display: '면담', required: false },
+            { name: '기타', display: '기타', required: false }
+        ]
+    },
+    {
+        group: '본당협조',
+        item: '교구관련시설봉사',
+        desc: '교구관련시설봉사 (광주)',
+        fields: [
+            { name: '횟수', display: '횟수', required: false },
+            { name: '면담', display: '면담', required: false },
+            { name: '기타', display: '기타', required: false }
+        ]
     }
 ];
 
