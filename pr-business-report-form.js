@@ -3184,8 +3184,8 @@
                         <tbody>
                             <tr>
                                 <td class="gj-cat">복음선교</td>
-                                <td class="gj-count">${countWithTarget(a.evangelism)}</td>
-                                <td class="left">${lineBoxHtml('외인 입교권면, 교리중단자 권면, 가두선교, 방문선교, 교리반 인도, 통신교리+자돌봄, 타인인도예비자+돌보기, 교리반 봉사·협조', '28px')}</td>
+                                <td class="gj-count">${blank(a.evangelism, 'w4')}</td>
+                                <td class="left">${lineBoxHtml('외인 입교권면, 교리중단자 권면, 가두선교, 교리반인도예비자, 통신교리자, 타인이인도한 예비자, 교리반 봉사·협조', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('교리반 인도', a.catechismLead, '명')}<br>
                                     ${resultCell('영세자', a.baptized, '명')}<br>
@@ -3194,7 +3194,7 @@
                             </tr>
                             <tr>
                                 <td class="gj-cat">교우 돌봄</td>
-                                <td class="gj-count">${countWithTarget(a.believerCare)}</td>
+                                <td class="gj-count">${blank(a.believerCare, 'w4')}</td>
                                 <td class="left">${lineBoxHtml('새영세자·냉담자·교우가정·혼인장애자 방문, 성사권유, 이사온 교우, 첫영성체·유아세례 권유, 청소년 돌봄, 교우 상가·병자 방문·돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('단체 가입', a.groupJoin, '명')}<br>
@@ -3212,7 +3212,7 @@
                             </tr>
                             <tr>
                                 <td class="gj-cat">이웃 돌봄</td>
-                                <td class="gj-count">${countWithTarget(a.neighborCare)}</td>
+                                <td class="gj-count">${blank(a.neighborCare, 'w4')}</td>
                                 <td class="left">${lineBoxHtml('비신자 병자·상가 방문·돌봄, 병원 방문·활동, 복지시설 봉사, 재난·사고 피해자 돌봄, 다문화가족돌봄, 죽을위험중의 세례자돌봄', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('대세자', a.conditionalBaptism, '명')}<br>
@@ -3221,7 +3221,7 @@
                             </tr>
                             <tr>
                                 <td class="gj-cat">확장</td>
-                                <td class="gj-count">${countWithTarget(a.expansion)}</td>
+                                <td class="gj-count">${blank(a.expansion, 'w4')}</td>
                                 <td class="left">${lineBoxHtml('행동단원·협조단원 모집, 유년단 설립 활동, 유년단 돌봄, Pr설립권면, 교본공부, 평의회업무협조', '28px')}</td>
                                 <td class="left">
                                     ${resultCell('행동단원 입단', a.activeRecruit, '명')}<br>
@@ -3442,7 +3442,7 @@
             ? buildBusanFocusSectionHtml(officers)
             : `
                 <div class="daegu-page-break">
-                    <div class="gj-special-title">모범활동사례</div>
+                    <div class="gj-special-title">특기사항</div>
                     ${lineBoxHtml('', '260px')}
                     <div class="gj-special-guide">
                         (1) 육하원칙 (누가, 언제, 어디서, 어떻게, 무엇을, 왜)에 의해 작성하며, 가명을 사용합니다.<br>
