@@ -601,7 +601,11 @@
                 { label: '5. 병원방문', categories: ['어려운자돌봄-병원봉사', '특별활동-병원방문'], remarks: [] },
                 { label: '6. 복지시설방문', categories: ['어려운자돌봄-복지시설방문', '특별활동-복지시설노력봉사'], remarks: [] },
                 { label: '7. 외인상가방문및돌봄', categories: ['어려운자돌봄-외인 상가방문 및 돌봄'], remarks: [] },
-                { label: '8. 대세자방문', categories: ['어려운자돌봄-대세자돌봄', '이웃돌봄-죽을 위험 중의 세례자 돌봄'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] }
+                { label: '8. 대세자방문', categories: ['어려운자돌봄-대세자돌봄', '이웃돌봄-죽을 위험 중의 세례자 돌봄'], remarks: [
+                    { label: '교리반인도', field: 'catechism_guide', unit: '명' },
+                    { label: '죽을위험중의세례', field: 'conditional_baptism', unit: '명' },
+                    { label: '세례보충예식', field: 'conditional_communion', unit: '명' }
+                ] }
             ]
         },
         {

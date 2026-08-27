@@ -93,7 +93,9 @@ const ITEMS = [
         desc: '죽을 위험 중의 세례자 돌봄 (광주)',
         fields: [
             { name: '횟수', display: '횟수(회,단,시간,명)', required: false },
-            { name: '교리반인도', display: '교리반인도', required: false }
+            { name: '교리반인도', display: '교리반인도', required: false },
+            { name: '죽을위험중의세례', display: '죽을위험중의세례', required: false },
+            { name: '세례보충예식', display: '세례보충예식', required: false }
         ]
     }
 ];
