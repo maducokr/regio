@@ -25,6 +25,11 @@
  * - 본당협조-성지시설봉사
  * - 본당협조-교구관련시설봉사
  * - 기타-차량봉사
+ * - 복음선교-접촉활동
+ * - 교우돌봄-접촉활동
+ * - 확장-접촉활동
+ * - 확장-레지오홍보
+ * - 확장-홍보유사활동
  *
  * 사용: node add-gwangju-spiritual-believer-extra.js [--render]
  */
@@ -239,6 +244,36 @@ const ITEMS = [
         group: '기타',
         item: '차량봉사',
         desc: '차량봉사 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '복음선교',
+        item: '접촉활동',
+        desc: '접촉활동 (광주·복음선교)',
+        fields: [{ name: '횟수', display: '횟수(회)', required: false }]
+    },
+    {
+        group: '교우돌봄',
+        item: '접촉활동',
+        desc: '접촉활동 (광주·교우돌봄)',
+        fields: [{ name: '횟수', display: '횟수(회)', required: false }]
+    },
+    {
+        group: '확장',
+        item: '접촉활동',
+        desc: '접촉활동 (광주·레지오확장)',
+        fields: [{ name: '횟수', display: '횟수(회)', required: false }]
+    },
+    {
+        group: '확장',
+        item: '레지오홍보',
+        desc: '레지오홍보 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '확장',
+        item: '홍보유사활동',
+        desc: '홍보유사활동 (광주)',
         fields: [{ name: '횟수', display: '횟수', required: false }]
     }
 ];

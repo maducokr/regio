@@ -546,9 +546,9 @@
                 { label: '2. 교리중단자권면', categories: ['복음선교-교리 중단자 권면'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
                 { label: '3. 방문선교', categories: ['복음선교-방문선교'], remarks: [{ label: '교리반인도', field: 'catechism_guide', unit: '명' }] },
                 { label: '4. 가두선교', categories: ['복음선교-가두선교'], remarks: [{ label: '자기소개서', field: 'catechism_guide', unit: '건' }] },
-                { label: '5. 교리반봉사', categories: ['예비신자 돌봄-교리반 봉사', '복음선교-교리반 인도', '복음선교-교리반인도예비자'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
-                { label: '6. 예비신자돌봄', categories: ['예비신자 돌봄-예비신자 돌봄', '복음선교-예비신자관리돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
-                { label: '7. 통신교리자돌봄', categories: ['예비신자 돌봄-통신교리자 돌봄', '복음선교-통신교리자 돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
+                { label: '5. 교리반봉사', categories: ['예비신자 돌봄-교리반 봉사', '복음선교-교리반 인도', '복음선교-교리반인도예비자', '복음선교-교리반 인도 예비신자 돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
+                { label: '6. 예비신자돌봄', categories: ['예비신자 돌봄-예비신자 돌봄', '복음선교-예비신자관리돌봄', '복음선교-타인이 인도한 예비신자 돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
+                { label: '7. 통신교리자돌봄', categories: ['예비신자 돌봄-통신교리자 돌봄', '복음선교-통신교리자 돌봄', '복음선교-통신교리자돌봄'], remarks: [{ label: '세례자', field: 'baptism', unit: '명' }] },
                 { label: '8. 교리반협조', categories: ['복음선교-교리반협조'], remarks: [] }
             ]
         },
@@ -645,7 +645,7 @@
                 { label: '5. 사무협조', categories: ['본당교회협조-사무협조', '본당협조-업무협조'], remarks: [] },
                 { label: '6. 회원모집(출석독려)', categories: ['본당교회협조-회원모집'], remarks: [] },
                 { label: '7. 본당에서의 사도직활동', categories: ['본당교회협조-본당사도직활동', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사'], remarks: [] },
-                { label: '8. 전례협조', categories: ['본당교회협조-전례협조'], remarks: [] },
+                { label: '8. 전례협조', categories: ['본당교회협조-전례협조', '본당협조-전례 협조', '본당협조-전례 협조(미사안내,주보접기,성가대 등)'], remarks: [] },
                 { label: '9. 보미사', categories: ['본당교회협조-보미사', '본당교회협조-미사안내봉사'], remarks: [] },
                 { label: '10. 제구돌보기', categories: ['본당교회협조-제구돌보기'], remarks: [] },
                 {
@@ -663,7 +663,10 @@
             rows: [
                 { label: '1. 청소미화', categories: ['기타활동-청소 미화', '본당교회협조-청소및미화'], remarks: [] },
                 { label: '2. 출판물보급', categories: ['기타활동-출판물 보급'], remarks: [] },
-                { label: '3. 자연보호', categories: ['자연보호-자연보호활동', '자연보호-생태 환경보호 활동', '자연보호-환경정화'], remarks: [] },
+                { label: '3. 자연보호', categories: [
+                    '자연보호-자연보호활동', '자연보호-생태 환경보호 활동', '자연보호-환경정화',
+                    '환경보호-개인적인 실천 활동 및 권유', '환경보호-공동체적인 활동', '환경보호-교육, 기타'
+                ], remarks: [] },
                 { label: '4. 선교회협조', categories: ['기타활동-선교회협조', '기타활동-기타사목활동'], remarks: [] },
                 { label: '5. 특별활동', categories: ['기타활동-특별활동'], remarks: [] },
                 { label: '6. 차량봉사 및 교통정리', categories: ['기타활동-차량봉사및교통정리', '기타-차량봉사'], remarks: [] },

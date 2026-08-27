@@ -1608,7 +1608,7 @@
 
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827j"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827q"></script>
     <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -1619,8 +1619,8 @@
     <script src="curia-hub.js?v=20260825f"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260827l"></script>
-    <script src="curia-comprehensive-report-form.js?v=20260823a"></script>
+    <script src="pr-business-report-form.js?v=20260827q"></script>
+    <script src="curia-comprehensive-report-form.js?v=20260827q"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
     <script src="member-form-fields.js?v=20260825f"></script>
@@ -4696,6 +4696,9 @@
             '지구살리기-고쳐쓰기': ['횟수'],
             '지구살리기-재고하기': ['횟수'],
             '지구살리기-재생하기': ['횟수'],
+            '환경보호-개인적인 실천 활동 및 권유': ['횟수'],
+            '환경보호-공동체적인 활동': ['횟수'],
+            '환경보호-교육, 기타': ['횟수'],
             '가정성화활동-가족이함께기도하기': ['횟수'],
             '가정성화활동-성경봉독 및 묵상': ['횟수'],
             '가정성화활동-미사참례': ['횟수'],
@@ -4712,10 +4715,11 @@
             '복음선교-방문선교': ['횟수', '교리반인도'],
             '복음선교-가두선교': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
             '복음선교-비신자 입교 권면': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
-            '복음선교-교리반 인도 예비자': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
-            '복음선교-통신교리자': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
-            '복음선교-타인이 인도한 예비자': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-교리반 인도 예비신자 돌봄': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-통신교리자돌봄': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-타인이 인도한 예비신자 돌봄': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
             '복음선교-교리반 봉사 및 협조': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
+            '복음선교-접촉활동': ['횟수'],
             '이웃에 가톨릭 알리기활동-이웃에 신앙전하기': ['횟수', '교리반인도'],
             '이웃에 가톨릭 알리기활동-교리반수강권유': ['횟수', '교리반인도'],
             '이웃에 가톨릭 알리기활동-통신교리수강권유': ['횟수', '교리반인도'],
@@ -4859,6 +4863,7 @@
             '교우돌봄-군인선원돌봄': ['횟수', '첫영성체'],
             '교우돌봄-청소년 돌봄': ['횟수'],
             '교우돌봄-청소년돌봄': ['횟수'],
+            '교우돌봄-접촉활동': ['횟수'],
             '교우돌봄-교우 상가 방문 및 돌봄': ['연도', '장례미사(고별식)', '기타 상가 활동', '횟수'],
             '교우돌봄-교우 환자 방문 및 돌봄': ['연도', '장례미사(고별식)', '기타 상가 활동', '횟수'],
             '이웃돌봄-비신자 환자 방문 및 돌봄': ['횟수', '죽을 위험 중의 세례', '세례보충예식'],
@@ -4874,10 +4879,13 @@
             '확장-소년 레지오 돌봄': ['횟수', '행동단원 입단', '협조단원 입단'],
             '확장-교본공부': ['횟수'],
             '확장-평의회업무협조': ['횟수'],
+            '확장-접촉활동': ['횟수'],
+            '확장-레지오홍보': ['횟수'],
+            '확장-홍보유사활동': ['횟수'],
             '본당협조-행사 준비 및 협조': ['횟수', '면담', '기타'],
             '본당협조-본당 교세 조사(호별방문)': ['횟수', '면담', '기타'],
             '본당협조-주일학교 돌봄': ['횟수', '면담', '기타'],
-            '본당협조-전례 협조': ['횟수', '면담', '기타'],
+            '본당협조-전례 협조(미사안내,주보접기,성가대 등)': ['횟수', '면담', '기타'],
             '본당협조-청소 미화': ['횟수', '면담', '기타'],
             '본당협조-차량 봉사 및 교통정리': ['횟수', '면담', '기타'],
             '본당협조-소공동체 활동(구역·반장 교육 및 참석, 참석 권유)': ['횟수', '면담', '기타'],
@@ -4973,6 +4981,9 @@
             '지구살리기-고쳐쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
             '지구살리기-재고하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
             '지구살리기-재생하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '환경보호-개인적인 실천 활동 및 권유': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '환경보호-공동체적인 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '환경보호-교육, 기타': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
             
             // 가정성화활동
             '가정성화활동-가족이함께기도하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -5019,19 +5030,19 @@
                 { field_name: 'baptism', field_display_name: '세례자', is_required: false },
                 { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
             ],
-            '복음선교-교리반 인도 예비자': [
+            '복음선교-교리반 인도 예비신자 돌봄': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
                 { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
                 { field_name: 'baptism', field_display_name: '세례자', is_required: false },
                 { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
             ],
-            '복음선교-통신교리자': [
+            '복음선교-통신교리자돌봄': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
                 { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
                 { field_name: 'baptism', field_display_name: '세례자', is_required: false },
                 { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
             ],
-            '복음선교-타인이 인도한 예비자': [
+            '복음선교-타인이 인도한 예비신자 돌봄': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
                 { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
                 { field_name: 'baptism', field_display_name: '세례자', is_required: false },
@@ -5042,6 +5053,9 @@
                 { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
                 { field_name: 'baptism', field_display_name: '세례자', is_required: false },
                 { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
+            ],
+            '복음선교-접촉활동': [
+                { field_name: 'count', field_display_name: '횟수(회)', is_required: false }
             ],
             '이웃에 가톨릭 알리기활동-이웃에 신앙전하기': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
@@ -5277,6 +5291,7 @@
             ],
             '교우돌봄-청소년 돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '교우돌봄-청소년돌봄': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }],
+            '교우돌봄-접촉활동': [{ field_name: 'count', field_display_name: '횟수(회)', is_required: false }],
             // 교우돌봄 (광주 세나뚜스)
             '교우돌봄-교우 상가 방문 및 돌봄': [
                 { field_name: 'year_count', field_display_name: '연도', is_required: false },
@@ -5349,6 +5364,15 @@
             ],
             '확장-평의회업무협조': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: false }
+            ],
+            '확장-접촉활동': [
+                { field_name: 'count', field_display_name: '횟수(회)', is_required: false }
+            ],
+            '확장-레지오홍보': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
+            ],
+            '확장-홍보유사활동': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
             ],
 
             // 가정을 위한 활동, 교우 돌봄
@@ -5564,7 +5588,7 @@
                 { field_name: 'year_count', field_display_name: '면담', is_required: false },
                 { field_name: 'group_join', field_display_name: '기타', is_required: false }
             ],
-            '본당협조-전례 협조': [
+            '본당협조-전례 협조(미사안내,주보접기,성가대 등)': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
                 { field_name: 'year_count', field_display_name: '면담', is_required: false },
                 { field_name: 'group_join', field_display_name: '기타', is_required: false }
