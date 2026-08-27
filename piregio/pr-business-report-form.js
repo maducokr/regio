@@ -1388,6 +1388,7 @@
                                     caseParen('개종자', a.convertInvite),
                                     caseParen('교리중단자', a.catechismRestart),
                                     caseParen('예비자', a.catechumen),
+                                    caseParen('통신교리자', a.correspondence),
                                     caseParen('가두선교', a.streetMission),
                                     caseParen('교리반인도 예비자 돌봄', a.catechismCare),
                                     caseParen('타인이 인도한 예비자 돌봄', a.otherIntroduced),
