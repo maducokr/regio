@@ -1,6 +1,14 @@
 /**
  * 광주 세나뚜스(파란색) 활동 세목 추가
  * - 영성생활-성체조배
+ * - 영성생활-가족기도
+ * - 영성생활-성모님의군단읽기
+ * - 지구살리기-거절하기
+ * - 지구살리기-아껴쓰기
+ * - 지구살리기-다시쓰기
+ * - 지구살리기-고쳐쓰기
+ * - 지구살리기-재고하기
+ * - 지구살리기-재생하기
  * - 교우돌봄-신영세자전례기도지도
  * - 교우돌봄-교우신심활동권면
  * - 교우돌봄-혼인장애자 미사참례권면
@@ -16,6 +24,7 @@
  * - 본당협조-제단체봉사
  * - 본당협조-성지시설봉사
  * - 본당협조-교구관련시설봉사
+ * - 기타-차량봉사
  *
  * 사용: node add-gwangju-spiritual-believer-extra.js [--render]
  */
@@ -49,6 +58,54 @@ const ITEMS = [
         item: '성체조배',
         desc: '성체조배 (광주)',
         fields: [{ name: '횟수', display: '횟수(회,단,회,분)', required: false }]
+    },
+    {
+        group: '영성생활',
+        item: '가족기도',
+        desc: '가족기도 (광주)',
+        fields: [{ name: '횟수', display: '횟수(회,단,회,분)', required: false }]
+    },
+    {
+        group: '영성생활',
+        item: '성모님의군단읽기',
+        desc: '성모님의군단읽기 (광주)',
+        fields: [{ name: '횟수', display: '횟수(회,단,회,분)', required: false }]
+    },
+    {
+        group: '지구살리기',
+        item: '거절하기',
+        desc: '거절하기 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '지구살리기',
+        item: '아껴쓰기',
+        desc: '아껴쓰기 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '지구살리기',
+        item: '다시쓰기',
+        desc: '다시쓰기 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '지구살리기',
+        item: '고쳐쓰기',
+        desc: '고쳐쓰기 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '지구살리기',
+        item: '재고하기',
+        desc: '재고하기 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
+    },
+    {
+        group: '지구살리기',
+        item: '재생하기',
+        desc: '재생하기 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
     },
     {
         group: '교우돌봄',
@@ -177,6 +234,12 @@ const ITEMS = [
             { name: '면담', display: '면담', required: false },
             { name: '기타', display: '기타', required: false }
         ]
+    },
+    {
+        group: '기타',
+        item: '차량봉사',
+        desc: '차량봉사 (광주)',
+        fields: [{ name: '횟수', display: '횟수', required: false }]
     }
 ];
 

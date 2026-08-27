@@ -973,7 +973,7 @@
     <script src="date-wheel-picker.js"></script>
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827g"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827j"></script>
     <script src="category-select-picker.js?v=20260820i"></script>
     <script src="auth-ui.js?v=20260825e"></script>
     <script src="app-mode.js"></script>
@@ -2170,7 +2170,11 @@
                         '기도생활-성체조배', '기도생활-기타',
                         // 영성생활 (광주 세나뚜스)
                         '영성생활-평일 미사', '영성생활-묵주 기도', '영성생활-십자가의 길',
-                        '영성생활-성경 봉독, 쓰기', '영성생활-소성무일도', '영성생활-성체조배', '영성생활-기타',
+                        '영성생활-성경 봉독, 쓰기', '영성생활-소성무일도', '영성생활-성체조배',
+                        '영성생활-가족기도', '영성생활-성모님의군단읽기', '영성생활-기타',
+                        // 지구살리기 (광주 세나뚜스)
+                        '지구살리기-거절하기', '지구살리기-아껴쓰기', '지구살리기-다시쓰기',
+                        '지구살리기-고쳐쓰기', '지구살리기-재고하기', '지구살리기-재생하기',
                         
                         // 가정성화활동
                         '가정성화활동-가족이함께기도하기', '가정성화활동-성경봉독 및 묵상',
@@ -2234,7 +2238,7 @@
                         '본당협조-제단체봉사', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사',
                         // 기타 (광주 세나뚜스)
                         '기타-출판물 보급', '기타-생태 환경보호 활동',
-                        '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
+                        '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
 
                         // 가정을 위한 활동, 교우 돌봄
                         '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
@@ -2296,7 +2300,7 @@
                     '기타 활동-기타활동',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
-                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
+                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
 
                         
                         // 어려운자돌봄
@@ -2368,8 +2372,12 @@
                     '기도생활-성체조배', '기도생활-기타',
                     // 영성생활 (광주 세나뚜스)
                     '영성생활-평일 미사', '영성생활-묵주 기도', '영성생활-십자가의 길',
-                    '영성생활-성경 봉독, 쓰기', '영성생활-소성무일도', '영성생활-성체조배', '영성생활-기타',
-                    
+                    '영성생활-성경 봉독, 쓰기', '영성생활-소성무일도', '영성생활-성체조배',
+                    '영성생활-가족기도', '영성생활-성모님의군단읽기', '영성생활-기타',
+                    // 지구살리기 (광주 세나뚜스)
+                    '지구살리기-거절하기', '지구살리기-아껴쓰기', '지구살리기-다시쓰기',
+                    '지구살리기-고쳐쓰기', '지구살리기-재고하기', '지구살리기-재생하기',
+
                     // 가정성화활동
                     '가정성화활동-가족이함께기도하기', '가정성화활동-성경봉독 및 묵상',
                     '가정성화활동-미사참례', '가정성화활동-가족단위 복지시설봉사',
@@ -2432,7 +2440,7 @@
                     '본당협조-제단체봉사', '본당협조-성지시설봉사', '본당협조-교구관련시설봉사',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
-                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
+                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
 
                     // 가정을 위한 활동, 교우 돌봄
                     '가정을 위한 활동, 교우 돌봄-가족일상기도', '가정을 위한 활동, 교우 돌봄-외짝교우 부부성경봉독',
@@ -2496,7 +2504,7 @@
                     '기타 활동-기타활동',
                     // 기타 (광주 세나뚜스)
                     '기타-출판물 보급', '기타-생태 환경보호 활동',
-                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)',
+                    '기타-생명존중 활동', '기타-가정성화 활동(가족단위)', '기타-차량봉사',
                     
                     // 어려운자돌봄
                     '어려운자돌봄-교우 상가 방문 및 돌봄', '어려운자돌봄-교우 환자 방문 및 돌봄',
@@ -2640,8 +2648,17 @@
                     '영성생활-성경 봉독, 쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
                     '영성생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
                     '영성생활-성체조배': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-가족기도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+                    '영성생활-성모님의군단읽기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
                     '영성생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
-
+                    // 지구살리기 (광주 세나뚜스)
+                    '지구살리기-거절하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '지구살리기-아껴쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '지구살리기-다시쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '지구살리기-고쳐쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '지구살리기-재고하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '지구살리기-재생하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    
                     // 가정성화활동
                     '가정성화활동-가족이함께기도하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
                     '가정성화활동-성경봉독 및 묵상': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -3094,6 +3111,9 @@
                         { field_name: 'count', field_display_name: '횟수', is_required: false }
                     ],
                     '기타-가정성화 활동(가족단위)': [
+                        { field_name: 'count', field_display_name: '횟수', is_required: false }
+                    ],
+                    '기타-차량봉사': [
                         { field_name: 'count', field_display_name: '횟수', is_required: false }
                     ],
 
@@ -3704,6 +3724,7 @@
                     '기타-생태 환경보호 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
                     '기타-생명존중 활동': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
                     '기타-가정성화 활동(가족단위)': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+                    '기타-차량봉사': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
 
 
 

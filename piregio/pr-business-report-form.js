@@ -429,7 +429,7 @@
 
         // 9. 자연보호·생명존중·지구와함께
         const nature = one((n) =>
-            /자연보호\s*및\s*생명존중|자연보호|생태|환경|생명존중|낙태|장기기증|헌혈|지구와함께|아껴쓰기|고쳐쓰기|다시쓰기|거절하기|재고하기|재생하기/.test(n));
+            /자연보호\s*및\s*생명존중|자연보호|생태|환경|생명존중|낙태|장기기증|헌혈|지구와함께|지구살리기|아껴쓰기|고쳐쓰기|다시쓰기|거절하기|재고하기|재생하기/.test(n));
 
         // 10. 상급평의회 지시·기도생활
         const higherCouncil = one((n) =>
@@ -641,12 +641,12 @@
         const familyPray = one((n) => /가족\s*기도|가족기도|가정\s*기도/.test(n));
         const legionRead = one((n) => /성모님의\s*군단|군단일기|빛\s*잡지|빛잡지/.test(n));
 
-        const earthRefuse = one((n) => /거절하기|지구와함께-거절/.test(n));
-        const earthSave = one((n) => /아껴쓰기|지구와함께-아껴/.test(n));
-        const earthReuse = one((n) => /다시쓰기|지구와함께-다시/.test(n));
-        const earthRepair = one((n) => /고쳐쓰기|지구와함께-고쳐/.test(n));
-        const earthRethink = one((n) => /재고하기|지구와함께-재고/.test(n));
-        const earthRecycle = one((n) => /재생하기|지구와함께-재생/.test(n));
+        const earthRefuse = one((n) => /거절하기|지구와함께-거절|지구살리기-거절/.test(n));
+        const earthSave = one((n) => /아껴쓰기|지구와함께-아껴|지구살리기-아껴/.test(n));
+        const earthReuse = one((n) => /다시쓰기|지구와함께-다시|지구살리기-다시/.test(n));
+        const earthRepair = one((n) => /고쳐쓰기|지구와함께-고쳐|지구살리기-고쳐/.test(n));
+        const earthRethink = one((n) => /재고하기|지구와함께-재고|지구살리기-재고/.test(n));
+        const earthRecycle = one((n) => /재생하기|지구와함께-재생|지구살리기-재생/.test(n));
 
         return {
             nonbelieverInvite, catechismRestart, visitStreetMission, catechumenCare,

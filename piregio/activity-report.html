@@ -1608,7 +1608,7 @@
 
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827g"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827j"></script>
     <script src="auth-ui.js?v=20260819i"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -1619,7 +1619,7 @@
     <script src="curia-hub.js?v=20260825f"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260827k"></script>
+    <script src="pr-business-report-form.js?v=20260827l"></script>
     <script src="curia-comprehensive-report-form.js?v=20260823a"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
@@ -4687,7 +4687,15 @@
             '영성생활-성경 봉독, 쓰기': ['횟수(회,단,회,분)'],
             '영성생활-소성무일도': ['횟수(회,단,회,분)'],
             '영성생활-성체조배': ['횟수(회,단,회,분)'],
+            '영성생활-가족기도': ['횟수(회,단,회,분)'],
+            '영성생활-성모님의군단읽기': ['횟수(회,단,회,분)'],
             '영성생활-기타': ['횟수(회,단,회,분)'],
+            '지구살리기-거절하기': ['횟수'],
+            '지구살리기-아껴쓰기': ['횟수'],
+            '지구살리기-다시쓰기': ['횟수'],
+            '지구살리기-고쳐쓰기': ['횟수'],
+            '지구살리기-재고하기': ['횟수'],
+            '지구살리기-재생하기': ['횟수'],
             '가정성화활동-가족이함께기도하기': ['횟수'],
             '가정성화활동-성경봉독 및 묵상': ['횟수'],
             '가정성화활동-미사참례': ['횟수'],
@@ -4883,6 +4891,7 @@
             '기타-생태 환경보호 활동': ['횟수'],
             '기타-생명존중 활동': ['횟수'],
             '기타-가정성화 활동(가족단위)': ['횟수'],
+            '기타-차량봉사': ['횟수'],
             '어려운자돌봄-교우 상가 방문 및 돌봄': ['횟수', '연도', '장지참석', '장례미사', '추모미사', '입출관'],
             '어려운자돌봄-교우 환자 방문 및 돌봄': ['병자성사', '병자영성체'],
             '어려운자돌봄-외인환자 방문 및 돌봄': ['횟수', '대세', '보례'],
@@ -4955,8 +4964,16 @@
             '영성생활-성경 봉독, 쓰기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
             '영성생활-소성무일도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
             '영성생활-성체조배': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-가족기도': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
+            '영성생활-성모님의군단읽기': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
             '영성생활-기타': [{ field_name: 'count', field_display_name: '횟수(회,단,회,분)', is_required: false }],
-
+            '지구살리기-거절하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '지구살리기-아껴쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '지구살리기-다시쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '지구살리기-고쳐쓰기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '지구살리기-재고하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            '지구살리기-재생하기': [{ field_name: 'count', field_display_name: '횟수', is_required: false }],
+            
             // 가정성화활동
             '가정성화활동-가족이함께기도하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             '가정성화활동-성경봉독 및 묵상': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
@@ -5607,6 +5624,9 @@
                 { field_name: 'count', field_display_name: '횟수', is_required: false }
             ],
             '기타-가정성화 활동(가족단위)': [
+                { field_name: 'count', field_display_name: '횟수', is_required: false }
+            ],
+            '기타-차량봉사': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false }
             ],
             
