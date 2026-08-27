@@ -1626,7 +1626,7 @@
                             ${busanActCategoryRows('교우돌봄', [
                                 { label: '교우 방문 및 돌봄', count: a.homeVisit },
                                 { label: '쉬는 (냉담) 교우 돌봄', count: a.coldCare },
-                                { label: '혼인 장애자 돌봄', count: a.marriageGuide },
+                                { label: '혼인장애자안내', count: a.marriageGuide },
                                 { label: '판공성사 및 견진성사 권면', count: a.sacramentInvite },
                                 { label: '교우 환자 방문 및 돌봄', count: a.believerSick },
                                 { label: '교우 상가 방문 및 돌봄', count: a.believerFuneral },

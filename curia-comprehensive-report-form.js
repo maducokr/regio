@@ -559,11 +559,11 @@
                 { label: '1. 신영세자방문', categories: ['교우돌봄-신영세자돌봄(방문)'], remarks: [{ label: '단체가입', field: 'group_join', unit: '명' }] },
                 { label: '2. 교우가정방문', categories: ['교우돌봄-교우 가정방문'], remarks: [{ label: '단체가입', field: 'group_join', unit: '명' }] },
                 { label: '3. 냉담교우방문', categories: ['교우돌봄-냉담 교우 방문', '교우돌봄-냉담교우회두 권면'], remarks: [{ label: '회두', field: 'meeting_head', unit: '명' }] },
-                { label: '4. 혼인장애자방문', categories: ['교우돌봄-혼인 장애자 돌봄'], remarks: [{ label: '해소', field: 'resolution', unit: '명' }] },
+                { label: '4. 혼인장애자방문', categories: ['교우돌봄-혼인장애자안내'], remarks: [{ label: '해소', field: 'resolution', unit: '명' }] },
                 { label: '5. 판공성사권면', categories: ['교우돌봄-판공성사 권면'], remarks: [{ label: '성사', field: 'sacrament', unit: '명' }] },
                 { label: '6. 전입교우방문', categories: ['교우돌봄-전입교우돌봄(방문)'], remarks: [{ label: '단체가입', field: 'group_join', unit: '명' }] },
                 { label: '7. 견진성사권면', categories: ['교우돌봄-견진성사권면'], remarks: [{ label: '견진', field: 'confirmation', unit: '명' }] },
-                { label: '8. 유아세례권면', categories: ['교우돌봄-유아 세례 권면'], remarks: [{ label: '유아세례', field: 'baptism', unit: '명' }] },
+                { label: '8. 유아세례권면', categories: ['교우돌봄-유아세례권면', '교우돌봄-유아 세례 권면'], remarks: [{ label: '유아세례', field: 'baptism', unit: '명' }] },
                 { label: '9. 첫영성체', categories: ['교우돌봄-첫영성체'], remarks: [{ label: '첫영성체', field: 'first_communion', unit: '명' }] },
                 { label: '10. 다문화가족돌봄', categories: ['어려운자돌봄-다문화가족돌봄', '이웃돌봄-다문화가족돌봄'], remarks: [] },
                 { label: '11. 군인, 선원돌봄', categories: ['교우돌봄-군인선원돌봄'], remarks: [] },
@@ -937,13 +937,13 @@
                 {
                     label: '혼인장애자해소',
                     unit: '명',
-                    categories: ['교우돌봄-혼인 장애자 돌봄'],
+                    categories: ['교우돌봄-혼인장애자안내'],
                     resultField: 'resolution'
                 },
                 {
                     label: '유아세례',
                     unit: '명',
-                    categories: ['교우돌봄-유아 세례 권면'],
+                    categories: ['교우돌봄-유아세례권면', '교우돌봄-유아 세례 권면'],
                     resultField: 'baptism'
                 }
             ]
