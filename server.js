@@ -2769,22 +2769,41 @@ app.get('/api/diocese-prs', async (req, res) => {
             return res.status(400).json({ success: false, error: '교구는 부산·제주·광주(전주)·마산 중 하나여야 합니다.' });
         }
 
+        const prTypeFilter = String(req.query.pr_type || '').trim();
+        const allowedPrTypes = new Set(['성인', '직속', '청년', '소년']);
+        if (prTypeFilter && !allowedPrTypes.has(prTypeFilter)) {
+            return res.status(400).json({ success: false, error: 'Pr 구분은 성인·직속·청년·소년 중 하나여야 합니다.' });
+        }
+
+        const params = [dioceseName];
+        let prTypeClause = '';
+        if (prTypeFilter) {
+            params.push(prTypeFilter);
+            prTypeClause = ` AND TRIM(pr_type) = $${params.length}`;
+        }
+
         const result = await pool.query(
-            `SELECT DISTINCT church_name, pr_name
+            `SELECT DISTINCT ON (church_name, pr_name)
+                    church_name, pr_name, pr_type
              FROM member
              WHERE diocese_name = $1
                AND church_name IS NOT NULL AND TRIM(church_name) <> ''
                AND pr_name IS NOT NULL AND TRIM(pr_name) <> ''
-             ORDER BY church_name, pr_name`,
-            [dioceseName]
+               ${prTypeClause}
+             ORDER BY church_name, pr_name,
+                      CASE WHEN pr_type IS NOT NULL AND TRIM(pr_type) <> '' THEN 0 ELSE 1 END,
+                      pr_type`,
+            params
         );
 
         res.json({
             success: true,
             diocese_name: dioceseName,
+            pr_type: prTypeFilter || null,
             prs: result.rows.map((r) => ({
                 church_name: r.church_name,
-                pr_name: r.pr_name
+                pr_name: r.pr_name,
+                pr_type: r.pr_type ? String(r.pr_type).trim() : ''
             }))
         });
     } catch (err) {
@@ -2814,13 +2833,38 @@ app.get('/api/church-prs', async (req, res) => {
             return res.status(400).json({ error: '성당 정보를 확인할 수 없습니다. 로그인 후 다시 시도해주세요.' });
         }
 
+        const prTypeFilter = String(req.query.pr_type || '').trim();
+        const allowedPrTypes = new Set(['성인', '직속', '청년', '소년']);
+        if (prTypeFilter && !allowedPrTypes.has(prTypeFilter)) {
+            return res.status(400).json({ error: 'Pr 구분은 성인·직속·청년·소년 중 하나여야 합니다.' });
+        }
+
+        const params = [churchName];
+        let prTypeClause = '';
+        if (prTypeFilter) {
+            params.push(prTypeFilter);
+            prTypeClause = ` AND TRIM(pr_type) = $${params.length}`;
+        }
+
         const result = await pool.query(
-            `SELECT DISTINCT pr_name FROM member
-             WHERE church_name = $1 AND pr_name IS NOT NULL AND TRIM(pr_name) <> ''
-             ORDER BY pr_name`,
-            [churchName]
+            `SELECT DISTINCT ON (pr_name) pr_name, pr_type
+             FROM member
+             WHERE church_name = $1
+               AND pr_name IS NOT NULL AND TRIM(pr_name) <> ''
+               ${prTypeClause}
+             ORDER BY pr_name,
+                      CASE WHEN pr_type IS NOT NULL AND TRIM(pr_type) <> '' THEN 0 ELSE 1 END,
+                      pr_type`,
+            params
         );
-        res.json({ church_name: churchName, prs: result.rows.map(r => r.pr_name) });
+        res.json({
+            church_name: churchName,
+            pr_type: prTypeFilter || null,
+            prs: result.rows.map((r) => ({
+                pr_name: r.pr_name,
+                pr_type: r.pr_type ? String(r.pr_type).trim() : ''
+            }))
+        });
     } catch (err) {
         console.error('Pr 목록 조회 오류:', err);
         res.status(500).json({ error: 'Pr 목록 조회 중 오류가 발생했습니다.' });

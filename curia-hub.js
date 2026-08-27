@@ -39,10 +39,15 @@
         return name;
     }
 
-    async function fetchDiocesePrs(dioceseName) {
+    async function fetchDiocesePrs(dioceseName, prType) {
         const name = normalizePrDiocese(dioceseName);
         if (!name) return [];
-        const response = await fetch(`/api/diocese-prs?diocese_name=${encodeURIComponent(name)}`);
+        const qs = new URLSearchParams({ diocese_name: name });
+        const normalizedType = String(prType || '').trim();
+        if (['성인', '직속', '청년', '소년'].includes(normalizedType)) {
+            qs.set('pr_type', normalizedType);
+        }
+        const response = await fetch(`/api/diocese-prs?${qs.toString()}`);
         const data = await response.json().catch(() => ({}));
         if (!response.ok || data.success === false) {
             throw new Error(data.error || '교구별 Pr 목록 조회에 실패했습니다.');
@@ -83,6 +88,7 @@
                 senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
                 diocese_name: row.diocese_name != null ? row.diocese_name : user.diocese_name,
                 pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
+                pr_type: row.pr_type != null ? row.pr_type : user.pr_type,
                 position: row.position != null ? row.position : user.position
             };
             const raw = JSON.stringify(next);
@@ -2571,9 +2577,10 @@
                 const church = String(row.church_name || '').trim();
                 const pr = String(row.pr_name || '').trim();
                 if (!church || !pr) return;
+                const prType = String(row.pr_type || '').trim();
                 const opt = document.createElement('option');
                 opt.value = encodePrOption(church, pr);
-                opt.textContent = `${church} · ${pr}`;
+                opt.textContent = prType ? `[${prType}] ${church} · ${pr}` : `${church} · ${pr}`;
                 if (church === initialChurch && pr === initialPr) opt.selected = true;
                 prSelect.appendChild(opt);
             });
@@ -2746,6 +2753,45 @@
         else afterReady();
     }
 
+    function showPrBusinessTypeChooser(modal, dioceseName) {
+        const user = getLoggedInUser();
+        const useDiocese = isGwangjuSenatusUser(user);
+        const diocese = useDiocese ? (normalizePrDiocese(dioceseName) || getSelectedPrDiocese()) : '';
+        const content = modal.querySelector('.modal-content');
+        content.classList.remove('wide');
+        const typeOptions = [
+            { value: '', label: '전체' },
+            { value: '성인', label: '성인 Pr' },
+            { value: '직속', label: '직속 Pr' },
+            { value: '소년', label: '소년 Pr' },
+            { value: '청년', label: '청년 Pr' }
+        ];
+        content.innerHTML = `
+            <span class="close">&times;</span>
+            <h2>Pr 사업보고</h2>
+            <p class="hub-sub">${useDiocese ? escapeHtml(diocese) + ' · ' : ''}Pr 구분을 선택하세요.</p>
+            <div class="hub-actions">
+                ${typeOptions.map((opt, idx) => `
+                    <button type="button" class="hub-btn${idx === 0 ? ' primary' : ''}" data-pr-type="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</button>
+                `).join('')}
+            </div>
+            <div class="back-row">
+                <button type="button" id="prBizTypeBackBtn">← 보고 종류</button>
+            </div>
+        `;
+        content.querySelector('.close').onclick = () => closeModal(modal);
+        content.querySelector('#prBizTypeBackBtn').onclick = () => showPrReportTypeChooser(modal, diocese);
+        content.querySelectorAll('[data-pr-type]').forEach((btn) => {
+            btn.onclick = () => {
+                const prType = btn.getAttribute('data-pr-type') || '';
+                const params = new URLSearchParams({ scope: 'pr' });
+                if (useDiocese && diocese) params.set('diocese', diocese);
+                if (prType) params.set('pr_type', prType);
+                window.location.href = `activity-report.html?${params.toString()}`;
+            };
+        });
+    }
+
     function showPrReportTypeChooser(modal, dioceseName) {
         const user = getLoggedInUser();
         const useDiocese = isGwangjuSenatusUser(user);
@@ -2773,12 +2819,7 @@
         const backBtn = content.querySelector('#prTypeBackBtn');
         if (backBtn) backBtn.onclick = () => showPrDioceseChooser(modal);
         content.querySelector('#prMonthlyBtn').onclick = () => showPrMonthlyReportView(modal, diocese);
-        content.querySelector('#prSummaryBtn').onclick = () => {
-            const qs = useDiocese
-                ? `activity-report.html?scope=pr&diocese=${encodeURIComponent(diocese)}`
-                : 'activity-report.html?scope=pr';
-            window.location.href = qs;
-        };
+        content.querySelector('#prSummaryBtn').onclick = () => showPrBusinessTypeChooser(modal, diocese);
     }
 
     function showPrDioceseChooser(modal) {

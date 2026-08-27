@@ -157,6 +157,7 @@
                 regia_name: row.regia_name != null ? row.regia_name : user.regia_name,
                 senatus_name: row.senatus_name != null ? row.senatus_name : user.senatus_name,
                 pr_name: row.pr_name != null ? row.pr_name : user.pr_name,
+                pr_type: row.pr_type != null ? row.pr_type : user.pr_type,
                 position: row.position != null ? row.position : user.position
             };
             const raw = JSON.stringify(next);
@@ -260,6 +261,24 @@
         const fromModel = normalizeReportDiocese(m && m.report_diocese);
         if (fromModel) return fromModel;
         return normalizeReportDiocese(resolveReportDiocese({}));
+    }
+
+    const PR_TYPE_VALUES = ['성인', '직속', '청년', '소년'];
+
+    function normalizePrType(value) {
+        const s = String(value == null ? '' : value).trim();
+        return PR_TYPE_VALUES.includes(s) ? s : '';
+    }
+
+    function prTypeBadgeHtml(prType) {
+        const t = normalizePrType(prType);
+        if (!t) return '<span class="pr-type-badge pr-type-unknown">Pr 구분 미등록</span>';
+        return `<span class="pr-type-badge pr-type-${escapeHtml(t)}">${escapeHtml(t)} Pr</span>`;
+    }
+
+    function prTypeAffilLine(prType) {
+        const t = normalizePrType(prType);
+        return `<div class="biz-pr-type">${prTypeBadgeHtml(t || '')}</div>`;
     }
 
     function formatAppointedOn(raw) {
@@ -2303,6 +2322,21 @@
             .pr-biz-form .biz-titles .doc-title { font-size: 12px; font-weight: 700; margin-top: 4px; }
             .pr-biz-form .biz-submit { font-size: 11px; text-align: right; white-space: nowrap; }
             .pr-biz-form .biz-affil { text-align: center; margin: 4px 0 10px; font-size: 12px; }
+            .pr-biz-form .biz-pr-type { text-align: center; margin: 0 0 8px; }
+            .pr-biz-form .pr-type-badge {
+                display: inline-block;
+                padding: 2px 10px;
+                border-radius: 999px;
+                font-size: 11px;
+                font-weight: 700;
+                border: 1px solid #444;
+                background: #f5f5f5;
+            }
+            .pr-biz-form .pr-type-badge.pr-type-성인 { border-color: #2c5aa0; background: #eef4ff; color: #1a3d7a; }
+            .pr-biz-form .pr-type-badge.pr-type-직속 { border-color: #6b4c9a; background: #f3eefb; color: #4a3270; }
+            .pr-biz-form .pr-type-badge.pr-type-소년 { border-color: #c45c00; background: #fff4e8; color: #8a3f00; }
+            .pr-biz-form .pr-type-badge.pr-type-청년 { border-color: #1a7a4a; background: #e8f7ef; color: #0f5a34; }
+            .pr-biz-form .pr-type-badge.pr-type-unknown { border-color: #999; background: #fafafa; color: #666; font-weight: 500; }
             .pr-biz-form .blank {
                 display: inline-block;
                 min-width: 2em;
@@ -2958,7 +2992,7 @@
         const mf = (bucket, key) => blank(memVal(bucket, key), 'w3');
 
         return `
-            <div class="pr-biz-form pr-biz-daegu" id="prBusinessFormPrint">
+            <div class="pr-biz-form pr-biz-daegu" id="prBusinessFormPrint" data-pr-type="${escapeHtml(normalizePrType(m.pr_type))}">
                 <div class="biz-head">
                     <div class="biz-logo">LEGIO<br>MARIAE</div>
                     <div class="biz-titles">
@@ -2969,6 +3003,7 @@
                         보고 일자: ${blank(today?.y, 'w4')} 년 ${blank(today?.m, 'w3')} 월 ${blank(today?.d, 'w3')} 일
                     </div>
                 </div>
+                ${prTypeAffilLine(m.pr_type)}
                 <div class="biz-affil">
                     천주교 ${blank(m.church_name, 'w8')} 성당
                     &nbsp; Pr: ${blank(m.pr_name, 'w12')}
@@ -3547,15 +3582,16 @@
                 </div>`;
 
         return `
-            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}${isMasanReport ? ' pr-biz-masan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(formDiocese || m.report_diocese || ''))}" data-form-diocese="${escapeHtml(String(formDiocese || ''))}">
+            <div class="pr-biz-form pr-biz-gwangju${isJejuReport ? ' pr-biz-jeju' : ''}${isBusanReport ? ' pr-biz-busan' : ''}${isMasanReport ? ' pr-biz-masan' : ''}" id="prBusinessFormPrint" data-report-diocese="${escapeHtml(String(formDiocese || m.report_diocese || ''))}" data-form-diocese="${escapeHtml(String(formDiocese || ''))}" data-pr-type="${escapeHtml(normalizePrType(m.pr_type))}">
                 ${isJejuReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">제주 교구 Pr 사업보고 양식 · 활동상황·영성생활</div>' : ''}
                 ${isBusanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">부산 교구 Pr 사업보고 양식 · 활동상황·중점활동</div>' : ''}
                 ${isMasanReport ? '<div class="biz-note" style="margin:0 0 8px;border:1px solid #2c5aa0;background:#eef4ff;padding:6px 10px;">마산 교구 Pr 사업보고 양식 · 활동상황·영성생활</div>' : ''}
                 <div class="biz-titles" style="text-align:center; margin-bottom:8px;">
                     <div class="doc-title">제 ${blank(m.report_seq, 'w4')} 차 사업 보고서</div>
+                    ${prTypeAffilLine(m.pr_type)}
                     <div style="margin-top:4px; font-size:12px;">
                         ${blank(m.church_name, 'w8')} · ${blank(m.pr_name, 'w10')}
-                        &nbsp; 직속 ${blank(m.council_name || m.curia_name, 'w10')}
+                        &nbsp; ${blank(m.council_name || m.curia_name, 'w10')} 직속
                     </div>
                 </div>
 
@@ -3865,7 +3901,7 @@
         const auxKeys = { m: 'aux_m', f: 'aux_f', t: 'aux_t' };
 
         return `
-            <div class="pr-biz-form${useSeoulForm ? ' pr-biz-seoul' : ''}" id="prBusinessFormPrint">
+            <div class="pr-biz-form${useSeoulForm ? ' pr-biz-seoul' : ''}" id="prBusinessFormPrint" data-pr-type="${escapeHtml(normalizePrType(m.pr_type))}">
                 <div class="biz-head">
                     <div class="biz-logo">LEGIO<br>MARIAE</div>
                     <div class="biz-titles">
@@ -3876,6 +3912,7 @@
                         제출일: ${blank(today?.y, 'w4')} . ${blank(today?.m, 'w3')} . ${blank(today?.d, 'w3')} .
                     </div>
                 </div>
+                ${prTypeAffilLine(m.pr_type)}
                 <div class="biz-affil">
                     천주교 ${blank(m.church_name, 'w8')} 성당
                     ${blank(m.council_name || m.curia_name, 'w8')} 직속
@@ -4189,7 +4226,8 @@
             founded_y: '', founded_m: '', founded_d: '',
             approved_y: '', approved_m: '', approved_d: '',
             proxy_name: '',
-            officer_change: ''
+            officer_change: '',
+            pr_type: normalizePrType(monthly?.affiliation || opts.prType || user?.pr_type || '')
         };
 
         function splitYmd(raw) {
@@ -4224,8 +4262,8 @@
         }
         let foundedParts = splitYmd(monthly?.pr_founded_on);
         let approvedParts = splitYmd(monthly?.pr_approved_on);
-        // 월례 API에 날짜가 없으면 회원 목록에서 Pr 공통 값 보완
-        if (!foundedParts.y && !approvedParts.y) {
+        // 월례 API·회원 목록에서 Pr 공통 값 보완 (구분·설립·승인일)
+        if (!model.pr_type || (!foundedParts.y && !approvedParts.y)) {
             try {
                 const qs = new URLSearchParams({
                     church_name: churchName,
@@ -4236,17 +4274,22 @@
                     const memData = await memRes.json();
                     const list = Array.isArray(memData) ? memData : (memData.members || memData.data || []);
                     for (const row of list) {
-                        const f = splitYmd(row.pr_founded_on);
-                        const a = splitYmd(row.pr_approved_on);
-                        if (f.y || a.y) {
-                            foundedParts = f;
-                            approvedParts = a;
-                            break;
+                        if (!model.pr_type && row.pr_type) {
+                            model.pr_type = normalizePrType(row.pr_type);
                         }
+                        if (!foundedParts.y && !approvedParts.y) {
+                            const f = splitYmd(row.pr_founded_on);
+                            const a = splitYmd(row.pr_approved_on);
+                            if (f.y || a.y) {
+                                foundedParts = f;
+                                approvedParts = a;
+                            }
+                        }
+                        if (model.pr_type && (foundedParts.y || approvedParts.y)) break;
                     }
                 }
             } catch (e) {
-                console.warn('Pr 설립·승인일 보완 조회 실패:', e);
+                console.warn('Pr 구분·설립·승인일 보완 조회 실패:', e);
             }
         }
         model.founded_y = foundedParts.y;
@@ -4386,10 +4429,12 @@
     function buildPrBizExportBase(meta) {
         const stamp = new Date().toISOString().slice(0, 10);
         const prName = meta?.prName || '';
+        const prType = normalizePrType(meta?.prType || '');
         const startDate = meta?.startDate || '';
         const endDate = meta?.endDate || '';
         const range = startDate && endDate ? `${startDate}_${endDate}` : stamp;
-        return `Regio_Pr사업보고_${safeFilePart(prName)}_${safeFilePart(range)}`;
+        const typePart = prType ? `_${safeFilePart(prType)}` : '';
+        return `Regio_Pr사업보고${typePart}_${safeFilePart(prName)}_${safeFilePart(range)}`;
     }
 
     async function ensureXlsxLibrary() {
@@ -4409,6 +4454,7 @@
             await withFrozenBlanks(formEl, async () => {
                 const rows = [];
                 rows.push(['쁘레시디움 사업 보고서']);
+                rows.push(['Pr 구분', normalizePrType(meta?.prType || '') || '미등록']);
                 rows.push(['Pr', meta?.prName || '']);
                 rows.push(['기간', `${meta?.startDate || ''} ~ ${meta?.endDate || ''}`]);
                 rows.push([]);
