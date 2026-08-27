@@ -315,8 +315,8 @@
         // 1. 이웃에 가톨릭 알리기 — 입교·가두·방문선교·신규 대구형 세목 (교우·환자·호구 방문 제외)
         const neighbor = one((n) =>
             /이웃에\s*가톨릭|신앙전하기|교리반수강|통신교리수강|교리반중단자|주택방문|선교책자|접촉활동/.test(n)
-            || ((/외인\s*입교|입교\s*권면|개종권면|가두선교|방문선교|교리\s*중단자/.test(n)
-                || (/복음선교/.test(n) && /외인|입교|개종|가두|방문선교|중단/.test(n)))
+            || ((/외인\s*입교|입교\s*권면|개종권면|가두선교|방문선교|교리\s*중단자|입교권면-/.test(n)
+                || (/복음선교|입교권면/.test(n) && /외인|입교|개종|가두|방문선교|중단/.test(n)))
                 && !/예비|교리반|통신교리/.test(n)));
 
         // 교리반인도 결과 — 신규 종목 포함
@@ -937,7 +937,8 @@
     /** 제주 교구 Pr 사업보고 — 활동 세목 집계 */
     function computeJejuActivityCounts(totals) {
         const one = (matcher, field) => sumActivityTotals(totals, matcher, field);
-        const nonbelieverInvite = one((n) => /비신자\s*입교|외인\s*입교|입교\s*권면/.test(n) && !/중단|재권면/.test(n));
+        const nonbelieverInvite = one((n) => /비신자\s*입교|외인\s*입교|입교\s*권면/.test(n) && !/중단|재권면|개종/.test(n));
+        const convertInvite = one((n) => /개종\s*권면|개종권면/.test(n) && !/회두/.test(n));
         const correspondence = one((n) => /통신교리/.test(n));
         const otherIntroduced = one((n) => /타인\s*인도|타인인도/.test(n));
         const catechismHelp = one((n) => /교리반\s*봉사|교리반\s*협조|교리\s*봉사/.test(n));
@@ -949,9 +950,9 @@
             || one((n) => /방문\s*선교|방문선교/.test(n))
             || one((n) => /접촉활동|접촉\s*활동/.test(n) && /복음선교|이웃에\s*가톨릭/.test(n));
         const evangelismCount = sumParenCounts(
-            nonbelieverInvite, correspondence, otherIntroduced, catechismHelp,
+            nonbelieverInvite, convertInvite, correspondence, otherIntroduced, catechismHelp,
             catechismRestart, catechismCare, streetMission, visitMission
-        ) || one((n) => /복음선교|입교권면|가두|예비|교리반|통신교리/.test(n) && !/교우|성사권유|상가|병자/.test(n));
+        ) || one((n) => /복음선교|입교권면|개종권면|가두|예비|교리반|통신교리/.test(n) && !/교우|성사권유|상가|병자/.test(n));
         const catechismLead = one((n) => /교리반\s*인도|교리반인도/.test(n), 'catechism_guide')
             || one((n) => /교리반\s*인도|교리반인도/.test(n));
         const baptized = one((n) => /예비신자|예비자|세례|영세/.test(n), 'baptism')
@@ -1087,6 +1088,7 @@
             evangelismTarget: '',
             evangelismCount,
             nonbelieverInvite,
+            convertInvite,
             correspondence,
             otherIntroduced,
             catechismHelp,
@@ -1240,6 +1242,7 @@
                                 ${targetCountCells(a.evangelismTarget, a.evangelismCount)}
                                 <td class="gj-cases">${joinCases([
                                     caseParen('비신자입교권면', a.nonbelieverInvite),
+                                    caseParen('개종권면', a.convertInvite),
                                     caseParen('통신 교리자 돌봄', a.correspondence),
                                     caseParen('타인이 인도한 예비신자 돌봄', a.otherIntroduced),
                                     caseParen('교리반 봉사 및 협조', a.catechismHelp),

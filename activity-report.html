@@ -1608,7 +1608,7 @@
 
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
-    <script src="gwangju-senatus-categories.js?v=20260827s"></script>
+    <script src="gwangju-senatus-categories.js?v=20260827u"></script>
     <script src="auth-ui.js?v=20260819i"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -1619,8 +1619,8 @@
     <script src="curia-hub.js?v=20260825f"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
-    <script src="pr-business-report-form.js?v=20260827s"></script>
-    <script src="curia-comprehensive-report-form.js?v=20260827s"></script>
+    <script src="pr-business-report-form.js?v=20260827u"></script>
+    <script src="curia-comprehensive-report-form.js?v=20260827u"></script>
     <script src="sensitive-action-auth.js"></script>
     <script src="date-wheel-picker.js"></script>
     <script src="member-form-fields.js?v=20260825f"></script>
@@ -4709,10 +4709,10 @@
             '지구와함께-재고하기': ['횟수'],
             '지구와함께-다시쓰기': ['횟수'],
             '지구와함께-재생하기': ['횟수'],
-            '복음선교-외인 입교권면': ['횟수', '교리반인도'],
-            '복음선교-개종권면': ['횟수', '교리반인도'],
+            '입교권면-외인 입교권면': ['횟수', '교리반인도'],
+            '복음선교-개종권면': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
             '복음선교-교리 중단자 권면': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
-            '복음선교-방문선교': ['횟수', '교리반인도'],
+            '입교권면-방문선교': ['횟수', '교리반인도'],
             '복음선교-가두선교': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
             '복음선교-비신자 입교 권면': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
             '복음선교-교리반 인도 예비신자 돌봄': ['횟수', '교리반 인도', '세례자', '자기 소개서'],
@@ -4728,11 +4728,11 @@
             '이웃에 가톨릭 알리기활동-주택방문': ['횟수', '교리반인도'],
             '이웃에 가톨릭 알리기활동-선교책자전달': ['횟수', '교리반인도'],
             '이웃에 가톨릭 알리기활동-접촉활동': ['횟수', '교리반인도'],
-            '복음선교-예비신자관리돌봄': ['횟수', '세례자 () 명'],
-            '복음선교-통신교리자 돌봄': ['횟수', '세례자 () 명'],
-            '복음선교-교리반협조': ['횟수'],
-            '복음선교-교리반 인도': ['횟수', '세례자 () 명'],
-            '복음선교-교리반인도예비자': ['횟수', '세례자 () 명'],
+            '입교권면-예비신자관리돌봄': ['횟수', '세례자 () 명'],
+            '입교권면-통신교리자 돌봄': ['횟수', '세례자 () 명'],
+            '입교권면-교리반협조': ['횟수'],
+            '입교권면-교리반 인도': ['횟수', '세례자 () 명'],
+            '입교권면-교리반인도예비자': ['횟수', '세례자 () 명'],
             '예비신자 돌봄-예비신자 돌봄': ['횟수', '세례자 () 명'],
             '예비신자 돌봄-통신교리자 돌봄': ['횟수', '세례자 () 명'],
             '예비신자 돌봄-교리반 봉사': ['횟수', '세례자 () 명'],
@@ -5004,13 +5004,15 @@
             '지구와함께-재생하기': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
             
             // 복음선교
-            '복음선교-외인 입교권면': [
+            '입교권면-외인 입교권면': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
             ],
             '복음선교-개종권면': [
-                { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
-                { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
+                { field_name: 'count', field_display_name: '횟수', is_required: false },
+                { field_name: 'catechism_guide', field_display_name: '교리반 인도', is_required: false },
+                { field_name: 'baptism', field_display_name: '세례자', is_required: false },
+                { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
             ],
             '복음선교-교리 중단자 권면': [
                 { field_name: 'count', field_display_name: '횟수', is_required: false },
@@ -5018,7 +5020,7 @@
                 { field_name: 'baptism', field_display_name: '세례자', is_required: false },
                 { field_name: 'establishment', field_display_name: '자기 소개서', is_required: false }
             ],
-            '복음선교-방문선교': [
+            '입교권면-방문선교': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
             ],
@@ -5093,20 +5095,20 @@
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'catechism_guide', field_display_name: '교리반인도', is_required: false }
             ],
-            '복음선교-예비신자관리돌봄': [
+            '입교권면-예비신자관리돌봄': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
-            '복음선교-통신교리자 돌봄': [
+            '입교권면-통신교리자 돌봄': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
-            '복음선교-교리반협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
-            '복음선교-교리반 인도': [
+            '입교권면-교리반협조': [{ field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true }],
+            '입교권면-교리반 인도': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
-            '복음선교-교리반인도예비자': [
+            '입교권면-교리반인도예비자': [
                 { field_name: 'count', field_display_name: '횟수(회,단,시간,명)', is_required: true },
                 { field_name: 'baptism', field_display_name: '세례자 () 명', is_required: false }
             ],
