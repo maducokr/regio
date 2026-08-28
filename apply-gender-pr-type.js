@@ -2,10 +2,13 @@
  * member.gender / member.pr_type 컬럼 추가
  * - 신규가입: 등록 API가 gender(남/여), pr_type(성인/직속/청년/소년) 저장
  * - 샘플 회원(id 3~138): 성별·PR분류 일괄 부여
+ *   · index번호 16·36·56·76 회원이 속한 Pr → 소년
+ *   · 그 외 샘플 Pr → 성인
  *
- * 사용: node apply-gender-pr-type.js
+ * 사용: node apply-gender-pr-type.js [--render]
  * (컬럼 추가가 필요하면 DB_ADMIN_USER=postgres 로 실행)
  */
+const path = require('path');
 const { Pool } = require('pg');
 
 try {
@@ -14,9 +17,25 @@ try {
     /* optional */
 }
 
-const PR_TYPES = ['성인', '직속', '청년', '소년'];
+const useRender = process.argv.includes('--render');
+if (useRender) {
+    require('dotenv').config({ path: path.join(__dirname, '.env.render'), override: true });
+}
+
+const SAMPLE_ID_MIN = 3;
+const SAMPLE_ID_MAX = 138;
+/** 모의 회원 index번호 — 해당 회원 소속 Pr는 소년 Pr */
+const JUNIOR_INDEX_MEMBER_IDS = new Set([16, 36, 56, 76]);
 
 function createPool(asAdmin) {
+    if (useRender && process.env.DATABASE_URL) {
+        return new Pool({
+            connectionString: process.env.DATABASE_URL,
+            ssl: { rejectUnauthorized: false },
+            max: 1,
+            application_name: 'regio-apply-gender-pr-type'
+        });
+    }
     const user = asAdmin
         ? (process.env.DB_ADMIN_USER || 'postgres')
         : (process.env.DB_USER || 'postgres');
@@ -44,6 +63,14 @@ function assignGenderById(id) {
     return Number(id) % 2 === 0 ? '여' : '남';
 }
 
+function prGroupKey(churchName, prName) {
+    return `${String(churchName || '').trim()}\u0001${String(prName || '').trim()}`;
+}
+
+function assignPrTypeByJuniorAnchors(juniorPrKeys) {
+    return (churchName, prName) => (juniorPrKeys.has(prGroupKey(churchName, prName)) ? '소년' : '성인');
+}
+
 async function main() {
     let pool = createPool(true);
     let client;
@@ -63,38 +90,42 @@ async function main() {
 
     try {
         const members = await client.query(
-            `SELECT id, name, pr_name, gender, pr_type
+            `SELECT id, name, church_name, pr_name, gender, pr_type
              FROM member
-             WHERE id BETWEEN 3 AND 138
-             ORDER BY id`
+             WHERE id BETWEEN $1 AND $2
+             ORDER BY id`,
+            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
         );
 
         if (members.rows.length === 0) {
-            console.log('대상 회원(3~138)이 없습니다.');
+            console.log(`대상 회원(${SAMPLE_ID_MIN}~${SAMPLE_ID_MAX})이 없습니다.`);
             return;
         }
 
-        // PR 이름별 분류: 등장 순서대로 성인→직속→청년→소년 순환 배정
-        const prNames = [];
-        const seen = new Set();
+        const juniorPrKeys = new Set();
         for (const row of members.rows) {
-            const pr = String(row.pr_name || '').trim() || '(미지정)';
-            if (!seen.has(pr)) {
-                seen.add(pr);
-                prNames.push(pr);
-            }
+            if (!JUNIOR_INDEX_MEMBER_IDS.has(Number(row.id))) continue;
+            const key = prGroupKey(row.church_name, row.pr_name);
+            if (key !== '\u0001') juniorPrKeys.add(key);
         }
-        const prTypeByName = new Map();
-        prNames.forEach((pr, index) => {
-            prTypeByName.set(pr, PR_TYPES[index % PR_TYPES.length]);
-        });
+
+        const resolvePrType = assignPrTypeByJuniorAnchors(juniorPrKeys);
+
+        console.log(`소년 Pr (index ${[...JUNIOR_INDEX_MEMBER_IDS].join(',')}번 소속):`);
+        if (juniorPrKeys.size === 0) {
+            console.log('  (해당 회원 없음 — DB에 16·36·56·76번이 있으면 자동 반영)');
+        } else {
+            [...juniorPrKeys].sort().forEach((key) => {
+                const [church, pr] = key.split('\u0001');
+                console.log(`  ${church} · ${pr}`);
+            });
+        }
 
         let genderUpdated = 0;
         let prTypeUpdated = 0;
         for (const row of members.rows) {
             const gender = assignGenderById(row.id);
-            const prKey = String(row.pr_name || '').trim() || '(미지정)';
-            const prType = prTypeByName.get(prKey) || '성인';
+            const prType = resolvePrType(row.church_name, row.pr_name);
 
             const result = await client.query(
                 `UPDATE member
@@ -115,9 +146,10 @@ async function main() {
         const genderStats = await client.query(
             `SELECT gender, COUNT(*)::int AS cnt
              FROM member
-             WHERE id BETWEEN 3 AND 138
+             WHERE id BETWEEN $1 AND $2
              GROUP BY gender
-             ORDER BY gender`
+             ORDER BY gender`,
+            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
         );
         console.log('성별 분포:');
         console.table(genderStats.rows);
@@ -125,23 +157,25 @@ async function main() {
         const prTypeStats = await client.query(
             `SELECT pr_type, COUNT(*)::int AS cnt, COUNT(DISTINCT pr_name)::int AS pr_cnt
              FROM member
-             WHERE id BETWEEN 3 AND 138
+             WHERE id BETWEEN $1 AND $2
              GROUP BY pr_type
              ORDER BY CASE pr_type
                 WHEN '성인' THEN 1 WHEN '직속' THEN 2 WHEN '청년' THEN 3 WHEN '소년' THEN 4
-                ELSE 9 END`
+                ELSE 9 END`,
+            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
         );
         console.log('PR 분류 분포:');
         console.table(prTypeStats.rows);
 
         const prMap = await client.query(
-            `SELECT pr_name, pr_type, COUNT(*)::int AS cnt
+            `SELECT church_name, pr_name, pr_type, COUNT(*)::int AS cnt
              FROM member
-             WHERE id BETWEEN 3 AND 138
-             GROUP BY pr_name, pr_type
-             ORDER BY pr_type, pr_name`
+             WHERE id BETWEEN $1 AND $2
+             GROUP BY church_name, pr_name, pr_type
+             ORDER BY pr_type, church_name, pr_name`,
+            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
         );
-        console.log('PR별 분류:');
+        console.log('Pr별 분류:');
         console.table(prMap.rows);
     } finally {
         client.release();
