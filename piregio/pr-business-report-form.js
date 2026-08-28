@@ -2701,82 +2701,153 @@
                 padding-top: 10px;
                 border-top: 1px dashed #999;
             }
-            /* 소년 Pr 사업보고서 전용 스타일 */
+            /* 소년 Pr 사업보고서 전용 스타일 (이미지 1, 2, 3 완벽 구현) */
+            .pr-biz-form.pr-biz-junior {
+                max-width: 920px;
+                width: 100%;
+                margin: 0 auto 20px auto;
+                font-family: 'Malgun Gothic', '맑은 고딕', Dotum, sans-serif;
+                color: #000;
+                line-height: 1.35;
+            }
+            .pr-biz-form.pr-biz-junior .pr-biz-junior-page {
+                border: 2px solid #000;
+                box-sizing: border-box;
+                background: #fff;
+                margin-bottom: 24px;
+                padding: 0;
+            }
             .pr-biz-form.pr-biz-junior .junior-title-row {
                 text-align: center;
-                margin: 6px 0 14px;
+                border-bottom: 1px solid #000;
+                padding: 14px 0 12px 0;
+                background: #fff;
             }
             .pr-biz-form.pr-biz-junior .junior-main-title {
-                font-size: 20px;
+                font-size: 22px;
                 font-weight: 800;
-                letter-spacing: 0.35em;
+                letter-spacing: 0.45em;
                 margin: 0;
-                color: #111;
+                color: #000;
                 display: inline-block;
             }
-            .pr-biz-form.pr-biz-junior table.biz-table th {
-                background: #fafafa;
-                color: #111;
-                font-weight: 600;
-                font-size: 11px;
+            .pr-biz-form.pr-biz-junior table.biz-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0;
+                table-layout: fixed;
+                box-sizing: border-box;
+                border: none;
+                border-bottom: 1px solid #000;
             }
+            .pr-biz-form.pr-biz-junior table.biz-table:last-child {
+                border-bottom: none;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table th,
             .pr-biz-form.pr-biz-junior table.biz-table td {
-                font-size: 11px;
+                border: 1px solid #000;
+                padding: 5px 4px;
+                text-align: center;
+                vertical-align: middle;
+                font-size: 12px;
+                color: #000;
+                box-sizing: border-box;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table th {
+                background: #fff;
+                font-weight: normal;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table td.left {
+                text-align: left;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table tr > th:first-child,
+            .pr-biz-form.pr-biz-junior table.biz-table tr > td:first-child {
+                border-left: none;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table tr > th:last-child,
+            .pr-biz-form.pr-biz-junior table.biz-table tr > td:last-child {
+                border-right: none;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table:first-of-type tr:first-child > th,
+            .pr-biz-form.pr-biz-junior table.biz-table:first-of-type tr:first-child > td {
+                border-top: none;
             }
             .pr-biz-form.pr-biz-junior .vertical-header {
                 writing-mode: vertical-rl;
                 text-orientation: upright;
-                letter-spacing: 0.25em;
-                font-weight: 700;
-                width: 28px;
-                max-width: 32px;
-                padding: 4px 2px;
-                background: #fafafa;
+                letter-spacing: 0.3em;
+                font-weight: bold;
+                width: 32px;
+                min-width: 32px;
+                max-width: 34px;
+                padding: 6px 2px;
                 text-align: center;
                 vertical-align: middle;
+                background: #fff;
             }
             .pr-biz-form.pr-biz-junior .vertical-group-header {
-                font-weight: 700;
-                font-size: 11.5px;
-                line-height: 1.4;
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+                font-size: 11px;
+                line-height: 1.2;
                 text-align: center;
                 vertical-align: middle;
                 background: #fff;
                 padding: 4px 2px;
                 letter-spacing: 0.1em;
             }
+            .pr-biz-form.pr-biz-junior .diag-header {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                min-height: 28px;
+                background: linear-gradient(to top right, transparent calc(50% - 0.6px), #000 50%, transparent calc(50% + 0.6px));
+            }
+            .pr-biz-form.pr-biz-junior .diag-header .diag-tr {
+                position: absolute;
+                top: 2px;
+                right: 4px;
+                font-size: 10.5px;
+            }
+            .pr-biz-form.pr-biz-junior .diag-header .diag-bl {
+                position: absolute;
+                bottom: 2px;
+                left: 4px;
+                font-size: 10.5px;
+            }
             .pr-biz-form.pr-biz-junior .activity-detail-list {
                 padding: 6px 8px;
                 line-height: 1.65;
-                font-size: 11px;
+                font-size: 11.5px;
             }
             .pr-biz-form.pr-biz-junior .activity-detail-list > div {
                 margin: 1px 0;
             }
             .pr-biz-form.pr-biz-junior .activity-result-cell {
                 padding: 6px 6px;
-                font-size: 11px;
+                font-size: 11.5px;
                 line-height: 1.55;
                 vertical-align: middle;
             }
             .pr-biz-form.pr-biz-junior .junior-pride-box {
-                border: 2px solid #333;
-                margin-top: 14px;
-                padding: 12px 14px;
-                min-height: 160px;
+                border-top: 1px solid #000;
+                padding: 12px 16px 16px 16px;
+                min-height: 190px;
                 background: #fff;
             }
             .pr-biz-form.pr-biz-junior .junior-pride-title {
-                color: #d9534f;
+                color: #dc2626;
                 font-weight: 800;
-                font-size: 13px;
+                font-size: 13.5px;
                 margin-bottom: 8px;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.1em;
             }
             .pr-biz-form.pr-biz-junior .junior-pride-content {
-                min-height: 110px;
+                min-height: 150px;
                 font-size: 12px;
-                line-height: 1.6;
+                line-height: 1.65;
                 outline: none;
             }
             .pr-biz-form.pr-biz-junior .junior-pride-content.blank-editable:empty::before {
@@ -3126,13 +3197,12 @@
         const eduOfficer = parseEduRow(officerEduEv);
         const eduMember = parseEduRow(memberEduEv);
 
-        // 단원 명단 생성 (3명씩 1행, 최소 5행)
+        // 단원 명단 생성 (3명씩 1행, 최소 4행)
         const memberList = Array.isArray(m.member_list) && m.member_list.length > 0
             ? m.member_list
             : (Array.isArray(m.members) ? m.members : []);
 
-        // 단원 목록에서 간부/단원 모두 포함하여 표시
-        const totalRows = Math.max(5, Math.ceil(memberList.length / 3));
+        const totalRows = Math.max(4, Math.ceil(memberList.length / 3));
         const memberRowsHtml = [];
         for (let r = 0; r < totalRows; r++) {
             const m1 = memberList[r * 3] || { name: '', baptism_name: '' };
@@ -3140,12 +3210,12 @@
             const m3 = memberList[r * 3 + 2] || { name: '', baptism_name: '' };
             memberRowsHtml.push(`
                 <tr>
-                    <td>${blank(m1.name, 'w6')}</td>
-                    <td>${blank(m1.baptism_name, 'w6')}</td>
-                    <td>${blank(m2.name, 'w6')}</td>
-                    <td>${blank(m2.baptism_name, 'w6')}</td>
-                    <td>${blank(m3.name, 'w6')}</td>
-                    <td>${blank(m3.baptism_name, 'w6')}</td>
+                    <td>${blank(m1.name, 'w5')}</td>
+                    <td>${blank(m1.baptism_name, 'w5')}</td>
+                    <td>${blank(m2.name, 'w5')}</td>
+                    <td>${blank(m2.baptism_name, 'w5')}</td>
+                    <td>${blank(m3.name, 'w5')}</td>
+                    <td>${blank(m3.baptism_name, 'w5')}</td>
                 </tr>
             `);
         }
@@ -3157,64 +3227,70 @@
                 <!-- Page 1 (이미지 1) -->
                 <div class="pr-biz-junior-page pr-biz-junior-page-1">
                     <div class="junior-title-row">
-                        <div class="junior-main-title">제 ${blank(m.report_seq, 'w4')} 차 사 업 보 고 서</div>
+                        <div class="junior-main-title">제 ${blank(m.report_seq, 'w3')} 차 &nbsp;&nbsp; 사 &nbsp;&nbsp; 업 &nbsp;&nbsp; 보 &nbsp;&nbsp; 고 &nbsp;&nbsp; 서</div>
                     </div>
 
-                    <table class="biz-table junior-meta-table" style="margin-bottom: 8px;">
+                    <!-- Meta Info Table -->
+                    <table class="biz-table junior-meta-table">
                         <colgroup>
-                            <col style="width: 13%;">
-                            <col style="width: 87%;">
+                            <col style="width: 12%;">
+                            <col style="width: 88%;">
                         </colgroup>
                         <tr>
                             <th>설립일자</th>
-                            <td class="left">${blank(m.founded_y, 'w4')} 년 ${blank(m.founded_m, 'w3')} 월 ${blank(m.founded_d, 'w3')} 일</td>
+                            <td class="left">
+                                ${blank(m.founded_y, 'w4')} 년 &nbsp;&nbsp; ${blank(m.founded_m, 'w2')} 월 &nbsp;&nbsp; ${blank(m.founded_d, 'w2')} 일
+                            </td>
                         </tr>
                         <tr>
                             <th>보고기간</th>
                             <td class="left">
-                                ${blank(start?.y, 'w4')} 년 ${blank(start?.m, 'w3')} 월 ${blank(start?.d, 'w3')} 일 ~
-                                ${blank(end?.y, 'w4')} 년 ${blank(end?.m, 'w3')} 월 ${blank(end?.d, 'w3')} 일
-                                (제 ${blank(m.meeting_from, 'w3')} 차 ~ 제 ${blank(m.meeting_to, 'w3')} 차)
-                                &nbsp; ${blank(m.weeks, 'w3')} 주간
+                                ${blank(start?.y, 'w4')} 년 &nbsp;&nbsp; ${blank(start?.m, 'w2')} 월 &nbsp;&nbsp; ${blank(start?.d, 'w2')} 일 &nbsp;&nbsp; ~ &nbsp;&nbsp;
+                                ${blank(end?.y, 'w4')} 년 &nbsp;&nbsp; ${blank(end?.m, 'w2')} 월 &nbsp;&nbsp; ${blank(end?.d, 'w2')} 일
+                                &nbsp;&nbsp; (제 ${blank(m.meeting_from, 'w3')} 차 ~ 제 ${blank(m.meeting_to, 'w3')} 차)
+                                &nbsp;&nbsp; ${blank(m.weeks, 'w2')} 주간
                             </td>
                         </tr>
                         <tr>
                             <th>주회합</th>
                             <td class="left">
-                                매주 ${blank(meeting.weekday, 'w3')} 요일 ${blank(meeting.hour, 'w2')} 시 ${blank(meeting.minute, 'w2')} 분
-                                &nbsp; 천주교 ${blank(m.church_name, 'w8')} 성당
-                                &nbsp; ${blank(meeting.place, 'w8')} 회의실
+                                매주 &nbsp;&nbsp; ${blank(meeting.weekday, 'w2')} 요일 &nbsp;&nbsp; ${blank(meeting.hour, 'w2')} 시 &nbsp;&nbsp; ${blank(meeting.minute, 'w2')} 분
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 천주교 &nbsp;&nbsp; ${blank(m.church_name, 'w8')} 성당
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${blank(meeting.place, 'w8')} 회의실
                             </td>
                         </tr>
                     </table>
 
-                    <!-- 간부 -->
-                    <table class="biz-table junior-officer-table" style="margin-bottom: 8px;">
+                    <!-- 간부 Table -->
+                    <table class="biz-table junior-officer-table">
                         <colgroup>
                             <col style="width: 5%;">
-                            <col style="width: 15%;">
-                            <col style="width: 13%;">
                             <col style="width: 13%;">
                             <col style="width: 14%;">
                             <col style="width: 14%;">
-                            <col style="width: 13%;">
-                            <col style="width: 13%;">
+                            <col style="width: 13.5%;">
+                            <col style="width: 13.5%;">
+                            <col style="width: 13.5%;">
+                            <col style="width: 13.5%;">
                         </colgroup>
-                        <thead>
-                            <tr>
-                                <th rowspan="5" class="vertical-header">간 부</th>
-                                <th>구분\\직책</th>
-                                <th>영적지도자</th>
-                                <th>대 리 자</th>
-                                <th>단 장</th>
-                                <th>부 단 장</th>
-                                <th>서 기</th>
-                                <th>회 계</th>
-                            </tr>
-                        </thead>
                         <tbody>
                             <tr>
-                                <th>성 명</th>
+                                <th rowspan="5" class="vertical-header">간 &nbsp; 부</th>
+                                <th style="padding: 0;">
+                                    <div class="diag-header">
+                                        <span class="diag-tr">직책</span>
+                                        <span class="diag-bl">구분</span>
+                                    </div>
+                                </th>
+                                <th>영적지도자</th>
+                                <th>대 리 자</th>
+                                <th>단 &nbsp;&nbsp; 장</th>
+                                <th>부 단 장</th>
+                                <th>서 &nbsp;&nbsp; 기</th>
+                                <th>회 &nbsp;&nbsp; 계</th>
+                            </tr>
+                            <tr>
+                                <th>성 &nbsp;&nbsp;&nbsp;&nbsp; 명</th>
                                 <td>${blank(m.spiritual_director, 'w5')}</td>
                                 <td>${blank(m.proxy_name, 'w5')}</td>
                                 <td>${blank(officerField(officers, '단장', 'name'), 'w5')}</td>
@@ -3252,31 +3328,31 @@
                         </tbody>
                     </table>
 
-                    <!-- 단원수 -->
-                    <table class="biz-table junior-member-counts-table" style="margin-bottom: 8px;">
+                    <!-- 단원수 Table -->
+                    <table class="biz-table junior-member-counts-table">
                         <colgroup>
                             <col style="width: 5%;">
-                            <col style="width: 5%;">
-                            <col style="width: 8%;">
-                            <col style="width: 8%;">
-                            <col style="width: 8%;">
-                            <col style="width: 14%;">
-                            <col style="width: 18%;">
-                            <col style="width: 5%;">
-                            <col style="width: 9%;">
-                            <col style="width: 9%;">
+                            <col style="width: 4%;">
+                            <col style="width: 7%;">
+                            <col style="width: 7%;">
+                            <col style="width: 7%;">
+                            <col style="width: 15%;">
+                            <col style="width: 17%;">
+                            <col style="width: 4%;">
                             <col style="width: 11%;">
+                            <col style="width: 11%;">
+                            <col style="width: 12%;">
                         </colgroup>
                         <tbody>
                             <tr>
                                 <th rowspan="3" class="vertical-header">단<br>원<br>수</th>
-                                <th rowspan="2" class="vertical-header" style="font-size:10px;">행동단원</th>
+                                <th rowspan="2" class="vertical-group-header" style="font-size:10px; letter-spacing:0.1em; width:4%;">행동단원</th>
                                 <th>남</th>
                                 <th>여</th>
                                 <th>계</th>
-                                <td>정단원 ${blank(curr.active_t, 'w2')} 명</td>
-                                <td>전차단원 ${blank(prev.active_t || '', 'w2')} 명</td>
-                                <th rowspan="3" class="vertical-header" style="font-size:10px;">협조단원</th>
+                                <td class="left">정 &nbsp; 단 &nbsp; 원 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(curr.active_t, 'w2')} 명</td>
+                                <td class="left">전 차 단 원 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(prev.active_t || '', 'w2')} 명</td>
+                                <th rowspan="3" class="vertical-group-header" style="font-size:10px; letter-spacing:0.1em; width:4%;">협조단원</th>
                                 <th>남</th>
                                 <th>여</th>
                                 <th>계</th>
@@ -3285,189 +3361,196 @@
                                 <td>${blank(curr.active_m, 'w2')} 명</td>
                                 <td>${blank(curr.active_f, 'w2')} 명</td>
                                 <td>${blank(curr.active_t, 'w2')} 명</td>
-                                <td>예비단원 ${blank(curr.probationer || '', 'w2')} 명</td>
-                                <td>입단(전입) ${blank(mem.increase?.active_t || '', 'w2')} 명</td>
+                                <td class="left">예 비 단 원 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(curr.probationer || '', 'w2')} 명</td>
+                                <td class="left">입단 (전입) &nbsp;&nbsp;&nbsp;&nbsp; ${blank(mem.increase?.active_t || '', 'w2')} 명</td>
                                 <td rowspan="2">${blank(curr.aux_m, 'w2')} 명</td>
                                 <td rowspan="2">${blank(curr.aux_f, 'w2')} 명</td>
                                 <td rowspan="2">${blank(curr.aux_t, 'w2')} 명</td>
                             </tr>
                             <tr>
                                 <th colspan="4" style="background:#fff;">조직특성</th>
-                                <td>장기유고 ${blank(curr.long_absent || '', 'w2')} 명</td>
-                                <td>퇴단(전출) ${blank(mem.decrease?.active_t || '', 'w2')} 명</td>
+                                <td class="left">장 기 유 고 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(curr.long_absent || '', 'w2')} 명</td>
+                                <td class="left">퇴단 (전출) &nbsp;&nbsp;&nbsp;&nbsp; ${blank(mem.decrease?.active_t || '', 'w2')} 명</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <!-- 단원명 -->
-                    <table class="biz-table junior-member-table" style="margin-bottom: 8px;">
+                    <!-- 단원명 Table -->
+                    <table class="biz-table junior-member-table">
                         <colgroup>
                             <col style="width: 5%;">
-                            <col style="width: 15%;">
-                            <col style="width: 17%;">
-                            <col style="width: 15%;">
-                            <col style="width: 17%;">
-                            <col style="width: 15%;">
-                            <col style="width: 16%;">
+                            <col style="width: 15.8%;">
+                            <col style="width: 15.8%;">
+                            <col style="width: 15.8%;">
+                            <col style="width: 15.8%;">
+                            <col style="width: 15.9%;">
+                            <col style="width: 15.9%;">
                         </colgroup>
-                        <thead>
-                            <tr>
-                                <th rowspan="${totalRows + 1}" class="vertical-header">단<br>원<br>명</th>
-                                <th>성 명</th>
-                                <th>세 례 명</th>
-                                <th>성 명</th>
-                                <th>세 례 명</th>
-                                <th>성 명</th>
-                                <th>세 례 명</th>
-                            </tr>
-                        </thead>
                         <tbody>
+                            <tr>
+                                <th rowspan="${totalRows + 1}" class="vertical-header">단<br><br>원<br><br>명</th>
+                                <th>성 &nbsp;&nbsp;&nbsp;&nbsp; 명</th>
+                                <th>세 &nbsp; 례 &nbsp; 명</th>
+                                <th>성 &nbsp;&nbsp;&nbsp;&nbsp; 명</th>
+                                <th>세 &nbsp; 례 &nbsp; 명</th>
+                                <th>성 &nbsp;&nbsp;&nbsp;&nbsp; 명</th>
+                                <th>세 &nbsp; 례 &nbsp; 명</th>
+                            </tr>
                             ${memberRowsHtml.join('')}
                         </tbody>
                     </table>
 
-                    <!-- 출석률 -->
-                    <table class="biz-table junior-attendance-table" style="margin-bottom: 8px;">
+                    <!-- 출석률 Table -->
+                    <table class="biz-table junior-attendance-table">
                         <colgroup>
+                            <col style="width: 12%;">
                             <col style="width: 10%;">
+                            <col style="width: 19%;">
                             <col style="width: 10%;">
-                            <col style="width: 20%;">
+                            <col style="width: 19.5%;">
                             <col style="width: 10%;">
-                            <col style="width: 20%;">
-                            <col style="width: 10%;">
-                            <col style="width: 20%;">
+                            <col style="width: 19.5%;">
                         </colgroup>
-                        <tr>
-                            <th>출석률</th>
-                            <th>간부</th>
-                            <td>${blank(att.officers_rate || (att.officers_total ? Math.round((att.officers_present / att.officers_total) * 100) : ''), 'w3')} %</td>
-                            <th>단원</th>
-                            <td>${blank(att.members_rate || att.rate || '', 'w3')} %</td>
-                            <th>전체</th>
-                            <td>${blank(att.total_rate || att.rate || '', 'w3')} %</td>
-                        </tr>
-                    </table>
-
-                    <!-- 회계보고 -->
-                    <table class="biz-table junior-finance-table" style="margin-bottom: 8px;">
-                        <colgroup>
-                            <col style="width: 5%;">
-                            <col style="width: 15%;">
-                            <col style="width: 32%;">
-                            <col style="width: 15%;">
-                            <col style="width: 18%;">
-                            <col style="width: 15%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th rowspan="4" class="vertical-header">회<br>계<br>보<br>고</th>
-                                <th colspan="2">수 입</th>
-                                <th colspan="2">지 출</th>
-                                <th>잔 액</th>
-                            </tr>
-                        </thead>
                         <tbody>
                             <tr>
-                                <th>이 월 금</th>
-                                <td>${blank(fin.prev_balance, 'w8')}</td>
-                                <th>의 연 금</th>
-                                <td>${blank(fin.curia_fee, 'w8')}</td>
-                                <td rowspan="3" style="vertical-align:middle;">${blank(fin.cur_balance, 'w8')}</td>
-                            </tr>
-                            <tr>
-                                <th>비 밀 헌 금</th>
-                                <td>${blank(fin.secret_bag, 'w8')}</td>
-                                <th>꽃 대</th>
-                                <td>${blank(fin.flower_fee, 'w8')}</td>
-                            </tr>
-                            <tr>
-                                <th>계</th>
-                                <td>${blank(fin.total_income, 'w8')}</td>
-                                <th>계</th>
-                                <td>${blank(fin.total_expense, 'w8')}</td>
+                                <th>출 &nbsp; 석 &nbsp; 률</th>
+                                <th>간 &nbsp; 부</th>
+                                <td>${blank(att.officers_rate || (att.officers_total ? Math.round((att.officers_present / att.officers_total) * 100) : ''), 'w3')} %</td>
+                                <th>단 &nbsp; 원</th>
+                                <td>${blank(att.members_rate || att.rate || '', 'w3')} %</td>
+                                <th>전 &nbsp; 체</th>
+                                <td>${blank(att.total_rate || att.rate || '', 'w3')} %</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <!-- 교육내용 -->
-                    <table class="biz-table junior-edu-table" style="margin-bottom: 8px;">
+                    <!-- 회계보고 Table -->
+                    <table class="biz-table junior-finance-table">
                         <colgroup>
                             <col style="width: 5%;">
-                            <col style="width: 12%;">
-                            <col style="width: 83%;">
+                            <col style="width: 15%;">
+                            <col style="width: 23%;">
+                            <col style="width: 15%;">
+                            <col style="width: 23%;">
+                            <col style="width: 19%;">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th rowspan="4" class="vertical-header">회<br>계<br>보<br>고</th>
+                                <th colspan="2">수 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 입</th>
+                                <th colspan="2">지 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 출</th>
+                                <th>잔 &nbsp;&nbsp;&nbsp;&nbsp; 액</th>
+                            </tr>
+                            <tr>
+                                <th>이 &nbsp;&nbsp; 월 &nbsp;&nbsp; 금</th>
+                                <td>${blank(fin.prev_balance, 'w6')}</td>
+                                <th>의 &nbsp;&nbsp; 연 &nbsp;&nbsp; 금</th>
+                                <td>${blank(fin.curia_fee, 'w6')}</td>
+                                <td rowspan="3" style="vertical-align:middle;">${blank(fin.cur_balance, 'w6')}</td>
+                            </tr>
+                            <tr>
+                                <th>비 &nbsp; 밀 &nbsp; 헌 &nbsp; 금</th>
+                                <td>${blank(fin.secret_bag, 'w6')}</td>
+                                <th>꽃 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 대</th>
+                                <td>${blank(fin.flower_fee, 'w6')}</td>
+                            </tr>
+                            <tr>
+                                <th>계</th>
+                                <td>${blank(fin.total_income, 'w6')}</td>
+                                <th>계</th>
+                                <td>${blank(fin.total_expense, 'w6')}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 교육내용 Table -->
+                    <table class="biz-table junior-edu-table">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 15%;">
+                            <col style="width: 80%;">
                         </colgroup>
                         <tbody>
                             <tr>
                                 <th rowspan="2" class="vertical-header">교<br>육<br>내<br>용</th>
-                                <th>간부교육</th>
+                                <th>간 부 교 육</th>
                                 <td class="left">
-                                    ${blank(eduOfficer.y, 'w4')} 년 ${blank(eduOfficer.m, 'w2')} 월 ${blank(eduOfficer.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(eduOfficer.place, 'w8')} &nbsp;
-                                    ( ${blank(eduOfficer.total, 'w2')} )명중 ( ${blank(eduOfficer.attend, 'w2')} )명 참가<br>
-                                    강사 : ${blank(eduOfficer.instructor, 'w6')} &nbsp;
-                                    주제 : ${blank(eduOfficer.subject, 'w16')}
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(eduOfficer.y, 'w4')} 년 &nbsp; ${blank(eduOfficer.m, 'w2')} 월 &nbsp; ${blank(eduOfficer.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(eduOfficer.place, 'w8')}</div>
+                                        <div>( ${blank(eduOfficer.total, 'w2')} )명중 ( ${blank(eduOfficer.attend, 'w2')} )명 참가</div>
+                                    </div>
+                                    <div style="margin-top:3px;">
+                                        강사 : ${blank(eduOfficer.instructor, 'w6')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 주제 : ${blank(eduOfficer.subject, 'w16')}
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
-                                <th>단원교육</th>
+                                <th>단 원 교 육</th>
                                 <td class="left">
-                                    ${blank(eduMember.y, 'w4')} 년 ${blank(eduMember.m, 'w2')} 월 ${blank(eduMember.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(eduMember.place, 'w8')} &nbsp;
-                                    ( ${blank(eduMember.total, 'w2')} )명중 ( ${blank(eduMember.attend, 'w2')} )명 참가<br>
-                                    강사 : ${blank(eduMember.instructor, 'w6')} &nbsp;
-                                    주제 : ${blank(eduMember.subject, 'w16')}
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(eduMember.y, 'w4')} 년 &nbsp; ${blank(eduMember.m, 'w2')} 월 &nbsp; ${blank(eduMember.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(eduMember.place, 'w8')}</div>
+                                        <div>( ${blank(eduMember.total, 'w2')} )명중 ( ${blank(eduMember.attend, 'w2')} )명 참가</div>
+                                    </div>
+                                    <div style="margin-top:3px;">
+                                        강사 : ${blank(eduMember.instructor, 'w6')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 주제 : ${blank(eduMember.subject, 'w16')}
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <!-- 레지오행사 -->
+                    <!-- 레지오행사 Table -->
                     <table class="biz-table junior-event-table">
                         <colgroup>
                             <col style="width: 5%;">
-                            <col style="width: 18%;">
-                            <col style="width: 77%;">
+                            <col style="width: 20%;">
+                            <col style="width: 75%;">
                         </colgroup>
                         <tbody>
                             <tr>
                                 <th rowspan="5" class="vertical-header">레<br>지<br>오<br>행<br>사</th>
-                                <th>아 치 에 스</th>
+                                <th>아 &nbsp;&nbsp; 치 &nbsp;&nbsp; 에 &nbsp;&nbsp; 스</th>
                                 <td class="left">
-                                    ${blank(evAcies.y, 'w4')} 년 ${blank(evAcies.m, 'w2')} 월 ${blank(evAcies.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(evAcies.place, 'w10')} &nbsp;
-                                    ( ${blank(evAcies.total, 'w2')} )명중 ( ${blank(evAcies.attend, 'w2')} )명 참가
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(evAcies.y, 'w4')} 년 &nbsp; ${blank(evAcies.m, 'w2')} 월 &nbsp; ${blank(evAcies.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(evAcies.place, 'w8')}</div>
+                                        <div>( ${blank(evAcies.total, 'w2')} )명중 ( ${blank(evAcies.attend, 'w2')} )명 참가</div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
                                 <th>연 차 총 친 목 회</th>
                                 <td class="left">
-                                    ${blank(evAnnual.y, 'w4')} 년 ${blank(evAnnual.m, 'w2')} 월 ${blank(evAnnual.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(evAnnual.place, 'w10')} &nbsp;
-                                    ( ${blank(evAnnual.total, 'w2')} )명중 ( ${blank(evAnnual.attend, 'w2')} )명 참가
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(evAnnual.y, 'w4')} 년 &nbsp; ${blank(evAnnual.m, 'w2')} 월 &nbsp; ${blank(evAnnual.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(evAnnual.place, 'w8')}</div>
+                                        <div>( ${blank(evAnnual.total, 'w2')} )명중 ( ${blank(evAnnual.attend, 'w2')} )명 참가</div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
-                                <th>야 외 행 사</th>
+                                <th>야 &nbsp;&nbsp; 외 &nbsp;&nbsp; 행 &nbsp;&nbsp; 사</th>
                                 <td class="left">
-                                    ${blank(evOutdoor.y, 'w4')} 년 ${blank(evOutdoor.m, 'w2')} 월 ${blank(evOutdoor.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(evOutdoor.place, 'w10')} &nbsp;
-                                    ( ${blank(evOutdoor.total, 'w2')} )명중 ( ${blank(evOutdoor.attend, 'w2')} )명 참가
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(evOutdoor.y, 'w4')} 년 &nbsp; ${blank(evOutdoor.m, 'w2')} 월 &nbsp; ${blank(evOutdoor.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(evOutdoor.place, 'w8')}</div>
+                                        <div>( ${blank(evOutdoor.total, 'w2')} )명중 ( ${blank(evOutdoor.attend, 'w2')} )명 참가</div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
-                                <th>쁘레시디움친목회</th>
+                                <th>쁘 레 시 디 움 친 목 회</th>
                                 <td class="left">
-                                    ${blank(evPrParty.y, 'w4')} 년 ${blank(evPrParty.m, 'w2')} 월 ${blank(evPrParty.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(evPrParty.place, 'w10')} &nbsp;
-                                    ( ${blank(evPrParty.total, 'w2')} )명중 ( ${blank(evPrParty.attend, 'w2')} )명 참가
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(evPrParty.y, 'w4')} 년 &nbsp; ${blank(evPrParty.m, 'w2')} 월 &nbsp; ${blank(evPrParty.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(evPrParty.place, 'w8')}</div>
+                                        <div>( ${blank(evPrParty.total, 'w2')} )명중 ( ${blank(evPrParty.attend, 'w2')} )명 참가</div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
-                                <th>기 타 행 사</th>
+                                <th>기 &nbsp;&nbsp; 타 &nbsp;&nbsp; 행 &nbsp;&nbsp; 사</th>
                                 <td class="left">
-                                    ${blank(evEtc.y, 'w4')} 년 ${blank(evEtc.m, 'w2')} 월 ${blank(evEtc.d, 'w2')} 일 &nbsp;
-                                    장소 : ${blank(evEtc.place, 'w10')} &nbsp;
-                                    ( ${blank(evEtc.total, 'w2')} )명중 ( ${blank(evEtc.attend, 'w2')} )명 참가
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>${blank(evEtc.y, 'w4')} 년 &nbsp; ${blank(evEtc.m, 'w2')} 월 &nbsp; ${blank(evEtc.d, 'w2')} 일 &nbsp;&nbsp; 장소 : ${blank(evEtc.place, 'w8')}</div>
+                                        <div>( ${blank(evEtc.total, 'w2')} )명중 ( ${blank(evEtc.attend, 'w2')} )명 참가</div>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -3478,22 +3561,22 @@
                 <div class="junior-page-break"></div>
                 <div class="pr-biz-junior-page pr-biz-junior-page-2">
                     <div class="junior-title-row">
-                        <div class="junior-main-title">활 동 사 항</div>
+                        <div class="junior-main-title">활 &nbsp;&nbsp; 동 &nbsp;&nbsp; 사 &nbsp;&nbsp; 항</div>
                     </div>
 
                     <table class="biz-table junior-activity-table">
                         <colgroup>
-                            <col style="width: 13%;">
-                            <col style="width: 49%;">
                             <col style="width: 12%;">
+                            <col style="width: 48%;">
+                            <col style="width: 14%;">
                             <col style="width: 26%;">
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>종 목</th>
-                                <th>활 동 내 용</th>
-                                <th>횟 수</th>
-                                <th style="color:#d9534f; font-weight:700;">활 동 결 과</th>
+                                <th>종 &nbsp; 목</th>
+                                <th>활 &nbsp;&nbsp; 동 &nbsp;&nbsp; 내 &nbsp;&nbsp; 용</th>
+                                <th>횟 &nbsp; 수</th>
+                                <th style="color:#dc2626; font-weight:bold;">활 &nbsp; 동 &nbsp; 결 &nbsp; 과</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3509,8 +3592,8 @@
                                 </td>
                                 <td>${blank(ja.catholicTotal, 'w4')}</td>
                                 <td class="left activity-result-cell">
-                                    <div>교리반인도 ${blank(ja.catholicCatechismGuide, 'w3')} 명</div>
-                                    <div style="margin-top:6px;">세례자 ${blank(ja.catholicBaptism, 'w3')} 명</div>
+                                    <div>교리반인도 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.catholicCatechismGuide, 'w3')} 명</div>
+                                    <div style="margin-top:6px;">세례자 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.catholicBaptism, 'w3')} 명</div>
                                 </td>
                             </tr>
 
@@ -3526,9 +3609,9 @@
                                 </td>
                                 <td>${blank(ja.believerTotal, 'w4')}</td>
                                 <td class="left activity-result-cell">
-                                    <div>회두 ${blank(ja.believerMeetingHead, 'w3')} 명</div>
-                                    <div style="margin-top:4px;">성사 ${blank(ja.believerSacrament, 'w3')} 명</div>
-                                    <div style="margin-top:4px;">첫영성체 ${blank(ja.believerFirstCommunion, 'w3')} 명</div>
+                                    <div>회두 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.believerMeetingHead, 'w3')} 명</div>
+                                    <div style="margin-top:4px;">성사 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.believerSacrament, 'w3')} 명</div>
+                                    <div style="margin-top:4px;">첫영성체 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.believerFirstCommunion, 'w3')} 명</div>
                                 </td>
                             </tr>
 
@@ -3543,8 +3626,8 @@
                                 </td>
                                 <td>${blank(ja.neighborTotal, 'w4')}</td>
                                 <td class="left activity-result-cell">
-                                    <div>선행 ${blank(ja.neighborGoodDeed, 'w3')}</div>
-                                    <div style="margin-top:6px;">희생 ${blank(ja.neighborSacrifice, 'w3')}</div>
+                                    <div>선행 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.neighborGoodDeed, 'w3')}</div>
+                                    <div style="margin-top:6px;">희생 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.neighborSacrifice, 'w3')}</div>
                                 </td>
                             </tr>
 
@@ -3560,8 +3643,8 @@
                                 </td>
                                 <td>${blank(ja.legionTotal, 'w4')}</td>
                                 <td class="left activity-result-cell">
-                                    <div>행동단원입단 ${blank(ja.legionActiveJoin, 'w3')} 명</div>
-                                    <div style="margin-top:6px;">협조단원입단 ${blank(ja.legionAuxJoin, 'w3')} 명</div>
+                                    <div>행동단원입단 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.legionActiveJoin, 'w3')} 명</div>
+                                    <div style="margin-top:6px;">협조단원입단 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(ja.legionAuxJoin, 'w3')} 명</div>
                                 </td>
                             </tr>
 
@@ -3600,17 +3683,17 @@
                 <div class="pr-biz-junior-page pr-biz-junior-page-3">
                     <table class="biz-table junior-activity-table">
                         <colgroup>
-                            <col style="width: 13%;">
-                            <col style="width: 49%;">
                             <col style="width: 12%;">
+                            <col style="width: 48%;">
+                            <col style="width: 14%;">
                             <col style="width: 26%;">
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>종 목</th>
-                                <th>활 동 내 용</th>
-                                <th>횟 수</th>
-                                <th style="color:#d9534f; font-weight:700;">활 동 결 과</th>
+                                <th>종 &nbsp; 목</th>
+                                <th>활 &nbsp;&nbsp; 동 &nbsp;&nbsp; 내 &nbsp;&nbsp; 용</th>
+                                <th>횟 &nbsp; 수</th>
+                                <th style="color:#dc2626; font-weight:bold;">활 &nbsp; 동 &nbsp; 결 &nbsp; 과</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3645,7 +3728,7 @@
                                 </td>
                                 <td>${blank(ja.prayerTotal, 'w4')}</td>
                                 <td class="activity-result-cell" style="vertical-align:middle; text-align:center;">
-                                    <div>${blank(ja.prayerDan, 'w4')} 단</div>
+                                    <div>${blank(ja.prayerDan, 'w4')} &nbsp;&nbsp; 단</div>
                                 </td>
                             </tr>
 
@@ -3665,7 +3748,7 @@
 
                     <!-- 성모님께 자랑하고픈 말 -->
                     <div class="junior-pride-box">
-                        <div class="junior-pride-title">성모님께 자랑하고픈 말</div>
+                        <div class="junior-pride-title">성모님께 &nbsp;&nbsp; 자랑하고픈 &nbsp;&nbsp; 말</div>
                         <div class="junior-pride-content blank-editable" contenteditable="true" data-placeholder="성모님께 자랑하고픈 말을 입력하세요.">${escapeHtml(m.memo || '')}</div>
                     </div>
                 </div>
