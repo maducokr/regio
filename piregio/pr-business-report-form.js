@@ -2775,9 +2775,6 @@
                 border-top: none;
             }
             .pr-biz-form.pr-biz-junior .vertical-header {
-                writing-mode: vertical-rl;
-                text-orientation: upright;
-                letter-spacing: 0.3em;
                 font-weight: bold;
                 width: 32px;
                 min-width: 32px;
@@ -2786,17 +2783,20 @@
                 text-align: center;
                 vertical-align: middle;
                 background: #fff;
+                white-space: normal;
+                word-break: break-all;
+                line-height: 1.45;
+                font-size: 12px;
             }
             .pr-biz-form.pr-biz-junior .vertical-group-header {
-                writing-mode: vertical-rl;
-                text-orientation: upright;
                 font-size: 11px;
-                line-height: 1.2;
+                line-height: 1.35;
                 text-align: center;
                 vertical-align: middle;
                 background: #fff;
                 padding: 4px 2px;
-                letter-spacing: 0.1em;
+                white-space: normal;
+                word-break: break-all;
             }
             .pr-biz-form.pr-biz-junior .diag-header {
                 position: relative;
@@ -3275,7 +3275,7 @@
                         </colgroup>
                         <tbody>
                             <tr>
-                                <th rowspan="5" class="vertical-header">간 &nbsp; 부</th>
+                                <th rowspan="5" class="vertical-header">간<br>부</th>
                                 <th style="padding: 0;">
                                     <div class="diag-header">
                                         <span class="diag-tr">직책</span>
@@ -3346,13 +3346,13 @@
                         <tbody>
                             <tr>
                                 <th rowspan="3" class="vertical-header">단<br>원<br>수</th>
-                                <th rowspan="2" class="vertical-group-header" style="font-size:10px; letter-spacing:0.1em; width:4%;">행동단원</th>
+                                <th rowspan="2" class="vertical-group-header" style="font-size:10px; width:4%;">행<br>동<br>단<br>원</th>
                                 <th>남</th>
                                 <th>여</th>
                                 <th>계</th>
                                 <td class="left">정 &nbsp; 단 &nbsp; 원 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(curr.active_t, 'w2')} 명</td>
                                 <td class="left">전 차 단 원 &nbsp;&nbsp;&nbsp;&nbsp; ${blank(prev.active_t || '', 'w2')} 명</td>
-                                <th rowspan="3" class="vertical-group-header" style="font-size:10px; letter-spacing:0.1em; width:4%;">협조단원</th>
+                                <th rowspan="3" class="vertical-group-header" style="font-size:10px; width:4%;">협<br>조<br>단<br>원</th>
                                 <th>남</th>
                                 <th>여</th>
                                 <th>계</th>
@@ -3388,7 +3388,7 @@
                         </colgroup>
                         <tbody>
                             <tr>
-                                <th rowspan="${totalRows + 1}" class="vertical-header">단<br><br>원<br><br>명</th>
+                                <th rowspan="${totalRows + 1}" class="vertical-header">단<br>원<br>명</th>
                                 <th>성 &nbsp;&nbsp;&nbsp;&nbsp; 명</th>
                                 <th>세 &nbsp; 례 &nbsp; 명</th>
                                 <th>성 &nbsp;&nbsp;&nbsp;&nbsp; 명</th>
