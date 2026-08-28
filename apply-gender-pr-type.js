@@ -2,8 +2,7 @@
  * member.gender / member.pr_type 컬럼 추가
  * - 신규가입: 등록 API가 gender(남/여), pr_type(성인/직속/청년/소년) 저장
  * - 샘플 회원(id 3~138): 성별·PR분류 일괄 부여
- *   · index번호 16·36·56·76 회원이 속한 Pr → 소년
- *   · 그 외 샘플 Pr → 성인
+ *   · 샘플 Pr 전원 → 성인
  *
  * 사용: node apply-gender-pr-type.js [--render]
  * (컬럼 추가가 필요하면 DB_ADMIN_USER=postgres 로 실행)
@@ -24,8 +23,7 @@ if (useRender) {
 
 const SAMPLE_ID_MIN = 3;
 const SAMPLE_ID_MAX = 138;
-/** 모의 회원 index번호 — 해당 회원 소속 Pr는 소년 Pr */
-const JUNIOR_INDEX_MEMBER_IDS = new Set([16, 36, 56, 76]);
+const SAMPLE_PR_TYPE = '성인';
 
 function createPool(asAdmin) {
     if (useRender && process.env.DATABASE_URL) {
@@ -63,14 +61,6 @@ function assignGenderById(id) {
     return Number(id) % 2 === 0 ? '여' : '남';
 }
 
-function prGroupKey(churchName, prName) {
-    return `${String(churchName || '').trim()}\u0001${String(prName || '').trim()}`;
-}
-
-function assignPrTypeByJuniorAnchors(juniorPrKeys) {
-    return (churchName, prName) => (juniorPrKeys.has(prGroupKey(churchName, prName)) ? '소년' : '성인');
-}
-
 async function main() {
     let pool = createPool(true);
     let client;
@@ -102,30 +92,13 @@ async function main() {
             return;
         }
 
-        const juniorPrKeys = new Set();
-        for (const row of members.rows) {
-            if (!JUNIOR_INDEX_MEMBER_IDS.has(Number(row.id))) continue;
-            const key = prGroupKey(row.church_name, row.pr_name);
-            if (key !== '\u0001') juniorPrKeys.add(key);
-        }
-
-        const resolvePrType = assignPrTypeByJuniorAnchors(juniorPrKeys);
-
-        console.log(`소년 Pr (index ${[...JUNIOR_INDEX_MEMBER_IDS].join(',')}번 소속):`);
-        if (juniorPrKeys.size === 0) {
-            console.log('  (해당 회원 없음 — DB에 16·36·56·76번이 있으면 자동 반영)');
-        } else {
-            [...juniorPrKeys].sort().forEach((key) => {
-                const [church, pr] = key.split('\u0001');
-                console.log(`  ${church} · ${pr}`);
-            });
-        }
+        console.log(`샘플 Pr 구분: 전원 ${SAMPLE_PR_TYPE}`);
 
         let genderUpdated = 0;
         let prTypeUpdated = 0;
         for (const row of members.rows) {
             const gender = assignGenderById(row.id);
-            const prType = resolvePrType(row.church_name, row.pr_name);
+            const prType = SAMPLE_PR_TYPE;
 
             const result = await client.query(
                 `UPDATE member
