@@ -327,10 +327,14 @@
             .council-hub-modal h2 { text-align:center; margin:0 0 8px; color:#1f2937; font-size: 12px; }
             .council-hub-modal .hub-sub { text-align:center; margin:0 0 20px; color:#64748b; font-size: 12px; }
             .council-hub-modal .hub-actions { display:flex; flex-direction:column; gap:10px; }
+            .council-hub-modal .hub-btn-row { display:flex; gap:10px; width:100%; }
+            .council-hub-modal .hub-btn-row .hub-btn { flex:1; width:auto; }
             .council-hub-modal .hub-btn { width:100%; padding:14px 16px; border:1px solid #dbe3ee; border-radius:10px; background:#f8fafc; color:#334155; font-size: 12px; font-weight:700; cursor:pointer; }
             .council-hub-modal .hub-btn:hover { border-color:#4A90E2; color:#4A90E2; background:#eef5fc; }
             .council-hub-modal .hub-btn.primary { background:#4A90E2; border-color:#4A90E2; color:#fff; }
             .council-hub-modal .hub-btn.primary:hover { background:#357ABD; }
+            .council-hub-modal .hub-btn.junior { background:#78350f; border-color:#78350f; color:#fff; }
+            .council-hub-modal .hub-btn.junior:hover { background:#5b2609; border-color:#5b2609; color:#fff; }
             .council-hub-modal .org-toolbar { display:flex; gap:8px; align-items:stretch; margin-bottom:14px; flex-wrap:wrap; }
             .council-hub-modal .org-toolbar input, .council-hub-modal .org-toolbar select { flex:1; min-width:100px; padding:11px 12px; border:1px solid #dbe3ee; border-radius:8px; font-size: 12px; }
             .council-hub-modal .org-toolbar button { flex-shrink:0; padding:0 14px; border:none; border-radius:8px; background:#4A90E2; color:#fff; font-weight:600; cursor:pointer; min-height:42px; }
@@ -2827,7 +2831,10 @@
             <p class="hub-sub">${useDiocese ? escapeHtml(diocese) + ' · ' : ''}보고 종류를 선택하세요.</p>
             <div class="hub-actions">
                 <button type="button" class="hub-btn" id="prMonthlyBtn">월례보고</button>
-                <button type="button" class="hub-btn primary" id="prSummaryBtn">사업보고</button>
+                <div class="hub-btn-row">
+                    <button type="button" class="hub-btn primary" id="prSummaryBtn">사업보고</button>
+                    <button type="button" class="hub-btn junior" id="prJuniorSummaryBtn">소년</button>
+                </div>
             </div>
             ${useDiocese ? `<div class="back-row">
                 <button type="button" id="prTypeBackBtn">← 교구 선택</button>
@@ -2838,6 +2845,11 @@
         if (backBtn) backBtn.onclick = () => showPrDioceseChooser(modal);
         content.querySelector('#prMonthlyBtn').onclick = () => showPrMonthlyReportView(modal, diocese);
         content.querySelector('#prSummaryBtn').onclick = () => showPrBusinessTypeChooser(modal, diocese);
+        content.querySelector('#prJuniorSummaryBtn').onclick = () => {
+            const params = new URLSearchParams({ scope: 'pr', pr_type: '소년' });
+            if (useDiocese && diocese) params.set('diocese', diocese);
+            window.location.href = `activity-report.html?${params.toString()}`;
+        };
     }
 
     function showPrDioceseChooser(modal) {
