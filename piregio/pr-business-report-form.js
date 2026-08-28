@@ -281,6 +281,12 @@
         return `<div class="biz-pr-type">${prTypeBadgeHtml(t || '')}</div>`;
     }
 
+    function formatMemberCompositionTrait(prType) {
+        const t = normalizePrType(prType);
+        if (t === '소년') return '소년';
+        return '성인';
+    }
+
     function formatAppointedOn(raw) {
         if (raw == null || raw === '') return '';
         const s = String(raw).trim();
@@ -3114,7 +3120,7 @@
                     정단원: ${blank(curr.active_t, 'w4')} 명
                     &nbsp;&nbsp; 예비단원: ${blank('', 'w4')} 명
                     <br>
-                    단원 구성의 특성: ${blank('', 'w12')}
+                    단원 구성의 특성: ${blank(formatMemberCompositionTrait(m.pr_type), 'w12')}
                 </div>
 
                 <div class="biz-sec-title">통신교환</div>
@@ -3733,7 +3739,7 @@
                             &nbsp; 전체 ${blank(overallPct, 'w4')} %
                         </td>
                         <th style="width:18%">단원 구성의 특성</th>
-                        <td class="left">${blank('', 'w12')}</td>
+                        <td class="left">${blank(formatMemberCompositionTrait(m.pr_type), 'w12')}</td>
                     </tr>
                     <tr>
                         <th>통신교환</th>
