@@ -409,6 +409,17 @@
             border-color: #93c5fd;
             background: #eff6ff;
         }
+        /* 소년Pr 종목 — 선택란·피커 밤색 */
+        #categorySelect option.is-new-category-brown {
+            color: #78350f;
+            font-weight: 600;
+        }
+        #categorySelect.is-new-category-brown {
+            color: #78350f;
+            font-weight: 700;
+            border-color: #fed7aa;
+            background: #fdf8f6;
+        }
         .daegu-senatus-hint {
             margin: 8px 0 0;
             font-size: 12px;
@@ -1026,7 +1037,8 @@
     <script src="activity-field-labels.js?v=20260827e"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260827v"></script>
-    <script src="category-select-picker.js?v=20260820i"></script>
+    <script src="junior-categories.js?v=20260828c"></script>
+    <script src="category-select-picker.js?v=20260828c"></script>
     <script src="auth-ui.js?v=20260825e"></script>    <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -1353,7 +1365,7 @@
             return name;
         }
 
-        /** 대구(녹색) / 광주(파란) 세나뚜스 종목 표기 */
+        /** 대구(녹색) / 광주(파란) / 소년Pr(밤색) 세나뚜스 종목 표기 */
         function isNewGreenCategory(categoryName) {
             if (typeof window.isDaeguSenatusCategory === 'function') {
                 return window.isDaeguSenatusCategory(categoryName);
@@ -1374,9 +1386,26 @@
             return list.some((c) => name === c || name.startsWith(`${c}-`));
         }
 
-        /** 로그인 회원 세나뚜스 → 우선 색 (blue|green|'') — 보이는 순서만 변경 */
+        function isNewBrownCategory(categoryName) {
+            if (typeof window.isJuniorCategory === 'function') {
+                return window.isJuniorCategory(categoryName);
+            }
+            if (typeof window.isNewBrownCategory === 'function') {
+                return window.isNewBrownCategory(categoryName);
+            }
+            const groups = window.JUNIOR_CATEGORY_GROUPS || [];
+            const list = window.JUNIOR_CATEGORIES || [];
+            const name = String(categoryName || '').trim();
+            if (!name) return false;
+            if (list.includes(name)) return true;
+            return groups.some((g) => g !== '기타' && (name === g || name.startsWith(`${g}-`)));
+        }
+
+        /** 로그인 회원 세나뚜스 / Pr종류 → 우선 색 (blue|green|brown|'') — 보이는 순서만 변경 */
         function getMemberSenatusColorPreference() {
             const user = getLoggedInUserSafe();
+            const prType = String(user?.pr_type || user?.affiliation || '').trim();
+            if (/소년/.test(prType)) return 'brown';
             const s = String(user?.senatus_name == null ? '' : user.senatus_name).trim();
             if (/광주/.test(s)) return 'blue';
             if (/대구/.test(s)) return 'green';
@@ -1384,6 +1413,7 @@
         }
 
         function categoryAccentColor(categoryName) {
+            if (isNewBrownCategory(categoryName)) return 'brown';
             if (isNewGreenCategory(categoryName)) return 'green';
             if (isNewBlueCategory(categoryName)) return 'blue';
             return '';
@@ -1411,10 +1441,14 @@
 
         function markCategoryOptionGreen(option, categoryName) {
             if (!option) return;
-            option.classList.remove('is-new-category-green', 'is-new-category-blue');
+            option.classList.remove('is-new-category-green', 'is-new-category-blue', 'is-new-category-brown');
             delete option.dataset.accent;
             option.removeAttribute('title');
-            if (isNewGreenCategory(categoryName)) {
+            if (isNewBrownCategory(categoryName)) {
+                option.classList.add('is-new-category-brown');
+                option.dataset.accent = 'brown';
+                option.title = '소년Pr 종목';
+            } else if (isNewGreenCategory(categoryName)) {
                 option.classList.add('is-new-category-green');
                 option.dataset.accent = 'green';
                 option.title = '대구 세나뚜스 종목';
@@ -1428,11 +1462,13 @@
         function syncCategorySelectGreenStyle() {
             const select = document.getElementById('categorySelect');
             if (!select) return;
-            const isGreen = isNewGreenCategory(select.value);
-            const isBlue = isNewBlueCategory(select.value);
+            const isBrown = isNewBrownCategory(select.value);
+            const isGreen = !isBrown && isNewGreenCategory(select.value);
+            const isBlue = !isBrown && !isGreen && isNewBlueCategory(select.value);
+            select.classList.toggle('is-new-category-brown', isBrown);
             select.classList.toggle('is-new-category-green', isGreen);
             select.classList.toggle('is-new-category-blue', isBlue);
-            select.title = isGreen ? '대구 세나뚜스 종목' : (isBlue ? '광주 세나뚜스 종목' : '');
+            select.title = isBrown ? '소년Pr 종목' : (isGreen ? '대구 세나뚜스 종목' : (isBlue ? '광주 세나뚜스 종목' : ''));
         }
 
         function ensureCategoryOption(categoryName) {

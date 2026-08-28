@@ -118,6 +118,18 @@
                 border-color: #2563eb;
                 background: radial-gradient(circle at center, #2563eb 0 45%, transparent 48%);
             }
+            .regio-sp-item.is-accent-brown .regio-sp-item-label {
+                color: #78350f;
+                font-weight: 700;
+            }
+            .regio-sp-item.is-accent-brown.is-selected {
+                background: #fdf8f6;
+                color: #78350f;
+            }
+            .regio-sp-item.is-accent-brown.is-selected .mark {
+                border-color: #8b4513;
+                background: radial-gradient(circle at center, #8b4513 0 45%, transparent 48%);
+            }
             .regio-sp-daegu-hint {
                 margin: 0; padding: 6px 12px 4px;
                 font-size: 11px !important; line-height: 1.4;
@@ -125,11 +137,17 @@
                 background: #f0fdf4;
             }
             .regio-sp-gwangju-hint {
-                margin: 0; padding: 0 12px 8px;
+                margin: 0; padding: 0 12px 4px;
                 font-size: 11px !important; line-height: 1.4;
                 color: #1d4ed8; font-weight: 600;
-                border-bottom: 1px solid #eef2f7;
                 background: #eff6ff;
+            }
+            .regio-sp-junior-hint {
+                margin: 0; padding: 0 12px 8px;
+                font-size: 11px !important; line-height: 1.4;
+                color: #78350f; font-weight: 600;
+                border-bottom: 1px solid #eef2f7;
+                background: #fdf8f6;
             }
             .regio-sp-empty {
                 padding: 24px 16px; text-align: center;
@@ -162,8 +180,12 @@
                     <p class="regio-sp-title">활동 종목 선택</p>
                     <button type="button" class="regio-sp-close" data-sp-close>닫기</button>
                 </div>
-                <p class="regio-sp-daegu-hint">녹색 글씨 = 대구 세나뚜스</p>
-                <p class="regio-sp-gwangju-hint">파란색 글씨 = 광주 세나뚜스</p>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; padding:6px 12px 4px; font-size:11px; font-weight:600; border-bottom:1px solid #eef2f7;">
+                    <span style="color:#111;">흑색 = 서울</span>
+                    <span style="color:#15803d;">녹색 = 대구</span>
+                    <span style="color:#1d4ed8;">파란색 = 광주</span>
+                    <span style="color:#78350f;">밤색 = 소년Pr</span>
+                </div>
                 <div class="regio-sp-search-wrap">
                     <input type="search" class="regio-sp-search" placeholder="종목 검색" autocomplete="off" enterkeyhint="search">
                 </div>
@@ -220,13 +242,22 @@
                 || (typeof global.isGwangjuSenatusCategory === 'function'
                     && global.isGwangjuSenatusCategory(opt.value))
             );
+            const accentBrown = !accentGreen && !accentBlue && (
+                opt.dataset.accent === 'brown'
+                || opt.classList.contains('is-new-category-brown')
+                || (typeof global.isJuniorCategory === 'function'
+                    && global.isJuniorCategory(opt.value))
+                || (typeof global.isNewBrownCategory === 'function'
+                    && global.isNewBrownCategory(opt.value))
+            );
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = `regio-sp-item${selected ? ' is-selected' : ''}${accentGreen ? ' is-accent-green' : ''}${accentBlue ? ' is-accent-blue' : ''}`;
+            btn.className = `regio-sp-item${selected ? ' is-selected' : ''}${accentGreen ? ' is-accent-green' : ''}${accentBlue ? ' is-accent-blue' : ''}${accentBrown ? ' is-accent-brown' : ''}`;
             const labelText = escapeHtml(opt.textContent || '');
             btn.innerHTML = `<span class="regio-sp-item-label">${labelText}</span><span class="mark" aria-hidden="true"></span>`;
             if (accentGreen) btn.title = '대구 세나뚜스 종목';
             if (accentBlue) btn.title = '광주 세나뚜스 종목';
+            if (accentBrown) btn.title = '소년Pr 종목';
             btn.addEventListener('click', () => {
                 const prev = select.value;
                 select.value = opt.value;

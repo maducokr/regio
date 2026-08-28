@@ -114,6 +114,9 @@
         .category-header.is-gwangju-senatus {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
         }
+        .category-header.is-junior-senatus {
+            background: linear-gradient(135deg, #8b4513, #78350f);
+        }
         .activity-card.is-daegu-senatus {
             border-color: #86efac;
             background: #f0fdf4;
@@ -127,6 +130,13 @@
         }
         .activity-card.is-gwangju-senatus .activity-name {
             color: #1d4ed8;
+        }
+        .activity-card.is-junior-senatus {
+            border-color: #fed7aa;
+            background: #fdf8f6;
+        }
+        .activity-card.is-junior-senatus .activity-name {
+            color: #78350f;
         }
         .activity-legend-row {
             display: flex;
@@ -612,6 +622,7 @@
     <script src="webview-android.js"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260827v"></script>
+    <script src="junior-categories.js?v=20260828c"></script>
     <script>
         let categories = [];
         let activityRecords = {};
@@ -625,6 +636,15 @@
 
         function isGwangjuItem(name) {
             return typeof isGwangjuSenatusCategory === 'function' && isGwangjuSenatusCategory(name);
+        }
+
+        function isJuniorGroup(name) {
+            const groups = window.JUNIOR_CATEGORY_GROUPS || [];
+            return groups.includes(name) && name !== '기타';
+        }
+
+        function isJuniorItem(name) {
+            return typeof isJuniorCategory === 'function' && isJuniorCategory(name);
         }
 
         // 페이지 로드 시 데이터 가져오기
@@ -716,9 +736,10 @@
             section.className = 'category-section';
             
             const header = document.createElement('div');
-            const daegu = isDaeguGroup(groupName);
-            header.className = 'category-header' + (daegu ? ' is-daegu-senatus' : '');
-            header.textContent = daegu ? `${groupName} · 대구 세나뚜스` : groupName;
+            const junior = isJuniorGroup(groupName);
+            const daegu = !junior && isDaeguGroup(groupName);
+            header.className = 'category-header' + (junior ? ' is-junior-senatus' : (daegu ? ' is-daegu-senatus' : ''));
+            header.textContent = junior ? `${groupName} · 소년Pr` : (daegu ? `${groupName} · 대구 세나뚜스` : groupName);
             
             const content = document.createElement('div');
             content.className = 'category-content';
@@ -741,9 +762,11 @@
         // 활동 카드 생성
         function createActivityCard(category) {
             const card = document.createElement('div');
-            const gwangju = isGwangjuItem(category.category_name);
-            const daegu = isDaeguGroup(category.category_name);
+            const junior = isJuniorItem(category.category_name);
+            const gwangju = !junior && isGwangjuItem(category.category_name);
+            const daegu = !junior && isDaeguGroup(category.category_name);
             card.className = 'activity-card'
+                + (junior ? ' is-junior-senatus' : '')
                 + (daegu ? ' is-daegu-senatus' : '')
                 + (gwangju ? ' is-gwangju-senatus' : '');
             card.id = `card-${category.id}`;
