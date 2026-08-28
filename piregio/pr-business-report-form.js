@@ -2693,12 +2693,96 @@
                 opacity: 0.7;
             }
             .pr-biz-form.pr-biz-daegu .daegu-page-break,
-            .pr-biz-form.pr-biz-gwangju .daegu-page-break {
+            .pr-biz-form.pr-biz-gwangju .daegu-page-break,
+            .pr-biz-form.pr-biz-junior .junior-page-break {
                 page-break-before: always;
                 break-before: page;
                 margin-top: 18px;
                 padding-top: 10px;
                 border-top: 1px dashed #999;
+            }
+            /* 소년 Pr 사업보고서 전용 스타일 */
+            .pr-biz-form.pr-biz-junior .junior-title-row {
+                text-align: center;
+                margin: 6px 0 14px;
+            }
+            .pr-biz-form.pr-biz-junior .junior-main-title {
+                font-size: 20px;
+                font-weight: 800;
+                letter-spacing: 0.35em;
+                margin: 0;
+                color: #111;
+                display: inline-block;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table th {
+                background: #fafafa;
+                color: #111;
+                font-weight: 600;
+                font-size: 11px;
+            }
+            .pr-biz-form.pr-biz-junior table.biz-table td {
+                font-size: 11px;
+            }
+            .pr-biz-form.pr-biz-junior .vertical-header {
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+                letter-spacing: 0.25em;
+                font-weight: 700;
+                width: 28px;
+                max-width: 32px;
+                padding: 4px 2px;
+                background: #fafafa;
+                text-align: center;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-junior .vertical-group-header {
+                font-weight: 700;
+                font-size: 11.5px;
+                line-height: 1.4;
+                text-align: center;
+                vertical-align: middle;
+                background: #fff;
+                padding: 4px 2px;
+                letter-spacing: 0.1em;
+            }
+            .pr-biz-form.pr-biz-junior .activity-detail-list {
+                padding: 6px 8px;
+                line-height: 1.65;
+                font-size: 11px;
+            }
+            .pr-biz-form.pr-biz-junior .activity-detail-list > div {
+                margin: 1px 0;
+            }
+            .pr-biz-form.pr-biz-junior .activity-result-cell {
+                padding: 6px 6px;
+                font-size: 11px;
+                line-height: 1.55;
+                vertical-align: middle;
+            }
+            .pr-biz-form.pr-biz-junior .junior-pride-box {
+                border: 2px solid #333;
+                margin-top: 14px;
+                padding: 12px 14px;
+                min-height: 160px;
+                background: #fff;
+            }
+            .pr-biz-form.pr-biz-junior .junior-pride-title {
+                color: #d9534f;
+                font-weight: 800;
+                font-size: 13px;
+                margin-bottom: 8px;
+                letter-spacing: 0.05em;
+            }
+            .pr-biz-form.pr-biz-junior .junior-pride-content {
+                min-height: 110px;
+                font-size: 12px;
+                line-height: 1.6;
+                outline: none;
+            }
+            .pr-biz-form.pr-biz-junior .junior-pride-content.blank-editable:empty::before {
+                content: attr(data-placeholder);
+                color: #b91c1c;
+                opacity: 0.6;
             }
             .pr-biz-form.pr-biz-daegu .daegu-act-block {
                 border: 1px solid #333;
@@ -2941,6 +3025,651 @@
             .pr-biz-form.pr-biz-masan .masan-spirit-table td.left {
                 text-align: left;
             }
+        `;
+    }
+
+    /** 소년 Pr 활동 집계 계산 */
+    function computeJuniorActivityCounts(totals) {
+        const sum = (matcher, field = 'count') => {
+            let total = 0;
+            for (const row of totals || []) {
+                const name = String(row.category_name || '');
+                if (typeof matcher === 'function' ? matcher(name) : matcher.test(name)) {
+                    total += Number(row[field]) || 0;
+                }
+            }
+            return total > 0 ? String(total) : '';
+        };
+
+        return {
+            catholicTotal: sum(/가톨릭\s*알리기|가톨릭알리기/),
+            catholicCatechismGuide: sum(/가톨릭\s*알리기|가톨릭알리기/, 'catechism_guide'),
+            catholicBaptism: sum(/가톨릭\s*알리기|가톨릭알리기/, 'baptism'),
+
+            believerTotal: sum(/교우\s*돌보기|교우돌보기/),
+            believerMeetingHead: sum(/교우\s*돌보기|교우돌보기/, 'meeting_head'),
+            believerSacrament: sum(/교우\s*돌보기|교우돌보기/, 'sacrament'),
+            believerFirstCommunion: sum(/교우\s*돌보기|교우돌보기/, 'first_communion'),
+
+            neighborTotal: sum(/이웃\s*돌보기|이웃돌보기/),
+            neighborGoodDeed: sum(/이웃\s*돌보기|이웃돌보기/, 'resolution'),
+            neighborSacrifice: sum(/이웃\s*돌보기|이웃돌보기/, 'sacrament'),
+
+            legionTotal: sum(/레지오\s*알리기|레지오알리기/),
+            legionActiveJoin: sum(/레지오\s*알리기|레지오알리기/, 'membership'),
+            legionAuxJoin: sum(/레지오\s*알리기|레지오알리기/, 'group_join'),
+
+            parishTotal: sum(/본당\s*도와주기|본당도와주기/),
+            earthTotal: sum(/지구\s*살리기|지구살리기/),
+            goodLifeTotal: sum(/바른\s*생활|바른생활/),
+
+            prayerTotal: sum(/기도\s*생활|기도생활/),
+            prayerDan: sum(/기도\s*생활|기도생활/, 'year_count'),
+
+            etcTotal: sum(/기타.*신앙|기타.*출판|기타.*항목|기타-기타|기타활동/)
+        };
+    }
+
+    /** 소년 Pr 사업보고서 양식 (이미지 1, 2, 3 기반) */
+    function buildJuniorBusinessFormHtml(model) {
+        const m = model || {};
+        const officers = m.officers || [];
+        const mem = m.membership || {};
+        const prev = mem.previous || {};
+        const curr = mem.current || {};
+        const att = m.attendance || {};
+        const meeting = m.meeting || {};
+        const fin = m.finance || {};
+        const start = parseYmd(m.start_date);
+        const end = parseYmd(m.end_date);
+        const events = m.events || [];
+        const eduEvents = m.education_events || [];
+        const ja = computeJuniorActivityCounts(m.activity_totals || []);
+
+        function parseEventRow(matched) {
+            if (!matched) return { y: '', m: '', d: '', place: '', total: '', attend: '' };
+            const dt = parseYmd(matched.datetime || matched.date || '');
+            return {
+                y: dt?.y || '',
+                m: dt?.m || '',
+                d: dt?.d || '',
+                place: String(matched.place || '').trim(),
+                total: String(matched.total_count || matched.total || '').trim(),
+                attend: String(matched.attendance || matched.attendees || '').trim()
+            };
+        }
+
+        const evAcies = parseEventRow(matchEvent(events, ['아치에스', '아치에스행사', '아치에스 행사']));
+        const evAnnual = parseEventRow(matchEvent(events, ['연차총친목회', '연차 총친목회', '총친목회']));
+        const evOutdoor = parseEventRow(matchEvent(events, ['야외행사', '야외 행사', '소풍']));
+        const evPrParty = parseEventRow(matchEvent(events, ['쁘레시디움친목회', '쁘레시디움 친목회', 'Pr친목회', 'Pr 친목회']));
+        const evEtc = parseEventRow(matchEvent(events, ['기타행사', '기타 행사', '기타']));
+
+        const officerEduEv = eduEvents.find((e) => /간부/.test(`${e.kind || ''} ${e.title || ''}`)) || eduEvents[0];
+        const memberEduEv = eduEvents.find((e) => !/간부/.test(`${e.kind || ''} ${e.title || ''}`) && e !== officerEduEv) || eduEvents[1] || eduEvents[0];
+
+        function parseEduRow(ev) {
+            if (!ev) return { y: '', m: '', d: '', place: '', instructor: '', subject: '', total: '', attend: '' };
+            const dt = parseYmd(ev.datetime || ev.date || '');
+            return {
+                y: dt?.y || '',
+                m: dt?.m || '',
+                d: dt?.d || '',
+                place: String(ev.place || '').trim(),
+                instructor: String(ev.instructor || ev.lecturer || '').trim(),
+                subject: String(ev.subject || ev.title || ev.content || '').trim(),
+                total: String(ev.total_count || ev.total || '').trim(),
+                attend: String(ev.attendance || ev.attendees || '').trim()
+            };
+        }
+
+        const eduOfficer = parseEduRow(officerEduEv);
+        const eduMember = parseEduRow(memberEduEv);
+
+        // 단원 명단 생성 (3명씩 1행, 최소 5행)
+        const memberList = Array.isArray(m.member_list) && m.member_list.length > 0
+            ? m.member_list
+            : (Array.isArray(m.members) ? m.members : []);
+
+        // 단원 목록에서 간부/단원 모두 포함하여 표시
+        const totalRows = Math.max(5, Math.ceil(memberList.length / 3));
+        const memberRowsHtml = [];
+        for (let r = 0; r < totalRows; r++) {
+            const m1 = memberList[r * 3] || { name: '', baptism_name: '' };
+            const m2 = memberList[r * 3 + 1] || { name: '', baptism_name: '' };
+            const m3 = memberList[r * 3 + 2] || { name: '', baptism_name: '' };
+            memberRowsHtml.push(`
+                <tr>
+                    <td>${blank(m1.name, 'w6')}</td>
+                    <td>${blank(m1.baptism_name, 'w6')}</td>
+                    <td>${blank(m2.name, 'w6')}</td>
+                    <td>${blank(m2.baptism_name, 'w6')}</td>
+                    <td>${blank(m3.name, 'w6')}</td>
+                    <td>${blank(m3.baptism_name, 'w6')}</td>
+                </tr>
+            `);
+        }
+
+        const officerCouncilRate = (key) => blank(m.officer_council_rates?.[key] || '', 'w3');
+
+        return `
+            <div class="pr-biz-form pr-biz-junior" id="prBusinessFormPrint" data-pr-type="소년">
+                <!-- Page 1 (이미지 1) -->
+                <div class="pr-biz-junior-page pr-biz-junior-page-1">
+                    <div class="junior-title-row">
+                        <div class="junior-main-title">제 ${blank(m.report_seq, 'w4')} 차 사 업 보 고 서</div>
+                    </div>
+
+                    <table class="biz-table junior-meta-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 13%;">
+                            <col style="width: 87%;">
+                        </colgroup>
+                        <tr>
+                            <th>설립일자</th>
+                            <td class="left">${blank(m.founded_y, 'w4')} 년 ${blank(m.founded_m, 'w3')} 월 ${blank(m.founded_d, 'w3')} 일</td>
+                        </tr>
+                        <tr>
+                            <th>보고기간</th>
+                            <td class="left">
+                                ${blank(start?.y, 'w4')} 년 ${blank(start?.m, 'w3')} 월 ${blank(start?.d, 'w3')} 일 ~
+                                ${blank(end?.y, 'w4')} 년 ${blank(end?.m, 'w3')} 월 ${blank(end?.d, 'w3')} 일
+                                (제 ${blank(m.meeting_from, 'w3')} 차 ~ 제 ${blank(m.meeting_to, 'w3')} 차)
+                                &nbsp; ${blank(m.weeks, 'w3')} 주간
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>주회합</th>
+                            <td class="left">
+                                매주 ${blank(meeting.weekday, 'w3')} 요일 ${blank(meeting.hour, 'w2')} 시 ${blank(meeting.minute, 'w2')} 분
+                                &nbsp; 천주교 ${blank(m.church_name, 'w8')} 성당
+                                &nbsp; ${blank(meeting.place, 'w8')} 회의실
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 간부 -->
+                    <table class="biz-table junior-officer-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 15%;">
+                            <col style="width: 13%;">
+                            <col style="width: 13%;">
+                            <col style="width: 14%;">
+                            <col style="width: 14%;">
+                            <col style="width: 13%;">
+                            <col style="width: 13%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="5" class="vertical-header">간 부</th>
+                                <th>구분\\직책</th>
+                                <th>영적지도자</th>
+                                <th>대 리 자</th>
+                                <th>단 장</th>
+                                <th>부 단 장</th>
+                                <th>서 기</th>
+                                <th>회 계</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>성 명</th>
+                                <td>${blank(m.spiritual_director, 'w5')}</td>
+                                <td>${blank(m.proxy_name, 'w5')}</td>
+                                <td>${blank(officerField(officers, '단장', 'name'), 'w5')}</td>
+                                <td>${blank(officerField(officers, '부단장', 'name'), 'w5')}</td>
+                                <td>${blank(officerField(officers, '서기', 'name'), 'w5')}</td>
+                                <td>${blank(officerField(officers, '회계', 'name'), 'w5')}</td>
+                            </tr>
+                            <tr>
+                                <th>세 례 명</th>
+                                <td>${blank('', 'w5')}</td>
+                                <td>${blank('', 'w5')}</td>
+                                <td>${blank(officerField(officers, '단장', 'baptism_name'), 'w5')}</td>
+                                <td>${blank(officerField(officers, '부단장', 'baptism_name'), 'w5')}</td>
+                                <td>${blank(officerField(officers, '서기', 'baptism_name'), 'w5')}</td>
+                                <td>${blank(officerField(officers, '회계', 'baptism_name'), 'w5')}</td>
+                            </tr>
+                            <tr>
+                                <th>임 명 일 자</th>
+                                <td>${blank('', 'w5')}</td>
+                                <td>${blank('', 'w5')}</td>
+                                <td>${blank(formatAppointedOn(officerField(officers, '단장', 'appointed_on')), 'w5')}</td>
+                                <td>${blank(formatAppointedOn(officerField(officers, '부단장', 'appointed_on')), 'w5')}</td>
+                                <td>${blank(formatAppointedOn(officerField(officers, '서기', 'appointed_on')), 'w5')}</td>
+                                <td>${blank(formatAppointedOn(officerField(officers, '회계', 'appointed_on')), 'w5')}</td>
+                            </tr>
+                            <tr>
+                                <th>평의회출석률</th>
+                                <td></td>
+                                <td></td>
+                                <td>${officerCouncilRate('president')} %</td>
+                                <td>${officerCouncilRate('vice_president')} %</td>
+                                <td>${officerCouncilRate('secretary')} %</td>
+                                <td>${officerCouncilRate('treasurer')} %</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 단원수 -->
+                    <table class="biz-table junior-member-counts-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 5%;">
+                            <col style="width: 8%;">
+                            <col style="width: 8%;">
+                            <col style="width: 8%;">
+                            <col style="width: 14%;">
+                            <col style="width: 18%;">
+                            <col style="width: 5%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 11%;">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th rowspan="3" class="vertical-header">단<br>원<br>수</th>
+                                <th rowspan="2" class="vertical-header" style="font-size:10px;">행동단원</th>
+                                <th>남</th>
+                                <th>여</th>
+                                <th>계</th>
+                                <td>정단원 ${blank(curr.active_t, 'w2')} 명</td>
+                                <td>전차단원 ${blank(prev.active_t || '', 'w2')} 명</td>
+                                <th rowspan="3" class="vertical-header" style="font-size:10px;">협조단원</th>
+                                <th>남</th>
+                                <th>여</th>
+                                <th>계</th>
+                            </tr>
+                            <tr>
+                                <td>${blank(curr.active_m, 'w2')} 명</td>
+                                <td>${blank(curr.active_f, 'w2')} 명</td>
+                                <td>${blank(curr.active_t, 'w2')} 명</td>
+                                <td>예비단원 ${blank(curr.probationer || '', 'w2')} 명</td>
+                                <td>입단(전입) ${blank(mem.increase?.active_t || '', 'w2')} 명</td>
+                                <td rowspan="2">${blank(curr.aux_m, 'w2')} 명</td>
+                                <td rowspan="2">${blank(curr.aux_f, 'w2')} 명</td>
+                                <td rowspan="2">${blank(curr.aux_t, 'w2')} 명</td>
+                            </tr>
+                            <tr>
+                                <th colspan="4" style="background:#fff;">조직특성</th>
+                                <td>장기유고 ${blank(curr.long_absent || '', 'w2')} 명</td>
+                                <td>퇴단(전출) ${blank(mem.decrease?.active_t || '', 'w2')} 명</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 단원명 -->
+                    <table class="biz-table junior-member-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 15%;">
+                            <col style="width: 17%;">
+                            <col style="width: 15%;">
+                            <col style="width: 17%;">
+                            <col style="width: 15%;">
+                            <col style="width: 16%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="${totalRows + 1}" class="vertical-header">단<br>원<br>명</th>
+                                <th>성 명</th>
+                                <th>세 례 명</th>
+                                <th>성 명</th>
+                                <th>세 례 명</th>
+                                <th>성 명</th>
+                                <th>세 례 명</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${memberRowsHtml.join('')}
+                        </tbody>
+                    </table>
+
+                    <!-- 출석률 -->
+                    <table class="biz-table junior-attendance-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 20%;">
+                            <col style="width: 10%;">
+                            <col style="width: 20%;">
+                            <col style="width: 10%;">
+                            <col style="width: 20%;">
+                        </colgroup>
+                        <tr>
+                            <th>출석률</th>
+                            <th>간부</th>
+                            <td>${blank(att.officers_rate || (att.officers_total ? Math.round((att.officers_present / att.officers_total) * 100) : ''), 'w3')} %</td>
+                            <th>단원</th>
+                            <td>${blank(att.members_rate || att.rate || '', 'w3')} %</td>
+                            <th>전체</th>
+                            <td>${blank(att.total_rate || att.rate || '', 'w3')} %</td>
+                        </tr>
+                    </table>
+
+                    <!-- 회계보고 -->
+                    <table class="biz-table junior-finance-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 15%;">
+                            <col style="width: 32%;">
+                            <col style="width: 15%;">
+                            <col style="width: 18%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="4" class="vertical-header">회<br>계<br>보<br>고</th>
+                                <th colspan="2">수 입</th>
+                                <th colspan="2">지 출</th>
+                                <th>잔 액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>이 월 금</th>
+                                <td>${blank(fin.prev_balance, 'w8')}</td>
+                                <th>의 연 금</th>
+                                <td>${blank(fin.curia_fee, 'w8')}</td>
+                                <td rowspan="3" style="vertical-align:middle;">${blank(fin.cur_balance, 'w8')}</td>
+                            </tr>
+                            <tr>
+                                <th>비 밀 헌 금</th>
+                                <td>${blank(fin.secret_bag, 'w8')}</td>
+                                <th>꽃 대</th>
+                                <td>${blank(fin.flower_fee, 'w8')}</td>
+                            </tr>
+                            <tr>
+                                <th>계</th>
+                                <td>${blank(fin.total_income, 'w8')}</td>
+                                <th>계</th>
+                                <td>${blank(fin.total_expense, 'w8')}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 교육내용 -->
+                    <table class="biz-table junior-edu-table" style="margin-bottom: 8px;">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 12%;">
+                            <col style="width: 83%;">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th rowspan="2" class="vertical-header">교<br>육<br>내<br>용</th>
+                                <th>간부교육</th>
+                                <td class="left">
+                                    ${blank(eduOfficer.y, 'w4')} 년 ${blank(eduOfficer.m, 'w2')} 월 ${blank(eduOfficer.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(eduOfficer.place, 'w8')} &nbsp;
+                                    ( ${blank(eduOfficer.total, 'w2')} )명중 ( ${blank(eduOfficer.attend, 'w2')} )명 참가<br>
+                                    강사 : ${blank(eduOfficer.instructor, 'w6')} &nbsp;
+                                    주제 : ${blank(eduOfficer.subject, 'w16')}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>단원교육</th>
+                                <td class="left">
+                                    ${blank(eduMember.y, 'w4')} 년 ${blank(eduMember.m, 'w2')} 월 ${blank(eduMember.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(eduMember.place, 'w8')} &nbsp;
+                                    ( ${blank(eduMember.total, 'w2')} )명중 ( ${blank(eduMember.attend, 'w2')} )명 참가<br>
+                                    강사 : ${blank(eduMember.instructor, 'w6')} &nbsp;
+                                    주제 : ${blank(eduMember.subject, 'w16')}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 레지오행사 -->
+                    <table class="biz-table junior-event-table">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 18%;">
+                            <col style="width: 77%;">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th rowspan="5" class="vertical-header">레<br>지<br>오<br>행<br>사</th>
+                                <th>아 치 에 스</th>
+                                <td class="left">
+                                    ${blank(evAcies.y, 'w4')} 년 ${blank(evAcies.m, 'w2')} 월 ${blank(evAcies.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(evAcies.place, 'w10')} &nbsp;
+                                    ( ${blank(evAcies.total, 'w2')} )명중 ( ${blank(evAcies.attend, 'w2')} )명 참가
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>연 차 총 친 목 회</th>
+                                <td class="left">
+                                    ${blank(evAnnual.y, 'w4')} 년 ${blank(evAnnual.m, 'w2')} 월 ${blank(evAnnual.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(evAnnual.place, 'w10')} &nbsp;
+                                    ( ${blank(evAnnual.total, 'w2')} )명중 ( ${blank(evAnnual.attend, 'w2')} )명 참가
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>야 외 행 사</th>
+                                <td class="left">
+                                    ${blank(evOutdoor.y, 'w4')} 년 ${blank(evOutdoor.m, 'w2')} 월 ${blank(evOutdoor.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(evOutdoor.place, 'w10')} &nbsp;
+                                    ( ${blank(evOutdoor.total, 'w2')} )명중 ( ${blank(evOutdoor.attend, 'w2')} )명 참가
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>쁘레시디움친목회</th>
+                                <td class="left">
+                                    ${blank(evPrParty.y, 'w4')} 년 ${blank(evPrParty.m, 'w2')} 월 ${blank(evPrParty.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(evPrParty.place, 'w10')} &nbsp;
+                                    ( ${blank(evPrParty.total, 'w2')} )명중 ( ${blank(evPrParty.attend, 'w2')} )명 참가
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>기 타 행 사</th>
+                                <td class="left">
+                                    ${blank(evEtc.y, 'w4')} 년 ${blank(evEtc.m, 'w2')} 월 ${blank(evEtc.d, 'w2')} 일 &nbsp;
+                                    장소 : ${blank(evEtc.place, 'w10')} &nbsp;
+                                    ( ${blank(evEtc.total, 'w2')} )명중 ( ${blank(evEtc.attend, 'w2')} )명 참가
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Page 2 (이미지 2) -->
+                <div class="junior-page-break"></div>
+                <div class="pr-biz-junior-page pr-biz-junior-page-2">
+                    <div class="junior-title-row">
+                        <div class="junior-main-title">활 동 사 항</div>
+                    </div>
+
+                    <table class="biz-table junior-activity-table">
+                        <colgroup>
+                            <col style="width: 13%;">
+                            <col style="width: 49%;">
+                            <col style="width: 12%;">
+                            <col style="width: 26%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>종 목</th>
+                                <th>활 동 내 용</th>
+                                <th>횟 수</th>
+                                <th style="color:#d9534f; font-weight:700;">활 동 결 과</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 1. 가톨릭 알리기 -->
+                            <tr>
+                                <th class="vertical-group-header">가<br>톨<br>릭<br>알<br>리<br>기</th>
+                                <td class="left activity-detail-list">
+                                    <div>친구, 가족 성당 오게 하기</div>
+                                    <div>교리 중단자 찾아가기</div>
+                                    <div>가정을 방문하여 선교 활동</div>
+                                    <div>타인이 입교, 개종 권면한 예비신자 돌봄</div>
+                                    <div>성당 자랑</div>
+                                </td>
+                                <td>${blank(ja.catholicTotal, 'w4')}</td>
+                                <td class="left activity-result-cell">
+                                    <div>교리반인도 ${blank(ja.catholicCatechismGuide, 'w3')} 명</div>
+                                    <div style="margin-top:6px;">세례자 ${blank(ja.catholicBaptism, 'w3')} 명</div>
+                                </td>
+                            </tr>
+
+                            <!-- 2. 교우 돌보기 -->
+                            <tr>
+                                <th class="vertical-group-header">교<br>우<br>돌<br>보<br>기</th>
+                                <td class="left activity-detail-list">
+                                    <div>신자 가정의 방문</div>
+                                    <div>교우 환자 방문</div>
+                                    <div>쉬고 있는 친구 성당 오게 하기</div>
+                                    <div>판공 성사, 견진 성사 받도록 하기</div>
+                                    <div>첫영성체 하도록 권유하기</div>
+                                </td>
+                                <td>${blank(ja.believerTotal, 'w4')}</td>
+                                <td class="left activity-result-cell">
+                                    <div>회두 ${blank(ja.believerMeetingHead, 'w3')} 명</div>
+                                    <div style="margin-top:4px;">성사 ${blank(ja.believerSacrament, 'w3')} 명</div>
+                                    <div style="margin-top:4px;">첫영성체 ${blank(ja.believerFirstCommunion, 'w3')} 명</div>
+                                </td>
+                            </tr>
+
+                            <!-- 3. 이웃 돌보기 -->
+                            <tr>
+                                <th class="vertical-group-header">이<br>웃<br>돌<br>보<br>기</th>
+                                <td class="left activity-detail-list">
+                                    <div>이사 온 친구를 위한 활동</div>
+                                    <div>다문화 가정 친구 방문 및 돌봄</div>
+                                    <div>아픈 친구 방문, 학교 소식 전달, 가방 들어주기</div>
+                                    <div>복지시설을 방문하여 봉사 활동</div>
+                                </td>
+                                <td>${blank(ja.neighborTotal, 'w4')}</td>
+                                <td class="left activity-result-cell">
+                                    <div>선행 ${blank(ja.neighborGoodDeed, 'w3')}</div>
+                                    <div style="margin-top:6px;">희생 ${blank(ja.neighborSacrifice, 'w3')}</div>
+                                </td>
+                            </tr>
+
+                            <!-- 4. 레지오 알리기 -->
+                            <tr>
+                                <th class="vertical-group-header">레<br>지<br>오<br>알<br>리<br>기</th>
+                                <td class="left activity-detail-list">
+                                    <div>행동 단원 모집</div>
+                                    <div>협조 단원 모집</div>
+                                    <div>교본 공부 하기</div>
+                                    <div>레지오 기도문 바치기</div>
+                                    <div>주회에 결석하는 단원 방문</div>
+                                </td>
+                                <td>${blank(ja.legionTotal, 'w4')}</td>
+                                <td class="left activity-result-cell">
+                                    <div>행동단원입단 ${blank(ja.legionActiveJoin, 'w3')} 명</div>
+                                    <div style="margin-top:6px;">협조단원입단 ${blank(ja.legionAuxJoin, 'w3')} 명</div>
+                                </td>
+                            </tr>
+
+                            <!-- 5. 본당 도와주기 -->
+                            <tr>
+                                <th class="vertical-group-header">본<br>당<br>도<br>와<br>주<br>기</th>
+                                <td class="left activity-detail-list">
+                                    <div>성탄, 부활, 본당의 날, 주일학교, 행사 돕기</div>
+                                    <div>전례 협조(주보 정리, 해설 및 독서, 성가대, 복사 등)</div>
+                                    <div>제구 손질 및 청소</div>
+                                    <div>교리실 청소 등</div>
+                                </td>
+                                <td>${blank(ja.parishTotal, 'w4')}</td>
+                                <td></td>
+                            </tr>
+
+                            <!-- 6. 지구 살리기 -->
+                            <tr>
+                                <th class="vertical-group-header">지<br>구<br>살<br>리<br>기</th>
+                                <td class="left activity-detail-list">
+                                    <div>절전, 물 받아쓰기</div>
+                                    <div>분리 수거</div>
+                                    <div>성당, 학교 주변, 집 주변, 공원, 해수욕장 등 청소하기</div>
+                                    <div>음식물 남기지 않기</div>
+                                    <div>아껴 쓰기, 고쳐 쓰기</div>
+                                </td>
+                                <td>${blank(ja.earthTotal, 'w4')}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Page 3 (이미지 3) -->
+                <div class="junior-page-break"></div>
+                <div class="pr-biz-junior-page pr-biz-junior-page-3">
+                    <table class="biz-table junior-activity-table">
+                        <colgroup>
+                            <col style="width: 13%;">
+                            <col style="width: 49%;">
+                            <col style="width: 12%;">
+                            <col style="width: 26%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>종 목</th>
+                                <th>활 동 내 용</th>
+                                <th>횟 수</th>
+                                <th style="color:#d9534f; font-weight:700;">활 동 결 과</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 7. 바른 생활 -->
+                            <tr>
+                                <th class="vertical-group-header">바<br>른<br>생<br>활</th>
+                                <td class="left activity-detail-list">
+                                    <div>인사, 미소 짓기</div>
+                                    <div>감사하기</div>
+                                    <div>신발 정리, 이불 정리, 청소, 숙제하기</div>
+                                    <div>양보, 싸움 참기, 화해하기</div>
+                                    <div>부모님 말씀 듣기(심부름, 설거지 돕기, 빨래 개기)</div>
+                                    <div>길 안내, 자리 양보</div>
+                                    <div>부모(조부모)님, 수녀님, 신부님께 편지쓰기</div>
+                                    <div>절제하기(게임, TV 시청 등)</div>
+                                </td>
+                                <td>${blank(ja.goodLifeTotal, 'w4')}</td>
+                                <td></td>
+                            </tr>
+
+                            <!-- 8. 기도 생활 -->
+                            <tr>
+                                <th class="vertical-group-header">기<br>도<br>생<br>활</th>
+                                <td class="left activity-detail-list">
+                                    <div>미사, 영성체, 성체조배</div>
+                                    <div>아침·저녁기도, 삼종기도, 식사 전·후기도 등</div>
+                                    <div>매일 묵주기도 바치기</div>
+                                    <div>성직자, 수도자를 위한 기도</div>
+                                    <div>가족 기도 하기</div>
+                                    <div>부모(조부모)를 위한 기도</div>
+                                    <div>성경 읽기, 성경 쓰기 등</div>
+                                </td>
+                                <td>${blank(ja.prayerTotal, 'w4')}</td>
+                                <td class="activity-result-cell" style="vertical-align:middle; text-align:center;">
+                                    <div>${blank(ja.prayerDan, 'w4')} 단</div>
+                                </td>
+                            </tr>
+
+                            <!-- 9. 기타 -->
+                            <tr>
+                                <th class="vertical-group-header">기<br>타</th>
+                                <td class="left activity-detail-list">
+                                    <div>신앙 서적 및 양서 읽기</div>
+                                    <div>교회 출판물 보급</div>
+                                    <div>다른 항목에 들어가지 않는 항목</div>
+                                </td>
+                                <td>${blank(ja.etcTotal, 'w4')}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 성모님께 자랑하고픈 말 -->
+                    <div class="junior-pride-box">
+                        <div class="junior-pride-title">성모님께 자랑하고픈 말</div>
+                        <div class="junior-pride-content blank-editable" contenteditable="true" data-placeholder="성모님께 자랑하고픈 말을 입력하세요.">${escapeHtml(m.memo || '')}</div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 
@@ -4179,11 +4908,15 @@
         const isGwangju = formSenatus === '광주';
         const useSeoulForm = formSenatus === '서울';
         const reportDiocese = resolveReportDiocese(opts);
+        const resolvedPrType = normalizePrType(monthly?.pr_type || monthly?.affiliation || opts.prType || user?.pr_type || '');
+        const isJunior = resolvedPrType === '소년';
         console.info('[Pr사업보고] senatus=', senatusName, {
             user: user?.senatus_name,
             monthly: monthly?.senatus_name,
             opts: opts.senatusName,
             form: formSenatus,
+            prType: resolvedPrType,
+            isJunior,
             diocese: reportDiocese || '(none)',
             formDiocese: resolveFormReportDiocese({ report_diocese: reportDiocese }),
             jejuForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '제주',
@@ -4191,7 +4924,7 @@
             masanForm: resolveFormReportDiocese({ report_diocese: reportDiocese }) === '마산'
         });
 
-        if (isDaegu || isGwangju || useSeoulForm) {
+        if (isDaegu || isGwangju || useSeoulForm || isJunior) {
             try {
                 activityTotals = await fetchActivityTotals(churchName, prName, startDate, endDate);
             } catch (error) {
@@ -4238,7 +4971,8 @@
             approved_y: '', approved_m: '', approved_d: '',
             proxy_name: '',
             officer_change: '',
-            pr_type: normalizePrType(monthly?.pr_type || monthly?.affiliation || opts.prType || user?.pr_type || '')
+            pr_type: resolvedPrType,
+            member_list: monthly?.member_list || []
         };
 
         function splitYmd(raw) {
@@ -4273,8 +5007,8 @@
         }
         let foundedParts = splitYmd(monthly?.pr_founded_on);
         let approvedParts = splitYmd(monthly?.pr_approved_on);
-        // 월례 API·회원 목록에서 Pr 공통 값 보완 (구분·설립·승인일)
-        if (!model.pr_type || (!foundedParts.y && !approvedParts.y)) {
+        // 월례 API·회원 목록에서 Pr 공통 값 보완 (구분·설립·승인일·단원명단)
+        if (!model.pr_type || (!foundedParts.y && !approvedParts.y) || (!model.member_list || !model.member_list.length)) {
             try {
                 const qs = new URLSearchParams({
                     church_name: churchName,
@@ -4284,6 +5018,14 @@
                 if (memRes.ok) {
                     const memData = await memRes.json();
                     const list = Array.isArray(memData) ? memData : (memData.members || memData.data || []);
+                    if (!model.member_list || !model.member_list.length) {
+                        model.member_list = list.map((r) => ({
+                            name: String(r.name || '').replace(/^[TG](?:10|[1-6][78]|[1-9])/i, '') || r.name || '',
+                            baptism_name: r.baptism_name || '',
+                            position: r.position || '',
+                            gender: r.gender || ''
+                        }));
+                    }
                     for (const row of list) {
                         if (!model.pr_type && row.pr_type) {
                             model.pr_type = normalizePrType(row.pr_type);
@@ -4318,9 +5060,13 @@
             model.weeks = String(Math.round(days / 7));
         } catch (e) { /* ignore */ }
 
-        container.innerHTML = isDaegu
-            ? buildDaeguBusinessFormHtml(model)
-            : (isGwangju ? buildGwangjuBusinessFormHtml(model) : buildFormHtml(model));
+        const finalIsJunior = normalizePrType(model.pr_type) === '소년' || isJunior;
+
+        container.innerHTML = finalIsJunior
+            ? buildJuniorBusinessFormHtml(model)
+            : (isDaegu
+                ? buildDaeguBusinessFormHtml(model)
+                : (isGwangju ? buildGwangjuBusinessFormHtml(model) : buildFormHtml(model)));
         wireBlankEditables(container);
     }
 
@@ -4537,6 +5283,7 @@
         buildFormHtml,
         buildDaeguBusinessFormHtml,
         buildGwangjuBusinessFormHtml,
+        buildJuniorBusinessFormHtml,
         ensureStyles,
         exportToPdf,
         exportToExcel,

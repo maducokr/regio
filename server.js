@@ -2414,7 +2414,13 @@ app.get('/api/pr-monthly-report', async (req, res) => {
             president_name: officers.find((o) => o.role === '단장')?.name || '',
             affiliation: prType || '',
             pr_type: prType || '',
-            total_members: membersResult.rows.length
+            total_members: membersResult.rows.length,
+            member_list: membersResult.rows.map((r) => ({
+                name: displayName(r.name),
+                baptism_name: r.baptism_name || '',
+                position: r.position || '',
+                gender: r.gender || ''
+            }))
         });
     } catch (err) {
         console.error('Pr 월례보고 오류:', err);
