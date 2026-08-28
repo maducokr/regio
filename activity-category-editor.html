@@ -128,17 +128,53 @@
         .activity-card.is-gwangju-senatus .activity-name {
             color: #1d4ed8;
         }
-        .daegu-senatus-legend {
-            margin: 0 0 6px;
-            font-size: 12px;
-            color: #15803d;
-            font-weight: 600;
-        }
-        .gwangju-senatus-legend {
+        .activity-legend-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 14px;
             margin: 0 0 12px;
             font-size: 12px;
-            color: #1d4ed8;
+            line-height: 1.45;
             font-weight: 600;
+        }
+        .activity-legend-row .legend-item {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .activity-legend-row .legend-item span {
+            display: inline-block;
+            width: 0.7em;
+            height: 0.7em;
+            margin-right: 0.4em;
+            border-radius: 2px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .activity-legend-row .legend-black {
+            color: #1f2937;
+        }
+        .activity-legend-row .legend-black span {
+            background: #1f2937;
+        }
+        .activity-legend-row .legend-green {
+            color: #15803d;
+        }
+        .activity-legend-row .legend-green span {
+            background: #16a34a;
+        }
+        .activity-legend-row .legend-blue {
+            color: #1d4ed8;
+        }
+        .activity-legend-row .legend-blue span {
+            background: #2563eb;
+        }
+        .activity-legend-row .legend-brown {
+            color: #78350f;
+        }
+        .activity-legend-row .legend-brown span {
+            background: #8b4513;
         }
 
         .category-content {
@@ -492,8 +528,12 @@
 
     <div class="container">
         <h2 class="page-title">활동종목 및 활동자료 관리</h2>
-        <p class="daegu-senatus-legend">녹색 그룹/카드 = 대구 세나뚜스</p>
-        <p class="gwangju-senatus-legend">파란색 카드 = 광주 세나뚜스</p>
+        <div class="activity-legend-row">
+            <span class="legend-item legend-black"><span></span>흑색 종목 = 서울 세나뚜스</span>
+            <span class="legend-item legend-green"><span></span>녹색 종목 = 대구 세나뚜스</span>
+            <span class="legend-item legend-blue"><span></span>파란색 종목 = 광주 세나뚜스</span>
+            <span class="legend-item legend-brown"><span></span>밤색 종목 = 소년Pr</span>
+        </div>
         
         <div id="successMessage" class="success-message"></div>
         <div id="errorMessage" class="error-message"></div>
