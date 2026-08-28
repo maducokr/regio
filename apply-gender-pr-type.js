@@ -2,7 +2,8 @@
  * member.gender / member.pr_type 컬럼 추가
  * - 신규가입: 등록 API가 gender(남/여), pr_type(성인/직속/청년/소년) 저장
  * - 샘플 회원(id 3~138): 성별·PR분류 일괄 부여
- *   · 샘플 Pr 전원 → 성인
+ *   · 은총의 모후(tt은총의모후 / 은총의모후) → 소년
+ *   · 그 외 샘플 Pr → 성인
  *
  * 사용: node apply-gender-pr-type.js [--render]
  * (컬럼 추가가 필요하면 DB_ADMIN_USER=postgres 로 실행)
@@ -23,7 +24,15 @@ if (useRender) {
 
 const SAMPLE_ID_MIN = 3;
 const SAMPLE_ID_MAX = 138;
-const SAMPLE_PR_TYPE = '성인';
+
+function isJuniorPr(prName) {
+    const clean = String(prName || '').replace(/\s+/g, '').replace(/^tt/i, '');
+    return clean === '은총의모후';
+}
+
+function resolvePrType(prName) {
+    return isJuniorPr(prName) ? '소년' : '성인';
+}
 
 function createPool(asAdmin) {
     if (useRender && process.env.DATABASE_URL) {
@@ -82,23 +91,21 @@ async function main() {
         const members = await client.query(
             `SELECT id, name, church_name, pr_name, gender, pr_type
              FROM member
-             WHERE id BETWEEN $1 AND $2
-             ORDER BY id`,
-            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
+             ORDER BY id`
         );
 
         if (members.rows.length === 0) {
-            console.log(`대상 회원(${SAMPLE_ID_MIN}~${SAMPLE_ID_MAX})이 없습니다.`);
+            console.log('대상 회원이 없습니다.');
             return;
         }
 
-        console.log(`샘플 Pr 구분: 전원 ${SAMPLE_PR_TYPE}`);
+        console.log('Pr 구분: 은총의 모후 → 소년, 나머지 → 성인');
 
         let genderUpdated = 0;
         let prTypeUpdated = 0;
         for (const row of members.rows) {
-            const gender = assignGenderById(row.id);
-            const prType = SAMPLE_PR_TYPE;
+            const gender = row.gender || assignGenderById(row.id);
+            const prType = resolvePrType(row.pr_name);
 
             const result = await client.query(
                 `UPDATE member
@@ -119,10 +126,8 @@ async function main() {
         const genderStats = await client.query(
             `SELECT gender, COUNT(*)::int AS cnt
              FROM member
-             WHERE id BETWEEN $1 AND $2
              GROUP BY gender
-             ORDER BY gender`,
-            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
+             ORDER BY gender`
         );
         console.log('성별 분포:');
         console.table(genderStats.rows);
@@ -130,12 +135,10 @@ async function main() {
         const prTypeStats = await client.query(
             `SELECT pr_type, COUNT(*)::int AS cnt, COUNT(DISTINCT pr_name)::int AS pr_cnt
              FROM member
-             WHERE id BETWEEN $1 AND $2
              GROUP BY pr_type
              ORDER BY CASE pr_type
                 WHEN '성인' THEN 1 WHEN '직속' THEN 2 WHEN '청년' THEN 3 WHEN '소년' THEN 4
-                ELSE 9 END`,
-            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
+                ELSE 9 END`
         );
         console.log('PR 분류 분포:');
         console.table(prTypeStats.rows);
@@ -143,10 +146,8 @@ async function main() {
         const prMap = await client.query(
             `SELECT church_name, pr_name, pr_type, COUNT(*)::int AS cnt
              FROM member
-             WHERE id BETWEEN $1 AND $2
              GROUP BY church_name, pr_name, pr_type
-             ORDER BY pr_type, church_name, pr_name`,
-            [SAMPLE_ID_MIN, SAMPLE_ID_MAX]
+             ORDER BY pr_type, church_name, pr_name`
         );
         console.log('Pr별 분류:');
         console.table(prMap.rows);
