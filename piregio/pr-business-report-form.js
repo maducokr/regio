@@ -284,6 +284,9 @@
     function formatMemberCompositionTrait(prType) {
         const t = normalizePrType(prType);
         if (t === '소년') return '소년';
+        if (t === '직속') return '직속';
+        if (t === '청년') return '청년';
+        if (t === '성인') return '성인';
         return '성인';
     }
 
@@ -3943,11 +3946,13 @@
                     </tr>
                     <tr>
                         <th>주회합</th>
-                        <td colspan="3" class="left">
+                        <td class="left">
                             요일 ${blank(meeting.weekday, 'w4')}
                             &nbsp; ${blank(meeting.hour, 'w3')} 시 ${blank(meeting.minute, 'w3')} 분
                             &nbsp; 장소 ${blank(meeting.place, 'w12')}
                         </td>
+                        <th style="width:18%">단원 구성의 특성</th>
+                        <td class="left">${blank(formatMemberCompositionTrait(m.pr_type), 'w12')}</td>
                     </tr>
                 </table>
 
@@ -4233,7 +4238,7 @@
             approved_y: '', approved_m: '', approved_d: '',
             proxy_name: '',
             officer_change: '',
-            pr_type: normalizePrType(monthly?.affiliation || opts.prType || user?.pr_type || '')
+            pr_type: normalizePrType(monthly?.pr_type || monthly?.affiliation || opts.prType || user?.pr_type || '')
         };
 
         function splitYmd(raw) {

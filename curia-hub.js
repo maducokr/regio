@@ -1353,6 +1353,15 @@
         `;
     }
 
+    function formatMemberCompositionTrait(prType) {
+        const t = String(prType || '').trim();
+        if (t === '소년') return '소년';
+        if (t === '직속') return '직속';
+        if (t === '청년') return '청년';
+        if (t === '성인') return '성인';
+        return '성인';
+    }
+
     function sumActivityTotals(totals, matcher, field) {
         const key = field || 'count';
         let n = 0;
@@ -1613,6 +1622,9 @@
                                 <tr><td>증감</td>${membershipCells(mem.delta || {})}</tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div style="margin-top:6px; font-size:12px;">
+                        단원 구성의 특성: ${blank(formatMemberCompositionTrait(data.pr_type || data.affiliation), 'w12')}
                     </div>
                 </div>
 
@@ -2241,6 +2253,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div style="margin-top:6px; font-size:12px;">
+                        단원 구성의 특성: ${blank(formatMemberCompositionTrait(data.pr_type || data.affiliation), 'w12')}
+                    </div>
                 </div>
 
                 <div class="sec">
@@ -2414,6 +2429,9 @@
                                 <tr><td>감(감소)</td>${membershipCells(mem.decrease)}</tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div style="margin-top:6px; font-size:12px;">
+                        단원 구성의 특성: ${blank(formatMemberCompositionTrait(data.pr_type || data.affiliation), 'w12')}
                     </div>
                 </div>
 
