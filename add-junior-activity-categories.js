@@ -349,7 +349,7 @@ const JUNIOR_ITEMS = [
         desc: '미사, 영성체, 성체조배 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
     {
@@ -358,7 +358,7 @@ const JUNIOR_ITEMS = [
         desc: '아침·저녁기도 등 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
     {
@@ -367,7 +367,7 @@ const JUNIOR_ITEMS = [
         desc: '매일 묵주기도 바치기 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
     {
@@ -376,7 +376,7 @@ const JUNIOR_ITEMS = [
         desc: '성직자, 수도자를 위한 기도 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
     {
@@ -385,7 +385,7 @@ const JUNIOR_ITEMS = [
         desc: '가족 기도 하기 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
     {
@@ -394,7 +394,7 @@ const JUNIOR_ITEMS = [
         desc: '부모(조부모)를 위한 기도 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
     {
@@ -403,7 +403,7 @@ const JUNIOR_ITEMS = [
         desc: '성경 읽기, 성경 쓰기 등 (소년)',
         fields: [
             { name: 'count', display: '횟수(회,명,단,건)', required: true },
-            { name: 'year_count', display: '단 () 단', required: false }
+            { name: 'year_count', display: '() 단', required: false }
         ]
     },
 
