@@ -16,6 +16,7 @@ CREATE TABLE activity_records (
     category_id INTEGER REFERENCES activity_categories(id),
     target VARCHAR(200), -- 대상
     count INTEGER DEFAULT 0, -- 횟수
+    count_unit VARCHAR(10) DEFAULT '회', -- 횟수 단위 (회, 명, 단, 건 등)
     catechism_guide INTEGER DEFAULT 0, -- 교리반인도
     group_join INTEGER DEFAULT 0, -- 단체가입
     meeting_head INTEGER DEFAULT 0, -- 회두

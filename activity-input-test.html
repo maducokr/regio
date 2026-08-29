@@ -582,6 +582,56 @@
             color: #4A90E2;
         }
 
+        .field-label-wrap {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-unit-radios {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            margin-top: 2px;
+        }
+
+        .field-unit-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 7px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 0.82em;
+            color: #334155;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .field-unit-radio-label:hover {
+            background: #e2e8f0;
+        }
+
+        .field-unit-radio-label input[type="radio"] {
+            margin: 0;
+            cursor: pointer;
+            width: auto !important;
+            min-height: auto !important;
+            accent-color: #2563eb;
+        }
+
+        .field-unit-radio-label:has(input:checked) {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+
         .field-step-btn:active {
             background: #4A90E2;
             color: #fff;
@@ -4185,15 +4235,47 @@
             displayActivityFields(fields);
         });
 
+        function extractUnitsFromDisplayName(displayName) {
+            if (!displayName) return [];
+            const match = String(displayName).match(/\(([^)]+)\)/);
+            if (!match) {
+                return [];
+            }
+            const inner = match[1].trim();
+            const parts = inner.split(/[,/·\s]+/).map(p => p.trim()).filter(Boolean);
+            const unique = [];
+            parts.forEach(p => {
+                if (p && !unique.includes(p)) {
+                    unique.push(p);
+                }
+            });
+            return unique;
+        }
+
         /** 인원·횟수 공통: 모바일 숫자 스테퍼 (네이티브 N명 라디오 목록 대신) */
         function numberFieldHtml(field) {
             const id = `field_${field.field_name}`;
+            const units = extractUnitsFromDisplayName(field.field_display_name);
+            const showUnitRadios = (field.field_name === 'count' || /횟수|회수/.test(field.field_name)) && units.length > 1;
+
             return `
                 <div class="field-item">
-                    <label for="${id}">
-                        ${field.field_display_name}
-                        ${field.is_required ? '<span class="required">*</span>' : ''}
-                    </label>
+                    <div class="field-label-wrap">
+                        <label for="${id}">
+                            ${field.field_display_name}
+                            ${field.is_required ? '<span class="required">*</span>' : ''}
+                        </label>
+                        ${showUnitRadios ? `
+                            <div class="field-unit-radios" role="radiogroup" aria-label="단위 선택">
+                                ${units.map((unit, idx) => `
+                                    <label class="field-unit-radio-label">
+                                        <input type="radio" name="unit_${field.field_name}" value="${unit}" ${idx === 0 ? 'checked' : ''}>
+                                        <span>${unit}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
                     <div class="field-number-wrap">
                         <input
                             type="number"
@@ -4397,12 +4479,23 @@
                             correctedFieldName = fieldNameMapping[fieldName];
                             console.log(`필드명 수정: ${fieldName} → ${correctedFieldName}`);
                         }
+
+                        let countUnit = '회';
+                        if (fieldName === 'count' || correctedFieldName === 'count' || /횟수|회수/.test(fieldName)) {
+                            const unitRadio = document.querySelector(`input[name="unit_${fieldName}"]:checked`)
+                                || document.querySelector(`input[name="unit_${correctedFieldName}"]:checked`)
+                                || document.querySelector(`input[name^="unit_"]:checked`);
+                            if (unitRadio && unitRadio.value) {
+                                countUnit = unitRadio.value;
+                            }
+                        }
                         
                         const activity = {
                             member_id: parseInt(memberId),
                             category_name: categoryName,
                             field_name: correctedFieldName,
                             field_value: fieldValue,
+                            count_unit: countUnit,
                             activity_date: activityDate,
                             note: activityNote
                         };

@@ -4615,6 +4615,7 @@ app.get('/api/activity-records/:categoryId', async (req, res) => {
         }
 
         let query = `SELECT ar.id, ar.member_id, ar.category_id, ar.target, ar.count,
+                            COALESCE(ar.count_unit, '회') AS count_unit,
                             ar.catechism_guide, ar.group_join, ar.meeting_head, ar.resolution,
                             ar.sacrament, ar.confirmation, ar.baptism, ar.first_communion,
                             ar.year_count, ar.funeral_mass, ar.funeral_attendance, ar.inout_count,
@@ -4648,7 +4649,7 @@ app.get('/api/activity-records/:categoryId', async (req, res) => {
 // 5. 활동자료 추가 API (동적 필드 지원)
 app.post('/api/activity-records', async (req, res) => {
     try {
-        const { category_id, member_id, target, count, catechism_guide, group_join, meeting_head, 
+        const { category_id, member_id, target, count, count_unit, catechism_guide, group_join, meeting_head, 
                 resolution, sacrament, confirmation, baptism, first_communion, 
                 year_count, funeral_mass, funeral_attendance, inout_count, conditional_baptism, 
                 conditional_communion, membership, establishment, memorial_mass, note, activity_date, 
@@ -4697,6 +4698,7 @@ app.post('/api/activity-records', async (req, res) => {
                 member_id: member_id,
                 target: field_data.target || null,
                 count: field_data['활동 회수'] || field_data.활동횟수 || field_data.횟수 || field_data.count || 0,
+                count_unit: field_data.count_unit || count_unit || '회',
                 catechism_guide: field_data['교리반 인도'] || field_data['성경 쓰기'] || field_data['첫 영성체 교리반 인도'] || field_data.교리반인도 || field_data.catechism_guide || 0,
                 group_join: field_data['단체 가입'] || field_data['협조단원 입단'] || field_data['협조단원 모집'] || field_data.기타 || field_data.단체가입 || field_data.group_join || 0,
                 meeting_head: field_data['쉬는 교우 회두'] || field_data.회두 || field_data.meeting_head || 0,
@@ -4720,14 +4722,14 @@ app.post('/api/activity-records', async (req, res) => {
 
             const result = await pool.query(
                 `INSERT INTO activity_records 
-                 (category_id, member_id, target, count, catechism_guide, group_join, meeting_head, 
+                 (category_id, member_id, target, count, count_unit, catechism_guide, group_join, meeting_head, 
                   resolution, sacrament, confirmation, baptism, first_communion, 
                   year_count, funeral_mass, funeral_attendance, inout_count, conditional_baptism, 
                   conditional_communion, membership, establishment, note, memorial_mass, activity_date)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::date)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24::date)
                  RETURNING *`,
                 [
-                    mappedData.category_id, mappedData.member_id, mappedData.target, mappedData.count,
+                    mappedData.category_id, mappedData.member_id, mappedData.target, mappedData.count, mappedData.count_unit,
                     mappedData.catechism_guide, mappedData.group_join, mappedData.meeting_head,
                     mappedData.resolution, mappedData.sacrament, mappedData.confirmation, mappedData.baptism,
                     mappedData.first_communion, mappedData.year_count, mappedData.funeral_mass,
@@ -4750,13 +4752,13 @@ app.post('/api/activity-records', async (req, res) => {
 
             const result = await pool.query(
                 `INSERT INTO activity_records 
-                 (category_id, member_id, target, count, catechism_guide, group_join, meeting_head, 
+                 (category_id, member_id, target, count, count_unit, catechism_guide, group_join, meeting_head, 
                   resolution, sacrament, confirmation, baptism, first_communion, 
                   year_count, funeral_mass, funeral_attendance, inout_count, conditional_baptism, 
                   conditional_communion, membership, establishment, note, memorial_mass, activity_date)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::date)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24::date)
                  RETURNING *`,
-                [category_id, member_id, target, count || 0, catechism_guide || 0, group_join || 0, meeting_head || 0,
+                [category_id, member_id, target, count || 0, count_unit || '회', catechism_guide || 0, group_join || 0, meeting_head || 0,
                  resolution || 0, sacrament || 0, confirmation || 0, baptism || 0, first_communion || 0,
                  year_count || 0, funeral_mass || 0, funeral_attendance || 0, inout_count || 0, conditional_baptism || 0,
                  conditional_communion || 0, membership || 0, establishment || 0, note, memorial_mass || 0, processedDate || new Date().toISOString().split('T')[0]]
@@ -4779,7 +4781,7 @@ app.post('/api/activity-records', async (req, res) => {
 app.put('/api/activity-records/:id', async (req, res) => {
     try {
         const recordId = parseInt(req.params.id);
-        const { target, count, catechism_guide, group_join, meeting_head, 
+        const { target, count, count_unit, catechism_guide, group_join, meeting_head, 
                 resolution, sacrament, confirmation, baptism, first_communion, 
                 year_count, funeral_mass, funeral_attendance, inout_count, conditional_baptism, 
                 conditional_communion, membership, establishment, memorial_mass, note, activity_date } = req.body;
@@ -4792,13 +4794,13 @@ app.put('/api/activity-records/:id', async (req, res) => {
 
         const result = await pool.query(
             `UPDATE activity_records SET 
-             target = $1, count = $2, catechism_guide = $3, group_join = $4, meeting_head = $5,
-             resolution = $6, sacrament = $7, confirmation = $8, baptism = $9, first_communion = $10,
-             year_count = $11, funeral_mass = $12, funeral_attendance = $13, inout_count = $14, conditional_baptism = $15,
-             conditional_communion = $16, membership = $17, establishment = $18, note = $19, memorial_mass = $20, activity_date = $21::date,
+             target = $1, count = $2, count_unit = COALESCE($3, count_unit, '회'), catechism_guide = $4, group_join = $5, meeting_head = $6,
+             resolution = $7, sacrament = $8, confirmation = $9, baptism = $10, first_communion = $11,
+             year_count = $12, funeral_mass = $13, funeral_attendance = $14, inout_count = $15, conditional_baptism = $16,
+             conditional_communion = $17, membership = $18, establishment = $19, note = $20, memorial_mass = $21, activity_date = $22::date,
              updated_at = CURRENT_TIMESTAMP
-             WHERE id = $22 RETURNING *`,
-            [target, count || 0, catechism_guide || 0, group_join || 0, meeting_head || 0,
+             WHERE id = $23 RETURNING *`,
+            [target, count || 0, count_unit, catechism_guide || 0, group_join || 0, meeting_head || 0,
              resolution || 0, sacrament || 0, confirmation || 0, baptism || 0, first_communion || 0,
              year_count || 0, funeral_mass || 0, funeral_attendance || 0, inout_count || 0, conditional_baptism || 0,
              conditional_communion || 0, membership || 0, establishment || 0, note, memorial_mass || 0, activity_date, recordId]
@@ -7318,9 +7320,9 @@ app.get('/api/get-member-columns', async (req, res) => {
 app.post('/api/activities/input', async (req, res) => {
     let client;
     try {
-        const { member_id, category_name, field_name, field_value, activity_date, note } = req.body;
+        const { member_id, category_name, field_name, field_value, count_unit, activity_date, note } = req.body;
 
-        console.log('🚀 즉시 활동 입력 요청:', { member_id, category_name, field_name, field_value, activity_date });
+        console.log('🚀 즉시 활동 입력 요청:', { member_id, category_name, field_name, field_value, count_unit, activity_date });
 
         // 빠른 입력 검증
         if (!member_id || !category_name || !field_name || !activity_date) {
@@ -7402,35 +7404,69 @@ app.post('/api/activities/input', async (req, res) => {
         let result;
         if (existingRecord.rows.length > 0) {
             // 기존 기록 업데이트
-            const updateQuery = `
-                UPDATE activity_records 
-                SET ${field_name} = $1, note = COALESCE(NULLIF(TRIM($2), ''), note), updated_at = CURRENT_TIMESTAMP
-                WHERE member_id = $3 AND category_id = $4 AND activity_date = $5::date
-                RETURNING *
-            `;
-            result = await client.query(updateQuery, [
-                field_value, 
-                note, 
-                member_id, 
-                categoryId, 
-                activity_date
-            ]);
+            if (field_name === 'count') {
+                const updateQuery = `
+                    UPDATE activity_records 
+                    SET count = $1, count_unit = COALESCE(NULLIF(TRIM($2), ''), count_unit, '회'), note = COALESCE(NULLIF(TRIM($3), ''), note), updated_at = CURRENT_TIMESTAMP
+                    WHERE member_id = $4 AND category_id = $5 AND activity_date = $6::date
+                    RETURNING *
+                `;
+                result = await client.query(updateQuery, [
+                    field_value, 
+                    count_unit || '회',
+                    note, 
+                    member_id, 
+                    categoryId, 
+                    activity_date
+                ]);
+            } else {
+                const updateQuery = `
+                    UPDATE activity_records 
+                    SET ${field_name} = $1, note = COALESCE(NULLIF(TRIM($2), ''), note), updated_at = CURRENT_TIMESTAMP
+                    WHERE member_id = $3 AND category_id = $4 AND activity_date = $5::date
+                    RETURNING *
+                `;
+                result = await client.query(updateQuery, [
+                    field_value, 
+                    note, 
+                    member_id, 
+                    categoryId, 
+                    activity_date
+                ]);
+            }
             console.log('✅ 활동 기록 업데이트 성공:', result.rows[0].id);
         } else {
             // 새 기록 추가
-            const insertQuery = `
-                INSERT INTO activity_records 
-                (member_id, category_id, ${field_name}, note, activity_date)
-                VALUES ($1, $2, $3, $4, $5::date)
-                RETURNING *
-            `;
-            result = await client.query(insertQuery, [
-                member_id, 
-                categoryId, 
-                field_value, 
-                note, 
-                activity_date
-            ]);
+            if (field_name === 'count') {
+                const insertQuery = `
+                    INSERT INTO activity_records 
+                    (member_id, category_id, count, count_unit, note, activity_date)
+                    VALUES ($1, $2, $3, $4, $5, $6::date)
+                    RETURNING *
+                `;
+                result = await client.query(insertQuery, [
+                    member_id, 
+                    categoryId, 
+                    field_value, 
+                    count_unit || '회',
+                    note, 
+                    activity_date
+                ]);
+            } else {
+                const insertQuery = `
+                    INSERT INTO activity_records 
+                    (member_id, category_id, ${field_name}, note, activity_date)
+                    VALUES ($1, $2, $3, $4, $5::date)
+                    RETURNING *
+                `;
+                result = await client.query(insertQuery, [
+                    member_id, 
+                    categoryId, 
+                    field_value, 
+                    note, 
+                    activity_date
+                ]);
+            }
             console.log('✅ 새 활동 기록 추가 성공:', result.rows[0].id);
         }
 
@@ -7770,6 +7806,7 @@ app.get('/api/activities/summary', async (req, res) => {
                 ar.category_id,
                 ar.target,
                 ar.count,
+                COALESCE(ar.count_unit, '회') as count_unit,
                 ar.catechism_guide,
                 ar.group_join,
                 ar.meeting_head,

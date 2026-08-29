@@ -2058,7 +2058,17 @@
                 fieldMappings.forEach(mapping => {
                     if ((record[mapping.field] && record[mapping.field] > 0) ||
                         (mapping.field === 'count' && hasCountField)) {
-                        const fieldDisplayName = getFieldDisplayName(rawCategory, mapping.name);
+                        let fieldDisplayName = getFieldDisplayName(rawCategory, mapping.name);
+
+                        if (mapping.field === 'count') {
+                            const unit = (record.count_unit || '회').trim();
+                            if (/\([^)]+\)/.test(fieldDisplayName)) {
+                                fieldDisplayName = fieldDisplayName.replace(/\([^)]+\)/, `(${unit})`);
+                            } else {
+                                fieldDisplayName = `${fieldDisplayName}(${unit})`;
+                            }
+                        }
+
                         const key = `${categoryKey}::${fieldDisplayName}`;
 
                         if (!groupedData[key]) {
@@ -4327,7 +4337,13 @@
             }
 
             if (record.count && record.count > 0) {
-                const fieldDisplayName = getFieldDisplayName(category, 'count');
+                let fieldDisplayName = getFieldDisplayName(category, 'count');
+                const unit = (record.count_unit || '회').trim();
+                if (/\([^)]+\)/.test(fieldDisplayName)) {
+                    fieldDisplayName = fieldDisplayName.replace(/\([^)]+\)/, `(${unit})`);
+                } else {
+                    fieldDisplayName = `${fieldDisplayName}(${unit})`;
+                }
                 fieldValues.push(`${fieldDisplayName}${record.count}`);
             }
             if (record.catechism_guide && record.catechism_guide > 0) {
@@ -4407,7 +4423,13 @@
             if (fieldValues.length > 0) {
                 return fieldValues.join(', ');
             }
-            const fieldDisplayName = getFieldDisplayName(category, 'count');
+            let fieldDisplayName = getFieldDisplayName(category, 'count');
+            const unit = (record.count_unit || '회').trim();
+            if (/\([^)]+\)/.test(fieldDisplayName)) {
+                fieldDisplayName = fieldDisplayName.replace(/\([^)]+\)/, `(${unit})`);
+            } else {
+                fieldDisplayName = `${fieldDisplayName}(${unit})`;
+            }
             return `${fieldDisplayName}0`;
         }
 

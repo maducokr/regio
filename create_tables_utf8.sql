@@ -15,6 +15,7 @@ CREATE TABLE activity_records (
     category_id INTEGER REFERENCES activity_categories(id),
     target VARCHAR(200), -- Target
     count INTEGER DEFAULT 0, -- Count
+    count_unit VARCHAR(10) DEFAULT '회', -- Count Unit
     catechism_guide INTEGER DEFAULT 0, -- Catechism Guide
     group_join INTEGER DEFAULT 0, -- Group Join
     meeting_head INTEGER DEFAULT 0, -- Meeting Head
