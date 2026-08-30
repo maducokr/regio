@@ -728,6 +728,44 @@
             background-color: #6f42c1;
         }
 
+        .export-btn.edit-save-btn {
+            background-color: #0284c7;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .export-btn.edit-save-btn:hover {
+            background-color: #0369a1;
+        }
+
+        .activity-edit-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .personal-activity-val-input {
+            width: 68px;
+            height: 28px;
+            padding: 2px 6px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: right;
+            color: #0f172a;
+            background-color: #ffffff;
+            border: 1.5px solid #3b82f6;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        .personal-activity-val-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            background-color: #eff6ff;
+        }
+
         .omit-name-export-label {
             display: inline-flex;
             align-items: center;
@@ -1631,6 +1669,7 @@
                             <input type="checkbox" id="omitNameExport">
                             <span>성명 미기재</span>
                         </label>
+                        <button id="editSaveBtn" class="export-btn edit-save-btn" onclick="savePersonalSummaryActivities()" style="display: none;">💾 수정 저장</button>
                         <button id="pdfExportBtn" class="export-btn pdf" onclick="exportSummaryToPDF()">📄 PDF 출력</button>
                         <button id="excelExportBtn" class="export-btn excel" onclick="exportSummaryToExcel()">📊 Excel 출력</button>
                         <button id="hwpExportBtn" class="export-btn hwp" onclick="exportSummaryToHangul()">📝 한글 출력</button>
@@ -1878,12 +1917,32 @@
         let lastSecretaryRows = [];
         let lastPrMembers = [];
         let lastAssignments = [];
+        let lastSummaryRows = [];
         let lastReportPeriodType = '';
         /** 기간 버튼 기준(오늘/1일/1주/한달/1년) — 종료일 수정 시 시작일 역산에 사용 */
         let lastPeriodButtonType = 'today';
 
+        function isPersonalTodaySelected() {
+            if (getReportScope() !== 'personal') return false;
+            const startDate = document.getElementById('startDate')?.value?.trim();
+            const endDate = document.getElementById('endDate')?.value?.trim();
+            if (!startDate || !endDate) return false;
+            const today = new Date();
+            const todayStr = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0');
+            const sDate = startDate.split(' ')[0];
+            const eDate = endDate.split(' ')[0];
+            return sDate === todayStr && eDate === todayStr;
+        }
+
         function setExportButtonsVisible(visible) {
-            document.getElementById('exportButtons').style.display = visible ? 'flex' : 'none';
+            const wrap = document.getElementById('exportButtons');
+            if (wrap) wrap.style.display = visible ? 'flex' : 'none';
+            const editSaveBtn = document.getElementById('editSaveBtn');
+            if (editSaveBtn) {
+                editSaveBtn.style.display = (visible && isPersonalTodaySelected()) ? 'inline-flex' : 'none';
+            }
         }
 
         function isOmitNameExport() {
@@ -2009,6 +2068,31 @@
             return String(semok || '').replace(/\s+/g, '').toLowerCase();
         }
 
+        /** 날짜를 "M/D(요일)" 형식으로 포맷팅하는 헬퍼 함수 */
+        function formatMonthDayWeekday(dateString) {
+            if (!dateString || dateString === '날짜없음') return '';
+            const str = String(dateString).trim();
+            let year, month, day;
+            const match = str.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (match) {
+                year = parseInt(match[1], 10);
+                month = parseInt(match[2], 10);
+                day = parseInt(match[3], 10);
+            } else {
+                const dt = new Date(str);
+                if (!isNaN(dt.getTime())) {
+                    year = dt.getUTCFullYear();
+                    month = dt.getUTCMonth() + 1;
+                    day = dt.getUTCDate();
+                } else {
+                    return str;
+                }
+            }
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayOfWeek = days[new Date(year, month - 1, day).getDay()];
+            return `${month}/${day}(${dayOfWeek})`;
+        }
+
         function buildSummaryRows(dailyData) {
             if (!dailyData || dailyData.length === 0) {
                 return [];
@@ -2075,12 +2159,25 @@
                             groupedData[key] = {
                                 subCategory: categoryLabel,
                                 fieldName: fieldDisplayName,
+                                fieldKey: mapping.field,
                                 totalValue: 0,
-                                dates: new Set()
+                                dates: new Set(),
+                                records: []
                             };
                         }
 
                         groupedData[key].totalValue += record[mapping.field] || 0;
+                        groupedData[key].records.push({
+                            recordId: record.id,
+                            field: mapping.field,
+                            value: record[mapping.field] || 0,
+                            count_unit: record.count_unit || '회',
+                            category_id: record.category_id,
+                            category_name: record.category_name,
+                            member_id: record.member_id,
+                            activity_date: record.activity_date,
+                            rawRecord: record
+                        });
 
                         if (record.activity_date) {
                             const date = formatActivityDate(record.activity_date);
@@ -2107,13 +2204,152 @@
                     const notes = contentByCategory[categoryKey]
                         ? [...contentByCategory[categoryKey]]
                         : [];
+                    const formattedDates = [...data.dates]
+                        .sort()
+                        .map(formatMonthDayWeekday)
+                        .filter(Boolean)
+                        .join(', ');
                     return {
                         subCategory: data.subCategory,
                         contentText: notes.join('\n'),
+                        fieldName: data.fieldName,
+                        fieldKey: data.fieldKey,
+                        totalValue: data.totalValue,
                         activityText: `${data.fieldName}${data.totalValue}`,
-                        dateCount: data.dates.size
+                        datesText: formattedDates,
+                        dateCount: data.dates.size,
+                        records: data.records || []
                     };
                 });
+        }
+
+        async function savePersonalSummaryActivities() {
+            if (!isPersonalTodaySelected()) {
+                alert('오늘 날짜로 조회된 경우에만 활동내역 수정이 가능합니다.');
+                return;
+            }
+
+            const inputs = document.querySelectorAll('.personal-activity-val-input');
+            if (!inputs || inputs.length === 0) {
+                alert('수정 가능한 활동 항목이 없습니다.');
+                return;
+            }
+
+            const updates = [];
+            for (const input of inputs) {
+                const rowIdx = parseInt(input.dataset.rowIndex, 10);
+                const originalVal = parseInt(input.dataset.originalVal, 10) || 0;
+                const currentVal = parseInt(input.value, 10);
+
+                if (isNaN(currentVal) || currentVal < 0) {
+                    alert('활동내역 값은 0 이상의 숫자만 입력할 수 있습니다.');
+                    input.focus();
+                    return;
+                }
+
+                if (currentVal !== originalVal) {
+                    const row = lastSummaryRows[rowIdx];
+                    if (row && row.records && row.records.length > 0) {
+                        updates.push({
+                            row,
+                            input,
+                            newVal: currentVal,
+                            originalVal: originalVal
+                        });
+                    }
+                }
+            }
+
+            if (updates.length === 0) {
+                alert('수정된 활동내역이 없습니다.');
+                return;
+            }
+
+            if (!confirm(`총 ${updates.length}건의 수정된 활동내역을 저장하시겠습니까?`)) {
+                return;
+            }
+
+            const editSaveBtn = document.getElementById('editSaveBtn');
+            if (editSaveBtn) {
+                editSaveBtn.disabled = true;
+                editSaveBtn.textContent = '💾 저장 중...';
+            }
+
+            try {
+                for (const item of updates) {
+                    const { row, newVal } = item;
+                    for (const rec of row.records) {
+                        if (rec.recordId) {
+                            const raw = rec.rawRecord || {};
+                            const payload = {
+                                target: raw.target || '',
+                                count: rec.field === 'count' ? newVal : (raw.count || 0),
+                                count_unit: raw.count_unit || rec.count_unit || '회',
+                                catechism_guide: rec.field === 'catechism_guide' ? newVal : (raw.catechism_guide || 0),
+                                group_join: rec.field === 'group_join' ? newVal : (raw.group_join || 0),
+                                meeting_head: rec.field === 'meeting_head' ? newVal : (raw.meeting_head || 0),
+                                resolution: rec.field === 'resolution' ? newVal : (raw.resolution || 0),
+                                sacrament: rec.field === 'sacrament' ? newVal : (raw.sacrament || 0),
+                                confirmation: rec.field === 'confirmation' ? newVal : (raw.confirmation || 0),
+                                baptism: rec.field === 'baptism' ? newVal : (raw.baptism || 0),
+                                first_communion: rec.field === 'first_communion' ? newVal : (raw.first_communion || 0),
+                                year_count: rec.field === 'year_count' ? newVal : (raw.year_count || 0),
+                                funeral_mass: rec.field === 'funeral_mass' ? newVal : (raw.funeral_mass || 0),
+                                funeral_attendance: rec.field === 'funeral_attendance' ? newVal : (raw.funeral_attendance || 0),
+                                inout_count: rec.field === 'inout_count' ? newVal : (raw.inout_count || 0),
+                                conditional_baptism: rec.field === 'conditional_baptism' ? newVal : (raw.conditional_baptism || 0),
+                                conditional_communion: rec.field === 'conditional_communion' ? newVal : (raw.conditional_communion || 0),
+                                membership: rec.field === 'membership' ? newVal : (raw.membership || 0),
+                                establishment: rec.field === 'establishment' ? newVal : (raw.establishment || 0),
+                                memorial_mass: rec.field === 'memorial_mass' ? newVal : (raw.memorial_mass || 0),
+                                note: raw.note || '',
+                                activity_date: formatActivityDate(rec.activity_date || raw.activity_date)
+                            };
+
+                            const res = await fetch(`/api/activity-records/${rec.recordId}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+
+                            if (!res.ok) {
+                                const errData = await res.json().catch(() => ({}));
+                                throw new Error(errData.error || `활동 기록 ID(${rec.recordId}) 수정 실패`);
+                            }
+                        } else {
+                            const memberId = document.getElementById('memberSelect')?.value || rec.member_id;
+                            const res = await fetch('/api/activities/input', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    member_id: parseInt(memberId, 10),
+                                    category_name: rec.category_name,
+                                    field_name: rec.field,
+                                    field_value: newVal,
+                                    count_unit: rec.count_unit || '회',
+                                    activity_date: formatActivityDate(rec.activity_date),
+                                    note: rec.rawRecord?.note || ''
+                                })
+                            });
+                            if (!res.ok) {
+                                const errData = await res.json().catch(() => ({}));
+                                throw new Error(errData.error || `활동 기록 입력 실패`);
+                            }
+                        }
+                    }
+                }
+
+                alert('수정된 활동내역이 성공적으로 저장되었습니다.');
+                await loadReport();
+            } catch (err) {
+                console.error('활동내역 저장 실패:', err);
+                alert(`저장 중 오류가 발생했습니다: ${err.message}`);
+            } finally {
+                if (editSaveBtn) {
+                    editSaveBtn.disabled = false;
+                    editSaveBtn.textContent = '💾 수정 저장';
+                }
+            }
         }
 
         function ensureSummaryDataAvailable() {
@@ -2344,7 +2580,7 @@
                         row.subCategory,
                         row.contentText || '',
                         row.activityText,
-                        `${row.dateCount}일`
+                        row.datesText || ''
                     ]));
                 }
 
@@ -3309,11 +3545,11 @@
                     <td style="padding:8px;border:1px solid #ccc;">${escapeHtml(row.subCategory)}</td>
                     <td style="padding:8px;border:1px solid #ccc;text-align:left;white-space:pre-wrap;">${escapeHtml(row.contentText || '')}</td>
                     <td style="padding:8px;border:1px solid #ccc;">${escapeHtml(row.activityText)}</td>
-                    <td style="padding:8px;border:1px solid #ccc;">${row.dateCount}일</td>
+                    <td style="padding:8px;border:1px solid #ccc;">${escapeHtml(row.datesText || '')}</td>
                 </tr>
             `).join('');
             return {
-                headers: ['종목-세목', '내용', '활동내역(합계)', '일자 수'],
+                headers: ['종목-세목', '내용', '활동내역(합계)', '월,일(요일)'],
                 body
             };
         }
@@ -6364,19 +6600,38 @@
                         <th>종목-세목</th>
                         <th>내용</th>
                         <th>활동내역 (합계)</th>
-                        <th>일자 수</th>
+                        <th>월,일(요일)</th>
                     </tr>
                 </thead>
                 <tbody>
             `;
 
-            summaryRows.forEach(row => {
+            lastSummaryRows = summaryRows;
+            const isEditableToday = isPersonalTodaySelected();
+
+            summaryRows.forEach((row, idx) => {
+                let activityCellHtml = '';
+                if (isEditableToday) {
+                    activityCellHtml = `
+                        <div class="activity-edit-inline">
+                            <span>${escapeHtml(row.fieldName)}</span>
+                            <input type="number" min="0" class="personal-activity-val-input"
+                                   data-row-index="${idx}"
+                                   data-original-val="${row.totalValue}"
+                                   value="${row.totalValue}"
+                                   aria-label="${escapeHtml(row.fieldName)}">
+                        </div>
+                    `;
+                } else {
+                    activityCellHtml = escapeHtml(row.activityText);
+                }
+
                 html += `
                     <tr>
                         <td class="${subcategoryCellClass(row.subCategory)}" data-label="종목-세목">${escapeHtml(row.subCategory)}</td>
                         <td class="cell-content" data-label="내용">${escapeHtml(row.contentText || '')}</td>
-                        <td class="cell-activity" data-label="활동내역 (합계)">${escapeHtml(row.activityText)}</td>
-                        <td class="cell-days" data-label="일자 수">${row.dateCount}일</td>
+                        <td class="cell-activity" data-label="활동내역 (합계)">${activityCellHtml}</td>
+                        <td class="cell-days" data-label="월,일(요일)">${escapeHtml(row.datesText || '')}</td>
                     </tr>
                 `;
             });
