@@ -1442,8 +1442,8 @@
                 if (window.RegioPrivacyConsent && !RegioPrivacyConsent.requireConsent()) return;
                 RegioAuth.storeLoginSuccess(user);
                 updateHamburgerMenuVisibility();
-                alert('Google 로그인 성공!');
-                window.location.href = 'activity-input-test.html';
+                // WebView(AVD)에서 alert가 이동을 막을 수 있어 바로 이동
+                window.location.replace('activity-input-test.html');
             });
 
             const pendingMenu = sessionStorage.getItem('pendingMenuAction');
@@ -1496,7 +1496,7 @@
                     if (user && user.name) {
                         console.log('자동 로그인 시도:', user.name);
                         // 자동으로 활동 입력 페이지로 이동
-                        window.location.href = 'activity-input-test.html';
+                        window.location.replace('activity-input-test.html');
                         return;
                     }
                 } catch (error) {
@@ -2335,9 +2335,9 @@
                         }
                         
                         console.log('로그인 성공, 사용자 정보 저장됨:', data.user);
-                        alert('로그인 성공!');
-                        // 활동 입력 페이지로 이동
-                        window.location.href = 'activity-input-test.html';
+                        // WebView(AVD)에서는 alert 확인 전/미처리 시 다음 페이지 이동이 끊길 수 있어
+                        // 차단형 alert 없이 바로 활동입력으로 이동한다.
+                        window.location.replace('activity-input-test.html');
                     } else {
                         alert(data.error || '로그인에 실패했습니다.');
                         handleLoginFailure();
