@@ -1741,7 +1741,7 @@
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260827v"></script>
     <script src="junior-categories.js?v=20260828c"></script>
-    <script src="auth-ui.js?v=20260819i"></script>
+    <script src="auth-ui.js?v=20260910c"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js?v=20260910a"></script>
     <script src="admin-menu.js"></script>
@@ -6743,17 +6743,20 @@
             container.innerHTML = html;
         }
 
-        // 햄버거 메뉴
+        // 햄버거 메뉴 (WebView 터치/고스트클릭 대응)
         const hamburgerMenu = document.getElementById('hamburgerMenu');
         const dropdownMenu = document.getElementById('dropdownMenu');
-
-        hamburgerMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) {
-                return;
-            }
-            dropdownMenu.classList.toggle('show');
-        });
+        if (window.RegioAuth && typeof RegioAuth.bindHamburgerMenuToggle === 'function') {
+            RegioAuth.bindHamburgerMenuToggle();
+        } else if (hamburgerMenu && dropdownMenu) {
+            hamburgerMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) {
+                    return;
+                }
+                dropdownMenu.classList.toggle('show');
+            });
+        }
 
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', function(e) {
@@ -6858,9 +6861,12 @@
             });
         });
 
-        document.addEventListener('click', function() {
-            dropdownMenu.classList.remove('show');
-        });
+        if (!(window.RegioAuth && typeof RegioAuth.bindHamburgerMenuToggle === 'function')) {
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.closest && e.target.closest('#hamburgerMenu')) return;
+                dropdownMenu.classList.remove('show');
+            });
+        }
     </script>
     <script>
     (function () {

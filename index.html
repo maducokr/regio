@@ -1448,7 +1448,7 @@
     <script src="member-form-fields.js?v=20260825f"></script>
     <script src="profile-modal.js?v=20260825d"></script>
     <script src="curia-officer-register.js"></script>
-    <script src="auth-ui.js?v=20260825e"></script>
+    <script src="auth-ui.js?v=20260910c"></script>
     <script src="pdf-share.js?v=20260822a"></script>
     <script src="curia-hub.js?v=20260828c"></script>
     <script src="privacy-consent.js"></script>
@@ -2410,16 +2410,19 @@
         if (window.RegioAuth) {
             RegioAuth.ensureHamburgerVisibilityStyles();
             RegioAuth.bindHamburgerClickGuard();
+            RegioAuth.bindHamburgerMenuToggle();
         }
         updateHamburgerMenuVisibility();
         
-        hamburgerMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) {
-                return;
-            }
-            dropdownMenu.classList.toggle('show');
-        });
+        if (!(window.RegioAuth && typeof RegioAuth.bindHamburgerMenuToggle === 'function')) {
+            hamburgerMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) {
+                    return;
+                }
+                dropdownMenu.classList.toggle('show');
+            });
+        }
 
         // 드롭다운 메뉴 아이템 클릭 이벤트
         document.querySelectorAll('.dropdown-item').forEach(item => {
@@ -2518,10 +2521,13 @@
             });
         });
 
-        // 페이지 클릭 시 드롭다운 메뉴 닫기
-        document.addEventListener('click', function() {
-            dropdownMenu.classList.remove('show');
-        });
+        // 페이지 클릭 시 드롭다운 메뉴 닫기 (bindHamburgerMenuToggle 사용 시 그쪽에서 처리)
+        if (!(window.RegioAuth && typeof RegioAuth.bindHamburgerMenuToggle === 'function')) {
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.closest && e.target.closest('#hamburgerMenu')) return;
+                dropdownMenu.classList.remove('show');
+            });
+        }
 
 
         function performLogout() {

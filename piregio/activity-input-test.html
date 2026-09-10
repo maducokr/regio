@@ -132,10 +132,18 @@
             font-size: 18px;
             cursor: pointer;
             position: absolute;
-            right: 12px;
+            right: 8px;
             display: none !important;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 60;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .hamburger-menu.is-visible { display: flex !important; }
@@ -146,6 +154,7 @@
             height: 2px;
             background-color: white;
             border-radius: 1px;
+            pointer-events: none;
         }
 
         .dropdown-menu {
@@ -159,8 +168,10 @@
             z-index: 1000;
             display: none;
             margin-top: 6px;
-            max-height: 70vh;
+            max-height: min(70vh, 640px);
+            max-height: min(calc(var(--app-vh, 100vh) * 0.7), 640px);
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .dropdown-menu.show { display: block; }
@@ -1130,7 +1141,7 @@
     <script src="gwangju-senatus-categories.js?v=20260827v"></script>
     <script src="junior-categories.js?v=20260828c"></script>
     <script src="category-select-picker.js?v=20260910b"></script>
-    <script src="auth-ui.js?v=20260825e"></script>    <script src="webview-android.js?v=20260910a"></script>
+    <script src="auth-ui.js?v=20260910c"></script>    <script src="webview-android.js?v=20260910a"></script>
     <script src="deploy-mode.js"></script>
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
@@ -4734,17 +4745,24 @@
             });
         });
 
-        // 햄버거 메뉴 (index.html 과 동일)
+        // 햄버거 메뉴 (WebView 터치/고스트클릭 대응)
         const hamburgerMenu = document.getElementById('hamburgerMenu');
         const dropdownMenu = document.getElementById('dropdownMenu');
-
-        hamburgerMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) {
-                return;
-            }
-            dropdownMenu.classList.toggle('show');
-        });
+        if (window.RegioAuth && typeof RegioAuth.bindHamburgerMenuToggle === 'function') {
+            RegioAuth.bindHamburgerMenuToggle();
+        } else if (hamburgerMenu && dropdownMenu) {
+            hamburgerMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!hamburgerMenu.classList.contains('is-visible') || hamburgerMenu.hasAttribute('hidden')) {
+                    return;
+                }
+                dropdownMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.closest && e.target.closest('#hamburgerMenu')) return;
+                dropdownMenu.classList.remove('show');
+            });
+        }
 
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', function(e) {
@@ -4847,10 +4865,6 @@
 
                 dropdownMenu.classList.remove('show');
             });
-        });
-
-        document.addEventListener('click', function() {
-            dropdownMenu.classList.remove('show');
         });
 
         // 홈으로 돌아가기 함수

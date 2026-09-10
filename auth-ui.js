@@ -119,10 +119,83 @@
         style.id = 'regio-hamburger-visibility-styles';
         style.textContent = `
             .hamburger-menu { display: none !important; }
-            .hamburger-menu.is-visible { display: flex !important; }
+            .hamburger-menu.is-visible {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px;
+                box-sizing: border-box;
+                z-index: 60;
+                -webkit-tap-highlight-color: transparent;
+            }
             .hamburger-menu[hidden] { display: none !important; }
+            .hamburger-menu .dropdown-menu {
+                max-height: min(70vh, 70%);
+                max-height: min(calc(var(--app-vh, 100vh) * 0.7), 640px);
+            }
         `;
         document.head.appendChild(style);
+    }
+
+    /**
+     * Android WebView에서 햄버거 클릭이 즉시 닫히거나(고스트 클릭),
+     * 터치 영역이 너무 작아 미작동하는 문제를 막기 위한 토글 바인딩.
+     */
+    function bindHamburgerMenuToggle() {
+        const menu = document.getElementById('hamburgerMenu');
+        const dropdown = document.getElementById('dropdownMenu');
+        if (!menu || !dropdown || menu.dataset.regioHbToggle === '1') return;
+        menu.dataset.regioHbToggle = '1';
+        ensureHamburgerVisibilityStyles();
+
+        let ignoreDocCloseUntil = 0;
+        let suppressClickToggle = false;
+
+        function canToggle() {
+            return menu.classList.contains('is-visible') && !menu.hasAttribute('hidden');
+        }
+
+        function toggleMenu(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (!canToggle()) return;
+            dropdown.classList.toggle('show');
+            ignoreDocCloseUntil = Date.now() + 450;
+        }
+
+        menu.addEventListener('touchend', (e) => {
+            // 고스트 click으로 열자마자 닫히는 것 방지
+            suppressClickToggle = true;
+            toggleMenu(e);
+            setTimeout(() => { suppressClickToggle = false; }, 450);
+        }, { passive: false });
+
+        menu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (suppressClickToggle) {
+                e.preventDefault();
+                return;
+            }
+            if (!canToggle()) return;
+            dropdown.classList.toggle('show');
+            ignoreDocCloseUntil = Date.now() + 450;
+        });
+
+        document.addEventListener('click', (e) => {
+            if (Date.now() < ignoreDocCloseUntil) return;
+            if (e.target && e.target.closest && e.target.closest('#hamburgerMenu')) return;
+            dropdown.classList.remove('show');
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (Date.now() < ignoreDocCloseUntil) return;
+            if (e.target && e.target.closest && e.target.closest('#hamburgerMenu')) return;
+            dropdown.classList.remove('show');
+        }, { passive: true });
     }
 
     /**
@@ -382,6 +455,7 @@
         hasActiveSession,
         updateHamburgerMenuVisibility,
         bindHamburgerClickGuard,
+        bindHamburgerMenuToggle,
         ensureHamburgerVisibilityStyles,
         setupEmailVerificationUI,
         initGoogleSignIn
