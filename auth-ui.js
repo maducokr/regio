@@ -142,6 +142,8 @@
     /**
      * Android WebView에서 햄버거 클릭이 즉시 닫히거나(고스트 클릭),
      * 터치 영역이 너무 작아 미작동하는 문제를 막기 위한 토글 바인딩.
+     * 주의: 드롭다운 항목 터치는 토글/preventDefault 대상에서 제외해야
+     *       하위 메뉴 click 핸들러가 동작한다.
      */
     function bindHamburgerMenuToggle() {
         const menu = document.getElementById('hamburgerMenu');
@@ -157,6 +159,17 @@
             return menu.classList.contains('is-visible') && !menu.hasAttribute('hidden');
         }
 
+        function isDropdownTarget(target) {
+            return !!(target && target.closest && target.closest('#dropdownMenu, .dropdown-menu, .dropdown-item'));
+        }
+
+        function isHamburgerIconTarget(target) {
+            // 삼선 아이콘(또는 메뉴 박스 빈 영역)만 토글 — 드롭다운 항목은 제외
+            if (!target || !menu.contains(target)) return false;
+            if (isDropdownTarget(target)) return false;
+            return true;
+        }
+
         function toggleMenu(e) {
             if (e) {
                 e.preventDefault();
@@ -168,6 +181,7 @@
         }
 
         menu.addEventListener('touchend', (e) => {
+            if (!isHamburgerIconTarget(e.target)) return;
             // 고스트 click으로 열자마자 닫히는 것 방지
             suppressClickToggle = true;
             toggleMenu(e);
@@ -175,6 +189,13 @@
         }, { passive: false });
 
         menu.addEventListener('click', (e) => {
+            if (isDropdownTarget(e.target)) {
+                // 메뉴 항목 클릭은 페이지 핸들러가 처리 — 여기서 막지 않음
+                e.stopPropagation();
+                ignoreDocCloseUntil = Date.now() + 450;
+                return;
+            }
+            if (!isHamburgerIconTarget(e.target)) return;
             e.stopPropagation();
             if (suppressClickToggle) {
                 e.preventDefault();
