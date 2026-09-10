@@ -8,6 +8,29 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Regio 활동 기록</title>
+    <script>
+        /* Android WebView: 첫 페인트 전에 높이 보정 (100dvh 붕괴 → 빈 화면 방지) */
+        (function () {
+            try {
+                var ua = navigator.userAgent || '';
+                var isAndroid = /Android/i.test(ua);
+                var isWv = isAndroid && (/; wv\)/i.test(ua) || !!(window.Capacitor && (
+                    (typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) ||
+                    String(Capacitor.getPlatform && Capacitor.getPlatform() || '').toLowerCase() === 'android'
+                )));
+                if (!isAndroid && !isWv) return;
+                var root = document.documentElement;
+                root.classList.add('regio-webview');
+                if (isWv) root.classList.add('regio-native-android');
+                function setVh() {
+                    var h = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 0));
+                    root.style.setProperty('--app-vh', h + 'px');
+                }
+                setVh();
+                window.addEventListener('resize', setVh, { passive: true });
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
     <link rel="stylesheet" href="mobile.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,6 +60,24 @@
             flex-direction: column;
             padding: 0 !important;
             margin: 0;
+        }
+
+        /* Android WebView: 100dvh가 붕괴되면 햄버거만 잠깐 보이고 전체가 빈 화면이 됨 → innerHeight 보정 */
+        html.regio-webview,
+        html.regio-native-android {
+            height: 100%;
+            height: var(--app-vh, 100%);
+            max-height: none;
+            overflow: hidden;
+        }
+
+        html.regio-webview body.activity-input-page,
+        html.regio-native-android body.activity-input-page {
+            height: 100%;
+            height: var(--app-vh, 100%);
+            max-height: var(--app-vh, 100%);
+            min-height: var(--app-vh, 100%);
+            overflow: hidden;
         }
 
         .top-bar {
@@ -1091,7 +1132,7 @@
     <script src="category-select-picker.js?v=20260828c"></script>
     <script src="auth-ui.js?v=20260825e"></script>
     <script src="app-mode.js"></script>
-    <script src="webview-android.js"></script>
+    <script src="webview-android.js?v=20260910a"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>

@@ -23,11 +23,16 @@ html.regio-native-android,
 html.regio-webview {
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: contain;
+    /* WebView에서 100dvh 붕괴 방지: JS가 넣는 --app-vh 우선 */
+    height: 100%;
+    height: var(--app-vh, 100%);
 }
 
-html.regio-native-android body {
+html.regio-native-android body,
+html.regio-webview body {
     /* WebView에서 당겨서 새로고침/오버스크롤 완화 */
     overscroll-behavior: none;
+    min-height: var(--app-vh, 100%);
 }
 
 body {

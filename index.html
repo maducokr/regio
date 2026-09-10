@@ -8,6 +8,28 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Regio 로그인</title>
+    <script>
+        (function () {
+            try {
+                var ua = navigator.userAgent || '';
+                var isAndroid = /Android/i.test(ua);
+                var isWv = isAndroid && (/; wv\)/i.test(ua) || !!(window.Capacitor && (
+                    (typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) ||
+                    String(Capacitor.getPlatform && Capacitor.getPlatform() || '').toLowerCase() === 'android'
+                )));
+                if (!isAndroid && !isWv) return;
+                var root = document.documentElement;
+                root.classList.add('regio-webview');
+                if (isWv) root.classList.add('regio-native-android');
+                function setVh() {
+                    var h = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 0));
+                    root.style.setProperty('--app-vh', h + 'px');
+                }
+                setVh();
+                window.addEventListener('resize', setVh, { passive: true });
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
     <link rel="stylesheet" href="mobile.css">
     <style>
         * {
@@ -1414,7 +1436,7 @@
     <!-- test-pdf-v5 -->
 
     <script src="app-mode.js"></script>
-    <script src="webview-android.js"></script>
+    <script src="webview-android.js?v=20260910a"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
