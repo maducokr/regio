@@ -27,17 +27,25 @@
                 background: rgba(15, 23, 42, 0.45);
                 display: flex; align-items: flex-end; justify-content: center;
                 opacity: 0; pointer-events: none; transition: opacity .18s ease;
+                /* WebView에서 body overflow/ flex 레이아웃과 겹쳐도 가려지지 않도록 */
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
             }
             .regio-sp-overlay.is-open { opacity: 1; pointer-events: auto; }
             .regio-sp-sheet {
                 width: 100%; max-width: 520px;
-                max-height: min(78dvh, 640px);
+                /* 78dvh는 Android WebView에서 0으로 붕괴 → 빈 화면처럼 보임 */
+                height: auto;
+                min-height: min(280px, 50vh);
+                max-height: min(78vh, 640px);
+                max-height: min(calc(var(--app-vh, 100vh) * 0.78), 640px);
                 background: #fff;
                 border-radius: 16px 16px 0 0;
                 box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.18);
                 display: flex; flex-direction: column;
                 transform: translateY(20px); transition: transform .2s ease;
                 padding-bottom: env(safe-area-inset-bottom, 0px);
+                box-sizing: border-box;
             }
             .regio-sp-overlay.is-open .regio-sp-sheet { transform: translateY(0); }
             .regio-sp-header {
@@ -271,8 +279,23 @@
         });
     }
 
+    function refreshAppVh() {
+        try {
+            const root = document.documentElement;
+            const vv = global.visualViewport;
+            const h = Math.max(
+                1,
+                Math.round((vv && vv.height) || global.innerHeight || root.clientHeight || 0)
+            );
+            root.style.setProperty('--app-vh', h + 'px');
+        } catch (_) {
+            /* ignore */
+        }
+    }
+
     function openPicker(select) {
         if (!select) return;
+        refreshAppVh();
         const sheet = buildOverlay();
         activeSelect = select;
         const title = select.getAttribute('data-picker-title')
@@ -283,7 +306,12 @@
         search.value = '';
         renderList(select);
         sheet.style.display = 'flex';
-        requestAnimationFrame(() => sheet.classList.add('is-open'));
+        // WebView에서 rAF 지연만 쓰면 높이 0인 채 남는 경우가 있어 즉시 연다
+        sheet.classList.add('is-open');
+        requestAnimationFrame(() => {
+            refreshAppVh();
+            sheet.classList.add('is-open');
+        });
         setTimeout(() => {
             try { search.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
         }, 220);
