@@ -7,6 +7,29 @@
     <meta name="color-scheme" content="light">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Regio 활동 보고서</title>
+    <script>
+        /* Android WebView: 첫 페인트 전 높이 보정 + 보고서 페이지 스크롤 가능 유지 */
+        (function () {
+            try {
+                var ua = navigator.userAgent || '';
+                var isAndroid = /Android/i.test(ua);
+                var isWv = isAndroid && (/; wv\)/i.test(ua) || !!(window.Capacitor && (
+                    (typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) ||
+                    String(Capacitor.getPlatform && Capacitor.getPlatform() || '').toLowerCase() === 'android'
+                )));
+                if (!isAndroid && !isWv) return;
+                var root = document.documentElement;
+                root.classList.add('regio-webview');
+                if (isWv) root.classList.add('regio-native-android');
+                function setVh() {
+                    var h = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 0));
+                    root.style.setProperty('--app-vh', h + 'px');
+                }
+                setVh();
+                window.addEventListener('resize', setVh, { passive: true });
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
     <link rel="stylesheet" href="mobile.css">
     <style>
         * {
@@ -19,7 +42,39 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #eef2f7;
             min-height: 100vh;
+            min-height: var(--app-vh, 100vh);
             color: #1f2937;
+            /* WebView에서 종목·세목 카드 목록까지 세로 스크롤 가능해야 함 */
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+
+        html.regio-webview body.report-page,
+        html.regio-native-android body.report-page {
+            height: auto !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+        }
+
+        html.regio-webview,
+        html.regio-native-android {
+            height: auto !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #detailedSummary {
+            touch-action: pan-y;
+        }
+
+        #detailedSummary .personal-report-table {
+            touch-action: pan-y;
         }
 
         .header {
@@ -1743,7 +1798,7 @@
     <script src="junior-categories.js?v=20260828c"></script>
     <script src="auth-ui.js?v=20260910d"></script>
     <script src="app-mode.js"></script>
-    <script src="webview-android.js?v=20260910a"></script>
+    <script src="webview-android.js?v=20260911a"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
