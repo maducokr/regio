@@ -30,7 +30,7 @@
             } catch (e) { /* ignore */ }
         })();
     </script>
-    <link rel="stylesheet" href="mobile.css?v=20260911c">
+    <link rel="stylesheet" href="mobile.css?v=20260911e">
     <style>
         * {
             margin: 0;
@@ -1080,6 +1080,8 @@
 
         .event-report-block {
             margin-bottom: 16px;
+            max-width: 100%;
+            min-width: 0;
         }
 
         .event-report-org-label {
@@ -1091,8 +1093,12 @@
         }
 
         .event-report-scroll {
+            max-width: 100%;
+            min-width: 0;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x pan-y;
         }
 
         .event-report-table {
@@ -1131,6 +1137,12 @@
 
         .event-report-table td.cell-left {
             text-align: left;
+        }
+
+        #eventReportSection,
+        #eventReportContainer {
+            max-width: 100%;
+            min-width: 0;
         }
 
         /* 모바일 우선 (개인활동집계 포함 전체 보고서) */
@@ -1471,6 +1483,77 @@
             #dailyActivitiesTable {
                 overflow-x: visible;
                 max-width: 100%;
+            }
+
+            /* 행사 및 교육: 좁은 화면에서 표 잘림 방지 → 카드 목록 */
+            #eventReportSection,
+            #eventReportContainer,
+            .event-report-block,
+            .event-report-scroll {
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .event-report-scroll {
+                overflow-x: visible !important;
+            }
+
+            .event-report-table {
+                min-width: 0 !important;
+                width: 100% !important;
+                border: none;
+                background: transparent;
+            }
+
+            .event-report-table thead {
+                display: none;
+            }
+
+            .event-report-table tbody tr {
+                display: block;
+                background: #fff;
+                border: 1px solid #e3eaf2;
+                border-radius: 12px;
+                margin-bottom: 10px;
+                padding: 0;
+                box-shadow: 0 1px 4px rgba(74, 144, 226, 0.08);
+                overflow: hidden;
+            }
+
+            .event-report-table td {
+                display: block;
+                width: 100% !important;
+                box-sizing: border-box;
+                text-align: left !important;
+                border: none;
+                border-bottom: 1px solid #f0f4f8;
+                padding: 10px 14px;
+                background: #fff;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+            }
+
+            .event-report-table td:last-child {
+                border-bottom: none;
+            }
+
+            .event-report-table td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                color: #4A90E2;
+                margin-bottom: 4px;
+            }
+
+            .event-report-table td.col-no {
+                background: linear-gradient(135deg, #eef5fc, #f8fbff);
+                font-weight: 700;
+                color: #2c5282;
+            }
+
+            .event-report-table td.col-no::before {
+                content: '번호';
             }
 
             #prBusinessReportContainer {
@@ -5160,14 +5243,14 @@
                 filledRows.forEach((row, idx) => {
                     html += `
                         <tr>
-                            <td class="col-no">${idx + 1}</td>
-                            <td>${escapeHtml(row.kind || '')}</td>
-                            <td class="cell-left">${escapeHtml(row.title || '')}</td>
-                            <td>${escapeHtml(row.host || '')}</td>
-                            <td>${escapeHtml(row.date || '')}</td>
-                            <td class="cell-left">${escapeHtml(row.place || '')}</td>
-                            <td class="cell-left">${escapeHtml(row.content || '')}</td>
-                            <td>${escapeHtml(row.attendees || '')}</td>
+                            <td class="col-no" data-label="번호">${idx + 1}</td>
+                            <td data-label="구분">${escapeHtml(row.kind || '')}</td>
+                            <td class="cell-left" data-label="제목">${escapeHtml(row.title || '')}</td>
+                            <td data-label="주관">${escapeHtml(row.host || '')}</td>
+                            <td data-label="일자">${escapeHtml(row.date || '')}</td>
+                            <td class="cell-left" data-label="장소">${escapeHtml(row.place || '')}</td>
+                            <td class="cell-left" data-label="내용">${escapeHtml(row.content || '')}</td>
+                            <td data-label="참석인원">${escapeHtml(row.attendees || '')}</td>
                         </tr>
                     `;
                 });

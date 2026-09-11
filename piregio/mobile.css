@@ -479,9 +479,18 @@ button.login-button,
 .table-scroll-wrap .report-table,
 .table-scroll-wrap .detail-table,
 .table-scroll-wrap .secretary-report-table,
-.table-scroll-wrap .data-table,
-.event-report-scroll .event-report-table {
+.table-scroll-wrap .data-table {
     min-width: 520px;
+}
+
+/* 데스크톱/넓은 화면: 행사표 가로 스크롤. 모바일 카드형은 activity-report 미디어쿼리에서 덮어씀 */
+.event-report-scroll {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.event-report-scroll .event-report-table {
+    min-width: 640px;
 }
 
 .table-scroll-wrap .secretary-report-table {
@@ -801,21 +810,37 @@ button.login-button,
 
     /* 표는 가로 스크롤만 허용(전용 래퍼). #detailedSummary 등에는 overflow 두지 않음 */
     .table-scroll-wrap,
-    .event-report-scroll,
     .event-table-scroll,
     .org-table-wrap,
     .report-table-wrap {
         width: 100% !important;
         max-width: 100% !important;
+        min-width: 0 !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
 
+    /* 행사 및 교육: 카드형(페이지 CSS) — 가로 잘림/스크롤 가로채기 방지 */
+    .event-report-scroll {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: visible !important;
+    }
+
+    .event-report-scroll .event-report-table {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
     #detailedSummary,
-    #dailyActivitiesTable {
+    #dailyActivitiesTable,
+    #eventReportSection,
+    #eventReportContainer {
         width: 100% !important;
         max-width: 100% !important;
         overflow: visible !important;
+        min-width: 0 !important;
     }
 
     .report-table,
