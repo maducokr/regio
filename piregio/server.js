@@ -44,8 +44,24 @@ const PORT = process.env.PORT || 3000;
 
 // 미들웨어 설정
 app.use(cors());
-app.use(express.json({ limit: '8mb' }));
+app.use(express.json({ limit: '20mb' }));
 app.use(express.static('.'));
+
+/** 임시 PDF 공유 링크 (SNS URL 공유용, 메모리·짧은 TTL) */
+const SHARE_PDF_TTL_MS = 60 * 60 * 1000;
+const SHARE_PDF_MAX_BYTES = 12 * 1024 * 1024;
+const sharePdfStore = new Map();
+
+function pruneSharePdfStore() {
+    const now = Date.now();
+    for (const [id, entry] of sharePdfStore.entries()) {
+        if (!entry || entry.expiresAt <= now) sharePdfStore.delete(id);
+    }
+}
+
+function createSharePdfId() {
+    return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
 
 // PostgreSQL 연결 설정 (Render / 로컬 모두 지원)
 const isProduction = process.env.NODE_ENV === 'production'
@@ -392,6 +408,57 @@ app.get('/api/health', async (req, res) => {
             error: dbError
         }
     });
+});
+
+/** PDF 임시 업로드 → SNS(카톡 등) URL 공유용 */
+app.post('/api/share-pdf', (req, res) => {
+    try {
+        pruneSharePdfStore();
+        const filename = String(req.body?.filename || 'Regio_report.pdf').replace(/[^\w.\uac00-\ud7a3()-]+/g, '_').slice(0, 120);
+        let b64 = String(req.body?.pdfBase64 || '');
+        if (!b64) {
+            return res.status(400).json({ success: false, error: 'pdfBase64가 필요합니다.' });
+        }
+        if (b64.includes(',')) b64 = b64.split(',')[1];
+        const buffer = Buffer.from(b64, 'base64');
+        if (!buffer.length) {
+            return res.status(400).json({ success: false, error: 'PDF 데이터가 비어 있습니다.' });
+        }
+        if (buffer.length > SHARE_PDF_MAX_BYTES) {
+            return res.status(413).json({ success: false, error: 'PDF가 너무 큽니다.' });
+        }
+        const id = createSharePdfId();
+        sharePdfStore.set(id, {
+            buffer,
+            filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
+            expiresAt: Date.now() + SHARE_PDF_TTL_MS
+        });
+        const sharePath = `/api/share-pdf/${id}`;
+        const shareUrl = `${req.protocol}://${req.get('host')}${sharePath}`;
+        res.json({
+            success: true,
+            id,
+            filename: sharePdfStore.get(id).filename,
+            sharePath,
+            shareUrl,
+            expiresInSec: Math.floor(SHARE_PDF_TTL_MS / 1000)
+        });
+    } catch (err) {
+        console.error('share-pdf upload error:', err);
+        res.status(500).json({ success: false, error: err.message || '업로드 실패' });
+    }
+});
+
+app.get('/api/share-pdf/:id', (req, res) => {
+    pruneSharePdfStore();
+    const entry = sharePdfStore.get(String(req.params.id || ''));
+    if (!entry) {
+        return res.status(404).type('text').send('공유 링크가 만료되었거나 없습니다.');
+    }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(entry.filename)}`);
+    res.setHeader('Cache-Control', 'no-store');
+    res.send(entry.buffer);
 });
 
 app.get('/api/runtime-mode', async (req, res) => {

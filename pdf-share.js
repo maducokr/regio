@@ -1,10 +1,23 @@
 /**
  * PDF 생성 후 시스템 공유(카톡 등) 또는 파일 저장
- * - Android/Chrome/WebView: navigator.share(files) → 카카오톡 선택 가능
- * - 미지원·실패 시: 다운로드로 폴백
+ * - 파일 Web Share가 WebView에서 막히면 → 임시 URL 업로드 후 URL 공유(SNS 시트)
+ * - 그래도 안 되면 앱 내 SNS 대상 선택 시트 표시
  */
 (function (global) {
     'use strict';
+
+    function isAndroidWebView() {
+        try {
+            const ua = String(global.navigator && global.navigator.userAgent || '');
+            if (/Android/i.test(ua) && /; wv\)/i.test(ua)) return true;
+            const cap = global.Capacitor;
+            if (cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform()) return true;
+            if (cap && String(cap.getPlatform && cap.getPlatform() || '').toLowerCase() === 'android') return true;
+            return false;
+        } catch (_) {
+            return false;
+        }
+    }
 
     function downloadBlob(blob, filename) {
         const url = URL.createObjectURL(blob);
@@ -19,22 +32,239 @@
 
     function canSharePdfFile(file) {
         try {
-            return !!(
-                typeof navigator !== 'undefined'
-                && typeof navigator.share === 'function'
-                && typeof navigator.canShare === 'function'
-                && navigator.canShare({ files: [file] })
-            );
+            if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') return false;
+            if (typeof navigator.canShare === 'function') {
+                return !!navigator.canShare({ files: [file] });
+            }
+            // canShare 없는 WebView: share() 시도는 호출부에서 처리
+            return false;
         } catch (e) {
             return false;
         }
+    }
+
+    function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = String(reader.result || '');
+                const idx = result.indexOf(',');
+                resolve(idx >= 0 ? result.slice(idx + 1) : result);
+            };
+            reader.onerror = () => reject(reader.error || new Error('FileReader failed'));
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    async function uploadSharePdf(blob, filename) {
+        const pdfBase64 = await blobToBase64(blob);
+        const res = await fetch('/api/share-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                filename: filename || 'Regio_report.pdf',
+                pdfBase64
+            })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success || !data.shareUrl) {
+            throw new Error(data.error || `공유 링크 생성 실패 (${res.status})`);
+        }
+        return data;
+    }
+
+    async function tryNavigatorShare(payload) {
+        if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
+            return { ok: false, reason: 'no-share' };
+        }
+        try {
+            if (payload.files && typeof navigator.canShare === 'function') {
+                try {
+                    if (!navigator.canShare({ files: payload.files })) {
+                        return { ok: false, reason: 'cannot-share-files' };
+                    }
+                } catch (_) {
+                    return { ok: false, reason: 'cannot-share-files' };
+                }
+            }
+            await navigator.share(payload);
+            return { ok: true };
+        } catch (err) {
+            if (err && err.name === 'AbortError') {
+                return { ok: false, reason: 'abort', error: err };
+            }
+            return { ok: false, reason: 'error', error: err };
+        }
+    }
+
+    function injectShareSheetStyles() {
+        if (document.getElementById('regio-pdf-share-sheet-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'regio-pdf-share-sheet-styles';
+        style.textContent = `
+            .regio-share-sheet-backdrop {
+                position: fixed; inset: 0; z-index: 100200;
+                background: rgba(15, 23, 42, 0.45);
+                display: flex; align-items: flex-end; justify-content: center;
+            }
+            .regio-share-sheet {
+                width: 100%; max-width: 480px;
+                background: #fff; border-radius: 16px 16px 0 0;
+                padding: 14px 14px calc(16px + env(safe-area-inset-bottom, 0px));
+                box-sizing: border-box;
+                font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+            }
+            .regio-share-sheet h3 {
+                margin: 0 0 6px; font-size: 15px; color: #0f172a;
+            }
+            .regio-share-sheet p {
+                margin: 0 0 12px; font-size: 12px; color: #64748b; line-height: 1.45;
+                word-break: break-all;
+            }
+            .regio-share-grid {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            }
+            .regio-share-grid button {
+                border: 1px solid #e2e8f0; background: #f8fafc; color: #1e293b;
+                border-radius: 10px; padding: 12px 10px; font-size: 13px; font-weight: 700;
+                min-height: 48px; cursor: pointer;
+            }
+            .regio-share-grid button.primary {
+                background: #4A90E2; border-color: #4A90E2; color: #fff;
+                grid-column: 1 / -1;
+            }
+            .regio-share-grid button.cancel {
+                grid-column: 1 / -1; background: #fff; color: #64748b;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * WebView에서 시스템 SNS 시트가 안 뜰 때 앱 내 대상 선택 UI
+     */
+    function openShareTargetSheet(options) {
+        injectShareSheetStyles();
+        const opts = options || {};
+        const existing = document.getElementById('regioShareSheet');
+        if (existing) existing.remove();
+
+        const shareUrl = opts.shareUrl || '';
+        const title = opts.title || 'Regio 보고서';
+        const text = opts.text || opts.filename || '';
+        const filename = opts.filename || 'Regio_report.pdf';
+
+        const backdrop = document.createElement('div');
+        backdrop.id = 'regioShareSheet';
+        backdrop.className = 'regio-share-sheet-backdrop';
+        backdrop.innerHTML = `
+            <div class="regio-share-sheet" role="dialog" aria-label="공유 대상 선택">
+                <h3>공유 대상 선택</h3>
+                <p>카카오톡·메시지 등 앱으로 보낼 PDF 링크입니다.<br>${shareUrl.replace(/</g, '&lt;')}</p>
+                <div class="regio-share-grid">
+                    <button type="button" class="primary" data-act="system">시스템 공유 (카톡 등)</button>
+                    <button type="button" data-act="kakao">카카오톡</button>
+                    <button type="button" data-act="sms">메시지</button>
+                    <button type="button" data-act="mail">이메일</button>
+                    <button type="button" data-act="copy">링크 복사</button>
+                    <button type="button" data-act="open">PDF 열기</button>
+                    <button type="button" class="cancel" data-act="cancel">닫기</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(backdrop);
+
+        return new Promise((resolve) => {
+            let done = false;
+            const finish = (result) => {
+                if (done) return;
+                done = true;
+                backdrop.remove();
+                resolve(result);
+            };
+
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) finish({ shared: false, cancelled: true });
+            });
+
+            backdrop.querySelectorAll('button[data-act]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const act = btn.getAttribute('data-act');
+                    const shareText = `${title}\n${text}\n${shareUrl}`.trim();
+                    try {
+                        if (act === 'cancel') {
+                            finish({ shared: false, cancelled: true });
+                            return;
+                        }
+                        if (act === 'system') {
+                            const r = await tryNavigatorShare({
+                                title,
+                                text: `${text}\n${shareUrl}`.trim(),
+                                url: shareUrl
+                            });
+                            if (r.ok) {
+                                finish({ shared: true, downloaded: false, via: 'system-url' });
+                                return;
+                            }
+                            if (r.reason === 'abort') {
+                                finish({ shared: false, cancelled: true });
+                                return;
+                            }
+                            alert('이 기기에서 시스템 공유 시트를 열 수 없습니다. 다른 버튼을 이용해 주세요.');
+                            return;
+                        }
+                        if (act === 'kakao') {
+                            // 카카오톡 앱 공유 인텐트 (링크 텍스트)
+                            const intent = 'intent://send?' +
+                                `text=${encodeURIComponent(shareText)}` +
+                                '#Intent;scheme=kakaotalk;package=com.kakao.talk;end';
+                            global.location.href = intent;
+                            finish({ shared: true, downloaded: false, via: 'kakao-intent' });
+                            return;
+                        }
+                        if (act === 'sms') {
+                            global.location.href = `sms:?body=${encodeURIComponent(shareText)}`;
+                            finish({ shared: true, downloaded: false, via: 'sms' });
+                            return;
+                        }
+                        if (act === 'mail') {
+                            global.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareText)}`;
+                            finish({ shared: true, downloaded: false, via: 'mail' });
+                            return;
+                        }
+                        if (act === 'copy') {
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                await navigator.clipboard.writeText(shareUrl);
+                            } else {
+                                const ta = document.createElement('textarea');
+                                ta.value = shareUrl;
+                                document.body.appendChild(ta);
+                                ta.select();
+                                document.execCommand('copy');
+                                ta.remove();
+                            }
+                            alert('공유 링크를 복사했습니다.');
+                            finish({ shared: true, downloaded: false, via: 'copy' });
+                            return;
+                        }
+                        if (act === 'open') {
+                            global.open(shareUrl, '_blank');
+                            finish({ shared: true, downloaded: false, via: 'open' });
+                        }
+                    } catch (err) {
+                        console.warn('share target failed:', act, err);
+                        alert('공유 실행 중 오류: ' + (err && err.message ? err.message : err));
+                    }
+                });
+            });
+        });
     }
 
     /**
      * @param {Blob} blob
      * @param {string} filename
      * @param {{ title?: string, text?: string, downloadOnCancel?: boolean }} [options]
-     * @returns {Promise<{ shared: boolean, downloaded: boolean, cancelled?: boolean }>}
+     * @returns {Promise<{ shared: boolean, downloaded: boolean, cancelled?: boolean, via?: string }>}
      */
     async function shareOrDownloadPdf(blob, filename, options) {
         const opts = options || {};
@@ -47,30 +277,108 @@
             : new Blob([blob], { type: 'application/pdf' });
         const file = new File([pdfBlob], name, { type: 'application/pdf' });
 
+        // 1) 네이티브 브리지(앱에서 주입 시)
+        try {
+            const native = global.RegioNativeShare || global.RegioAndroid;
+            if (native && typeof native.sharePdf === 'function') {
+                const b64 = await blobToBase64(pdfBlob);
+                await native.sharePdf(b64, name);
+                return { shared: true, downloaded: false, via: 'native' };
+            }
+            if (native && typeof native.sharePdfBase64 === 'function') {
+                const b64 = await blobToBase64(pdfBlob);
+                await native.sharePdfBase64(b64, name);
+                return { shared: true, downloaded: false, via: 'native' };
+            }
+        } catch (err) {
+            console.warn('네이티브 PDF 공유 실패:', err);
+        }
+
+        // 2) Capacitor Share (플러그인 있을 때)
+        try {
+            const cap = global.Capacitor;
+            const Share = cap && ((cap.Plugins && cap.Plugins.Share) || (cap.PluginRegistry && cap.PluginRegistry.Share));
+            if (Share && typeof Share.share === 'function') {
+                // 파일 없이 URL 경로를 선호 — 아래에서 URL 생성 후 재시도
+            }
+        } catch (_) { /* ignore */ }
+
+        // 3) Web Share Level 2 (파일) — Chrome 등
         if (canSharePdfFile(file)) {
-            try {
-                await navigator.share({
-                    files: [file],
-                    title,
-                    text
-                });
-                return { shared: true, downloaded: false };
-            } catch (err) {
-                const nameErr = err && err.name;
-                // 사용자가 공유창을 닫은 경우
-                if (nameErr === 'AbortError') {
-                    if (downloadOnCancel) {
-                        downloadBlob(pdfBlob, name);
-                        return { shared: false, downloaded: true, cancelled: true };
-                    }
-                    return { shared: false, downloaded: false, cancelled: true };
+            const fileShare = await tryNavigatorShare({
+                files: [file],
+                title,
+                text
+            });
+            if (fileShare.ok) return { shared: true, downloaded: false, via: 'web-share-file' };
+            if (fileShare.reason === 'abort') {
+                if (downloadOnCancel) {
+                    downloadBlob(pdfBlob, name);
+                    return { shared: false, downloaded: true, cancelled: true };
                 }
-                console.warn('PDF 공유 실패, 파일 저장으로 전환:', err);
+                return { shared: false, downloaded: false, cancelled: true };
+            }
+        } else if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+            // canShare 미지원 WebView에서도 파일 공유 한 번 시도
+            const fileShare = await tryNavigatorShare({
+                files: [file],
+                title,
+                text
+            });
+            if (fileShare.ok) return { shared: true, downloaded: false, via: 'web-share-file-try' };
+            if (fileShare.reason === 'abort') {
+                return { shared: false, downloaded: false, cancelled: true };
             }
         }
 
+        // 4) 임시 HTTPS 링크 생성 → URL 공유 (Android WebView에서 SNS 시트가 뜨는 경로)
+        try {
+            const uploaded = await uploadSharePdf(pdfBlob, name);
+            const shareUrl = uploaded.shareUrl;
+            const shareText = `${text}\n${shareUrl}`.trim();
+
+            const urlShare = await tryNavigatorShare({
+                title,
+                text: shareText,
+                url: shareUrl
+            });
+            if (urlShare.ok) {
+                return { shared: true, downloaded: false, via: 'web-share-url' };
+            }
+            if (urlShare.reason === 'abort') {
+                return { shared: false, downloaded: false, cancelled: true };
+            }
+
+            // Capacitor Share with URL
+            try {
+                const cap = global.Capacitor;
+                const Share = cap && ((cap.Plugins && cap.Plugins.Share) || (cap.PluginRegistry && cap.PluginRegistry.Share));
+                if (Share && typeof Share.share === 'function') {
+                    await Share.share({ title, text: shareText, url: shareUrl, dialogTitle: 'PDF 공유' });
+                    return { shared: true, downloaded: false, via: 'capacitor-share' };
+                }
+            } catch (err) {
+                console.warn('Capacitor Share 실패:', err);
+            }
+
+            // 5) 앱 내 SNS 대상 시트 (카톡/메시지/메일/시스템공유)
+            const sheetResult = await openShareTargetSheet({
+                shareUrl,
+                title,
+                text,
+                filename: name
+            });
+            return sheetResult;
+        } catch (err) {
+            console.warn('PDF URL 공유 경로 실패, 다운로드 폴백:', err);
+        }
+
+        // 6) 최후: 다운로드 (WebView에선 UI가 없을 수 있음 → 안내)
         downloadBlob(pdfBlob, name);
-        return { shared: false, downloaded: true };
+        if (isAndroidWebView()) {
+            alert('이 앱 WebView에서는 시스템 다운로드/공유 창이 제한될 수 있습니다.\n잠시 후 다시 시도하거나, 공유 시 네트워크 상태를 확인해 주세요.');
+        }
+        return { shared: false, downloaded: true, via: 'download' };
     }
 
     /** jsPDF 인스턴스 → 공유/저장 */
@@ -245,11 +553,20 @@
             shareBtn.disabled = true;
             statusEl.textContent = '공유 창 여는 중...';
             try {
-                await deliverJsPdf(pdfRef, fileName, shareOpts);
-                statusEl.textContent = '공유/저장 완료';
+                const result = await deliverJsPdf(pdfRef, fileName, shareOpts);
+                if (result && result.cancelled) {
+                    statusEl.textContent = '공유 취소됨';
+                } else if (result && result.shared) {
+                    statusEl.textContent = '공유 완료';
+                } else if (result && result.downloaded) {
+                    statusEl.textContent = '저장 시도 완료';
+                } else {
+                    statusEl.textContent = '공유/저장 완료';
+                }
             } catch (err) {
                 console.warn('PDF 공유 실패:', err);
                 statusEl.textContent = '공유 실패 — 다시 시도';
+                alert('공유 실패: ' + (err && err.message ? err.message : err));
             } finally {
                 shareBtn.disabled = false;
             }
