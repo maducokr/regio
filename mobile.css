@@ -23,27 +23,41 @@ html.regio-native-android,
 html.regio-webview {
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: contain;
-    /* 고정 height면 WebView에서 문서 스크롤이 막혀 종목·세목 목록을 더 볼 수 없음 */
-    height: auto;
     min-height: var(--app-vh, 100%);
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 html.regio-native-android body,
 html.regio-webview body {
-    /* none이면 일부 WebView에서 세로 스크롤이 먹통이 됨 → contain 유지 */
     overscroll-behavior-y: contain;
     overscroll-behavior-x: none;
     min-height: var(--app-vh, 100%);
-    height: auto;
-    overflow-x: hidden;
-    overflow-y: visible;
     touch-action: pan-y;
 }
 
-/* 활동입력만 화면 고정 레이아웃(내부 page-wrap 스크롤) — 보고서 페이지는 문서 스크롤 */
+/*
+ * 보고서(개인활동집계 등): html 고정 + body를 스크롤포트로.
+ * height:auto + overflow:auto 는 WebView에서 터치 세로 스크롤이 먹통이 되는 경우가 많음.
+ */
+html.regio-webview:has(body.report-page),
+html.regio-native-android:has(body.report-page) {
+    height: var(--app-vh, 100%);
+    max-height: var(--app-vh, 100%);
+    overflow: hidden;
+}
+
+html.regio-webview body.report-page,
+html.regio-native-android body.report-page {
+    height: var(--app-vh, 100%);
+    max-height: var(--app-vh, 100%);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+}
+
+/* 활동입력만 화면 고정 레이아웃(내부 page-wrap 스크롤) */
 html.regio-webview body.activity-input-page,
 html.regio-native-android body.activity-input-page {
     height: var(--app-vh, 100%);
@@ -582,10 +596,11 @@ button.login-button,
     gap: 12px;
 }
 
+/* overflow-x:auto 는 WebView에서 세로 플리킹을 가로채 스크롤 먹통을 만듦 → 표 가로는 래퍼만 사용 */
 #detailedSummary,
 #dailyActivitiesTable {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
+    max-width: 100%;
 }
 
 .delete-member .btn-row,
@@ -784,18 +799,23 @@ button.login-button,
         box-sizing: border-box;
     }
 
-    /* 표는 가로 스크롤만 허용, 페이지 전체를 밀어내지 않음 */
+    /* 표는 가로 스크롤만 허용(전용 래퍼). #detailedSummary 등에는 overflow 두지 않음 */
     .table-scroll-wrap,
     .event-report-scroll,
     .event-table-scroll,
     .org-table-wrap,
-    #detailedSummary,
-    #dailyActivitiesTable,
     .report-table-wrap {
         width: 100% !important;
         max-width: 100% !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+    }
+
+    #detailedSummary,
+    #dailyActivitiesTable {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
     }
 
     .report-table,

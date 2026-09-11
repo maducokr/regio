@@ -30,7 +30,7 @@
             } catch (e) { /* ignore */ }
         })();
     </script>
-    <link rel="stylesheet" href="mobile.css">
+    <link rel="stylesheet" href="mobile.css?v=20260911c">
     <style>
         * {
             margin: 0;
@@ -44,36 +44,40 @@
             min-height: 100vh;
             min-height: var(--app-vh, 100vh);
             color: #1f2937;
-            /* WebView에서 종목·세목 카드 목록까지 세로 스크롤 가능해야 함 */
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
         }
 
+        /*
+         * Android WebView: 문서(html) 스크롤이 아니라 body를 스크롤포트로 고정.
+         * #detailedSummary 등에 overflow-x:auto가 있으면 세로 플리킹이 먹통이 됨.
+         */
+        html.regio-webview,
+        html.regio-native-android {
+            height: var(--app-vh, 100%) !important;
+            max-height: var(--app-vh, 100%) !important;
+            overflow: hidden !important;
+        }
+
         html.regio-webview body.report-page,
         html.regio-native-android body.report-page {
-            height: auto !important;
-            max-height: none !important;
-            overflow-y: auto !important;
+            height: var(--app-vh, 100%) !important;
+            max-height: var(--app-vh, 100%) !important;
+            min-height: 0 !important;
+            overflow-x: hidden !important;
+            overflow-y: scroll !important;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
+            overscroll-behavior-y: contain;
             padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
         }
 
-        html.regio-webview,
-        html.regio-native-android {
-            height: auto !important;
-            max-height: none !important;
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        #detailedSummary {
-            touch-action: pan-y;
-        }
-
+        #detailedSummary,
+        #dailyActivitiesTable,
         #detailedSummary .personal-report-table {
+            overflow: visible !important;
             touch-action: pan-y;
         }
 
@@ -1518,7 +1522,7 @@
         }
     </style>
 </head>
-<body>
+<body class="report-page">
     <div class="header">
         <a href="index.html" class="back-button" onclick="sessionStorage.setItem('skipAutoLogin','true')">←</a>
         <div class="logo">
