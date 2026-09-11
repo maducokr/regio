@@ -1807,7 +1807,7 @@
     <script src="admin-menu.js"></script>
     <script src="user-help.js"></script>
     <script src="sample-member-roster.js"></script>
-    <script src="pdf-share.js?v=20260822a"></script>
+    <script src="pdf-share.js?v=20260911d"></script>
     <script src="curia-hub.js?v=20260828c"></script>
     <script src="curia-officer-register.js"></script>
     <script src="sample-annual-activity.js"></script>
@@ -2606,25 +2606,25 @@
             setExportButtonsLoading(true);
 
             try {
+                if (!window.html2canvas) {
+                    throw new Error('html2canvas를 불러오지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.');
+                }
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    throw new Error('jsPDF를 불러오지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.');
+                }
+
                 const table = getExportTableHtml(rows);
                 const headerHtml = table.headers.map(h =>
                     `<th style="padding:8px;border:1px solid #ccc;">${escapeHtml(h)}</th>`
                 ).join('');
                 const extraHtml = getExportExtraSectionsHtml();
-
-                const tempContainer = document.createElement('div');
-                tempContainer.style.position = 'absolute';
-                tempContainer.style.left = '-9999px';
-                tempContainer.style.top = '0';
-                tempContainer.style.width = '900px';
-                tempContainer.style.backgroundColor = 'white';
-                tempContainer.style.padding = '24px';
-                tempContainer.style.fontFamily = "'Malgun Gothic', '맑은 고딕', sans-serif";
-                tempContainer.innerHTML = `
-                    <h1 style="font-size: 12px;margin-bottom:8px;">Regio ${escapeHtml(meta.title)}</h1>
-                    <p style="margin:4px 0;">대상: ${escapeHtml(meta.subjectLabel)}</p>
-                    <p style="margin:4px 0;">조회기간: ${escapeHtml(meta.startDate)} ~ ${escapeHtml(meta.endDate)}</p>
-                    <h2 style="font-size: 12px;margin:20px 0 10px;">${escapeHtml(meta.scope === 'secretary' ? SECRETARY_SUMMARY_TITLE : '활동 요약')}</h2>
+                const summaryTitle = meta.scope === 'secretary' ? SECRETARY_SUMMARY_TITLE : '활동 요약';
+                const summaryPdfName = `Regio_활동요약_${meta.timestamp}.pdf`;
+                const formHtml = `
+                    <h1 style="font-size: 14px;margin:0 0 8px;">Regio ${escapeHtml(meta.title)}</h1>
+                    <p style="margin:4px 0;font-size:12px;">대상: ${escapeHtml(meta.subjectLabel)}</p>
+                    <p style="margin:4px 0;font-size:12px;">조회기간: ${escapeHtml(meta.startDate)} ~ ${escapeHtml(meta.endDate)}</p>
+                    <h2 style="font-size: 13px;margin:18px 0 10px;">${escapeHtml(summaryTitle)}</h2>
                     <table style="width:100%;border-collapse:collapse;font-size: 12px;">
                         <thead>
                             <tr style="background:#4A90E2;color:#fff;">${headerHtml}</tr>
@@ -2633,6 +2633,34 @@
                     </table>
                     ${extraHtml}
                 `;
+
+                // WebView: 화면 밖 캡처 대신 보이는 출력 폼을 띄운 뒤 PDF 생성·공유
+                if (window.RegioPdfShare && typeof RegioPdfShare.buildPdfFromHtml === 'function') {
+                    await RegioPdfShare.buildPdfFromHtml(formHtml, {
+                        title: meta.title || 'PDF 출력',
+                        filename: summaryPdfName,
+                        shareOptions: {
+                            title: summaryTitle,
+                            text: summaryPdfName
+                        },
+                        autoShare: false
+                    });
+                    return;
+                }
+
+                // 폴백(구버전 pdf-share): 뷰포트 안 고정 캡처
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'fixed';
+                tempContainer.style.left = '0';
+                tempContainer.style.top = '0';
+                tempContainer.style.width = '900px';
+                tempContainer.style.opacity = '0';
+                tempContainer.style.pointerEvents = 'none';
+                tempContainer.style.zIndex = '-1';
+                tempContainer.style.backgroundColor = 'white';
+                tempContainer.style.padding = '24px';
+                tempContainer.style.fontFamily = "'Malgun Gothic', '맑은 고딕', sans-serif";
+                tempContainer.innerHTML = formHtml;
                 document.body.appendChild(tempContainer);
 
                 const canvas = await html2canvas(tempContainer, {
@@ -2662,10 +2690,9 @@
                     heightLeft -= pageHeight;
                 }
 
-                const summaryPdfName = `Regio_활동요약_${meta.timestamp}.pdf`;
                 if (window.RegioPdfShare && typeof RegioPdfShare.deliverJsPdf === 'function') {
                     await RegioPdfShare.deliverJsPdf(pdf, summaryPdfName, {
-                        title: meta.scope === 'secretary' ? SECRETARY_SUMMARY_TITLE : '활동 요약',
+                        title: summaryTitle,
                         text: summaryPdfName
                     });
                 } else {
