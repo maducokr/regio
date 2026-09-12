@@ -37,6 +37,7 @@ const ROOT_SHARED_FILES = [
     'test-export-view.js',
     'user-help.js',
     'date-wheel-picker.js',
+    'korea-date.js',
     'activity-field-labels.js',
     'category-select-picker.js',
     'daegu-senatus-categories.js',

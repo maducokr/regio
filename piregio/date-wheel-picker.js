@@ -37,8 +37,13 @@
 
     function parseDateValue(value) {
         if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            if (global.RegioKoreaDate && typeof global.RegioKoreaDate.getKoreaYmdParts === 'function') {
+                const p = global.RegioKoreaDate.getKoreaYmdParts(new Date());
+                return { y: p.y, m: p.m, d: p.d };
+            }
             const now = new Date();
-            return { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() };
+            const k = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+            return { y: k.getUTCFullYear(), m: k.getUTCMonth() + 1, d: k.getUTCDate() };
         }
         const [y, m, d] = value.split('-').map(Number);
         return { y, m, d };
@@ -463,6 +468,7 @@
         open,
         close,
         enhanceAll,
-        bindInput
+        bindInput,
+        refreshDisplay: syncDisplay
     };
 })(typeof window !== 'undefined' ? window : global);

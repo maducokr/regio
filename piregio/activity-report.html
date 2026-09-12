@@ -1897,7 +1897,8 @@
     <script src="pr-business-report-form.js?v=20260828g"></script>
     <script src="curia-comprehensive-report-form.js?v=20260827v"></script>
     <script src="sensitive-action-auth.js"></script>
-    <script src="date-wheel-picker.js"></script>
+    <script src="korea-date.js?v=20260912b"></script>
+    <script src="date-wheel-picker.js?v=20260912a"></script>
     <script src="member-form-fields.js?v=20260825f"></script>
     <script src="profile-modal.js?v=20260825d"></script>
     <script>
@@ -2091,10 +2092,7 @@
             const startDate = document.getElementById('startDate')?.value?.trim();
             const endDate = document.getElementById('endDate')?.value?.trim();
             if (!startDate || !endDate) return false;
-            const today = new Date();
-            const todayStr = today.getFullYear() + '-' +
-                String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                String(today.getDate()).padStart(2, '0');
+            const todayStr = formatKoreaDateString(new Date());
             const sDate = startDate.split(' ')[0];
             const eDate = endDate.split(' ')[0];
             return sDate === todayStr && eDate === todayStr;
@@ -4060,7 +4058,10 @@
         }
 
         function formatKoreaDateString(date) {
-            const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+            if (window.RegioKoreaDate && typeof RegioKoreaDate.formatKoreaDateString === 'function') {
+                return RegioKoreaDate.formatKoreaDateString(date || new Date());
+            }
+            const koreaTime = new Date((date || new Date()).getTime() + (9 * 60 * 60 * 1000));
             return koreaTime.getUTCFullYear() + '-' +
                 String(koreaTime.getUTCMonth() + 1).padStart(2, '0') + '-' +
                 String(koreaTime.getUTCDate()).padStart(2, '0');
@@ -4610,11 +4611,8 @@
                 }
             }
 
-            // 오늘 날짜로 조회할 때는 시간 범위를 정확하게 설정
-            const today = new Date();
-            const todayString = today.getFullYear() + '-' + 
-                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(today.getDate()).padStart(2, '0');
+            // 오늘 날짜로 조회할 때는 시간 범위를 정확하게 설정 (한국 달력 기준)
+            const todayString = formatKoreaDateString(new Date());
             
             // 오늘 날짜인 경우 시작일은 00:00:00, 종료일은 23:59:59로 설정
             if (startDate === todayString && endDate === todayString) {
