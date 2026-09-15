@@ -168,6 +168,21 @@
             letter-spacing: -0.02em;
         }
 
+        .db-health-banner {
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 1.45;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .db-health-banner[hidden] {
+            display: none !important;
+        }
+
         .input-group {
             margin-bottom: 12px;
         }
@@ -1292,6 +1307,7 @@
 
     <div class="container">
         <h2 class="login-title">로그인</h2>
+        <div id="dbHealthBanner" class="db-health-banner" hidden></div>
 
         <div id="authGatedArea" class="auth-gated is-locked">
 
@@ -1461,6 +1477,7 @@
                 RegioPrivacyConsent.init();
             }
             checkAutoLogin();
+            checkDatabaseHealthBanner();
             RegioAuth.initGoogleSignIn(document.getElementById('googleSignInWrap'), function(user) {
                 if (window.RegioPrivacyConsent && !RegioPrivacyConsent.requireConsent()) return;
                 RegioAuth.storeLoginSuccess(user);
@@ -1700,6 +1717,35 @@
             loginIdSuggest.classList.add('open');
         }
 
+        function showLoginIdSuggestError(message) {
+            if (!loginIdSuggest) return;
+            const text = message || '회원 DB 조회에 실패했습니다.';
+            loginIdSuggest.innerHTML = `<li class="suggest-empty">${escapeHtmlText(text)}</li>`;
+            loginIdSuggest.classList.add('open');
+        }
+
+        async function checkDatabaseHealthBanner() {
+            const banner = document.getElementById('dbHealthBanner');
+            if (!banner) return;
+            try {
+                const res = await fetch('/api/health', { cache: 'no-store' });
+                const data = await res.json().catch(() => ({}));
+                if (data && data.ok === true) {
+                    banner.hidden = true;
+                    banner.textContent = '';
+                    return;
+                }
+                const dbErr = data && data.database && data.database.error
+                    ? String(data.database.error)
+                    : `HTTP ${res.status}`;
+                banner.hidden = false;
+                banner.textContent = `데이터베이스 연결 실패(${dbErr}). 로그인·회원가입이 되지 않습니다. Render의 DATABASE_URL(External Database URL)을 확인해 주세요.`;
+            } catch (err) {
+                banner.hidden = false;
+                banner.textContent = '서버/DB 상태를 확인할 수 없습니다. 네트워크 또는 Render 배포 상태를 확인해 주세요.';
+            }
+        }
+
         function escapeHtmlText(value) {
             return String(value ?? '')
                 .replace(/&/g, '&amp;')
@@ -1749,10 +1795,11 @@
                 if (selectedPositionCode) params.set('position_code', String(selectedPositionCode));
 
                 const response = await fetch(`/api/login-id-suggest?${params.toString()}`);
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (requestId !== loginSuggestRequestId) return;
                 if (!response.ok || !data.success) {
-                    hideLoginIdSuggest();
+                    const msg = data.error || '회원 DB 조회에 실패했습니다. (DB 연결을 확인하세요)';
+                    showLoginIdSuggestError(msg);
                     return;
                 }
 
