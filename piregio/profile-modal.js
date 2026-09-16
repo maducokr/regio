@@ -23,18 +23,43 @@
             document.head.appendChild(style);
         }
         style.textContent = `
-            .modal.profile-edit-modal { display: block; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; }
-            .profile-edit-modal .modal-content { background-color: white; margin: 5% auto 40px; padding: 30px; border-radius: 10px; width: 90%; max-width: 440px; position: relative; box-sizing: border-box; }
+            .modal.profile-edit-modal {
+                display: block;
+                position: fixed;
+                z-index: 10050;
+                left: 0; top: 0;
+                width: 100%;
+                height: 100%;
+                height: var(--app-vh, 100%);
+                background-color: rgba(0,0,0,0.5);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+            }
+            .profile-edit-modal .modal-content {
+                background-color: white;
+                margin: 5% auto 40px;
+                padding: 30px;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 440px;
+                position: relative;
+                box-sizing: border-box;
+            }
             @media (max-width: 767.98px) {
-                .profile-edit-modal { padding: 8px; }
+                .profile-edit-modal { padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
                 .profile-edit-modal .modal-content {
                     width: calc(100vw - 16px) !important;
                     max-width: calc(100vw - 16px) !important;
                     margin: 8px auto 16px !important;
                     padding: 16px 14px !important;
-                    max-height: calc(100dvh - 24px);
+                    /* WebView에서 100dvh=0 → --app-vh 사용 */
+                    max-height: calc(var(--app-vh, 100vh) - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
                     overflow-x: hidden;
                     overflow-y: auto;
+                    -webkit-overflow-scrolling: touch;
+                    touch-action: pan-y;
                 }
                 .profile-edit-modal .profile-field-row,
                 .profile-edit-modal .modal-content .profile-field-row[data-field="officerAppointed"].is-visible,
@@ -54,10 +79,14 @@
                     flex: 1 1 0;
                     width: auto !important;
                     min-width: 0 !important;
-                    min-height: 40px;
+                    min-height: 44px;
                 }
             }
-            .profile-edit-modal .modal-content .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; right: 20px; top: 15px; cursor: pointer; }
+            html.regio-webview .profile-edit-modal,
+            html.regio-native-android .profile-edit-modal {
+                z-index: 10050;
+            }
+            .profile-edit-modal .modal-content .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; right: 20px; top: 15px; cursor: pointer; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
             .profile-edit-modal .modal-content .close:hover { color: #000; }
             .profile-edit-modal .modal-content h2 { text-align: center; margin-bottom: 20px; color: #333; }
             .profile-edit-modal .modal-content input,
@@ -72,9 +101,9 @@
             .profile-edit-modal .id-prefix-label { display: flex; align-items: center; padding: 0 12px; background: #f8f9fa; border-right: 1px solid #ddd; font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; }
             .profile-edit-modal .id-input-box .input-field,
             .profile-edit-modal .id-input-box input[type="text"] { border: none; border-radius: 0; margin-bottom: 0; flex: 1; padding: 12px; min-width: 0; width: auto; }
-            .profile-edit-modal .position-picker { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); list-style: none; margin: 0; padding: 6px 0; z-index: 1100; max-height: 200px; overflow-y: auto; }
+            .profile-edit-modal .position-picker { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); list-style: none; margin: 0; padding: 6px 0; z-index: 1100; max-height: 200px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
             .profile-edit-modal .position-picker.open { display: block; }
-            .profile-edit-modal .position-picker li { padding: 8px 12px; font-size: 12px; color: #333; cursor: pointer; }
+            .profile-edit-modal .position-picker li { padding: 11px 12px; font-size: 12px; color: #333; cursor: pointer; min-height: 40px; box-sizing: border-box; }
             .profile-edit-modal .position-picker li:hover,
             .profile-edit-modal .position-picker li.selected { background: #eef5fc; color: #4A90E2; }
             .profile-edit-modal .position-picker .pos-code { display: inline-block; width: 32px; font-weight: bold; color: #4A90E2; }
@@ -87,8 +116,10 @@
             .profile-edit-modal .profile-field-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
             .profile-edit-modal .field-confirm-btn,
             .profile-edit-modal .field-save-btn {
-                width: 64px !important; min-height: 36px; padding: 0 8px !important; border: none; border-radius: 6px;
+                width: 64px !important; min-height: 40px; padding: 0 8px !important; border: none; border-radius: 6px;
                 font-size: 12px !important; font-weight: 600; cursor: pointer; color: #fff;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
             }
             .profile-edit-modal .field-confirm-btn { background: #6c757d !important; }
             .profile-edit-modal .field-confirm-btn:hover { background: #5a6268 !important; }
@@ -328,6 +359,9 @@
         modal.innerHTML = MF.buildProfileModalHtml({ title: '프로필 수정' });
         document.body.appendChild(modal);
 
+        // 햄버거 메뉴 직후 고스트 클릭으로 배경 탭 → 모달이 바로 닫히는 것 방지
+        const ignoreBackdropUntil = Date.now() + 500;
+
         const idField = MF.setupMemberIdField(modal, { mode: 'profile' });
         MF.fillMemberForm(modal, profileUser, idField, sessionUser);
 
@@ -351,11 +385,24 @@
             closeModal(modal);
         }
 
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+            content.addEventListener('click', (e) => e.stopPropagation());
+            content.addEventListener('touchend', (e) => e.stopPropagation(), { passive: true });
+        }
+
         modal.querySelector('#profileCancelBtn').addEventListener('click', requestCloseProfileModal);
         modal.querySelector('.close').onclick = requestCloseProfileModal;
-        modal.onclick = (e) => {
-            if (e.target === modal) requestCloseProfileModal();
-        };
+        modal.addEventListener('click', (e) => {
+            if (e.target !== modal) return;
+            if (Date.now() < ignoreBackdropUntil) return;
+            requestCloseProfileModal();
+        });
+        modal.addEventListener('touchend', (e) => {
+            if (e.target !== modal) return;
+            if (Date.now() < ignoreBackdropUntil) return;
+            requestCloseProfileModal();
+        }, { passive: true });
 
         const form = modal.querySelector('#memberProfileForm');
         form.addEventListener('submit', (e) => e.preventDefault());

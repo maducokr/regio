@@ -803,9 +803,21 @@ button.login-button,
         margin: 8px auto 20px !important;
         padding: 16px 14px !important;
         border-radius: 12px !important;
-        max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+        max-height: calc(var(--app-vh, 100vh) - 24px - var(--safe-top) - var(--safe-bottom));
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
         box-sizing: border-box;
+    }
+
+    html.regio-webview .profile-edit-modal,
+    html.regio-native-android .profile-edit-modal {
+        z-index: 10050 !important;
+        height: var(--app-vh, 100%) !important;
+        max-height: var(--app-vh, 100%) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     }
 
     /* 표는 가로 스크롤만 허용(전용 래퍼). #detailedSummary 등에는 overflow 두지 않음 */
