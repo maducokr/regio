@@ -515,25 +515,31 @@ button.login-button,
 
 @media (max-width: 767.98px) {
     .profile-edit-modal .profile-field-row {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: column !important;
+        align-items: stretch !important;
         gap: 8px;
     }
 
     .profile-edit-modal .profile-field-actions {
-        flex-direction: row;
-        width: 100%;
+        flex-direction: row !important;
+        align-items: center !important;
+        width: 100% !important;
         gap: 8px;
+        flex: 0 0 auto !important;
+        align-self: stretch !important;
     }
 
     .profile-edit-modal .field-confirm-btn,
     .profile-edit-modal .field-save-btn,
     .modal-content .profile-field-row .field-confirm-btn,
+    .modal-content .profile-field-row .field-save-btn,
     .modal-content .id-input-box .field-confirm-btn {
-        flex: 1 1 0;
+        flex: 1 1 0 !important;
         width: auto !important;
         min-width: 0 !important;
-        min-height: var(--touch-min);
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
     }
 }
 

@@ -24,7 +24,7 @@
         }
         style.textContent = `
             .modal.profile-edit-modal {
-                display: block;
+                display: block !important;
                 position: fixed;
                 z-index: 10050;
                 left: 0; top: 0;
@@ -36,6 +36,8 @@
                 -webkit-overflow-scrolling: touch;
                 touch-action: pan-y;
                 overscroll-behavior: contain;
+                align-items: stretch !important;
+                padding: 0;
             }
             .profile-edit-modal .modal-content {
                 background-color: white;
@@ -46,41 +48,6 @@
                 max-width: 440px;
                 position: relative;
                 box-sizing: border-box;
-            }
-            @media (max-width: 767.98px) {
-                .profile-edit-modal { padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
-                .profile-edit-modal .modal-content {
-                    width: calc(100vw - 16px) !important;
-                    max-width: calc(100vw - 16px) !important;
-                    margin: 8px auto 16px !important;
-                    padding: 16px 14px !important;
-                    /* WebView에서 100dvh=0 → --app-vh 사용 */
-                    max-height: calc(var(--app-vh, 100vh) - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-                    overflow-x: hidden;
-                    overflow-y: auto;
-                    -webkit-overflow-scrolling: touch;
-                    touch-action: pan-y;
-                }
-                .profile-edit-modal .profile-field-row,
-                .profile-edit-modal .modal-content .profile-field-row[data-field="officerAppointed"].is-visible,
-                .profile-edit-modal .modal-content .profile-field-row[data-field="prDates"].is-visible {
-                    flex-direction: column;
-                    align-items: stretch;
-                    flex-wrap: nowrap;
-                    gap: 8px;
-                }
-                .profile-edit-modal .profile-field-actions {
-                    flex-direction: row;
-                    width: 100%;
-                    gap: 8px;
-                }
-                .profile-edit-modal .field-confirm-btn,
-                .profile-edit-modal .field-save-btn {
-                    flex: 1 1 0;
-                    width: auto !important;
-                    min-width: 0 !important;
-                    min-height: 44px;
-                }
             }
             html.regio-webview .profile-edit-modal,
             html.regio-native-android .profile-edit-modal {
@@ -109,17 +76,40 @@
             .profile-edit-modal .position-picker .pos-code { display: inline-block; width: 32px; font-weight: bold; color: #4A90E2; }
             .profile-edit-modal .selected-position-text { display: block; margin-bottom: 6px; font-size: 12px; color: #4A90E2; font-weight: 600; }
             .profile-edit-modal .selected-position-text.empty { color: #999; font-weight: normal; }
-            .profile-edit-modal .profile-field-row { display: flex; flex-direction: row; align-items: stretch; gap: 6px; margin-bottom: 14px; }
+            .profile-edit-modal .profile-field-row {
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 6px;
+                margin-bottom: 14px;
+            }
             .profile-edit-modal .profile-field-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
             .profile-edit-modal .profile-field-main > input,
             .profile-edit-modal .profile-field-main > select { margin: 0; }
-            .profile-edit-modal .profile-field-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+            .profile-edit-modal .profile-field-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                flex: 0 0 auto;
+                align-self: flex-start;
+            }
             .profile-edit-modal .field-confirm-btn,
             .profile-edit-modal .field-save-btn {
-                width: 64px !important; min-height: 40px; padding: 0 8px !important; border: none; border-radius: 6px;
-                font-size: 12px !important; font-weight: 600; cursor: pointer; color: #fff;
+                flex: 0 0 auto !important;
+                width: 64px !important;
+                height: 40px !important;
+                min-height: 40px !important;
+                max-height: 40px !important;
+                padding: 0 8px !important;
+                border: none;
+                border-radius: 6px;
+                font-size: 12px !important;
+                font-weight: 600;
+                cursor: pointer;
+                color: #fff;
                 -webkit-tap-highlight-color: transparent;
                 touch-action: manipulation;
+                box-sizing: border-box;
             }
             .profile-edit-modal .field-confirm-btn { background: #6c757d !important; }
             .profile-edit-modal .field-confirm-btn:hover { background: #5a6268 !important; }
@@ -137,6 +127,7 @@
             .profile-edit-modal .profile-cancel-btn {
                 width: 100% !important; padding: 12px !important; background: #6c757d !important; color: #fff !important;
                 border: none; border-radius: 6px; font-size: 12px !important; font-weight: 600; cursor: pointer;
+                min-height: 44px; height: auto !important; max-height: none !important;
             }
             .profile-edit-modal .profile-cancel-btn:hover { background: #5a6268 !important; }
             .profile-edit-modal .id-g-prefix-btn {
@@ -152,6 +143,47 @@
                 background: #dc3545 !important; color: #fff !important; font-size: 12px !important; font-weight: 700; cursor: pointer;
             }
             .profile-edit-modal .id-position-change-btn:hover { background: #c82333 !important; }
+
+            /* 모바일: 입력 아래 확인/저장을 가로로 — 미디어쿼리를 마지막에 두어 덮어쓰기 */
+            @media (max-width: 767.98px) {
+                .profile-edit-modal { padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+                .profile-edit-modal .modal-content {
+                    width: calc(100vw - 16px) !important;
+                    max-width: calc(100vw - 16px) !important;
+                    margin: 8px auto 16px !important;
+                    padding: 16px 14px !important;
+                    max-height: calc(var(--app-vh, 100vh) - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    -webkit-overflow-scrolling: touch;
+                    touch-action: pan-y;
+                    border-radius: 12px !important;
+                }
+                .profile-edit-modal .profile-field-row,
+                .profile-edit-modal .modal-content .profile-field-row[data-field="officerAppointed"].is-visible,
+                .profile-edit-modal .modal-content .profile-field-row[data-field="prDates"].is-visible {
+                    flex-direction: column !important;
+                    align-items: stretch !important;
+                    flex-wrap: nowrap !important;
+                    gap: 8px !important;
+                }
+                .profile-edit-modal .profile-field-actions {
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    align-self: stretch !important;
+                    width: 100% !important;
+                    gap: 8px !important;
+                }
+                .profile-edit-modal .field-confirm-btn,
+                .profile-edit-modal .field-save-btn {
+                    flex: 1 1 0 !important;
+                    width: auto !important;
+                    min-width: 0 !important;
+                    height: 44px !important;
+                    min-height: 44px !important;
+                    max-height: 44px !important;
+                }
+            }
         `;
     }
 
