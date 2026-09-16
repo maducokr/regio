@@ -307,57 +307,96 @@
             document.head.appendChild(style);
         }
         style.textContent = `
-            .council-hub-modal.modal { display:block; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); overflow-y:auto; }
-            .council-hub-modal .modal-content { background:#fff; margin:8% auto 40px; padding:28px 24px; border-radius:12px; width:90%; max-width:420px; position:relative; box-sizing:border-box; }
-            .council-hub-modal .modal-content.wide { max-width:980px; width:min(980px, 96vw); }
+            .council-hub-modal.modal {
+                display: block !important;
+                position: fixed;
+                z-index: 10050;
+                left: 0; top: 0;
+                width: 100%;
+                height: 100%;
+                height: var(--app-vh, 100%);
+                background: rgba(0,0,0,0.5);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+                align-items: stretch !important;
+                padding: 0;
+            }
+            .council-hub-modal .modal-content {
+                background: #fff;
+                margin: 8% auto 40px;
+                padding: 28px 24px;
+                border-radius: 12px;
+                width: 90%;
+                max-width: 420px;
+                position: relative;
+                box-sizing: border-box;
+            }
+            .council-hub-modal .modal-content.wide { max-width: 980px; width: min(980px, 96vw); }
             @media (max-width: 767.98px) {
-                .council-hub-modal.modal { padding:8px; }
+                .council-hub-modal.modal { padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
                 .council-hub-modal .modal-content,
                 .council-hub-modal .modal-content.wide {
                     width: calc(100vw - 16px) !important;
                     max-width: calc(100vw - 16px) !important;
                     margin: 8px auto 16px !important;
                     padding: 16px 12px !important;
-                    max-height: calc(100dvh - 24px);
+                    max-height: calc(var(--app-vh, 100vh) - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
                     overflow-y: auto;
+                    -webkit-overflow-scrolling: touch;
+                    touch-action: pan-y;
                 }
             }
-            .council-hub-modal .close { color:#aaa; float:right; font-size:28px; font-weight:bold; position:absolute; right:18px; top:12px; cursor:pointer; }
-            .council-hub-modal .close:hover { color:#000; }
-            .council-hub-modal h2 { text-align:center; margin:0 0 8px; color:#1f2937; font-size: 12px; }
-            .council-hub-modal .hub-sub { text-align:center; margin:0 0 20px; color:#64748b; font-size: 12px; }
-            .council-hub-modal .hub-actions { display:flex; flex-direction:column; gap:10px; }
-            .council-hub-modal .hub-btn-row { display:flex; gap:10px; width:100%; }
-            .council-hub-modal .hub-btn-row .hub-btn { flex:1; width:auto; }
-            .council-hub-modal .hub-btn { width:100%; padding:14px 16px; border:1px solid #dbe3ee; border-radius:10px; background:#f8fafc; color:#334155; font-size: 12px; font-weight:700; cursor:pointer; }
-            .council-hub-modal .hub-btn:hover { border-color:#4A90E2; color:#4A90E2; background:#eef5fc; }
-            .council-hub-modal .hub-btn.primary { background:#4A90E2; border-color:#4A90E2; color:#fff; }
-            .council-hub-modal .hub-btn.primary:hover { background:#357ABD; }
-            .council-hub-modal .hub-btn.junior { background:#78350f; border-color:#78350f; color:#fff; }
-            .council-hub-modal .hub-btn.junior:hover { background:#5b2609; border-color:#5b2609; color:#fff; }
-            .council-hub-modal .org-toolbar { display:flex; gap:8px; align-items:stretch; margin-bottom:14px; flex-wrap:wrap; }
-            .council-hub-modal .org-toolbar input, .council-hub-modal .org-toolbar select { flex:1; min-width:100px; padding:11px 12px; border:1px solid #dbe3ee; border-radius:8px; font-size: 12px; }
-            .council-hub-modal .org-toolbar button { flex-shrink:0; padding:0 14px; border:none; border-radius:8px; background:#4A90E2; color:#fff; font-weight:600; cursor:pointer; min-height:42px; }
-            .council-hub-modal .org-toolbar button.pdf-btn { background:#16a34a; }
-            .council-hub-modal .org-toolbar button.pdf-btn:hover { background:#15803d; }
-            .council-hub-modal .org-toolbar button.pdf-btn:disabled { background:#94a3b8; cursor:not-allowed; }
-            .council-hub-modal .org-toolbar button.excel-btn { background:#2563eb; }
-            .council-hub-modal .org-toolbar button.excel-btn:hover { background:#1d4ed8; }
-            .council-hub-modal .org-toolbar button.excel-btn:disabled { background:#94a3b8; cursor:not-allowed; }
-            .council-hub-modal .org-toolbar button.hwp-btn { background:#7c3aed; }
-            .council-hub-modal .org-toolbar button.hwp-btn:hover { background:#6d28d9; }
-            .council-hub-modal .org-toolbar button.hwp-btn:disabled { background:#94a3b8; cursor:not-allowed; }
-            .council-hub-modal .org-meta { margin:0 0 12px; color:#555; font-size: 12px; line-height:1.5; }
-            .council-hub-modal .org-pr-block { margin-bottom:18px; }
-            .council-hub-modal .org-pr-title { margin:0 0 8px; padding:8px 10px; background:#eef5fc; border-radius:8px; color:#357ABD; font-size: 12px; font-weight:700; }
-            .council-hub-modal .org-table-wrap { overflow-x:auto; }
-            .council-hub-modal table { width:100%; border-collapse:collapse; font-size: 12px; }
+            .council-hub-modal .close {
+                color: #aaa; float: right; font-size: 28px; font-weight: bold;
+                position: absolute; right: 18px; top: 12px; cursor: pointer;
+                min-width: 44px; min-height: 44px;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .council-hub-modal .close:hover { color: #000; }
+            .council-hub-modal h2 { text-align: center; margin: 0 0 8px; color: #1f2937; font-size: 12px; }
+            .council-hub-modal .hub-sub { text-align: center; margin: 0 0 20px; color: #64748b; font-size: 12px; }
+            .council-hub-modal .hub-actions { display: flex; flex-direction: column; gap: 10px; }
+            .council-hub-modal .hub-btn-row { display: flex; gap: 10px; width: 100%; }
+            .council-hub-modal .hub-btn-row .hub-btn { flex: 1; width: auto; min-height: 48px; }
+            .council-hub-modal .hub-btn {
+                width: 100%; padding: 14px 16px; border: 1px solid #dbe3ee; border-radius: 10px;
+                background: #f8fafc; color: #334155; font-size: 12px; font-weight: 700; cursor: pointer;
+                min-height: 48px; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            }
+            .council-hub-modal .hub-btn:hover { border-color: #4A90E2; color: #4A90E2; background: #eef5fc; }
+            .council-hub-modal .hub-btn.primary { background: #4A90E2; border-color: #4A90E2; color: #fff; }
+            .council-hub-modal .hub-btn.primary:hover { background: #357ABD; }
+            .council-hub-modal .hub-btn.junior { background: #78350f; border-color: #78350f; color: #fff; }
+            .council-hub-modal .hub-btn.junior:hover { background: #5b2609; border-color: #5b2609; color: #fff; }
+            .council-hub-modal .org-toolbar { display: flex; gap: 8px; align-items: stretch; margin-bottom: 14px; flex-wrap: wrap; }
+            .council-hub-modal .org-toolbar input, .council-hub-modal .org-toolbar select { flex: 1; min-width: 100px; padding: 11px 12px; border: 1px solid #dbe3ee; border-radius: 8px; font-size: 12px; }
+            .council-hub-modal .org-toolbar button { flex-shrink: 0; padding: 0 14px; border: none; border-radius: 8px; background: #4A90E2; color: #fff; font-weight: 600; cursor: pointer; min-height: 42px; }
+            .council-hub-modal .org-toolbar button.pdf-btn { background: #16a34a; }
+            .council-hub-modal .org-toolbar button.pdf-btn:hover { background: #15803d; }
+            .council-hub-modal .org-toolbar button.pdf-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+            .council-hub-modal .org-toolbar button.excel-btn { background: #2563eb; }
+            .council-hub-modal .org-toolbar button.excel-btn:hover { background: #1d4ed8; }
+            .council-hub-modal .org-toolbar button.excel-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+            .council-hub-modal .org-toolbar button.hwp-btn { background: #7c3aed; }
+            .council-hub-modal .org-toolbar button.hwp-btn:hover { background: #6d28d9; }
+            .council-hub-modal .org-toolbar button.hwp-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+            .council-hub-modal .org-meta { margin: 0 0 12px; color: #555; font-size: 12px; line-height: 1.5; }
+            .council-hub-modal .org-pr-block { margin-bottom: 18px; }
+            .council-hub-modal .org-pr-title { margin: 0 0 8px; padding: 8px 10px; background: #eef5fc; border-radius: 8px; color: #357ABD; font-size: 12px; font-weight: 700; }
+            .council-hub-modal .org-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .council-hub-modal table { width: 100%; border-collapse: collapse; font-size: 12px; }
             .council-hub-modal th, .council-hub-modal td { border:1px solid #e2e8f0; padding:8px 10px; text-align:left; }
             .council-hub-modal th { background:#f8fafc; color:#475569; font-weight:600; white-space:nowrap; }
             .council-hub-modal td { color:#334155; }
             .council-hub-modal .empty { padding:24px; text-align:center; color:#888; }
             .council-hub-modal .back-row { margin-top:16px; display:flex; gap:8px; }
-            .council-hub-modal .back-row button { flex:1; padding:12px; border:1px solid #dbe3ee; border-radius:8px; background:#fff; color:#64748b; font-weight:600; cursor:pointer; }
+            .council-hub-modal .back-row button {
+                flex:1; padding:12px; border:1px solid #dbe3ee; border-radius:8px; background:#fff;
+                color:#64748b; font-weight:600; cursor:pointer; min-height:48px;
+                touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+            }
 
             .curia-monthly-form { border:1px solid #333; padding:16px 14px 20px; background:#fff; color:#111; font-size:12px; line-height:1.45; }
             .curia-monthly-form .form-head { text-align:center; margin-bottom:12px; }
@@ -534,6 +573,35 @@
 
     function closeModal(modal) {
         if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+    }
+
+    /** 햄버거/버튼 직후 고스트 클릭으로 배경 탭 → 모달 즉시 닫힘 방지 (WebView) */
+    function bindHubModalBackdropClose(modal) {
+        const ignoreBackdropUntil = Date.now() + 500;
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+            content.addEventListener('click', (e) => e.stopPropagation());
+            content.addEventListener('touchend', (e) => e.stopPropagation(), { passive: true });
+        }
+        const maybeClose = (e) => {
+            if (e.target !== modal) return;
+            if (Date.now() < ignoreBackdropUntil) return;
+            closeModal(modal);
+        };
+        modal.addEventListener('click', maybeClose);
+        modal.addEventListener('touchend', maybeClose, { passive: true });
+    }
+
+    function openCouncilHubModalShell() {
+        ensureStyles();
+        const existing = document.querySelector('.council-hub-modal');
+        if (existing) closeModal(existing);
+        const modal = document.createElement('div');
+        modal.className = 'modal council-hub-modal';
+        modal.innerHTML = '<div class="modal-content"></div>';
+        document.body.appendChild(modal);
+        bindHubModalBackdropClose(modal);
+        return modal;
     }
 
     function getLevelMeta(key) {
@@ -1325,24 +1393,13 @@
     }
 
     function showCouncilReportHubModal() {
-        ensureStyles();
         const user = getLoggedInUser();
         if (!user || !user.id) {
             alert('로그인이 필요합니다.');
             return;
         }
         refreshLoggedInUser().catch(() => {});
-
-        const existing = document.querySelector('.council-hub-modal');
-        if (existing) closeModal(existing);
-
-        const modal = document.createElement('div');
-        modal.className = 'modal council-hub-modal';
-        modal.innerHTML = '<div class="modal-content"></div>';
-        document.body.appendChild(modal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal(modal);
-        });
+        const modal = openCouncilHubModalShell();
         showReportTypeChooser(modal, 'curia');
     }
 
@@ -2881,39 +2938,16 @@
     }
 
     function showPrReportHubModal() {
-        ensureStyles();
         const user = getLoggedInUser();
         if (!user || !user.id) {
             alert('로그인이 필요합니다.');
             return;
         }
-        refreshLoggedInUser().then((live) => {
-            const existing = document.querySelector('.council-hub-modal');
-            if (existing) closeModal(existing);
-
-            const modal = document.createElement('div');
-            modal.className = 'modal council-hub-modal';
-            modal.innerHTML = '<div class="modal-content"></div>';
-            document.body.appendChild(modal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal(modal);
-            });
-            if (isGwangjuSenatusUser(live || user)) showPrDioceseChooser(modal);
-            else showPrReportTypeChooser(modal, '');
-        }).catch(() => {
-            const existing = document.querySelector('.council-hub-modal');
-            if (existing) closeModal(existing);
-
-            const modal = document.createElement('div');
-            modal.className = 'modal council-hub-modal';
-            modal.innerHTML = '<div class="modal-content"></div>';
-            document.body.appendChild(modal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal(modal);
-            });
-            if (isGwangjuSenatusUser(user)) showPrDioceseChooser(modal);
-            else showPrReportTypeChooser(modal, '');
-        });
+        // WebView: 네트워크 대기 없이 즉시 표시 (광주 여부는 세션 기준, 이후 갱신은 백그라운드)
+        const modal = openCouncilHubModalShell();
+        if (isGwangjuSenatusUser(user)) showPrDioceseChooser(modal);
+        else showPrReportTypeChooser(modal, '');
+        refreshLoggedInUser().catch(() => {});
     }
 
     global.showCouncilReportHubModal = showCouncilReportHubModal;
