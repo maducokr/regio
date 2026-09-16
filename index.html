@@ -1461,7 +1461,7 @@
     <script src="sensitive-action-auth.js"></script>
     <script src="activity-field-labels.js?v=20260822a"></script>
     <script src="date-wheel-picker.js"></script>
-    <script src="member-form-fields.js?v=20260825f"></script>
+    <script src="member-form-fields.js?v=20260916c"></script>
     <script src="profile-modal.js?v=20260916b"></script>
     <script src="curia-officer-register.js"></script>
     <script src="auth-ui.js?v=20260910d"></script>
@@ -2731,11 +2731,17 @@
                 return;
             }
             RegioMemberForm.ensureSharedFormStyles();
+            const existing = document.querySelector('.modal.registration-modal');
+            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+
             const modal = document.createElement('div');
-            modal.className = 'modal';
+            modal.className = 'modal registration-modal';
             modal.innerHTML = RegioMemberForm.buildRegisterModalHtml();
             
             document.body.appendChild(modal);
+            // 회원가입 버튼 직후 고스트 클릭으로 배경 탭 → 모달 즉시 닫힘 방지 (WebView)
+            const ignoreBackdropUntil = Date.now() + 500;
+
             const regIdField = RegioMemberForm.setupMemberIdField(modal, { mode: 'register', bindResetBtn: false });
             const regEmailAuth = RegioAuth.setupEmailVerificationUI({
                 emailInput: modal.querySelector('#regEmail'),
@@ -2745,6 +2751,10 @@
                 statusEl: modal.querySelector('#regEmailStatus'),
                 purpose: 'register'
             });
+
+            function closeRegistrationModal() {
+                if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+            }
 
             function resetRegistrationForm() {
                 regIdField.resetRegistrationId();
@@ -2790,18 +2800,22 @@
                 });
             }
             
-            // 모달 닫기
+            const content = modal.querySelector('.modal-content');
+            if (content) {
+                content.addEventListener('click', (e) => e.stopPropagation());
+                content.addEventListener('touchend', (e) => e.stopPropagation(), { passive: true });
+            }
+
             const closeBtn = modal.querySelector('.close');
-            closeBtn.onclick = function() {
-                document.body.removeChild(modal);
-            }
-            
-            // 모달 외부 클릭 시 닫기
-            modal.onclick = function(e) {
-                if (e.target === modal) {
-                    document.body.removeChild(modal);
-                }
-            }
+            if (closeBtn) closeBtn.onclick = closeRegistrationModal;
+
+            const maybeCloseBackdrop = (e) => {
+                if (e.target !== modal) return;
+                if (Date.now() < ignoreBackdropUntil) return;
+                closeRegistrationModal();
+            };
+            modal.addEventListener('click', maybeCloseBackdrop);
+            modal.addEventListener('touchend', maybeCloseBackdrop, { passive: true });
             
             // 등록 폼 제출
             const form = modal.querySelector('#registrationForm');
@@ -2949,7 +2963,7 @@
                         const registeredLoginId = regIdField.buildRegId();
                         const registeredPassword = formData.password;
                         alert('등록이 완료되었습니다. 로그인 화면에서 바로 입력됩니다.');
-                        document.body.removeChild(modal);
+                        closeRegistrationModal();
                         prepareLoginAfterRegistration(registeredLoginId, registeredPassword);
                     } else {
                         alert(data.error || '등록에 실패했습니다.');

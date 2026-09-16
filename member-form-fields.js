@@ -570,10 +570,14 @@
         }
         if (regPositionPicker) {
             regPositionPicker.querySelectorAll('li').forEach((item) => {
-                item.addEventListener('mousedown', (e) => {
+                const pick = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     applyRegPositionCode(item.dataset.code, item.dataset.label, item.dataset.tprefix);
-                });
+                };
+                // mousedown: 포커스 blur 전에 선택 / click·touchend: WebView 터치 보조
+                item.addEventListener('mousedown', pick);
+                item.addEventListener('click', pick);
             });
         }
         if (resetBtn && opts.bindResetBtn === true) {
@@ -587,6 +591,15 @@
                 hideRegPositionPicker();
             }
         });
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            // content stopPropagation(고스트클릭 방지) 시에도 피커가 닫히도록
+            modalContent.addEventListener('click', (e) => {
+                if (!e.target.closest('.reg-id-field-wrap')) {
+                    hideRegPositionPicker();
+                }
+            });
+        }
 
         return {
             mode: opts.mode || 'register',
@@ -1194,6 +1207,81 @@
             .modal-content .profile-field-row[data-field="officerAppointed"].is-visible,
             .modal-content .profile-field-row[data-field="prDates"].is-visible {
                 display: flex;
+            }
+
+            /* 회원가입 모달 — Android WebView (mobile.css bottom-sheet / 고스트클릭 대응) */
+            .modal.registration-modal {
+                display: block !important;
+                position: fixed;
+                z-index: 10050;
+                left: 0; top: 0;
+                width: 100%;
+                height: 100%;
+                height: var(--app-vh, 100%);
+                background-color: rgba(0,0,0,0.5);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+                align-items: stretch !important;
+                padding: 0;
+            }
+            .registration-modal .modal-content {
+                background-color: #fff;
+                margin: 5% auto 40px;
+                padding: 30px;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 440px;
+                position: relative;
+                box-sizing: border-box;
+            }
+            .registration-modal .modal-content .close {
+                color: #aaa; float: right; font-size: 28px; font-weight: bold;
+                position: absolute; right: 20px; top: 15px; cursor: pointer;
+                min-width: 44px; min-height: 44px;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .registration-modal .modal-content h2 {
+                text-align: center; margin-bottom: 20px; color: #333;
+            }
+            .registration-modal .modal-content input:not(.blank-editable),
+            .registration-modal .modal-content select {
+                width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;
+                font-size: 12px; box-sizing: border-box; margin-bottom: 14px;
+            }
+            .registration-modal .modal-content #registrationForm > button[type="submit"] {
+                width: 100%; padding: 12px; background: #4A90E2; color: #fff;
+                border: none; border-radius: 6px; font-size: 12px; font-weight: 600;
+                cursor: pointer; min-height: 48px;
+                touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            }
+            .registration-modal .modal-content .position-picker {
+                max-height: min(240px, 40vh);
+                -webkit-overflow-scrolling: touch;
+            }
+            .registration-modal .modal-content .position-picker li {
+                min-height: 44px; box-sizing: border-box;
+                display: flex; align-items: center;
+                touch-action: manipulation;
+            }
+            @media (max-width: 767.98px) {
+                .registration-modal {
+                    padding: 8px;
+                    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+                }
+                .registration-modal .modal-content {
+                    width: calc(100vw - 16px) !important;
+                    max-width: calc(100vw - 16px) !important;
+                    margin: 8px auto 16px !important;
+                    padding: 16px 14px !important;
+                    max-height: calc(var(--app-vh, 100vh) - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    -webkit-overflow-scrolling: touch;
+                    touch-action: pan-y;
+                    border-radius: 12px !important;
+                }
             }
         `;
     }
