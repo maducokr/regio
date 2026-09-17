@@ -949,7 +949,7 @@ button.login-button,
     [id$="Modal"] > div[style*="border-radius"] {
         width: calc(100vw - 16px) !important;
         max-width: calc(100vw - 16px) !important;
-        max-height: calc(100dvh - 16px - var(--safe-top) - var(--safe-bottom)) !important;
+        max-height: calc(var(--app-vh, 100vh) - 16px - var(--safe-top) - var(--safe-bottom)) !important;
         margin: 0 auto !important;
         box-sizing: border-box;
     }
@@ -957,5 +957,7 @@ button.login-button,
     #regioHelpModal {
         padding: 8px !important;
         align-items: stretch !important;
+        height: var(--app-vh, 100%) !important;
+        max-height: var(--app-vh, 100%) !important;
     }
 }

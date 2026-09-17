@@ -31,7 +31,7 @@
             } catch (e) { /* ignore */ }
         })();
     </script>
-    <link rel="stylesheet" href="mobile.css?v=20260917a">
+    <link rel="stylesheet" href="mobile.css?v=20260917b">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1147,7 +1147,7 @@
     <script src="app-mode.js"></script>
     <script src="webview-android.js"></script>
     <script src="admin-menu.js"></script>
-    <script src="user-help.js"></script>
+    <script src="user-help.js?v=20260917b"></script>
     <script src="sample-member-roster.js"></script>
     <script src="pdf-share.js?v=20260822a"></script>
     <script src="curia-hub.js?v=20260916a"></script>
@@ -4860,7 +4860,8 @@
                         showProfileEditModal();
                         break;
                     case 'help':
-                        alert('도움말');
+                        if (typeof showUserHelp === 'function') showUserHelp();
+                        else if (window.RegioUserHelp) RegioUserHelp.show();
                         break;
                     case 'withdraw':
                         if (!RegioAdminMenu.guardSampleMemberRestrictedAction('탈단')) break;
