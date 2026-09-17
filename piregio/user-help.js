@@ -271,37 +271,40 @@
                 width: 100%;
                 height: 100%;
                 height: var(--app-vh, 100%);
+                max-height: var(--app-vh, 100%);
                 background: rgba(0,0,0,0.55);
                 display: flex !important;
                 align-items: stretch;
                 justify-content: center;
                 z-index: 10050;
                 padding: 8px;
+                padding-top: calc(8px + env(safe-area-inset-top, 0px));
                 padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
                 box-sizing: border-box;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                touch-action: pan-y;
-                overscroll-behavior: contain;
+                overflow: hidden;
+                touch-action: none;
             }
             #regioHelpModal .regio-help-dialog {
                 background: #fff;
                 border-radius: 12px;
                 width: min(960px, 100%);
                 max-width: calc(100vw - 16px);
-                max-height: calc(var(--app-vh, 100vh) - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-                margin: auto;
+                /* max-height만 두면 WebView에서 flex 자식 스크롤이 깨짐 → 높이 고정 */
+                height: calc(var(--app-vh, 100vh) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+                max-height: calc(var(--app-vh, 100vh) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+                margin: 0 auto;
                 display: flex;
                 flex-direction: column;
                 box-shadow: 0 12px 40px rgba(0,0,0,0.25);
                 overflow: hidden;
                 box-sizing: border-box;
+                min-height: 0;
             }
             #regioHelpModal .regio-help-header {
                 display: flex; align-items: center; justify-content: space-between;
-                padding: 16px 20px; border-bottom: 1px solid #eee;
+                padding: 14px 16px; border-bottom: 1px solid #eee;
                 background: linear-gradient(135deg, #4A90E2, #357ABD); color: #fff;
-                flex-shrink: 0;
+                flex: 0 0 auto;
             }
             #regioHelpModal .regio-help-header h2 { margin: 0; font-size: 12px; font-weight: 700; }
             #regioHelpModal .regio-help-close {
@@ -312,24 +315,40 @@
                 touch-action: manipulation; -webkit-tap-highlight-color: transparent;
             }
             #regioHelpModal .regio-help-close:hover { background: rgba(255,255,255,0.35); }
-            #regioHelpModal .regio-help-layout { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+            #regioHelpModal .regio-help-layout {
+                display: flex;
+                flex: 1 1 0;
+                min-height: 0;
+                overflow: hidden;
+                position: relative;
+            }
             #regioHelpModal .regio-help-nav {
-                width: 168px; flex-shrink: 0; border-right: 1px solid #eee;
+                width: 168px; flex: 0 0 auto; border-right: 1px solid #eee;
                 overflow-y: auto; -webkit-overflow-scrolling: touch;
                 padding: 10px 8px; background: #f8f9fa; touch-action: pan-y;
             }
             #regioHelpModal .regio-help-nav-btn {
                 display: block; width: 100%; text-align: left; border: none; background: transparent;
                 padding: 12px; margin-bottom: 4px; border-radius: 8px; font-size: 12px; color: #333;
-                cursor: pointer; min-height: 44px;
+                cursor: pointer; min-height: 44px; box-sizing: border-box;
                 touch-action: manipulation; -webkit-tap-highlight-color: transparent;
             }
             #regioHelpModal .regio-help-nav-btn:hover { background: #e9ecef; }
             #regioHelpModal .regio-help-nav-btn.is-active { background: #4A90E2; color: #fff; font-weight: 600; }
             #regioHelpModal .regio-help-body {
-                flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-                padding: 20px 22px; font-size: 12px; line-height: 1.65; color: #333;
-                touch-action: pan-y; overscroll-behavior: contain;
+                flex: 1 1 0;
+                min-width: 0;
+                min-height: 0;
+                overflow-x: hidden;
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch;
+                padding: 16px 18px 24px;
+                font-size: 12px; line-height: 1.65; color: #333;
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+                position: relative;
+                z-index: 0;
+                background: #fff;
             }
             #regioHelpModal .regio-help-section { display: none; }
             #regioHelpModal .regio-help-section.is-active { display: block; }
@@ -348,16 +367,42 @@
             #regioHelpModal .regio-help-faq dt { font-weight: 700; margin-top: 14px; color: #333; }
             #regioHelpModal .regio-help-faq dd { margin: 4px 0 0 0; color: #555; }
             @media (max-width: 720px) {
-                #regioHelpModal .regio-help-layout { flex-direction: column; }
+                #regioHelpModal .regio-help-layout {
+                    flex-direction: column;
+                    flex: 1 1 0;
+                    min-height: 0;
+                }
                 #regioHelpModal .regio-help-nav {
-                    width: 100%; border-right: none; border-bottom: 1px solid #eee;
-                    display: flex; flex-wrap: wrap; gap: 4px;
-                    max-height: min(140px, 28vh);
-                    overflow-y: auto;
+                    width: 100%;
+                    flex: 0 0 auto;
+                    border-right: none;
+                    border-bottom: 1px solid #eee;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 4px;
+                    max-height: none;
+                    overflow: visible;
+                    position: relative;
+                    z-index: 2;
+                    background: #f8f9fa;
                 }
                 #regioHelpModal .regio-help-nav-btn {
-                    width: auto; flex: 1 1 auto; min-width: calc(50% - 4px);
-                    text-align: center; padding: 10px 6px; font-size: 12px; min-height: 44px;
+                    width: auto;
+                    flex: 1 1 calc(50% - 4px);
+                    min-width: calc(50% - 4px);
+                    max-width: calc(50% - 4px);
+                    text-align: center;
+                    padding: 10px 6px;
+                    font-size: 12px;
+                    min-height: 40px;
+                    margin-bottom: 0;
+                }
+                #regioHelpModal .regio-help-body {
+                    flex: 1 1 0;
+                    min-height: 0;
+                    overflow-y: scroll;
+                    -webkit-overflow-scrolling: touch;
+                    z-index: 1;
                 }
             }
         `;
@@ -383,6 +428,13 @@
     }
 
     function showUserHelp(initialSection) {
+        // WebView: 도움말 열릴 때 뷰포트 높이 재측정
+        try {
+            const root = document.documentElement;
+            const h = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 0));
+            if (h > 1) root.style.setProperty('--app-vh', h + 'px');
+        } catch (_) { /* ignore */ }
+
         ensureHelpStyles();
         closeUserHelp();
 

@@ -959,5 +959,35 @@ button.login-button,
         align-items: stretch !important;
         height: var(--app-vh, 100%) !important;
         max-height: var(--app-vh, 100%) !important;
+        overflow: hidden !important;
+    }
+
+    #regioHelpModal .regio-help-dialog {
+        height: calc(var(--app-vh, 100vh) - 16px - var(--safe-top) - var(--safe-bottom)) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        min-height: 0 !important;
+    }
+
+    #regioHelpModal .regio-help-layout {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #regioHelpModal .regio-help-nav {
+        flex: 0 0 auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        z-index: 2 !important;
+    }
+
+    #regioHelpModal .regio-help-body {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
     }
 }
