@@ -57,6 +57,37 @@ html.regio-native-android body.report-page {
     touch-action: pan-y;
 }
 
+/*
+ * 활동배당지시: 집계와 동일하게 body를 스크롤포트로.
+ * 중첩 overflow(회원 목록)만 두면 WebView에서 위로 플리킹이 먹통이 됨.
+ */
+html.regio-webview:has(body.assignment-page),
+html.regio-native-android:has(body.assignment-page) {
+    height: var(--app-vh, 100%);
+    max-height: var(--app-vh, 100%);
+    overflow: hidden;
+}
+
+html.regio-webview body.assignment-page,
+html.regio-native-android body.assignment-page {
+    height: var(--app-vh, 100%);
+    max-height: var(--app-vh, 100%);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+}
+
+html.regio-webview body.assignment-page .member-select-list,
+html.regio-native-android body.assignment-page .member-select-list {
+    max-height: none;
+    overflow: visible;
+    -webkit-overflow-scrolling: auto;
+    touch-action: pan-y;
+}
+
 /* 활동입력만 화면 고정 레이아웃(내부 page-wrap 스크롤) */
 html.regio-webview body.activity-input-page,
 html.regio-native-android body.activity-input-page {
