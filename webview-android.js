@@ -72,6 +72,21 @@
 
         App.addListener('backButton', function (event) {
             if (closeTopOverlay()) return;
+            // 로그인 화면 비번찾기 패널이면 로그인 탭으로
+            try {
+                const findPanel = document.getElementById('findPasswordPanel');
+                if (findPanel && !findPanel.classList.contains('panel-hidden')) {
+                    if (typeof global.handleLoginBack === 'function') {
+                        global.handleLoginBack();
+                        return;
+                    }
+                    const loginTab = document.querySelector('.login-tab[data-tab="login"]');
+                    if (loginTab) {
+                        loginTab.click();
+                        return;
+                    }
+                }
+            } catch (_) { /* ignore */ }
             if (event && event.canGoBack) {
                 global.history.back();
                 return;

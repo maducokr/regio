@@ -59,6 +59,17 @@
             cursor: pointer;
             position: absolute;
             left: 12px;
+            background: none;
+            border: none;
+            padding: 0;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 2;
         }
 
         .hamburger-menu {
@@ -1274,7 +1285,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="back-button">←</div>
+        <button type="button" class="back-button" id="loginBackBtn" aria-label="뒤로가기" title="뒤로가기">←</button>
         <div class="logo">
             <h1>Regio Note</h1>
         </div>
@@ -2002,7 +2013,38 @@
             });
             loginPanel.classList.toggle('panel-hidden', !isLogin);
             findPasswordPanel.classList.toggle('panel-hidden', isLogin);
+            const titleEl = document.querySelector('.login-title');
+            if (titleEl) titleEl.textContent = isLogin ? '로그인' : '비번 찾기';
         }
+
+        function isFindPasswordOpen() {
+            return findPasswordPanel && !findPasswordPanel.classList.contains('panel-hidden');
+        }
+
+        function handleLoginBack() {
+            // 열린 모달(회원가입·도움말 등)이 있으면 먼저 닫기
+            if (window.RegioWebViewAndroid && typeof RegioWebViewAndroid.closeTopOverlay === 'function') {
+                if (RegioWebViewAndroid.closeTopOverlay()) return;
+            } else {
+                const help = document.getElementById('regioHelpModal');
+                if (help) { help.remove(); return; }
+                const reg = document.querySelector('.modal.registration-modal');
+                if (reg && reg.parentNode) { reg.parentNode.removeChild(reg); return; }
+                const anyModal = document.querySelector('.modal');
+                if (anyModal && anyModal.parentNode) { anyModal.parentNode.removeChild(anyModal); return; }
+            }
+
+            // 비번찾기 → 로그인
+            if (isFindPasswordOpen()) {
+                switchLoginTab('login');
+                return;
+            }
+
+            // 이미 로그인 화면이면 추가 동작 없음 (AVD에서 alert만 뜨던 문제 제거)
+        }
+
+        // 하드웨어 BACK / 외부에서 호출 가능
+        window.handleLoginBack = handleLoginBack;
 
         function openFindPasswordTab() {
             loginTabs.classList.remove('hidden');
@@ -2446,10 +2488,15 @@
             return loggedIn;
         }
 
-        // 뒤로가기 버튼
-        document.querySelector('.back-button').addEventListener('click', function() {
-            alert('뒤로가기');
-        });
+        // 뒤로가기 버튼 (비번찾기 → 로그인 / 모달 닫기)
+        const loginBackBtn = document.getElementById('loginBackBtn') || document.querySelector('.back-button');
+        if (loginBackBtn) {
+            loginBackBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLoginBack();
+            });
+        }
 
         // 햄버거 메뉴 버튼
         const hamburgerMenu = document.getElementById('hamburgerMenu');
