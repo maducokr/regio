@@ -324,6 +324,17 @@ button.login-button,
     align-items: center;
     justify-content: center;
     left: calc(12px + var(--safe-left));
+    z-index: 80 !important;
+    position: absolute;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto !important;
+}
+
+/* 중앙 로고가 ← 터치를 가로채지 않도록 */
+.header > .logo,
+.top-bar > .logo {
+    pointer-events: none;
 }
 
 .dropdown-menu {

@@ -32,7 +32,7 @@
             } catch (e) { /* ignore */ }
         })();
     </script>
-    <link rel="stylesheet" href="mobile.css?v=20260917c">
+    <link rel="stylesheet" href="mobile.css?v=20260919a">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -55,9 +55,14 @@
         .top-bar .back-button {
             color: white;
             font-size: 18px; cursor: pointer;
-            position: absolute; left: 20px; background: none; border: none;
+            position: absolute; left: 12px; left: calc(12px + env(safe-area-inset-left, 0px));
+            background: none; border: none;
+            min-width: 44px; min-height: 44px; z-index: 80;
+            display: flex; align-items: center; justify-content: center;
+            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
         }
-        .top-bar .logo { text-align: center; flex: 1; color: white; }
+        .top-bar .logo { text-align: center; flex: 1; color: white; pointer-events: none; }
         .top-bar .logo h1 { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
         .top-bar .logo p { font-size: 12px; opacity: 0.9; }
         .hamburger-menu {
@@ -178,7 +183,7 @@
 </head>
 <body class="assignment-page">
     <div class="top-bar">
-        <button type="button" class="back-button" onclick="goHome()" title="홈으로">←</button>
+        <button type="button" class="back-button" data-nav="back" title="홈으로" aria-label="홈으로">←</button>
         <div class="logo">
             <h1>Regio Note</h1>
             <p>활동배당지시</p>
@@ -267,7 +272,8 @@
 
     <script src="auth-ui.js?v=20260819i"></script>
     <script src="app-mode.js"></script>
-    <script src="webview-android.js"></script>
+    <script src="app-nav.js?v=20260919a"></script>
+    <script src="webview-android.js?v=20260919a"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js?v=20260917c"></script>
     <script src="sample-member-roster.js"></script>
@@ -588,9 +594,14 @@
         document.getElementById('categoryCustom').addEventListener('input', validateForm);
 
         function goHome() {
+            if (window.RegioAppNav && typeof RegioAppNav.goHome === 'function') {
+                RegioAppNav.goHome();
+                return;
+            }
             sessionStorage.setItem('skipAutoLogin', 'true');
             window.location.href = 'index.html';
         }
+        window.goHome = goHome;
 
         const hamburgerMenu = document.getElementById('hamburgerMenu');
         const dropdownMenu = document.getElementById('dropdownMenu');

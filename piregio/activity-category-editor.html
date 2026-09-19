@@ -7,7 +7,7 @@
     <meta name="color-scheme" content="light">
     <meta name="mobile-web-app-capable" content="yes">
     <title>활동종목 및 활동자료 편집 - Regio</title>
-    <link rel="stylesheet" href="mobile.css">
+    <link rel="stylesheet" href="mobile.css?v=20260919a">
     <style>
         * {
             margin: 0;
@@ -619,7 +619,8 @@
         </div>
     </div>
 
-    <script src="webview-android.js"></script>
+    <script src="app-nav.js?v=20260919a"></script>
+    <script src="webview-android.js?v=20260919a"></script>
     <script src="daegu-senatus-categories.js?v=20260820a"></script>
     <script src="gwangju-senatus-categories.js?v=20260827v"></script>
     <script src="junior-categories.js?v=20260828c"></script>
@@ -1212,12 +1213,20 @@
 
         // 뒤로가기
         function goBack() {
+            function leave() {
+                if (window.RegioAppNav && typeof RegioAppNav.goBackOrHome === 'function') {
+                    RegioAppNav.goBackOrHome();
+                    return;
+                }
+                sessionStorage.setItem('skipAutoLogin', 'true');
+                window.location.href = 'index.html';
+            }
             if (hasChanges) {
                 if (confirm('저장하지 않은 변경사항이 있습니다. 정말로 나가시겠습니까?')) {
-                    window.history.back();
+                    leave();
                 }
             } else {
-                window.history.back();
+                leave();
             }
         }
     </script>

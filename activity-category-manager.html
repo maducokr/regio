@@ -594,7 +594,12 @@
 
         // 뒤로가기
         function goBack() {
-            window.history.back();
+            if (window.RegioAppNav && typeof RegioAppNav.goBackOrHome === 'function') {
+                RegioAppNav.goBackOrHome();
+                return;
+            }
+            sessionStorage.setItem('skipAutoLogin', 'true');
+            window.location.href = 'index.html';
         }
     </script>
 </body>

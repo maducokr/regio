@@ -72,21 +72,32 @@
 
         App.addListener('backButton', function (event) {
             if (closeTopOverlay()) return;
-            // 로그인 화면 비번찾기 패널이면 로그인 탭으로
+
+            // 로그인 화면 비번찾기 등
             try {
-                const findPanel = document.getElementById('findPasswordPanel');
-                if (findPanel && !findPanel.classList.contains('panel-hidden')) {
-                    if (typeof global.handleLoginBack === 'function') {
+                if (typeof global.handleLoginBack === 'function' && global.RegioAppNav && global.RegioAppNav.isLoginPage()) {
+                    const findPanel = document.getElementById('findPasswordPanel');
+                    const help = document.getElementById('regioHelpModal');
+                    const modal = document.querySelector('.modal');
+                    if ((findPanel && !findPanel.classList.contains('panel-hidden')) || help || modal) {
                         global.handleLoginBack();
-                        return;
-                    }
-                    const loginTab = document.querySelector('.login-tab[data-tab="login"]');
-                    if (loginTab) {
-                        loginTab.click();
                         return;
                     }
                 }
             } catch (_) { /* ignore */ }
+
+            // 하위 화면(활동입력·집계·배당 등) → 홈(로그인)
+            try {
+                if (global.RegioAppNav && !global.RegioAppNav.isLoginPage()) {
+                    global.RegioAppNav.goHome();
+                    return;
+                }
+                if (typeof global.goHome === 'function' && !(global.RegioAppNav && global.RegioAppNav.isLoginPage())) {
+                    global.goHome();
+                    return;
+                }
+            } catch (_) { /* ignore */ }
+
             if (event && event.canGoBack) {
                 global.history.back();
                 return;

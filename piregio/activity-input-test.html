@@ -31,7 +31,7 @@
             } catch (e) { /* ignore */ }
         })();
     </script>
-    <link rel="stylesheet" href="mobile.css?v=20260917c">
+    <link rel="stylesheet" href="mobile.css?v=20260919a">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -97,13 +97,24 @@
             cursor: pointer;
             position: absolute;
             left: 12px;
+            left: calc(12px + env(safe-area-inset-left, 0px));
             background: none;
             border: none;
             width: auto;
+            min-width: 44px;
+            min-height: 44px;
             height: auto;
             margin: 0;
+            padding: 0;
             box-shadow: none;
             border-radius: 0;
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
         }
 
         .top-bar .back-button:hover { opacity: 0.85; transform: none; }
@@ -112,6 +123,7 @@
             text-align: center;
             flex: 1;
             color: white;
+            pointer-events: none;
         }
 
         .top-bar .logo h1 {
@@ -953,7 +965,7 @@
 </head>
 <body class="activity-input-page">
     <div class="top-bar">
-        <button type="button" class="back-button" onclick="goHome()" title="홈으로 돌아가기">←</button>
+        <button type="button" class="back-button" id="activityBackBtn" data-nav="back" title="홈으로 돌아가기" aria-label="홈으로">←</button>
         <div class="logo">
             <h1>Regio Note</h1>
             <p>활동 입력</p>
@@ -1142,10 +1154,10 @@
     <script src="gwangju-senatus-categories.js?v=20260827v"></script>
     <script src="junior-categories.js?v=20260828c"></script>
     <script src="category-select-picker.js?v=20260910b"></script>
-    <script src="auth-ui.js?v=20260910d"></script>    <script src="webview-android.js?v=20260910a"></script>
-    <script src="deploy-mode.js"></script>
+    <script src="auth-ui.js?v=20260910d"></script>
     <script src="app-mode.js"></script>
-    <script src="webview-android.js"></script>
+    <script src="app-nav.js?v=20260919a"></script>
+    <script src="webview-android.js?v=20260919a"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js?v=20260917c"></script>
     <script src="sample-member-roster.js"></script>
@@ -4891,12 +4903,16 @@
             });
         });
 
-        // 홈으로 돌아가기 함수
+        // 홈으로 돌아가기 (app-nav.js 공통 함수 우선)
         function goHome() {
-            // 자동 로그인으로 다시 이 페이지로 튕겨오지 않도록 1회 건너뛰기 플래그 설정
+            if (window.RegioAppNav && typeof RegioAppNav.goHome === 'function') {
+                RegioAppNav.goHome();
+                return;
+            }
             sessionStorage.setItem('skipAutoLogin', 'true');
             window.location.href = 'index.html';
         }
+        window.goHome = goHome;
     </script>
 </body>
 </html>
