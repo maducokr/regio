@@ -53,11 +53,60 @@
             document.head.appendChild(style);
         }
         style.textContent = `
-            .curia-officer-modal.modal { display: block; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; }
-            .curia-officer-modal .modal-content { background-color: white; margin: 5% auto 40px; padding: 30px; border-radius: 10px; width: 90%; max-width: 480px; position: relative; }
-            .curia-officer-modal .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; right: 20px; top: 15px; cursor: pointer; }
+            .curia-officer-modal.modal {
+                display: flex !important;
+                flex-direction: column !important;
+                flex: none !important;
+                position: fixed !important;
+                z-index: 10050;
+                inset: 0;
+                left: 0; top: 0; right: 0; bottom: 0;
+                width: 100% !important;
+                width: 100vw !important;
+                height: 100% !important;
+                height: 100dvh !important;
+                max-height: none !important;
+                min-height: 100% !important;
+                margin: 0 !important;
+                background: rgba(15, 23, 42, 0.72);
+                overflow: hidden;
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+                padding: 8px;
+                padding-top: calc(8px + env(safe-area-inset-top, 0px));
+                padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+                box-sizing: border-box;
+                touch-action: pan-y;
+            }
+            html.regio-officer-open body { visibility: hidden !important; }
+            html.regio-officer-open .curia-officer-modal,
+            html.regio-officer-open .curia-officer-modal * { visibility: visible !important; }
+            .curia-officer-modal .modal-content {
+                background: #fff !important;
+                margin: 0 auto !important;
+                padding: 28px 22px 24px;
+                border-radius: 12px;
+                width: min(520px, 100%) !important;
+                max-width: min(520px, calc(100vw - 16px)) !important;
+                max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                max-height: calc(var(--app-vh, 100dvh) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+                box-sizing: border-box;
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+            .curia-officer-modal .close {
+                color: #aaa; float: right; font-size: 28px; font-weight: bold;
+                position: absolute; right: 12px; top: 8px; cursor: pointer;
+                min-width: 44px; min-height: 44px;
+                display: flex; align-items: center; justify-content: center;
+                touch-action: manipulation;
+            }
             .curia-officer-modal .close:hover { color: #000; }
-            .curia-officer-modal h2 { text-align: center; margin-bottom: 12px; color: #333; }
+            .curia-officer-modal h2 { text-align: center; margin: 0 0 12px; color: #333; padding-right: 36px; }
             .curia-officer-modal .hint { margin: 0 0 16px; padding: 8px 10px; background: #f8f9fa; border-radius: 6px; font-size: 11px; line-height: 1.45; color: #666; }
             .curia-officer-modal .member-summary { margin: 0 0 14px; font-size: 12px; color: #555; line-height: 1.5; }
             .curia-officer-modal .member-summary strong { color: #333; }
@@ -72,7 +121,7 @@
             .curia-officer-modal .choice-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
             .curia-officer-modal .choice-tab { flex: 1 1 calc(50% - 6px); min-width: 0; }
             .curia-officer-modal .choice-tab input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-            .curia-officer-modal .choice-tab span { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; min-height: 40px; padding: 8px 6px; border: 1px solid #dbe3ee; border-radius: 8px; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; box-sizing: border-box; }
+            .curia-officer-modal .choice-tab span { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; min-height: 44px; padding: 8px 6px; border: 1px solid #dbe3ee; border-radius: 8px; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; box-sizing: border-box; touch-action: manipulation; }
             .curia-officer-modal .choice-tab .tab-code { color: #4A90E2; font-weight: 700; }
             .curia-officer-modal .choice-tab input:checked + span { background: #4A90E2; border-color: #4A90E2; color: #fff; }
             .curia-officer-modal .choice-tab input:checked + span .tab-code { color: #fff; }
@@ -86,13 +135,14 @@
             .curia-officer-modal .id-input-box input:focus { outline: none; }
             .curia-officer-modal .code-preview { margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; background: #eef5fc; color: #357ABD; font-size: 12px; font-weight: 600; text-align: center; }
             .curia-officer-modal .code-preview.empty { background: #f8f9fa; color: #999; font-weight: 500; }
-            .curia-officer-modal .submit-btn { width: 100%; padding: 12px; background-color: #4A90E2; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 4px; }
+            .curia-officer-modal .submit-btn { width: 100%; padding: 12px; background-color: #4A90E2; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 4px; min-height: 48px; touch-action: manipulation; }
             .curia-officer-modal .submit-btn:hover { background-color: #357ABD; }
             .curia-officer-modal .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; background-color: #adb5bd; }
         `;
     }
 
     function closeModal(modal) {
+        document.documentElement.classList.remove('regio-officer-open');
         if (modal && modal.parentNode) {
             modal.parentNode.removeChild(modal);
         }
@@ -176,7 +226,18 @@
                 <button type="button" class="submit-btn" id="councilOfficerSaveBtn">저장</button>
             </div>
         `;
-        document.body.appendChild(modal);
+        document.documentElement.classList.add('regio-officer-open');
+        document.documentElement.appendChild(modal);
+        if (global.RegioWebViewAndroid && typeof RegioWebViewAndroid.refreshViewport === 'function') {
+            RegioWebViewAndroid.refreshViewport();
+        }
+
+        const ignoreBackdropUntil = Date.now() + 500;
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+            content.addEventListener('click', (e) => e.stopPropagation());
+            content.addEventListener('touchend', (e) => e.stopPropagation(), { passive: true });
+        }
 
         const nameInput = modal.querySelector('#councilNameInput');
         const approvedOnInput = modal.querySelector('#curiaApprovedOnInput');
@@ -226,8 +287,15 @@
         if (parsed) applyRole(parsed.role.key);
 
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal(modal);
+            if (e.target !== modal) return;
+            if (Date.now() < ignoreBackdropUntil) return;
+            closeModal(modal);
         });
+        modal.addEventListener('touchend', (e) => {
+            if (e.target !== modal) return;
+            if (Date.now() < ignoreBackdropUntil) return;
+            closeModal(modal);
+        }, { passive: true });
         modal.querySelector('.close').onclick = () => closeModal(modal);
 
         saveBtn.addEventListener('click', async () => {

@@ -35,11 +35,12 @@
 
     function closeTopOverlay() {
         const selectors = [
+            '.curia-officer-modal',
+            '.council-hub-modal',
+            '.profile-edit-modal',
             '.modal.show',
             '.modal[style*="display: block"]',
             '.modal:not([hidden])',
-            '.council-hub-modal',
-            '.profile-edit-modal',
             '.sensitive-auth-modal',
             '#sampleMemberRosterModal',
             '#sampleAnnualActivityModal',
@@ -58,6 +59,9 @@
             if (closer && typeof closer.click === 'function') {
                 closer.click();
                 return true;
+            }
+            if (el.classList && el.classList.contains('curia-officer-modal')) {
+                document.documentElement.classList.remove('regio-officer-open');
             }
             if (el.parentNode) {
                 el.parentNode.removeChild(el);

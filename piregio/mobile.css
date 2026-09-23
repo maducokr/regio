@@ -1067,13 +1067,33 @@ html.regio-native-android .council-hub-modal.modal {
 }
 
 html.regio-profile-open body,
-html.regio-hub-open body {
+html.regio-hub-open body,
+html.regio-officer-open body {
     visibility: hidden !important;
 }
 
 html.regio-profile-open .profile-edit-modal,
 html.regio-profile-open .profile-edit-modal *,
 html.regio-hub-open .council-hub-modal,
-html.regio-hub-open .council-hub-modal * {
+html.regio-hub-open .council-hub-modal *,
+html.regio-officer-open .curia-officer-modal,
+html.regio-officer-open .curia-officer-modal * {
     visibility: visible !important;
+}
+
+html.regio-webview .curia-officer-modal.modal,
+html.regio-native-android .curia-officer-modal.modal,
+html.regio-foldable .curia-officer-modal.modal {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    min-height: 100% !important;
+    z-index: 10050 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    background: rgba(15, 23, 42, 0.72) !important;
 }
