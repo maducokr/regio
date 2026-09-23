@@ -24,30 +24,55 @@
         }
         style.textContent = `
             .modal.profile-edit-modal {
-                display: block !important;
-                position: fixed;
+                display: flex !important;
+                flex-direction: column !important;
+                flex: none !important;
+                position: fixed !important;
                 z-index: 10050;
-                left: 0; top: 0;
-                width: 100%;
-                height: 100%;
-                height: var(--app-vh, 100%);
-                background-color: rgba(0,0,0,0.5);
-                overflow-y: auto;
+                left: 0; top: 0; right: 0; bottom: 0;
+                inset: 0;
+                width: 100% !important;
+                width: 100vw !important;
+                height: 100% !important;
+                height: 100dvh !important;
+                max-height: none !important;
+                min-height: 100% !important;
+                margin: 0 !important;
+                background-color: rgba(15, 23, 42, 0.72);
+                overflow: hidden;
                 -webkit-overflow-scrolling: touch;
                 touch-action: pan-y;
                 overscroll-behavior: contain;
                 align-items: stretch !important;
-                padding: 0;
+                justify-content: flex-start !important;
+                padding: 8px;
+                padding-top: calc(8px + env(safe-area-inset-top, 0px));
+                padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+                box-sizing: border-box;
+            }
+            html.regio-profile-open body {
+                visibility: hidden !important;
+            }
+            html.regio-profile-open .profile-edit-modal,
+            html.regio-profile-open .profile-edit-modal * {
+                visibility: visible !important;
             }
             .profile-edit-modal .modal-content {
-                background-color: white;
-                margin: 5% auto 40px;
+                background-color: #fff !important;
+                margin: 0 auto !important;
                 padding: 30px;
                 border-radius: 10px;
-                width: 90%;
-                max-width: 440px;
+                width: min(640px, 100%) !important;
+                max-width: min(640px, calc(100vw - 16px)) !important;
+                max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                max-height: calc(var(--app-vh, 100dvh) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
                 position: relative;
                 box-sizing: border-box;
+                flex: 1 1 auto;
+                min-height: 0;
             }
             html.regio-webview .profile-edit-modal,
             html.regio-native-android .profile-edit-modal {
@@ -345,6 +370,7 @@
     }
 
     function closeModal(modal) {
+        document.documentElement.classList.remove('regio-profile-open');
         if (modal && modal.parentNode) {
             modal.parentNode.removeChild(modal);
         }
@@ -389,7 +415,11 @@
         const modal = document.createElement('div');
         modal.className = 'modal profile-edit-modal';
         modal.innerHTML = MF.buildProfileModalHtml({ title: '프로필 수정' });
-        document.body.appendChild(modal);
+        document.documentElement.classList.add('regio-profile-open');
+        document.documentElement.appendChild(modal);
+        if (global.RegioWebViewAndroid && typeof RegioWebViewAndroid.refreshViewport === 'function') {
+            RegioWebViewAndroid.refreshViewport();
+        }
 
         // 햄버거 메뉴 직후 고스트 클릭으로 배경 탭 → 모달이 바로 닫히는 것 방지
         const ignoreBackdropUntil = Date.now() + 500;
