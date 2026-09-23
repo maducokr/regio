@@ -1038,7 +1038,6 @@ html.regio-foldable.regio-fold-open body.activity-input-page .container {
 
 /* 모달·도움말: 폴드 펼침 후에도 화면을 덮음. 높이를 --app-vh로 자르면 이전 화면이 비침 */
 html.regio-foldable #regioHelpModal,
-html.regio-foldable .council-hub-modal.modal,
 html.regio-foldable .modal.registration-modal {
     height: var(--app-vh, 100%) !important;
     max-height: none !important;
@@ -1049,7 +1048,10 @@ html.regio-foldable .modal.registration-modal {
 
 html.regio-foldable .profile-edit-modal,
 html.regio-webview .profile-edit-modal,
-html.regio-native-android .profile-edit-modal {
+html.regio-native-android .profile-edit-modal,
+html.regio-foldable .council-hub-modal.modal,
+html.regio-webview .council-hub-modal.modal,
+html.regio-native-android .council-hub-modal.modal {
     position: fixed !important;
     inset: 0 !important;
     width: 100% !important;
@@ -1064,11 +1066,14 @@ html.regio-native-android .profile-edit-modal {
     overflow: hidden !important;
 }
 
-html.regio-profile-open body {
+html.regio-profile-open body,
+html.regio-hub-open body {
     visibility: hidden !important;
 }
 
 html.regio-profile-open .profile-edit-modal,
-html.regio-profile-open .profile-edit-modal * {
+html.regio-profile-open .profile-edit-modal *,
+html.regio-hub-open .council-hub-modal,
+html.regio-hub-open .council-hub-modal * {
     visibility: visible !important;
 }

@@ -308,32 +308,60 @@
         }
         style.textContent = `
             .council-hub-modal.modal {
-                display: block !important;
-                position: fixed;
+                display: flex !important;
+                flex-direction: column !important;
+                flex: none !important;
+                position: fixed !important;
                 z-index: 10050;
-                left: 0; top: 0;
-                width: 100%;
-                height: 100%;
-                height: var(--app-vh, 100%);
-                background: rgba(0,0,0,0.5);
-                overflow-y: auto;
+                left: 0; top: 0; right: 0; bottom: 0;
+                inset: 0;
+                width: 100% !important;
+                width: 100vw !important;
+                height: 100% !important;
+                height: 100dvh !important;
+                max-height: none !important;
+                min-height: 100% !important;
+                margin: 0 !important;
+                background: rgba(15, 23, 42, 0.72);
+                overflow: hidden;
                 -webkit-overflow-scrolling: touch;
                 touch-action: pan-y;
                 overscroll-behavior: contain;
                 align-items: stretch !important;
-                padding: 0;
-            }
-            .council-hub-modal .modal-content {
-                background: #fff;
-                margin: 8% auto 40px;
-                padding: 28px 24px;
-                border-radius: 12px;
-                width: 90%;
-                max-width: 420px;
-                position: relative;
+                justify-content: flex-start !important;
+                padding: 8px;
+                padding-top: calc(8px + env(safe-area-inset-top, 0px));
+                padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
                 box-sizing: border-box;
             }
-            .council-hub-modal .modal-content.wide { max-width: 980px; width: min(980px, 96vw); }
+            html.regio-hub-open body {
+                visibility: hidden !important;
+            }
+            html.regio-hub-open .council-hub-modal,
+            html.regio-hub-open .council-hub-modal * {
+                visibility: visible !important;
+            }
+            .council-hub-modal .modal-content {
+                background: #fff !important;
+                margin: 0 auto !important;
+                padding: 28px 24px;
+                border-radius: 12px;
+                width: min(640px, 100%) !important;
+                max-width: min(640px, calc(100vw - 16px)) !important;
+                max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                max-height: calc(var(--app-vh, 100dvh) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+                box-sizing: border-box;
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+            .council-hub-modal .modal-content.wide {
+                max-width: min(980px, calc(100vw - 16px)) !important;
+                width: min(980px, 100%) !important;
+            }
             @media (max-width: 767.98px) {
                 .council-hub-modal.modal { padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
                 .council-hub-modal .modal-content,
@@ -572,7 +600,13 @@
     }
 
     function closeModal(modal) {
+        if (!document.querySelector('.council-hub-modal') || (modal && document.querySelectorAll('.council-hub-modal').length <= 1)) {
+            document.documentElement.classList.remove('regio-hub-open');
+        }
         if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+        if (!document.querySelector('.council-hub-modal')) {
+            document.documentElement.classList.remove('regio-hub-open');
+        }
     }
 
     /** 햄버거/버튼 직후 고스트 클릭으로 배경 탭 → 모달 즉시 닫힘 방지 (WebView) */
@@ -599,7 +633,11 @@
         const modal = document.createElement('div');
         modal.className = 'modal council-hub-modal';
         modal.innerHTML = '<div class="modal-content"></div>';
-        document.body.appendChild(modal);
+        document.documentElement.classList.add('regio-hub-open');
+        document.documentElement.appendChild(modal);
+        if (global.RegioWebViewAndroid && typeof RegioWebViewAndroid.refreshViewport === 'function') {
+            RegioWebViewAndroid.refreshViewport();
+        }
         bindHubModalBackdropClose(modal);
         return modal;
     }
