@@ -23,15 +23,22 @@
                 root.classList.add('regio-webview');
                 if (isWv) root.classList.add('regio-native-android');
                 function setVh() {
-                    var h = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || 0));
+                    var vv = window.visualViewport;
+                    var h = Math.max(1, Math.round((vv && vv.height) || window.innerHeight || 0));
+                    var w = Math.max(1, Math.round((vv && vv.width) || window.innerWidth || 0));
                     root.style.setProperty('--app-vh', h + 'px');
+                    root.style.setProperty('--app-vw', w + 'px');
                 }
                 setVh();
                 window.addEventListener('resize', setVh, { passive: true });
+                window.addEventListener('orientationchange', setVh, { passive: true });
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', setVh, { passive: true });
+                }
             } catch (e) { /* ignore */ }
         })();
     </script>
-    <link rel="stylesheet" href="mobile.css?v=20260919a">
+    <link rel="stylesheet" href="mobile.css?v=20260923a">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1157,7 +1164,7 @@
     <script src="auth-ui.js?v=20260910d"></script>
     <script src="app-mode.js"></script>
     <script src="app-nav.js?v=20260919a"></script>
-    <script src="webview-android.js?v=20260919a"></script>
+    <script src="webview-android.js?v=20260923a"></script>
     <script src="admin-menu.js"></script>
     <script src="user-help.js?v=20260917c"></script>
     <script src="sample-member-roster.js"></script>

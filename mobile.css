@@ -1002,3 +1002,46 @@ button.login-button,
         touch-action: pan-y !important;
     }
 }
+
+/* ========== 폴드폰 WebView (접기/펼치기) ========== */
+html.regio-webview,
+html.regio-native-android {
+    width: var(--app-vw, 100%);
+    max-width: 100%;
+}
+
+html.regio-foldable.regio-fold-open {
+    /* 펼침: 태블릿형 폭 — 기존 768px 미디어와 맞추기 쉬움 */
+}
+
+html.regio-foldable.regio-fold-open body,
+html.regio-foldable.regio-fold-closed body {
+    min-height: var(--app-vh, 100%);
+}
+
+html.regio-foldable.regio-fold-open .page-wrap .container,
+html.regio-foldable.regio-fold-open body.report-page .container,
+html.regio-foldable.regio-fold-open body.assignment-page .container,
+html.regio-foldable.regio-fold-open body.activity-input-page .container {
+    max-width: min(960px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 힌지 spanning(지원 기기): 좌우 여백을 세그먼트에 맞춤 — 미지원 시 무시 */
+@supports (width: env(viewport-segment-width 0 0)) {
+    html.regio-fold-spanning body {
+        padding-left: env(safe-area-inset-left, 0px);
+        padding-right: env(safe-area-inset-right, 0px);
+    }
+}
+
+/* 모달·도움말: 폴드 펼침 후에도 --app-vh 기준 유지 */
+html.regio-foldable #regioHelpModal,
+html.regio-foldable .council-hub-modal.modal,
+html.regio-foldable .profile-edit-modal,
+html.regio-foldable .modal.registration-modal {
+    height: var(--app-vh, 100%) !important;
+    max-height: var(--app-vh, 100%) !important;
+    width: var(--app-vw, 100%) !important;
+}
