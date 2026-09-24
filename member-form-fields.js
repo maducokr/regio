@@ -69,19 +69,52 @@
     function sanitizeIdBody(value) {
         return String(value || '').trim()
             .replace(new RegExp(`^(?:10|[1-9])(?=[TG]${POSITION_CODE_RE})`, 'i'), '')
+            .replace(/^[TG][56][78]/i, '')
             .replace(/^(?:10|[1-9])/, '')
             .replace(new RegExp(`^[TG]${POSITION_CODE_RE}`, 'i'), '');
+    }
+
+    function positionCodesFromKey(code) {
+        const s = String(code || '');
+        if (s === '57') return ['5', '7'];
+        if (s === '68') return ['6', '8'];
+        if (!s) return [];
+        return [s];
+    }
+
+    function positionLabelFromCodes(codes) {
+        const list = (codes || []).map((c) => String(c));
+        if (list.includes('5') && list.includes('7')) return '행동단원·쁘레또리운 겸';
+        if (list.includes('6') && list.includes('8')) return '협조단원·아듀또리움 겸';
+        return list
+            .map((c) => POSITION_LABELS[c] || '')
+            .filter(Boolean)
+            .join('·');
     }
 
     function parseLoginStyleId(loginId) {
         const trimmed = String(loginId || '').trim();
         const withoutLeadingCode = trimmed.replace(new RegExp(`^(?:10|[1-9])(?=[TG]${POSITION_CODE_RE})`, 'i'), '');
+        const compound = withoutLeadingCode.match(/^([TG])(57|68)(.+?)(\d{4})$/i);
+        if (compound) {
+            const letter = compound[1].toUpperCase();
+            const digits = compound[2];
+            const codes = positionCodesFromKey(digits);
+            return {
+                positionCode: parseInt(digits, 10),
+                positionCodes: codes,
+                name: `${letter}${digits}${compound[3]}`,
+                phone_last4: compound[4],
+                position: positionLabelFromCodes(codes)
+            };
+        }
         const match = withoutLeadingCode.match(new RegExp(`^([TG])(${POSITION_CODE_RE})(.+?)(\\d{4})$`, 'i'));
         if (!match) return null;
         const code = parseInt(match[2], 10);
         const letter = match[1].toUpperCase();
         return {
             positionCode: code,
+            positionCodes: [String(code)],
             name: `${letter}${match[2]}${match[3]}`,
             phone_last4: match[4],
             position: POSITION_LABELS[code] || null
@@ -89,9 +122,16 @@
     }
 
     function buildPositionPickerHtml() {
-        return POSITION_ITEMS.map((p) =>
-            `<li data-code="${p.code}" data-label="${escapeAttr(p.label)}" data-tprefix="${p.tprefix}"><span class="pos-code">${p.tprefix}</span>${escapeAttr(p.label)}</li>`
-        ).join('');
+        const noteByCode = {
+            7: '행동단원 겸',
+            8: '협조단원 겸'
+        };
+        return POSITION_ITEMS.map((p) => {
+            const note = noteByCode[p.code]
+                ? `<span class="pos-note">${noteByCode[p.code]}</span>`
+                : '';
+            return `<li data-code="${p.code}" data-label="${escapeAttr(p.label)}" data-tprefix="${p.tprefix}"><span class="pos-code">${p.tprefix}</span>${escapeAttr(p.label)}${note}</li>`;
+        }).join('');
     }
 
     function buildChoiceTabsHtml(name, options, ariaLabel) {
@@ -130,8 +170,8 @@
                 <ul class="position-picker" id="regPositionPicker">${buildPositionPickerHtml()}</ul>
             </div>
             <p class="id-hint">${isProfile
-                ? '이름 앞 <strong>G1~G10</strong> 뒤의 <strong style="color:#dc3545;">빨간 변경</strong>을 눌러 직책을 바꿉니다.'
-                : '직책 선택 후 <strong>성명+숫자4자리</strong> 입력 (G는 자동 적용)'}</p>
+                ? '이름 앞 <strong>G1~G10</strong> 뒤의 <strong style="color:#dc3545;">빨간 변경</strong>을 눌러 직책을 바꿉니다. 쁘레또리운은 행동단원 겸, 아듀또리움은 협조단원 겸입니다.'
+                : '직책 선택 후 <strong>성명+숫자4자리</strong> 입력 (G는 자동 적용). 쁘레또리운은 행동단원 겸, 아듀또리움은 협조단원 겸입니다.'}</p>
             <p class="id-hint" id="regCuriaHint" style="display:none;">협조단원은 <strong>Pr만</strong> 입력하면 되며, 꾸리아 명칭은 나중에 기록할 수 있습니다.</p>
         `;
     }
@@ -420,8 +460,9 @@
         const prDatesWrap = modal.querySelector('#regPrDatesWrap');
         const prFoundedInput = modal.querySelector('#regPrFoundedOn');
         const prApprovedInput = modal.querySelector('#regPrApprovedOn');
-        const isCooperator = String(code) === '6';
-        const showOfficer = ['1', '2', '3', '4'].includes(String(code));
+        const codes = positionCodesFromKey(code);
+        const isCooperator = codes.includes('6');
+        const showOfficer = codes.some((c) => ['1', '2', '3', '4'].includes(c));
 
         if (curiaWrap) curiaWrap.style.display = isCooperator ? 'none' : '';
         if (curiaInput) {
@@ -462,8 +503,8 @@
         const resetBtn = modal.querySelector('#resetRegIdBtn');
         const prefixBtn = modal.querySelector('#regIdPrefixBtn');
         const positionChangeBtn = modal.querySelector('#regPositionChangeBtn');
-        let regSelectedPositionCode = '';
-        let regSelectedPositionTPrefix = '';
+        let selectedCodes = [];
+        let lastPickAt = 0;
 
         const senatusEl = modal.querySelector('#regSenatus');
         if (senatusEl && !senatusEl._dioceseBound) {
@@ -502,29 +543,94 @@
             }
         }
 
-        function applyRegPositionCode(code, label, tPrefix) {
-            regSelectedPositionCode = code;
-            regSelectedPositionTPrefix = tPrefix || '';
-            updateRegSelectedPositionDisplay(code, label, tPrefix);
-            updateFormForPosition(modal, code);
+        function codeKey() {
+            return [...selectedCodes].sort((a, b) => Number(a) - Number(b)).join('');
+        }
+
+        function prefixForSelection() {
+            const key = codeKey();
+            if (key === '57') return 'G57';
+            if (key === '68') return 'G68';
+            if (selectedCodes.length === 1) {
+                const item = POSITION_ITEMS.find((p) => p.code === selectedCodes[0]);
+                return item ? item.tprefix : '';
+            }
+            return '';
+        }
+
+        function pairCodes(code) {
+            if (code === '5' || code === '7') return ['5', '7'];
+            if (code === '6' || code === '8') return ['6', '8'];
+            return null;
+        }
+
+        function syncSelection(options) {
+            const closePicker = !!(options && options.close);
+            const key = codeKey();
+            const tPrefix = prefixForSelection();
+            const label = positionLabelFromCodes(
+                [...selectedCodes].sort((a, b) => Number(a) - Number(b))
+            );
+            updateRegSelectedPositionDisplay(key, label, tPrefix);
+            updateFormForPosition(modal, key);
             if (regPositionPicker) {
                 regPositionPicker.querySelectorAll('li').forEach((item) => {
-                    item.classList.toggle('selected', item.dataset.code === code);
+                    item.classList.toggle('selected', selectedCodes.includes(item.dataset.code));
                 });
             }
             if (regUsernameInput) regUsernameInput.focus();
-            hideRegPositionPicker();
+            if (closePicker) hideRegPositionPicker();
+            else showRegPositionPicker();
+        }
+
+        function applyPositions(codes) {
+            selectedCodes = (codes || []).map((c) => String(c)).filter((c) => POSITION_LABELS[c] || POSITION_LABELS[Number(c)]);
+            syncSelection({ close: true });
+        }
+
+        function applyRegPositionCode(code) {
+            const s = String(code || '');
+            if (!s) {
+                selectedCodes = [];
+                syncSelection({ close: true });
+                return;
+            }
+            applyPositions(positionCodesFromKey(s));
+        }
+
+        function togglePositionCode(code) {
+            const pair = pairCodes(code);
+            if (!pair) {
+                selectedCodes = [code];
+                syncSelection({ close: true });
+                return;
+            }
+            const base = pair[0];
+            const extra = pair[1];
+            selectedCodes = selectedCodes.filter((c) => pair.includes(c));
+            if (code === extra) {
+                if (selectedCodes.includes(extra)) {
+                    selectedCodes = selectedCodes.filter((c) => c !== extra);
+                } else {
+                    selectedCodes = [base, extra];
+                }
+            } else if (selectedCodes.includes(base)) {
+                selectedCodes = [];
+            } else {
+                selectedCodes = [base];
+            }
+            syncSelection({ close: selectedCodes.length > 0 });
         }
 
         function buildRegId() {
             const body = sanitizeIdBody(regUsernameInput ? regUsernameInput.value : '');
-            if (!regSelectedPositionTPrefix) return body;
-            return `${regSelectedPositionTPrefix}${body}`;
+            const tPrefix = prefixForSelection();
+            if (!tPrefix) return body;
+            return `${tPrefix}${body}`;
         }
 
         function resetRegistrationId() {
-            regSelectedPositionCode = '';
-            regSelectedPositionTPrefix = '';
+            selectedCodes = [];
             updateRegSelectedPositionDisplay('', '', '');
             updateFormForPosition(modal, '');
             if (regPositionPicker) {
@@ -573,7 +679,10 @@
                 const pick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    applyRegPositionCode(item.dataset.code, item.dataset.label, item.dataset.tprefix);
+                    const now = Date.now();
+                    if (now - lastPickAt < 400) return;
+                    lastPickAt = now;
+                    togglePositionCode(item.dataset.code);
                 };
                 // mousedown: 포커스 blur 전에 선택 / click·touchend: WebView 터치 보조
                 item.addEventListener('mousedown', pick);
@@ -604,10 +713,11 @@
         return {
             mode: opts.mode || 'register',
             buildRegId,
-            getSelectedPositionCode: () => regSelectedPositionCode,
-            getSelectedPositionTPrefix: () => regSelectedPositionTPrefix,
-            hasPosition: () => !!regSelectedPositionTPrefix,
+            getSelectedPositionCode: () => codeKey(),
+            getSelectedPositionTPrefix: () => prefixForSelection(),
+            hasPosition: () => selectedCodes.length > 0,
             applyPosition: applyRegPositionCode,
+            applyPositions,
             setIdBody: (body) => {
                 if (regUsernameInput) regUsernameInput.value = body;
             },
@@ -745,6 +855,20 @@
     function memberToRegFields(user) {
         const name = String((user && user.name) || '');
         const phone4 = String((user && user.phone_last4) || '').replace(/\D/g, '').slice(-4);
+        const dualMatch = name.match(/^([TG])(57|68)(.+)$/i);
+        if (dualMatch) {
+            const digits = dualMatch[2];
+            const codes = positionCodesFromKey(digits);
+            const idBody = phone4 ? `${dualMatch[3]}${phone4}` : dualMatch[3];
+            return {
+                isLegacy: false,
+                positionCode: digits,
+                positionCodes: codes,
+                label: positionLabelFromCodes(codes),
+                tprefix: `${dualMatch[1].toUpperCase()}${digits}`,
+                idBody
+            };
+        }
         const prefixMatch = name.match(/^([TG])((?:10|[1-9]))(.+)$/i);
         if (prefixMatch) {
             const code = prefixMatch[2];
@@ -765,7 +889,11 @@
         const u = user || {};
         const regFields = memberToRegFields(u);
         if (!regFields.isLegacy && idField) {
-            idField.applyPosition(regFields.positionCode, regFields.label, regFields.tprefix);
+            if (regFields.positionCodes && typeof idField.applyPositions === 'function') {
+                idField.applyPositions(regFields.positionCodes);
+            } else {
+                idField.applyPosition(regFields.positionCode, regFields.label, regFields.tprefix);
+            }
         } else if (idField) {
             idField.updateFormForPosition('');
         }
@@ -900,7 +1028,7 @@
             }
         }
 
-        const isCooperator = positionCode === '6';
+        const isCooperator = positionCode === '6' || positionCode === '68';
         const isG1toG4 = ['1', '2', '3', '4'].includes(positionCode);
         const selectedGender = modal.querySelector('input[name="regGender"]:checked');
         const selectedPrType = modal.querySelector('input[name="regPrType"]:checked');
@@ -1264,6 +1392,12 @@
                 min-height: 44px; box-sizing: border-box;
                 display: flex; align-items: center;
                 touch-action: manipulation;
+            }
+            .modal-content .position-picker .pos-note {
+                margin-left: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                color: #64748b;
             }
             @media (max-width: 767.98px) {
                 .registration-modal {

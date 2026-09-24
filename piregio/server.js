@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
@@ -23,6 +24,7 @@ const {
     verifyPurchaseWithGoogle,
     saveVerifiedPurchase
 } = require('./lib/google-play-billing');
+const { patchActivityReportHtml, getActivityFieldLabelsSource, applyStartupActivityReportPatch } = require('./lib/patch-activity-report-html');
 const { ensureCoreSchema } = require('./lib/ensure-core-schema');
 const {
     purgeOldActivityRecords,
@@ -42,9 +44,35 @@ try {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+applyStartupActivityReportPatch(__dirname);
+
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
+
+// 활동집계: 구버전 HTML도 한글 필드명 표시 (Render 정적 캐시·구배포 대응)
+app.get('/activity-report.html', (req, res) => {
+    try {
+        const filePath = path.join(__dirname, 'activity-report.html');
+        const html = patchActivityReportHtml(fs.readFileSync(filePath, 'utf8'));
+        res.set('Cache-Control', 'no-store');
+        res.type('html').send(html);
+    } catch (err) {
+        console.error('activity-report.html 패치 실패:', err);
+        res.sendFile(path.join(__dirname, 'activity-report.html'));
+    }
+});
+
+app.get('/activity-field-labels.js', (req, res) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.type('application/javascript').send(getActivityFieldLabelsSource());
+    } catch (err) {
+        console.error('activity-field-labels.js 로드 실패:', err);
+        res.status(404).send('// not found');
+    }
+});
+
 app.use(express.static('.'));
 
 /** 임시 PDF 공유 링크 (SNS URL 공유용, 메모리·짧은 TTL) */
@@ -387,7 +415,6 @@ function rejectSampleToolsInDeploy(req, res) {
     return true;
 }
 
-/** 프론트: 로컬 모의 vs Deploy 모드 확인 */
 app.get('/api/health', async (req, res) => {
     const target = describeDbTarget();
     let dbOk = false;
@@ -461,12 +488,18 @@ app.get('/api/share-pdf/:id', (req, res) => {
     res.send(entry.buffer);
 });
 
+/** Render Blueprint healthCheckPath (/health) */
+app.get('/health', (req, res) => {
+    res.redirect(307, '/api/health');
+});
+
 app.get('/api/runtime-mode', async (req, res) => {
     const sampleTools = allowSampleTools(req);
     const production = process.env.NODE_ENV === 'production';
     res.json({
         success: true,
         mode: sampleTools ? 'local' : 'deploy',
+        build: '20260822-label-fix',
         sampleToolsAllowed: sampleTools,
         nodeEnv: process.env.NODE_ENV || 'development',
         production,
@@ -935,9 +968,19 @@ app.get('/api/council-monthly-report', async (req, res) => {
                 }
             }
 
-            const code = memberCode(row);
+            let code = memberCode(row);
             const gender = String(row.gender || '').trim();
             const ageRow = membershipByAge[ageKey];
+            const dual = getDualMembership(row.position, row.name);
+            if (dual === 'active-prae') {
+                current.praetorian += 1;
+                ageRow.praetorian += 1;
+                code = 5;
+            } else if (dual === 'aux-adj') {
+                current.adjutorian += 1;
+                ageRow.adjutorian += 1;
+                code = 6;
+            }
 
             if (code === 7) {
                 current.praetorian += 1;
@@ -1615,8 +1658,16 @@ app.get('/api/curia-comprehensive-roster', async (req, res) => {
                 curiaStats.meeting_time_place = String(row.curia_meeting_place).trim();
             }
 
-            const code = memberCodeFromRow(row);
+            let code = memberCodeFromRow(row);
             const gender = String(row.gender || '').trim();
+            const dual = getDualMembership(row.position, row.name);
+            if (dual === 'active-prae') {
+                curiaStats.praetorian += 1;
+                code = 5;
+            } else if (dual === 'aux-adj') {
+                curiaStats.adjutorian += 1;
+                code = 6;
+            }
             if (code === 7) curiaStats.praetorian += 1;
             else if (code === 8) curiaStats.adjutorian += 1;
             else if (code === 6) {
@@ -2102,8 +2153,16 @@ app.get('/api/pr-monthly-report', async (req, res) => {
         let prType = '';
 
         for (const row of membersResult.rows) {
-            const code = memberCode(row);
+            let code = memberCode(row);
             const gender = String(row.gender || '').trim();
+            const dual = getDualMembership(row.position, row.name);
+            if (dual === 'active-prae') {
+                membership.praetorian += 1;
+                code = 5;
+            } else if (dual === 'aux-adj') {
+                membership.adjutorian += 1;
+                code = 6;
+            }
             if (!prType && row.pr_type) prType = String(row.pr_type).trim();
 
             const curia = String(row.curia_name || '').trim();
@@ -3723,6 +3782,7 @@ function formatMemoNoteLines(rows, displayNameFn) {
         for (const line of lines || []) {
             const text = String(line || '').trim();
             if (!text) continue;
+            // 본문(날짜·이름 제외) 기준 중복 제거 — 종목 note + 메모 종목 이중 저장 대응
             const parts = text.split(/\n/);
             const body = parts.length > 1 ? parts.slice(1).join('\n').trim() : text;
             const key = (body || text).replace(/\s+/g, ' ').trim().toLowerCase();
@@ -4986,6 +5046,28 @@ function inferPositionCode(position, name) {
     return 5;
 }
 
+/** 행동단원+쁘레또리운(G57), 협조단원+아듀또리움(G68) */
+function getDualMembership(position, name) {
+    const p = String(position || '');
+    const hasActive = p.includes('행동');
+    const hasAux = p.includes('협조');
+    const hasPrae = p.includes('쁘레또리') || p.includes('쁘레토리') || p.includes('프레토리');
+    const hasAdj = p.includes('아듀또리움') || p.includes('아듀토리움') || p.includes('오디토리움');
+    const prefix = matchPositionPrefix(name);
+    const digits = prefix && prefix.compoundDigits ? String(prefix.compoundDigits) : '';
+    if ((hasActive && hasPrae) || digits === '57') return 'active-prae';
+    if ((hasAux && hasAdj) || digits === '68') return 'aux-adj';
+    return null;
+}
+
+function memberHasPositionCode(position, name, code) {
+    const want = Number(code);
+    const dual = getDualMembership(position, name);
+    if (dual === 'active-prae') return want === 5 || want === 7;
+    if (dual === 'aux-adj') return want === 6 || want === 8;
+    return inferPositionCode(position, name) === want;
+}
+
 function buildLoginId(member) {
     const phone4 = String(member.phone_last4 || '').replace(/\D/g, '').slice(-4).padStart(4, '0');
     const realName = extractRealNameFromMemberName(member.name);
@@ -5818,7 +5900,7 @@ app.get('/api/login-id-suggest', async (req, res) => {
                     if (phone4 !== phoneLast4) return false;
                 }
                 if (hasPositionFilter) {
-                    return inferPositionCode(row.position, row.name) === positionCode;
+                    return memberHasPositionCode(row.position, row.name, positionCode);
                 }
                 return true;
             })
