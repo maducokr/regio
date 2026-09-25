@@ -401,6 +401,10 @@
             .council-hub-modal .org-toolbar { display: flex; gap: 8px; align-items: stretch; margin-bottom: 14px; flex-wrap: wrap; }
             .council-hub-modal .org-toolbar input, .council-hub-modal .org-toolbar select { flex: 1; min-width: 100px; padding: 11px 12px; border: 1px solid #dbe3ee; border-radius: 8px; font-size: 12px; }
             .council-hub-modal .org-toolbar button { flex-shrink: 0; padding: 0 14px; border: none; border-radius: 8px; background: #4A90E2; color: #fff; font-weight: 600; cursor: pointer; min-height: 42px; }
+            .council-hub-modal .org-toolbar .pdf-ref-note {
+                flex-shrink: 0; align-self: center; margin: 0 2px;
+                font-size: 11px; font-weight: 700; color: #b45309; white-space: nowrap;
+            }
             .council-hub-modal .org-toolbar button.pdf-btn { background: #16a34a; }
             .council-hub-modal .org-toolbar button.pdf-btn:hover { background: #15803d; }
             .council-hub-modal .org-toolbar button.pdf-btn:disabled { background: #94a3b8; cursor: not-allowed; }
@@ -1251,6 +1255,7 @@
                 <select id="councilMonthlyMonth"></select>
                 <button type="button" id="councilMonthlySearchBtn">조회</button>
                 <button type="button" class="pdf-btn" id="councilMonthlyPdfBtn" disabled>PDF</button>
+                <span class="pdf-ref-note">참고용</span>
                 <button type="button" class="excel-btn" id="councilMonthlyExcelBtn" disabled>Excel</button>
                 <button type="button" class="hwp-btn" id="councilMonthlyHwpBtn" disabled>한글</button>
             </div>
@@ -2649,6 +2654,7 @@
                 <select id="prMonthlyMonth"></select>
                 <button type="button" id="prMonthlySearchBtn">조회</button>
                 <button type="button" class="pdf-btn" id="prMonthlyPdfBtn" disabled>PDF</button>
+                <span class="pdf-ref-note">참고용</span>
                 <button type="button" class="excel-btn" id="prMonthlyExcelBtn" disabled>Excel</button>
                 <button type="button" class="hwp-btn" id="prMonthlyHwpBtn" disabled>한글</button>
             </div>
