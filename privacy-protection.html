@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보 보호 조치</title>
+    <link rel="stylesheet" href="mobile.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .doc {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        h1 {
+            font-size: 1.35rem;
+            margin: 0 0 8px;
+            color: #1a1a1a;
+        }
+        .updated {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 24px;
+        }
+        h2 {
+            font-size: 1rem;
+            margin: 24px 0 8px;
+            color: #2c3e50;
+        }
+        p, li {
+            font-size: 0.95rem;
+        }
+        ul {
+            padding-left: 1.25rem;
+            margin: 8px 0;
+        }
+        .lead {
+            background: #f0f4f8;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 16px 0 8px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 24px;
+            margin-right: 16px;
+            color: #4A90E2;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <h1>개인정보 보호 조치</h1>
+        <p class="updated">시행일: 2026년 10월 11일</p>
+
+        <p class="lead">
+            레지오(Regio) 활동 관리 앱은 개인정보 수집·이용 동의, 민감 작업에 대한 Gmail 본인 확인,
+            인증코드의 짧은 유효시간, 화면의 이메일 일부 가림, 로그인 응답과 기록에서의 비밀번호 비표시를 적용하여
+            개인정보가 동의한 목적 안에서 확인되고, 탈단·회원 삭제·비밀번호 찾기는 등록된 Gmail 인증을 거친 뒤에만 이루어지도록 보호합니다.
+        </p>
+
+        <h2>1. 동의 후 이용</h2>
+        <ul>
+            <li>로그인 화면에서 「개인정보 수집 및 이용 동의문」을 확인한 뒤 「동의함」을 선택한 경우에만 로그인과 회원가입을 진행할 수 있습니다.</li>
+            <li>「동의 안함」을 선택하거나 동의하지 않으면 로그인, 회원가입, Google 로그인이 잠깁니다.</li>
+        </ul>
+
+        <h2>2. 본인 확인</h2>
+        <ul>
+            <li>회원가입, 비밀번호 찾기, 탈단, 회원 삭제는 등록된 Gmail로 받은 인증코드를 확인한 뒤에 진행합니다.</li>
+            <li>인증코드는 발송 후 10분, 확인에 쓰는 인증 토큰은 30분이 지나면 사용할 수 없습니다.</li>
+            <li>같은 목적의 이전 인증 요청은 새 코드를 보낼 때 무효로 합니다.</li>
+            <li>화면에 이메일을 보여줄 때는 앞부분 일부를 가립니다.</li>
+        </ul>
+
+        <h2>3. 로그인 정보 취급</h2>
+        <ul>
+            <li>로그인에 성공해도 응답에는 비밀번호를 넣지 않고, 회원 식별과 소속·직책 등 서비스에 필요한 항목만 돌려줍니다.</li>
+            <li>서버 로그에는 비밀번호 원문 대신 입력 여부만 남깁니다.</li>
+            <li>회원 조회는 입력값을 그대로 이어 붙이지 않고, 분리된 조건으로 데이터베이스에 전달합니다.</li>
+        </ul>
+
+        <h2>4. 이용 범위와 보관</h2>
+        <ul>
+            <li>개인정보는 회원 가입·로그인, Gmail 본인 인증, 활동 입력과 보고서, 회원 정보 변경, 서비스 운영과 문의 대응에 사용합니다.</li>
+            <li>회원 탈퇴(탈단) 또는 삭제 요청이 처리될 때까지 보관합니다. 법령상 보존이 필요한 경우에는 그 기간 동안 보관할 수 있습니다.</li>
+            <li>이메일 발송에는 Gmail을 사용할 수 있고, Google 로그인을 선택한 경우에는 Google 인증이 사용됩니다.</li>
+        </ul>
+
+        <h2>5. 문의</h2>
+        <p>
+            개인정보 처리와 관련한 문의는 소속 레지오 운영 담당자 또는 시스템 관리자에게 연락해 주세요.
+        </p>
+
+        <a href="privacy-consent.html" class="back-link">← 개인정보 수집 및 이용 동의문</a>
+        <a href="index.html" class="back-link">로그인 화면으로</a>
+    </div>
+</body>
+</html>
