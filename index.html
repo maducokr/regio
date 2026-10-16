@@ -1227,6 +1227,43 @@
             }
         }
 
+        @media (max-width: 1024px), (max-height: 540px) {
+            body {
+                min-height: 100dvh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header {
+                flex: 0 0 auto;
+            }
+
+            .container {
+                flex: 1 1 auto;
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: stretch;
+                padding: 4px 4px calc(4px + env(safe-area-inset-bottom, 0px));
+            }
+
+            #authGatedArea {
+                flex: 1 1 auto;
+                width: 100%;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .login-title {
+                display: none;
+            }
+        }
+
         .join-button,
         .logout-button,
         .privacy-consent-section,
@@ -1662,7 +1699,6 @@
     </div>
 
     <div class="container">
-        <h2 class="login-title">로그인</h2>
         <div id="dbHealthBanner" class="db-health-banner" hidden></div>
 
         <div id="authGatedArea" class="auth-gated is-locked">
