@@ -26,6 +26,7 @@
         if (gated) {
             gated.classList.toggle('is-locked', locked);
             gated.querySelectorAll('input, button, select, textarea').forEach(function (el) {
+                if (el.id === 'workFinishLogoutBtn') return;
                 if (locked) {
                     if (el.dataset.privacyPrevDisabled === undefined) {
                         el.dataset.privacyPrevDisabled = el.disabled ? '1' : '0';

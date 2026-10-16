@@ -184,7 +184,7 @@
         #authGatedArea {
             background: #fff;
             border: 1px solid #FECACA;
-            border-radius: 28px;
+            border-radius: 10px;
             box-shadow: none;
             padding: 28px 28px 16px;
             margin-bottom: 24px;
@@ -246,7 +246,7 @@
             display: flex;
             align-items: stretch;
             border: 1px solid #FECACA;
-            border-radius: 28px;
+            border-radius: 10px;
             overflow: hidden;
             background: #fff;
         }
@@ -495,6 +495,22 @@
             font-size: 16px;
         }
 
+        #loginPanel .id-prefix-label {
+            flex: 1 1 auto;
+            padding: 0 8px;
+        }
+
+        #loginPanel .login-rank-blink {
+            flex: 0 0 auto;
+        }
+
+        #loginPanel .id-reset-btn {
+            flex: 0 0 auto;
+            width: max-content;
+            min-width: 0;
+            padding: 0 4px;
+        }
+
         #loginPanel .id-input-box {
             flex-wrap: wrap;
         }
@@ -520,11 +536,18 @@
             color: #991B1B;
         }
 
+        #loginPanel .password-field-wrap .id-prefix-label {
+            flex: 1 1 100%;
+            justify-content: center;
+            border-right: none;
+            text-align: center;
+        }
+
         #loginBtn,
         #findPasswordBtn,
         button.login-button {
             font-size: 22px !important;
-            border-radius: 28px !important;
+            border-radius: 10px !important;
             min-height: 52px;
         }
 
@@ -615,7 +638,7 @@
             border: 1px solid #FECACA;
             background: #fff;
             color: #991B1B;
-            border-radius: 28px;
+            border-radius: 10px;
             font-size: 22px;
             font-weight: 800;
             cursor: pointer;
@@ -633,7 +656,7 @@
             background-color: #fff;
             color: #991B1B;
             border: 1px solid #FECACA;
-            border-radius: 28px;
+            border-radius: 10px;
             font-size: 22px;
             font-weight: 800;
             cursor: not-allowed;
@@ -656,7 +679,7 @@
             padding: 16px 28px;
             background: #fff;
             border: 1px solid #FECACA;
-            border-radius: 28px;
+            border-radius: 10px;
         }
 
         .checkbox-item {
@@ -852,7 +875,7 @@
             padding: 14px 8px;
             background-color: #fff;
             border: 1px solid #FECACA;
-            border-radius: 28px;
+            border-radius: 10px;
             box-shadow: none;
             font-size: 22px;
             font-weight: 800;
@@ -894,6 +917,13 @@
             user-select: none;
         }
 
+        .auth-gated.is-locked .privacy-consent-section,
+        .auth-gated.is-locked .privacy-consent-section *,
+        .auth-gated.is-locked #workFinishLogoutBtn {
+            pointer-events: auto;
+            user-select: auto;
+        }
+
         .google-signin-wrap.is-privacy-locked {
             opacity: 0.45;
             pointer-events: none;
@@ -905,7 +935,7 @@
             padding: 28px;
             background: #fff;
             border: 1px solid #FECACA;
-            border-radius: 28px;
+            border-radius: 10px;
             box-shadow: none;
         }
 
@@ -967,20 +997,248 @@
             border-radius: 8px;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px 32px 28px;
+        @media (max-width: 768px) {
+            .header {
+                padding: 4px 12px;
+                min-height: 40px;
             }
-            
-            .login-title {
+
+            .back-button {
+                min-width: 36px;
+                min-height: 36px;
                 font-size: 16px;
-                margin-bottom: 20px;
             }
-            
+
+            .container {
+                min-height: calc(100dvh - 44px);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 6px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .login-title {
+                font-size: 15px !important;
+                line-height: 1.2;
+                margin-bottom: 6px;
+            }
+
+            .logo h1,
+            .id-prefix-label,
+            .login-rank-blink,
+            .id-reset-btn,
+            .input-field,
+            .input-field::placeholder,
+            .find-password-inline-btn,
+            .login-button,
+            .login-tab,
+            .join-button,
+            .logout-button,
+            .checkbox-item,
+            .privacy-consent-title,
+            .privacy-consent-options .checkbox-item,
+            #loginBtn,
+            #findPasswordBtn,
+            button.login-button {
+                font-size: 15px !important;
+                line-height: 1.2;
+            }
+
+            #authGatedArea {
+                padding: 8px 10px 8px;
+                margin-bottom: 8px;
+                border-radius: 10px;
+            }
+
+            .input-group,
+            .id-field-wrap,
+            .password-field-row {
+                margin-bottom: 6px;
+            }
+
+            .password-field-row {
+                flex-direction: row;
+                align-items: stretch;
+                gap: 6px;
+            }
+
+            .password-field-row .find-password-inline-btn {
+                width: auto;
+                min-height: 36px;
+                padding: 0 10px;
+            }
+
+            #loginPanel .id-input-box .input-field,
+            .input-field {
+                min-height: 34px;
+                padding: 6px 10px;
+            }
+
+            #loginPanel .password-field-wrap .password-toggle {
+                bottom: 6px;
+            }
+
+            .id-prefix-label,
+            .login-rank-blink,
+            .id-reset-btn {
+                min-height: 28px;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .find-password-inline-btn,
+            #loginBtn,
+            #findPasswordBtn,
+            button.login-button {
+                min-height: 36px !important;
+                padding: 6px 8px;
+                border-radius: 10px !important;
+            }
+
+            .join-button,
+            .logout-button {
+                min-height: 36px !important;
+                padding: 6px 8px;
+                border-radius: 10px !important;
+            }
+
+            .login-button {
+                margin-bottom: 6px;
+            }
+
             .checkbox-group {
                 flex-direction: row;
-                gap: 10px;
+                gap: 8px;
+                margin-bottom: 0;
+                padding: 6px 10px;
+                border-radius: 10px;
             }
+
+            .checkbox {
+                width: 16px;
+                height: 16px;
+                margin-right: 6px;
+            }
+
+            #authGatedArea .membership-prompt {
+                display: none;
+            }
+
+            #authGatedArea .bottom-actions {
+                flex-direction: row;
+                gap: 8px;
+                margin-top: 8px;
+                margin-bottom: 8px;
+            }
+
+            #authGatedArea .privacy-consent-section {
+                margin-top: 0;
+            }
+
+            .privacy-consent-section {
+                margin-top: 0;
+                margin-bottom: 0;
+                padding: 8px 10px;
+                border-radius: 10px;
+            }
+
+            .privacy-consent-title {
+                margin: 0 0 4px;
+                line-height: 1.25;
+                word-break: keep-all;
+            }
+
+            .privacy-consent-options {
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 768px) and (max-height: 700px) {
+            .header {
+                padding: 2px 10px;
+                min-height: 34px;
+            }
+
+            .container {
+                padding: 4px 10px calc(4px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .login-title {
+                margin-bottom: 4px;
+                font-size: 14px !important;
+            }
+
+            .logo h1,
+            .id-prefix-label,
+            .login-rank-blink,
+            .id-reset-btn,
+            .input-field,
+            .input-field::placeholder,
+            .find-password-inline-btn,
+            .login-button,
+            .join-button,
+            .logout-button,
+            .checkbox-item,
+            .privacy-consent-title,
+            .privacy-consent-options .checkbox-item,
+            #loginBtn,
+            button.login-button {
+                font-size: 14px !important;
+            }
+
+            #authGatedArea {
+                padding: 6px 8px;
+                border-radius: 10px;
+            }
+
+            .privacy-consent-section {
+                padding: 6px 8px;
+                border-radius: 10px;
+            }
+
+            #loginPanel .id-input-box .input-field,
+            .find-password-inline-btn,
+            #loginBtn,
+            button.login-button,
+            .join-button,
+            .logout-button {
+                min-height: 32px !important;
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+
+            .bottom-actions,
+            #authGatedArea,
+            .input-group,
+            .id-field-wrap,
+            .password-field-row,
+            .login-button {
+                margin-bottom: 4px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .password-field-row {
+                flex-direction: column;
+            }
+
+            .password-field-row .find-password-inline-btn {
+                width: 100%;
+            }
+        }
+
+        .join-button,
+        .logout-button,
+        .privacy-consent-section,
+        #authGatedArea,
+        #loginPanel .id-input-box,
+        .find-password-inline-btn,
+        #loginBtn,
+        #findPasswordBtn,
+        button.login-button,
+        .login-button,
+        .checkbox-group {
+            border-radius: 10px !important;
         }
 
         /* 모달 스타일 */
@@ -1521,8 +1779,6 @@
            
         </div>
 
-        </div><!-- /authGatedArea -->
-
         <div class="bottom-actions">
             <button type="button" class="join-button">회원가입</button>
             <button type="button" class="logout-button" id="workFinishLogoutBtn">작업마침[logout]</button>
@@ -1544,6 +1800,8 @@
                 </div>
             </div>
         </div>
+
+        </div><!-- /authGatedArea -->
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1567,7 +1825,7 @@
     <script src="auth-ui.js?v=20260910d"></script>
     <script src="pdf-share.js?v=20260822a"></script>
     <script src="curia-hub.js?v=20260925c"></script>
-    <script src="privacy-consent.js"></script>
+    <script src="privacy-consent.js?v=20261016a"></script>
     <script>
         // 페이지 로드 시 입력 필드 클리어 및 자동 로그인 확인
         window.addEventListener('load', function() {
