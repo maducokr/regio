@@ -5074,6 +5074,10 @@ function buildLoginId(member) {
     return `${realName}${phone4}`;
 }
 
+function isLoginEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+}
+
 function parseLoginId(loginId) {
     const trimmed = String(loginId || '').trim();
     const withoutLeadingCode = stripLeadingPositionDigit(trimmed);
@@ -5947,53 +5951,63 @@ app.post('/api/login', async (req, res) => {
         console.log('로그인 요청:', { loginId, password: password ? '***' : 'undefined' });
 
         if (!loginId || !password) {
-            return res.status(400).json({ error: 'ID와 비밀번호를 입력해주세요.' });
+            return res.status(400).json({ error: 'ID 또는 메일과 비밀번호를 입력해주세요.' });
         }
 
         let result;
-        const parsed = parseLoginId(loginId);
 
-        if (parsed && parsed.style === 'plain') {
-            // 성명+숫자4자리 로그인 (DB name이 G1성명 형태여도 성명 부분으로 매칭)
+        if (isLoginEmail(loginId)) {
             result = await pool.query(
                 `SELECT * FROM member
-                 WHERE phone_last4 = $1
+                 WHERE LOWER(email) = LOWER($1)
                    AND (passno = $2 OR phone_last4 || resident_id_front6 = $2)`,
-                [parsed.phone_last4, password]
+                [normalizeEmail(loginId), password]
             );
-            result = {
-                rows: result.rows.filter((row) => memberMatchesLoginRealName(row.name, parsed.name))
-            };
-        } else if (parsed) {
-            result = await pool.query(
-                `SELECT * FROM member
-                 WHERE name = ANY($1::text[]) AND phone_last4 = $2
-                   AND (passno = $3 OR phone_last4 || resident_id_front6 = $3)`,
-                [expandLoginNameVariants(parsed.name), parsed.phone_last4, password]
-            );
-            if (result.rows.length > 0 && parsed.positionCode != null) {
-                const expectedCode = inferPositionCode(result.rows[0].position, result.rows[0].name);
-                if (expectedCode !== parsed.positionCode) {
-                    return res.status(401).json({ error: 'ID(직책) 또는 비밀번호가 올바르지 않습니다.' });
-                }
-            }
         } else {
-            // 성명만 입력(레거시): 비밀번호 일치 회원 중 성명 매칭
-            result = await pool.query(
-                `SELECT * FROM member
-                 WHERE passno = $1 OR phone_last4 || resident_id_front6 = $1`,
-                [password]
-            );
-            result = {
-                rows: result.rows.filter((row) =>
-                    row.name === loginId || memberMatchesLoginRealName(row.name, loginId)
-                )
-            };
+            const parsed = parseLoginId(loginId);
+
+            if (parsed && parsed.style === 'plain') {
+                // 성명+숫자4자리 로그인 (DB name이 G1성명 형태여도 성명 부분으로 매칭)
+                result = await pool.query(
+                    `SELECT * FROM member
+                     WHERE phone_last4 = $1
+                       AND (passno = $2 OR phone_last4 || resident_id_front6 = $2)`,
+                    [parsed.phone_last4, password]
+                );
+                result = {
+                    rows: result.rows.filter((row) => memberMatchesLoginRealName(row.name, parsed.name))
+                };
+            } else if (parsed) {
+                result = await pool.query(
+                    `SELECT * FROM member
+                     WHERE name = ANY($1::text[]) AND phone_last4 = $2
+                       AND (passno = $3 OR phone_last4 || resident_id_front6 = $3)`,
+                    [expandLoginNameVariants(parsed.name), parsed.phone_last4, password]
+                );
+                if (result.rows.length > 0 && parsed.positionCode != null) {
+                    const expectedCode = inferPositionCode(result.rows[0].position, result.rows[0].name);
+                    if (expectedCode !== parsed.positionCode) {
+                        return res.status(401).json({ error: 'ID(직책) 또는 비밀번호가 올바르지 않습니다.' });
+                    }
+                }
+            } else {
+                // 성명만 입력(레거시): 비밀번호 일치 회원 중 성명 매칭
+                result = await pool.query(
+                    `SELECT * FROM member
+                     WHERE passno = $1 OR phone_last4 || resident_id_front6 = $1`,
+                    [password]
+                );
+                result = {
+                    rows: result.rows.filter((row) =>
+                        row.name === loginId || memberMatchesLoginRealName(row.name, loginId)
+                    )
+                };
+            }
         }
 
         if (result.rows.length === 0) {
             console.log('❌ 로그인 실패: 사용자를 찾을 수 없음');
-            return res.status(401).json({ error: 'ID 또는 비밀번호가 올바르지 않습니다.' });
+            return res.status(401).json({ error: 'ID, 메일 또는 비밀번호가 올바르지 않습니다.' });
         }
 
         const user = result.rows[0];
