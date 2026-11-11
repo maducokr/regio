@@ -29,7 +29,7 @@ Regio는 **웹(Express) + Android APK(Capacitor)** 구조로 Play Store 배포�
 ## Play Console 절차 (APK 완성 후)
 
 1. [Google Play Console](https://play.google.com/console) 개발자 등록 (1회 $25)
-2. 앱 생성 — 패키지명: `com.regio.note` (변경 시 `mobile/capacitor.config.json` 동기화)
+2. 앱 생성 — 패키지명: `com.ktube.regio` (변경 시 `mobile/capacitor.config.json` 동기화)
 3. **수익 창출 → 제품** 에 인앱 상품 ID 등록  
    예: `regio_premium_monthly`, `regio_premium_yearly`
 4. **API 액세스** → Google Cloud 서비스 계정 연결 → **재무 데이터 보기** 권한
@@ -39,7 +39,7 @@ Regio는 **웹(Express) + Android APK(Capacitor)** 구조로 Play Store 배포�
 ## Render 환경변수 (인앱결제)
 
 ```
-GOOGLE_PLAY_PACKAGE_NAME=com.regio.note
+GOOGLE_PLAY_PACKAGE_NAME=com.ktube.regio
 GOOGLE_PLAY_PRODUCT_IDS=regio_premium_monthly,regio_premium_yearly
 GOOGLE_PLAY_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
 ```

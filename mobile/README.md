@@ -16,7 +16,7 @@ Capacitor WebView로 Regio 웹앱을 Android APK·AAB로 패키징합니다.
 
 1. `capacitor.config.json` 의 `server.url` 을 배포(또는 테스트) URL로 변경  
    - 예: `https://your-app.onrender.com`
-2. `appId` (`com.regio.note`) 는 Play Console 패키지명과 동일 유지
+2. `appId` (`com.ktube.regio`) 는 Play Console 패키지명과 동일 유지
 3. **실기기 LAN 임시 테스트** (같은 Wi‑Fi의 PC Node 서버):
    ```json
    "server": {
