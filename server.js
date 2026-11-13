@@ -21,8 +21,10 @@ const {
 const {
     getBillingPublicConfig,
     isPlayBillingConfigured,
+    getProductIds,
     verifyPurchaseWithGoogle,
-    saveVerifiedPurchase
+    saveVerifiedPurchase,
+    memberHasActiveProduct
 } = require('./lib/google-play-billing');
 const { patchActivityReportHtml, getActivityFieldLabelsSource, applyStartupActivityReportPatch } = require('./lib/patch-activity-report-html');
 const { ensureCoreSchema } = require('./lib/ensure-core-schema');
@@ -5148,6 +5150,15 @@ function isSampleMemberId(memberId) {
     return id >= LEGACY_FIND_MEMBER_ID_MIN && id <= LEGACY_FIND_MEMBER_ID_MAX;
 }
 
+const MENU_TEST_MEMBER_ID_MIN = 1;
+const MENU_TEST_MEMBER_ID_MAX = 103;
+
+function isMenuTestMemberId(memberId) {
+    const id = parseInt(memberId, 10);
+    if (Number.isNaN(id)) return false;
+    return id >= MENU_TEST_MEMBER_ID_MIN && id <= MENU_TEST_MEMBER_ID_MAX;
+}
+
 function parseLoginIdForFind(loginId) {
     const full = parseLoginId(loginId);
     if (full) {
@@ -5628,6 +5639,35 @@ app.get('/api/billing/config', (req, res) => {
         success: true,
         ...getBillingPublicConfig()
     });
+});
+
+app.get('/api/billing/entitlement', async (req, res) => {
+    try {
+        const memberId = parseInt(req.query.member_id, 10);
+        if (!memberId || Number.isNaN(memberId)) {
+            return res.status(400).json({ success: false, error: 'member_id 가 필요합니다.' });
+        }
+        const testMember = isMenuTestMemberId(memberId);
+        const productIds = getProductIds();
+        let active = false;
+        if (!testMember) {
+            for (const productId of productIds) {
+                if (await memberHasActiveProduct(pool, memberId, productId)) {
+                    active = true;
+                    break;
+                }
+            }
+        }
+        res.json({
+            success: true,
+            active: testMember || active,
+            testMember,
+            profileLocked: testMember
+        });
+    } catch (err) {
+        console.error('구독 상태 조회 오류:', err);
+        res.status(500).json({ success: false, error: '구독 상태를 확인하지 못했습니다.' });
+    }
 });
 
 app.post('/api/billing/verify', async (req, res) => {
@@ -6557,7 +6597,9 @@ app.put('/api/user/:id', async (req, res) => {
             return res.status(400).json({ error: '유효하지 않은 사용자 ID입니다.' });
         }
 
-        // 샘플 회원(3~103)도 프로필 수정 허용 (deploy 전 테스트용)
+        if (isMenuTestMemberId(userId)) {
+            return res.status(403).json({ error: '테스트 회원은 개인정보를 변경할 수 없습니다.' });
+        }
 
         const profileField = String(req.body.profile_field || '').trim();
         const {

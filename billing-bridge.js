@@ -65,7 +65,97 @@
         if (!response.ok || !data.success) {
             throw new Error(data.error || '구매 검증 실패');
         }
+        markEntitled();
         return data;
+    }
+
+    var entitlementActive = null;
+    var profileLocked = false;
+    var OPEN_ACTIONS = { logout: true, 'subscribe-monthly': true };
+
+    function currentMemberId() {
+        var userRaw = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+        if (!userRaw) return null;
+        try {
+            var id = JSON.parse(userRaw).id;
+            return id ? id : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function installLockStyle() {
+        if (document.getElementById('regio-subscription-lock-style')) return;
+        var style = document.createElement('style');
+        style.id = 'regio-subscription-lock-style';
+        style.textContent = [
+            '.dropdown-item.is-subscription-locked{color:#94a3b8;cursor:default}',
+            '.dropdown-item.is-subscription-locked:hover{background:transparent}'
+        ].join('');
+        document.head.appendChild(style);
+    }
+
+    function isMenuItemLocked(action) {
+        if (action === 'profile' && profileLocked) return true;
+        return entitlementActive === false && !OPEN_ACTIONS[action];
+    }
+
+    function applyMenuLock() {
+        var items = document.querySelectorAll('.dropdown-item');
+        Array.prototype.forEach.call(items, function (item) {
+            var action = item.getAttribute('data-action') || '';
+            var itemLocked = isMenuItemLocked(action);
+            item.classList.toggle('is-subscription-locked', itemLocked);
+            if (itemLocked) item.setAttribute('aria-disabled', 'true');
+            else item.removeAttribute('aria-disabled');
+        });
+    }
+
+    function markEntitled() {
+        entitlementActive = true;
+        applyMenuLock();
+    }
+
+    async function refreshEntitlement() {
+        var memberId = currentMemberId();
+        if (!memberId) {
+            entitlementActive = null;
+            profileLocked = false;
+            applyMenuLock();
+            return;
+        }
+        try {
+            var response = await fetch(getApiBase() + '/api/billing/entitlement?member_id=' + encodeURIComponent(memberId));
+            var data = await response.json();
+            if (response.ok && data.success) {
+                entitlementActive = !!data.active;
+                profileLocked = !!data.profileLocked;
+            } else {
+                entitlementActive = null;
+                profileLocked = false;
+            }
+        } catch (error) {
+            entitlementActive = null;
+            profileLocked = false;
+        }
+        applyMenuLock();
+    }
+
+    function onMenuActionClick(event) {
+        var item = event.target && event.target.closest
+            ? event.target.closest('.dropdown-item')
+            : null;
+        if (!item) return;
+        var action = item.getAttribute('data-action') || '';
+        if (!isMenuItemLocked(action)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        var menu = item.closest('.dropdown-menu');
+        if (menu) menu.classList.remove('show');
+        alert(action === 'profile' && profileLocked
+            ? '테스트 회원은 개인정보를 변경할 수 없습니다.'
+            : '월간 구독 후 사용할 수 있습니다.');
     }
 
     async function getProducts() {
@@ -203,10 +293,18 @@
         startMonthlySubscription
     };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', ensureSubscribeMenuItem);
-    } else {
+    function installMenu() {
+        installLockStyle();
         ensureSubscribeMenuItem();
+        applyMenuLock();
+        refreshEntitlement();
     }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', installMenu);
+    } else {
+        installMenu();
+    }
+    document.addEventListener('click', onMenuActionClick, true);
     document.addEventListener('click', onSubscribeClick, true);
 })(typeof window !== 'undefined' ? window : global);
