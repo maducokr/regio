@@ -5662,15 +5662,21 @@ app.post('/api/billing/verify', async (req, res) => {
                 id: saved.id,
                 product_id: saved.product_id,
                 order_id: saved.order_id,
-                purchase_state: saved.purchase_state
+                purchase_state: saved.purchase_state,
+                subscription_state: saved.subscription_state,
+                expiry_time: saved.expiry_time,
+                auto_renew: saved.auto_renew
             }
         });
     } catch (err) {
         if (err.message === 'PLAY_BILLING_NOT_CONFIGURED') {
             return res.status(503).json({ success: false, error: 'Google Play 인앱결제 설정이 필요합니다.' });
         }
-        if (err.message === 'PURCHASE_NOT_COMPLETED') {
-            return res.status(400).json({ success: false, error: '완료되지 않은 구매입니다.' });
+        if (err.message === 'PURCHASE_NOT_COMPLETED' || err.message === 'SUBSCRIPTION_NOT_ACTIVE') {
+            return res.status(400).json({ success: false, error: '유효한 구독이 아닙니다.' });
+        }
+        if (err.message === 'SUBSCRIPTION_PRODUCT_MISMATCH') {
+            return res.status(400).json({ success: false, error: '구독 상품이 일치하지 않습니다.' });
         }
         console.error('인앱결제 검증 오류:', err);
         res.status(500).json({ success: false, error: '구매 검증 중 오류가 발생했습니다.' });
