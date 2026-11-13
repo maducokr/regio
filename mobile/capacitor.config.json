@@ -3,7 +3,7 @@
   "appName": "Regio Note",
   "webDir": "www",
   "server": {
-    "url": "https://YOUR-RENDER-APP.onrender.com",
+    "url": "https://regio.onrender.com",
     "cleartext": false,
     "androidScheme": "https"
   },
